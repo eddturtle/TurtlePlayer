@@ -7,9 +7,7 @@ Turtle Player is designed to be a free, Java based, Android application for play
   
 ###License
 * * *
-The code is licenced under the [MIT](http://www.opensource.org/licenses/mit-license.php "MIT License") && [GPL](http://www.gnu.org/copyleft/gpl.html "General Public License").  
-
-Some icons used in this project are liceneced as subject to the [Android Design site](http://developer.android.com/design/style/iconography.html).  
+The code is licenced under the [MIT](http://www.opensource.org/licenses/mit-license.php "MIT License") & [GPL](http://www.gnu.org/copyleft/gpl.html "General Public License"). Some icons used in this project are liceneced as subject to the [Android Design Site](http://developer.android.com/design/style/iconography.html).  
 
 ###Features
 * * *
@@ -17,5 +15,7 @@ Some icons used in this project are liceneced as subject to the [Android Design 
 +	Viewing Album Art
 +	Shuffle & Repeat Track
 +	Progress Bar & Choice of Track Position
++	SD Card Track Finder
++	MP3 Meta Data Reciever
 
-#####Find Out More [www.turtle-player.co.uk](http://www.turtle-player.co.uk/ "www.turtle-player.co.uk")
+#####Find Out More at [www.turtle-player.co.uk](http://www.turtle-player.co.uk/ "www.turtle-player.co.uk")
