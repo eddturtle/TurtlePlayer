@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+	<item>
+		<clip>
+
+			<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+	            android:src="@drawable/progress72"
+	            android:tileMode="repeat"
+	            android:antialias="true"
+	            android:dither="false"
+	            android:filter="false"
+	            android:gravity="left" />
+			
+		</clip>
+	</item>
+</layer-list>

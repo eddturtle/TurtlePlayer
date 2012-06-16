@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ListView
+        android:id="@+id/android:list"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="0.64"
+        android:drawSelectorOnTop="false"
+        android:paddingBottom="0sp" >
+    </ListView>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@drawable/header_bg100" >
+
+        <ImageView
+            android:id="@+id/trackButton"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:contentDescription="@string/back"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:src="@drawable/track48" />
+        
+        <ImageView
+            android:id="@+id/artistButton"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:contentDescription="@string/play"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:src="@drawable/artist48" />
+
+        <ImageView
+            android:id="@+id/albumButton"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:contentDescription="@string/next"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:src="@drawable/album48" />
+    </RelativeLayout>
+    
+
+</LinearLayout>
