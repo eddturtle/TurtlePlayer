@@ -1,7 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, TurtlePlayerActivity!</string>
-    <string name="app_name">TurtlePlayer</string>
+    <!-- Global -->
+    <string name="app_name">Turtle Player</string>
+    
+    <!-- Header -->
+    <string name="list">List</string>
+    <string name="logo">Logo</string>
+    <string name="settings">Settings</string>
+    
+    <!-- Now Playing -->
+    <string name="check_button">Check for MP3s</string>
+    <string name="album_art">Album Art</string>
+    
+    <string name="track">[Track]</string>
+    <string name="artist">[Artist]</string>
+    <string name="duration">[0.00]</string>
+    
+    <!-- Now Playing Footer -->
+    <string name="play">play</string>
+    <string name="pause">pause</string>
+    <string name="next">next</string>
+    <string name="back">back</string>
+    
+    <!-- Settings -->
+    <string name="playback">Playback Settings</string>
+    <string name="shuffle">Shuffle</string>
+    <string name="repeat">Repeat</string>
+    
+    <string name="media_path">Music Folder</string>
+    <string name="root">Root Folder</string>
+    <string name="save">Save</string>
+    
+    <string name="library">Library</string>
+    <string name="rescan">Re-Scan SD Card</string>
+    
 
 </resources>

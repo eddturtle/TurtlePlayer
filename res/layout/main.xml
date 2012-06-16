@@ -1,12 +1,62 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <TextView
+    <include
+        android:id="@+id/header"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/hello" />
+        android:layout_height="70dp"
+        layout="@layout/header" />
 
-</LinearLayout>
+    <RelativeLayout
+        android:id="@+id/playlist_slide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/header"
+        android:visibility="visible" >
+
+        <include
+            android:id="@+id/playlist"
+            android:layout_width="fill_parent"
+            android:layout_height="70dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
+            layout="@layout/playlist" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/settings_slide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/header"
+        android:visibility="visible" >
+        
+        <include
+            android:id="@+id/settings"
+            android:layout_width="fill_parent"
+            android:layout_height="70dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
+            layout="@layout/settings" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/now_playing_slide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/header" >
+
+        <include
+            android:id="@+id/now_playing"
+            android:layout_width="fill_parent"
+            android:layout_height="70dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
+            layout="@layout/now_playing" />
+        
+    </RelativeLayout>
+
+</RelativeLayout>
