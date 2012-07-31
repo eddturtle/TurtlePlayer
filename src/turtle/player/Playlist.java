@@ -36,6 +36,10 @@ import android.media.MediaMetadataRetriever;
 
 // Import - Android Context
 import android.content.Context;
+import android.content.SharedPreferences;
+
+import android.preference.PreferenceManager;
+import android.content.res.Resources;
 
 public class Playlist {
 
@@ -215,8 +219,8 @@ public class Playlist {
 		
 		// TODO EXISTS BUT MAYBE BLANK!?!
 		
-		//if (!syncDB.Exists() || syncDB.IsEmpty())
-		//{
+		if (!syncDB.Exists() || syncDB.IsEmpty())
+		{
 			try
 			{
 				metaDataReader = new MediaMetadataRetriever();
@@ -230,11 +234,11 @@ public class Playlist {
 			
 			syncDB = new Database(mainContext);
 			this.DatabasePush();
-		/*}
+		}
 		else
 		{
 			this.DatabasePull();
-		}*/
+		}
 	}
 	
 	
@@ -800,7 +804,15 @@ public class Playlist {
 	
 	public void DatabasePull()
 	{
-		trackList = syncDB.Pull();
+	    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mainContext);
+	    boolean previouslyStarted = prefs.getBoolean("firstTime", false);
+	    if(!previouslyStarted)
+	    {
+	    	SharedPreferences.Editor edit = prefs.edit();
+	    	edit.putBoolean("firstTime", Boolean.TRUE);
+	        edit.commit();
+			trackList = syncDB.Pull();
+	    }
 	}
 	
 	public void DatabaseClear()
