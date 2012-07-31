@@ -28,9 +28,16 @@ public class TurtlePlayer extends Application
 {
 	public MediaPlayer mp = new MediaPlayer();
 	public Playlist playlist = new Playlist();
-
 	public boolean isPaused = true;
 	public boolean isInitialised = false;
-	
 	public Track currentlyPlaying = new Track();
+	
+	public TurtlePlayer()
+	{
+		/*mp = new MediaPlayer();
+		playlist = new Playlist();
+		isPaused = true;
+		isInitialised = false;
+		currentlyPlaying = new Track();*/
+	}
 }

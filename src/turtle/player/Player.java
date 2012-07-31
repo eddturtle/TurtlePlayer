@@ -140,7 +140,7 @@ public class Player extends ListActivity
     {
     	super.onStart();
     	
-    	RefreshList(tp.playlist.GetList());
+    	//RefreshList(tp.playlist.GetList());
     	
     	UpdateScreenInfo(tp.currentlyPlaying);
     	UpdateProgressBar();
@@ -182,12 +182,14 @@ public class Player extends ListActivity
     private void Init()
     {
     	SetupApplication();
-        SetupButtons();
-    	SetupButtonListeners();
+    	SetupButtons();
+        SetupButtonListeners();
     	SetupSlides();
     	SetupList();
         SetupProgressBar();
         SetupTelephoneChecker();
+        
+        //tp.playlist.DatabasePush();
     }
     
     
@@ -197,11 +199,12 @@ public class Player extends ListActivity
     
     private void SetupApplication()
     {
-    	tp = ((TurtlePlayer)this.getApplication());
-    	tp.playlist.SetContext(tp.getApplicationContext());
+		tp = (TurtlePlayer)getApplication();
+		tp.playlist.SetContext(tp.getApplicationContext());
     }
     
-    
+
+	
     // ========================================= //
  	// 	Setup Buttons - Part of Init()
 	// ========================================= //
@@ -253,7 +256,6 @@ public class Player extends ListActivity
          	trackButton.setImageDrawable(getResources().getDrawable(R.drawable.track48_active));
      	}
 	}
-    
     
 	// ========================================= //
  	// 	Setup Button Listener Functions - Part of Init()
@@ -622,11 +624,13 @@ public class Player extends ListActivity
     
     private void UpdatePlayList()
     {
-    	ProgressDialog progressDialog;
+    	/*ProgressDialog progressDialog;
     	progressDialog = new ProgressDialog(tp.getApplicationContext());
     	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
     	progressDialog.setMessage("Loading...");
-    	progressDialog.setCancelable(false);
+    	progressDialog.setCancelable(false);*/
+    	
+    	
     	
     	tp.playlist.UpdateList();
     	tp.playlist.SortByTitle();

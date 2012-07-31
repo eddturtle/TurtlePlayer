@@ -37,7 +37,6 @@ import android.media.MediaMetadataRetriever;
 // Import - Android Context
 import android.content.Context;
 
-
 public class Playlist {
 
 	
@@ -104,7 +103,7 @@ public class Playlist {
 	// ========================================= //
 	
 	public void SetContext(Context con)
-	{
+	{		
 		mainContext = con;
 		syncDB = new Database(mainContext);
 	}
@@ -212,11 +211,12 @@ public class Playlist {
 	public void UpdateList()
 	{
 		this.ClearList();
+		//syncDB.Clear();
 		
-		// TODO EXITST BUT MAYBE BLANK!?!
+		// TODO EXISTS BUT MAYBE BLANK!?!
 		
-		if (!syncDB.Exists() || syncDB.IsEmpty())
-		{
+		//if (!syncDB.Exists() || syncDB.IsEmpty())
+		//{
 			try
 			{
 				metaDataReader = new MediaMetadataRetriever();
@@ -230,11 +230,11 @@ public class Playlist {
 			
 			syncDB = new Database(mainContext);
 			this.DatabasePush();
-		}
+		/*}
 		else
 		{
 			this.DatabasePull();
-		}
+		}*/
 	}
 	
 	
@@ -321,7 +321,7 @@ public class Playlist {
 				t.SetAlbumArt(folderHasAlbumArt);
 				t.SetRootSrc(src);
 				
-				AddTrack(t);
+				this.AddTrack(t);
 				
 				trackCount++;
 			}
@@ -749,7 +749,7 @@ public class Playlist {
 	
 	public boolean IsEmpty()
 	{
-		if (trackList.size() == 0)
+		if (trackList.size() < 1)
 		{
 			return true;
 		}
