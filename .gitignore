@@ -14,3 +14,9 @@ gen/
 
 # Local configuration file (sdk path, etc)
 local.properties
+
+#sh
+*.iml
+.idea
+classes/
+.git*

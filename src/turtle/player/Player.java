@@ -23,6 +23,7 @@ package turtle.player;
 import java.io.IOException;
 
 // Import - Android System
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -44,7 +45,6 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 
 // Import - Android Activity
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 
 // Import - Android Media
 import android.media.MediaPlayer;
@@ -61,10 +61,14 @@ import android.graphics.BitmapFactory;
 // Import - Android Telephony
 import android.telephony.TelephonyManager;
 import android.telephony.PhoneStateListener;
+import turtle.player.dirchooser.DirChooserConstants;
 
 
 public class Player extends ListActivity
 {
+
+    public static String DIR_CHOOSER_ACTION = "turtle.player.DIR_CHOOSER";
+    public static int DIR_CHOOSER_REQUEST = 0;
 	
 	// ========================================= //
 	// 	Attributes
@@ -418,25 +422,22 @@ public class Player extends ListActivity
      	{
      	    public void onClick(View v)
      	    {
-     	    	Stop();
-     	    	
-     	    	tp.playlist.DatabaseClear(); // Don't Delete DB
-     	    	
-     	    	try
-     	    	{
-         	    	UpdatePlayList();    	    		
-     	    	}
-     			catch (NullPointerException e)
-     			{
-     				Log.v(tp.playlist.preferences.GetTag(), e.getMessage());
-     			}
-     	    	
-     	    	if (!tp.playlist.IsEmpty())
-     	    	{
-     		    	SwitchToPlaylistSlide();
-     	    	}
+                 rescan();
      	    }
      	});
+
+
+         Button chooseMediaDir = (Button)findViewById(R.id.chooseMediaDir);
+         chooseMediaDir.setOnClickListener(new OnClickListener()
+         {
+             public void onClick(View v)
+             {
+                 Intent dirChooserIntent = new Intent( DIR_CHOOSER_ACTION);
+                 dirChooserIntent.putExtra(DirChooserConstants.ACTIVITY_PARAM_KEY_DIR_CHOOSER_INITIAL_DIR,
+                         tp.playlist.preferences.GetMediaPath());
+                 startActivityForResult(dirChooserIntent, DIR_CHOOSER_REQUEST);
+             }
+         });
      }
      
      
@@ -901,7 +902,26 @@ public class Player extends ListActivity
     		toast.show();
     	}
     }
-    
+
+    protected void rescan(){
+        Stop();
+
+        tp.playlist.DatabaseClear(); // Don't Delete DB
+
+        try
+        {
+            UpdatePlayList();
+        }
+        catch (NullPointerException e)
+        {
+            Log.v(tp.playlist.preferences.GetTag(), e.getMessage());
+        }
+
+        if (!tp.playlist.IsEmpty())
+        {
+            SwitchToPlaylistSlide();
+        }
+    }
     
 	// ========================================= //
 	// 	List Item Listener
@@ -943,5 +963,18 @@ public class Player extends ListActivity
 	    	SwitchToNowPlayingSlide();
     	}	
     }
-   
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == DIR_CHOOSER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                tp.playlist.preferences.SetMediaPath(
+                        data.getStringExtra(DirChooserConstants.ACTIVITY_RETURN_KEY_DIR_CHOOSER_CHOOSED_DIR));
+
+                rescan();
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
 }

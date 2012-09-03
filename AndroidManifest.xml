@@ -20,6 +20,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+                android:name=".dirchooser.DirChooser"
+                android:label="@string/dirchooser_label"
+                android:theme="@android:style/Theme.NoTitleBar" >
+            <intent-filter>
+                <action android:name="turtle.player.DIR_CHOOSER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

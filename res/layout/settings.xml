@@ -39,4 +39,10 @@
         android:layout_height="wrap_content"
         android:text="@string/rescan" />
 
+    <Button
+            android:id="@+id/chooseMediaDir"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/chooseMediaDir" />
+
 </LinearLayout>
