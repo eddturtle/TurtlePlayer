@@ -14,8 +14,11 @@ import java.io.File;
 
 public class FileAdapter extends ArrayAdapter<File> {
 
+    public final FileSorter fileSorter = new FileSorter();
+
     public FileAdapter(Context context, File[] files) {
         super(context, R.layout.file_list_entry, files);
+        sort(fileSorter);
     }
 
     @Override

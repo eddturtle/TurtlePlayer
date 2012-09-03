@@ -75,7 +75,7 @@ public class DirChooser extends Activity
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                File selectedFile = currDir.listFiles()[position];
+                File selectedFile = (File)parent.getItemAtPosition(position);
                 if (selectedFile.isDirectory()) {
                     setCurrDir(selectedFile);
                 }
