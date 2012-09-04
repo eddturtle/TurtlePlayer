@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:orientation="horizontal"
+                   android:background="#111111">
+        <ImageView
+                android:id="@+id/up"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:src="@android:drawable/ic_input_delete"
+                android:gravity="center_vertical"
+                android:paddingRight="2sp"/>
+
+        <TextView
+                android:id="@+id/currDirLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:textSize="18sp"
+                android:text="[sssssssssss/Current Folder]"
+                android:gravity="center_vertical"
+                android:singleLine="true"
+                android:ellipsize="start"/>
+
+        <ImageView
+                android:id="@+id/choose_dir"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:src="@android:drawable/ic_menu_save"
+                android:gravity="center_vertical"/>
+    </LinearLayout>
+
+    <ListView
+            android:id="@+id/dirList"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:drawSelectorOnTop="false"
+            android:paddingBottom="0sp" >
+    </ListView>
+
+</LinearLayout >
