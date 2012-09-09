@@ -210,58 +210,54 @@ public class Playlist {
 	// ========================================= //
 	// 	Update List
 	// ========================================= //
-	
-	public void UpdateList()
-	{
-        for(PlaylistObserver observer : observers){
-            observer.startUpdatePlaylist();
-        }
 
-		this.ClearList();
-		//syncDB.Clear();
-		
-        try{
-            // TODO EXISTS BUT MAYBE BLANK!?!
-            if (!syncDB.Exists() || syncDB.IsEmpty())
-            {
-                try
-                {
-                    final File mediaPath = preferences.GetMediaPath();
+    public void UpdateList() {
+        new Thread(new Runnable() {
+            public void run() {
+                for (PlaylistObserver observer : observers) {
+                    observer.startUpdatePlaylist();
+                }
 
-                    for(PlaylistObserver observer : observers){
-                        observer.startRescan(mediaPath);
+                ClearList();
+                //syncDB.Clear();
+
+                try {
+                    // TODO EXISTS BUT MAYBE BLANK!?!
+                    if (!syncDB.Exists() || syncDB.IsEmpty()) {
+                        try {
+                            final File mediaPath = preferences.GetMediaPath();
+
+                            for (PlaylistObserver observer : observers) {
+                                observer.startRescan(mediaPath);
+                            }
+
+                            metaDataReader = new MediaMetadataRetriever();
+                            CheckDir(mediaPath);
+                            metaDataReader.release();
+                        } catch (NullPointerException e) {
+                            Log.v(preferences.GetTag(), e.getMessage());
+                        } finally {
+                            for (PlaylistObserver observer : observers) {
+                                observer.endRescan();
+                            }
+                        }
+
+                        syncDB = new Database(preferences.getContext());
+                        DatabasePush();
+                    } else {
+                        DatabasePull();
                     }
 
-                    metaDataReader = new MediaMetadataRetriever();
-                    CheckDir(mediaPath);
-                    metaDataReader.release();
-                }
-                catch (NullPointerException e)
-                {
-                    Log.v(preferences.GetTag(), e.getMessage());
-                }
-                finally {
-                    for(PlaylistObserver observer : observers){
-                        observer.endRescan();
+
+                    SortByTitle();
+                } finally {
+                    for (PlaylistObserver observer : observers) {
+                        observer.endUpdatePlaylist();
                     }
                 }
-
-                syncDB = new Database(preferences.getContext());
-                this.DatabasePush();
             }
-            else
-            {
-                this.DatabasePull();
-            }
-
-
-            SortByTitle();
-        }finally {
-            for(PlaylistObserver observer : observers){
-                observer.endUpdatePlaylist();
-            }
-        }
-	}
+        }).start();
+    }
 	
 	// ========================================= //
 	// 	Check Directory for MP3s

@@ -124,7 +124,7 @@ public class Player extends ListActivity
         // Call Main Initialise Function
         this.Init();
     }
-    
+
     @Override
     public void onDestroy()
     {
@@ -479,6 +479,18 @@ public class Player extends ListActivity
         tp.playlist.addObserver(new Playlist.PlaylistObserverAdapter() {
 
             @Override
+            public void startUpdatePlaylist() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        rescanProgressBar.setVisibility(View.VISIBLE);
+                        rescanProgressBar.setIndeterminate(true);
+                        rescan.setVisibility(View.INVISIBLE);
+                    }
+                });
+            }
+
+            @Override
             public void startRescan(File mediaPath) {
 
                 final int[] numberOfTracks = new int[]{0};
@@ -497,7 +509,7 @@ public class Player extends ListActivity
                 }
 
                 //start sync anim
-                rescan.post(new Runnable() {
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         rescanProgressBar.setIndeterminate(false);
@@ -509,7 +521,7 @@ public class Player extends ListActivity
 
             @Override
             public void trackAdded(Track track) {
-                rescanProgressBar.post(new Runnable() {
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         rescanProgressBar.setProgress(rescanProgressBar.getProgress() + 1);
@@ -518,21 +530,9 @@ public class Player extends ListActivity
             }
 
             @Override
-            public void startUpdatePlaylist() {
-                rescan.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        rescanProgressBar.setVisibility(View.VISIBLE);
-                        rescanProgressBar.setIndeterminate(true);
-                        rescan.setVisibility(View.INVISIBLE);
-                    }
-                });
-            }
-
-            @Override
             public void endRescan() {
                 //start sync anim
-                rescan.post(new Runnable() {
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         rescanProgressBar.setIndeterminate(true);
@@ -541,16 +541,23 @@ public class Player extends ListActivity
             }
 
             @Override
-            public void endUpdatePlaylist() {
+            public void endUpdatePlaylist()
+            {
                 //stop sync anim
-                rescan.post(new Runnable() {
+                runOnUiThread(new Runnable()
+                {
                     @Override
-                    public void run() {
-                        rescan.setImageResource(android.R.drawable.stat_notify_sync_noanim);
+                    public void run()
+                    {
                         rescanProgressBar.setVisibility(View.GONE);
                         rescan.setVisibility(View.VISIBLE);
-                        if (!tp.playlist.IsEmpty()) {
+                        if (!tp.playlist.IsEmpty())
+                        {
                             SwitchToPlaylistSlide();
+                        }
+                        else
+                        {
+                            Toast.makeText(getApplicationContext(), "No MP3s Found on SD Card", Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -562,7 +569,7 @@ public class Player extends ListActivity
             @Override
             public void changed(Key key) {
                 if(key.equals(Keys.REPEAT)){
-                    repeatButton.post(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             boolean repeat = tp.playlist.preferences.GetRepeat();
@@ -576,7 +583,7 @@ public class Player extends ListActivity
                     });
                 }
                 else if(key.equals(Keys.SHUFFLE)){
-                    shuffleButton.post(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             boolean shuffle = tp.playlist.preferences.GetShuffle();
@@ -651,16 +658,6 @@ public class Player extends ListActivity
         if (tp.playlist.IsEmpty())
         {
 	    	tp.playlist.UpdateList();
-	    	
-	    	if (!tp.playlist.IsEmpty())
-	    	{
-		    	SwitchToPlaylistSlide();
-	    	}
-	    	else
-	    	{
-	    		Toast toast = Toast.makeText(getApplicationContext(), "No MP3s Found on SD Card", Toast.LENGTH_LONG);
-	    		toast.show();
-	    	}
         }
     }
     
@@ -749,7 +746,7 @@ public class Player extends ListActivity
     
     private void RefreshList(final String[] strList)
     {
-        list.post(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Player.this.setListAdapter(new ArrayAdapter<String>(Player.this, R.layout.item, strList));
@@ -963,13 +960,8 @@ public class Player extends ListActivity
      */
     protected void rescan(){
         Stop();
-
-        new Thread(new Runnable() {
-            public void run() {
-                tp.playlist.DatabaseClear(); // Don't Delete DB
-                tp.playlist.UpdateList();
-            }
-        }).start();
+        tp.playlist.DatabaseClear(); // Don't Delete DB
+        tp.playlist.UpdateList();
     }
     
 	// ========================================= //
