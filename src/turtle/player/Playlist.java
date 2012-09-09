@@ -33,10 +33,9 @@ import android.media.MediaMetadataRetriever;
 
 // Import - Android Context
 import android.content.Context;
-import android.content.SharedPreferences;
-
-import android.preference.PreferenceManager;
-import android.content.res.Resources;
+import turtle.player.preferences.Keys;
+import turtle.player.preferences.Preferences;
+import turtle.player.preferences.SharedPreferencesAccess;
 
 public class Playlist {
     public static final int MAX_DIR_SCAN_DEPTH = 50;
@@ -73,14 +72,11 @@ public class Playlist {
 	private double length;
 	private int trackCount;
 	
-	private Context mainContext;
-	
-	
 	// ========================================= //
 	// 	Constructor
 	// ========================================= //
 	
-	public Playlist()
+	public Playlist(Context mainContext)
 	{
 		trackList = new ArrayList<Track>();
 		artistList = new ArrayList<String>();
@@ -91,25 +87,14 @@ public class Playlist {
 		historyPosition = 0;
 		
 		// Location, Repeat, Shuffle (Remember Trailing / on Location)
-		preferences = new Preferences("/sdcard/Music/", true, true);
+		preferences = new Preferences(mainContext);
+        syncDB = new Database(mainContext);
 		stats = new Stats();
 		
 		lastUsedArtist = "";
 		lastUsedAlbum = "";
 		returnType = 0;
 	}
-	
-	
-	// ========================================= //
-	// 	Set Context
-	// ========================================= //
-	
-	public void SetContext(Context con)
-	{		
-		mainContext = con;
-		syncDB = new Database(mainContext);
-	}
-	
 	
 	// ========================================= //
 	// 	Destroy
@@ -261,7 +246,7 @@ public class Playlist {
                     }
                 }
 
-                syncDB = new Database(mainContext);
+                syncDB = new Database(preferences.getContext());
                 this.DatabasePush();
             }
             else
@@ -851,13 +836,11 @@ public class Playlist {
 	
 	public void DatabasePull()
 	{
-	    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mainContext);
-	    boolean previouslyStarted = prefs.getBoolean("firstTime", false);
+	    boolean previouslyStarted =
+                SharedPreferencesAccess.getValue(preferences.getContext(), Keys.FIRST_TIME);
 	    if(!previouslyStarted)
 	    {
-	    	SharedPreferences.Editor edit = prefs.edit();
-	    	edit.putBoolean("firstTime", Boolean.TRUE);
-	        edit.commit();
+            SharedPreferencesAccess.putValue(preferences.getContext(), Keys.FIRST_TIME, true);
 			trackList = syncDB.Pull();
 	    }
 	}
@@ -869,7 +852,7 @@ public class Playlist {
 	
 	public void DatabaseDelete()
 	{
-		mainContext.deleteDatabase("TurtlePlayer");
+        preferences.getContext().deleteDatabase("TurtlePlayer");
 	}
 	
 	public void DatabaseClose()

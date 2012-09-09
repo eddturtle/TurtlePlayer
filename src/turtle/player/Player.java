@@ -52,6 +52,9 @@ import android.graphics.BitmapFactory;
 import android.telephony.TelephonyManager;
 import android.telephony.PhoneStateListener;
 import turtle.player.dirchooser.DirChooserConstants;
+import turtle.player.preferences.Key;
+import turtle.player.preferences.Keys;
+import turtle.player.preferences.PreferencesObserver;
 
 
 public class Player extends ListActivity
@@ -89,6 +92,8 @@ public class Player extends ListActivity
 	private ImageView repeatButton;
 
     // Settings Slide
+    CheckBox shuffleCheckBox;
+    CheckBox repeatCheckBox;
     ImageView rescan;
     ProgressBar rescanProgressBar;
     TextView mediaDir;
@@ -202,69 +207,71 @@ public class Player extends ListActivity
     private void SetupApplication()
     {
 		tp = (TurtlePlayer)getApplication();
-		tp.playlist.SetContext(tp.getApplicationContext());
+		tp.playlist = new Playlist(tp.getApplicationContext());
     }
     
 
 	
-    // ========================================= //
+    // ========================================= //Pla
  	// 	Setup Buttons - Part of Init()
 	// ========================================= //
      
-	private void SetupButtons()
-     {
-     	// Header Buttons
-     	list = (ImageView)findViewById(R.id.listButton);
-     	logo = (ImageView)findViewById(R.id.logoButton);
-     	settings = (ImageView)findViewById(R.id.settingsButton);
+	private void SetupButtons() {
+        // Header Buttons
+        list = (ImageView) findViewById(R.id.listButton);
+        logo = (ImageView) findViewById(R.id.logoButton);
+        settings = (ImageView) findViewById(R.id.settingsButton);
 
-     	// Now_Playing Footer Buttons
-     	backButton = (ImageView)findViewById(R.id.backButton);
-     	playButton = (ImageView)findViewById(R.id.playButton);
-     	nextButton = (ImageView)findViewById(R.id.nextButton);
-     	
-		shuffleButton = (ImageView)findViewById(R.id.shuffleButton);
-		if (tp.playlist.preferences.GetShuffle())
-		{
-			shuffleButton.setImageDrawable(getResources().getDrawable(R.drawable.shuffle48_active));
-		}
-		
-		repeatButton = (ImageView)findViewById(R.id.repeatButton);
-		if (tp.playlist.preferences.GetRepeat())
-		{
-			repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.repeat48_active));
-		}
+        // Now_Playing Footer Buttons
+        backButton = (ImageView) findViewById(R.id.backButton);
+        playButton = (ImageView) findViewById(R.id.playButton);
+        nextButton = (ImageView) findViewById(R.id.nextButton);
 
-     	// Playlist Footer Buttons
-     	trackButton = (ImageView)findViewById(R.id.trackButton);
-     	artistButton = (ImageView)findViewById(R.id.artistButton);
-     	albumButton = (ImageView)findViewById(R.id.albumButton);
+        shuffleButton = (ImageView) findViewById(R.id.shuffleButton);
+        shuffleButton.setImageDrawable(
+                tp.playlist.preferences.GetShuffle() ?
+                        getResources().getDrawable(R.drawable.shuffle48_active) :
+                        getResources().getDrawable(R.drawable.shuffle48)
+        );
 
-         // Settings Slide
-         rescan = (ImageView)findViewById(R.id.rescan);
-         mediaDir = (TextView)findViewById(R.id.mediaDir);
-         rescanProgressBar = (ProgressBar)findViewById(R.id.rescanProgressBar);
-         chooseMediaDir = (ImageView)findViewById(R.id.chooseMediaDir);
-         mediaDir.setText(tp.playlist.preferences.GetMediaPath().toString());
-     	
-		// 1 = Artist
-		// 2 = Album
-		// 3 = Inside Artist
-		// 4 = Inside Album
-     	
-     	if (tp.playlist.GetReturnType() == 1 || tp.playlist.GetReturnType() == 3)
-     	{
-     		artistButton.setImageDrawable(getResources().getDrawable(R.drawable.artist48_active));
-     	}
-     	else if (tp.playlist.GetReturnType() == 2 || tp.playlist.GetReturnType() == 4)
-     	{
-     		albumButton.setImageDrawable(getResources().getDrawable(R.drawable.album48_active));
-     	}
-     	else
-     	{
-         	trackButton.setImageDrawable(getResources().getDrawable(R.drawable.track48_active));
-     	}
-	}
+        repeatButton = (ImageView) findViewById(R.id.repeatButton);
+        repeatButton.setImageDrawable(
+                tp.playlist.preferences.GetRepeat() ?
+                        getResources().getDrawable(R.drawable.repeat48_active) :
+                        getResources().getDrawable(R.drawable.repeat48)
+        );
+
+        // Playlist Footer Buttons
+        trackButton = (ImageView) findViewById(R.id.trackButton);
+        artistButton = (ImageView) findViewById(R.id.artistButton);
+        albumButton = (ImageView) findViewById(R.id.albumButton);
+
+        // Settings Slide
+        shuffleCheckBox = (CheckBox) findViewById(R.id.shuffleCheckBox);
+        shuffleCheckBox.setChecked(tp.playlist.preferences.GetShuffle());
+
+        repeatCheckBox = (CheckBox) findViewById(R.id.repeatCheckBox);
+        repeatCheckBox.setChecked(tp.playlist.preferences.GetRepeat());
+
+        rescan = (ImageView) findViewById(R.id.rescan);
+        mediaDir = (TextView) findViewById(R.id.mediaDir);
+        rescanProgressBar = (ProgressBar) findViewById(R.id.rescanProgressBar);
+        chooseMediaDir = (ImageView) findViewById(R.id.chooseMediaDir);
+        mediaDir.setText(tp.playlist.preferences.GetMediaPath().toString());
+
+        // 1 = Artist
+        // 2 = Album
+        // 3 = Inside Artist
+        // 4 = Inside Album
+
+        if (tp.playlist.GetReturnType() == 1 || tp.playlist.GetReturnType() == 3) {
+            artistButton.setImageDrawable(getResources().getDrawable(R.drawable.artist48_active));
+        } else if (tp.playlist.GetReturnType() == 2 || tp.playlist.GetReturnType() == 4) {
+            albumButton.setImageDrawable(getResources().getDrawable(R.drawable.album48_active));
+        } else {
+            trackButton.setImageDrawable(getResources().getDrawable(R.drawable.track48_active));
+        }
+    }
     
 	// ========================================= //
  	// 	Setup Button Listener Functions - Part of Init()
@@ -359,17 +366,34 @@ public class Player extends ListActivity
      	{
      	    public void onClick(View v)
      	    {
-     	    	ToggleShuffle();
+                 tp.playlist.preferences.SetShuffle(!tp.playlist.preferences.GetShuffle());
      	    }
      	});
-     	
-     	repeatButton.setOnClickListener(new OnClickListener()
-     	{
-     	    public void onClick(View v)
-     	    {
-     	    	ToggleRepeat();
-     	    }
-     	});
+
+         shuffleCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+         {
+             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+             {
+                 tp.playlist.preferences.SetShuffle(isChecked);
+             }
+         });
+
+         repeatButton.setOnClickListener(new OnClickListener()
+         {
+             public void onClick(View v)
+             {
+                 tp.playlist.preferences.SetRepeat(!tp.playlist.preferences.GetRepeat());
+             }
+         });
+
+         repeatCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+         {
+             @Override
+             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+             {
+                 tp.playlist.preferences.SetRepeat(isChecked);
+             }
+         });
      	
      	
      	// [playlist.xml] Footer Buttons
@@ -443,6 +467,7 @@ public class Player extends ListActivity
 
     private void SetupObservers()
     {
+        //Update Playlist
         tp.playlist.addObserver(new Playlist.PlaylistObserverAdapter() {
             @Override
             public void endUpdatePlaylist() {
@@ -450,6 +475,7 @@ public class Player extends ListActivity
             }
         });
 
+        //Rescan Progress Bar
         tp.playlist.addObserver(new Playlist.PlaylistObserverAdapter() {
 
             @Override
@@ -523,12 +549,46 @@ public class Player extends ListActivity
                         rescan.setImageResource(android.R.drawable.stat_notify_sync_noanim);
                         rescanProgressBar.setVisibility(View.GONE);
                         rescan.setVisibility(View.VISIBLE);
-                        if (!tp.playlist.IsEmpty())
-                        {
+                        if (!tp.playlist.IsEmpty()) {
                             SwitchToPlaylistSlide();
                         }
                     }
                 });
+            }
+        });
+
+        //Update UI states
+        tp.playlist.preferences.addObserver(new PreferencesObserver() {
+            @Override
+            public void changed(Key key) {
+                if(key.equals(Keys.REPEAT)){
+                    repeatButton.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            boolean repeat = tp.playlist.preferences.GetRepeat();
+
+                            Toast.makeText(Player.this,
+                                    repeat ? "Repeat On" : "Repeat Off", Toast.LENGTH_SHORT).show();
+                            repeatButton.setImageDrawable(getResources().getDrawable(
+                                    repeat ? R.drawable.repeat48_active : R.drawable.repeat48));
+                            repeatCheckBox.setChecked(repeat);
+                        }
+                    });
+                }
+                else if(key.equals(Keys.SHUFFLE)){
+                    shuffleButton.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            boolean shuffle = tp.playlist.preferences.GetShuffle();
+
+                            Toast.makeText(Player.this,
+                                    shuffle ? "Shuffle On" : "Shuffle Off", Toast.LENGTH_SHORT).show();
+                            shuffleButton.setImageDrawable(getResources().getDrawable(
+                                    shuffle ? R.drawable.shuffle48_active : R.drawable.shuffle48));
+                            shuffleCheckBox.setChecked(shuffle);
+                        }
+                    });
+                }
             }
         });
     }
@@ -578,36 +638,6 @@ public class Player extends ListActivity
      	nowPlayingSlide.setVisibility(LinearLayout.INVISIBLE);
      	playlistSlide.setVisibility(LinearLayout.INVISIBLE);
      	settingsSlide.setVisibility(LinearLayout.VISIBLE);
-     	
-     	CheckBox shuffleCheckBox = (CheckBox)findViewById(R.id.shuffleCheckBox);
-     	CheckBox repeatCheckBox = (CheckBox)findViewById(R.id.repeatCheckBox);
-     	
-     	if (tp.playlist.preferences.GetShuffle())
-     	{
-     		shuffleCheckBox.setChecked(true);
-     	}
-     	
-     	if (tp.playlist.preferences.GetRepeat())
-     	{
-     		repeatCheckBox.setChecked(true);
-     	}
-     	
-     	shuffleCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
-     	{
-     		@Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-     		{
-     			tp.playlist.preferences.SetShuffle(isChecked);
-     		}
-     	});
-     	
-     	repeatCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
-     	{
-     		@Override
-     		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-     		{
-     			tp.playlist.preferences.SetRepeat(isChecked);
-     		}
-     	});
 
      }
 
@@ -926,65 +956,6 @@ public class Player extends ListActivity
     		playButton.setImageDrawable(getResources().getDrawable(R.drawable.pause64));	
     	}
     	
-    }
-    
-    
-	// ========================================= //
-	// 	Toggle Shuffle
-	// ========================================= //
-    
-    public void ToggleShuffle()
-    {
-		Toast toast = Toast.makeText(this, "" , Toast.LENGTH_SHORT);
-		
-    	if (tp.playlist.preferences.GetShuffle())
-    	{
-    		// Turn Shuffle Off
-    		shuffleButton.setImageDrawable(getResources().getDrawable(R.drawable.shuffle48));
-    		tp.playlist.preferences.SetShuffle(false);
-    		
-    		toast.setText("Shuffle Off");
-    		toast.show();
-    	}
-    	else
-    	{
-    		// Turn Shuffle On
-    		shuffleButton.setImageDrawable(getResources().getDrawable(R.drawable.shuffle48_active));
-    		tp.playlist.preferences.SetShuffle(true);
-    		
-    		toast.setText("Shuffle On");
-    		toast.show();
-    	}
-    }
-    
-    
-    
-	// ========================================= //
-	// 	Toggle Repeat
-	// ========================================= //
-    
-    public void ToggleRepeat()
-    {
-		Toast toast = Toast.makeText(this, "" , Toast.LENGTH_SHORT);;
-		
-    	if (tp.playlist.preferences.GetRepeat())
-    	{
-    		// Turn Shuffle Off
-    		repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.repeat48));
-    		tp.playlist.preferences.SetRepeat(false);
-    		
-    		toast.setText("Repeat Off");
-    		toast.show();
-    	}
-    	else
-    	{
-    		// Turn Shuffle On
-    		repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.repeat48_active));
-    		tp.playlist.preferences.SetRepeat(true);
-    		
-    		toast.setText("Repeat On");
-    		toast.show();
-    	}
     }
 
     /**
