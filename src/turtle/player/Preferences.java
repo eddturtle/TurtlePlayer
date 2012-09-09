@@ -18,7 +18,11 @@
 
 // Package
 package turtle.player;
- 
+
+
+import turtle.player.dirchooser.DirChooserConstants;
+
+import java.io.File;
 
 public class Preferences {
 
@@ -52,10 +56,26 @@ public class Preferences {
 	// 	MediaPath
 	// ========================================= //
 	
-	public String GetMediaPath()
+	public File GetMediaPath()
 	{
-		return mediaPath;
+		return getExistingParentFolderFile(mediaPath);
 	}
+
+    private File getExistingParentFolderFile(String path){
+        if(path == null || !path.startsWith(DirChooserConstants.PATH_SEPERATOR)){
+            return new File(DirChooserConstants.PATH_SEPERATOR);
+        }
+
+        //Go up untill the string represents a valid directory
+        while(!new File(path).isDirectory()){
+            String pathWihoutTrailngSep = path.endsWith(DirChooserConstants.PATH_SEPERATOR) ?
+                    path.substring(0, path.length() - DirChooserConstants.PATH_SEPERATOR.length()) :
+                    path;
+
+            path = pathWihoutTrailngSep.substring(0, path.lastIndexOf(DirChooserConstants.PATH_SEPERATOR));
+        }
+        return new File(path);
+    }
 	
 	public void SetMediaPath(String nMediaPath)
 	{

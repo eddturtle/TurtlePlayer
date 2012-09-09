@@ -20,7 +20,7 @@
 package turtle.player;
 
 // Import - Java
-import java.io.IOException;
+import java.io.*;
 
 // Import - Android System
 import android.content.Intent;
@@ -29,18 +29,8 @@ import android.os.Handler;
 import android.util.Log;
 
 // Import - Android Widgets
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.ListView;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.SeekBar;
+import android.widget.*;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 // Import - Android Activity
@@ -97,7 +87,13 @@ public class Player extends ListActivity
 	private ImageView nextButton;
 	private ImageView shuffleButton;
 	private ImageView repeatButton;
-	
+
+    // Settings Slide
+    ImageView rescan;
+    ProgressBar rescanProgressBar;
+    TextView mediaDir;
+    ImageView chooseMediaDir;
+
 	private TextView duration;
 	
 	// Progress Bar Attributes
@@ -185,14 +181,16 @@ public class Player extends ListActivity
     
     private void Init()
     {
-    	SetupApplication();
-    	SetupButtons();
+        SetupApplication();
+
+        SetupObservers();
+        SetupButtons();
         SetupButtonListeners();
-    	SetupSlides();
-    	SetupList();
+        SetupSlides();
+        SetupList();
         SetupProgressBar();
         SetupTelephoneChecker();
-        
+
         //tp.playlist.DatabasePush();
     }
     
@@ -241,6 +239,13 @@ public class Player extends ListActivity
      	trackButton = (ImageView)findViewById(R.id.trackButton);
      	artistButton = (ImageView)findViewById(R.id.artistButton);
      	albumButton = (ImageView)findViewById(R.id.albumButton);
+
+         // Settings Slide
+         rescan = (ImageView)findViewById(R.id.rescan);
+         mediaDir = (TextView)findViewById(R.id.mediaDir);
+         rescanProgressBar = (ProgressBar)findViewById(R.id.rescanProgressBar);
+         chooseMediaDir = (ImageView)findViewById(R.id.chooseMediaDir);
+         mediaDir.setText(tp.playlist.preferences.GetMediaPath().toString());
      	
 		// 1 = Artist
 		// 2 = Album
@@ -416,8 +421,6 @@ public class Player extends ListActivity
      	
      	
      	// [settings.xml]
-     	
-     	Button rescan = (Button)findViewById(R.id.rescan);
      	rescan.setOnClickListener(new OnClickListener()
      	{
      	    public void onClick(View v)
@@ -426,19 +429,110 @@ public class Player extends ListActivity
      	    }
      	});
 
-
-         Button chooseMediaDir = (Button)findViewById(R.id.chooseMediaDir);
          chooseMediaDir.setOnClickListener(new OnClickListener()
          {
              public void onClick(View v)
              {
                  Intent dirChooserIntent = new Intent( DIR_CHOOSER_ACTION);
                  dirChooserIntent.putExtra(DirChooserConstants.ACTIVITY_PARAM_KEY_DIR_CHOOSER_INITIAL_DIR,
-                         tp.playlist.preferences.GetMediaPath());
+                         tp.playlist.preferences.GetMediaPath().toString());
                  startActivityForResult(dirChooserIntent, DIR_CHOOSER_REQUEST);
              }
          });
      }
+
+    private void SetupObservers()
+    {
+        tp.playlist.addObserver(new Playlist.PlaylistObserverAdapter() {
+            @Override
+            public void endUpdatePlaylist() {
+                RefreshList(tp.playlist.GetList());
+            }
+        });
+
+        tp.playlist.addObserver(new Playlist.PlaylistObserverAdapter() {
+
+            @Override
+            public void startRescan(File mediaPath) {
+
+                final int[] numberOfTracks = new int[]{0};
+                try {
+                    Process p = Runtime.getRuntime().exec(new String[]{"ls", "-R",  mediaPath.toString()});
+                    BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                    String line = "";
+                    while(line != null){
+                        line = br.readLine();
+                        if(line != null && tp.playlist.isMP3.accept(null, line)){
+                            numberOfTracks[0] = numberOfTracks[0] + 1;
+                        }
+                    }
+                } catch (IOException e) {
+                    //Empty
+                }
+
+                //start sync anim
+                rescan.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        rescanProgressBar.setIndeterminate(false);
+                        rescanProgressBar.setProgress(0);
+                        rescanProgressBar.setMax(numberOfTracks[0]);
+                    }
+                });
+            }
+
+            @Override
+            public void trackAdded(Track track) {
+                rescanProgressBar.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        rescanProgressBar.setProgress(rescanProgressBar.getProgress() + 1);
+                    }
+                });
+            }
+
+            @Override
+            public void startUpdatePlaylist() {
+                rescan.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        rescanProgressBar.setVisibility(View.VISIBLE);
+                        rescanProgressBar.setIndeterminate(true);
+                        rescan.setVisibility(View.INVISIBLE);
+                    }
+                });
+            }
+
+            @Override
+            public void endRescan() {
+                //start sync anim
+                rescan.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        rescanProgressBar.setIndeterminate(true);
+                    }
+                });
+            }
+
+            @Override
+            public void endUpdatePlaylist() {
+                //stop sync anim
+                rescan.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        rescan.setImageResource(android.R.drawable.stat_notify_sync_noanim);
+                        rescanProgressBar.setVisibility(View.GONE);
+                        rescan.setVisibility(View.VISIBLE);
+                        if (!tp.playlist.IsEmpty())
+                        {
+                            SwitchToPlaylistSlide();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
      
      
  	// ========================================= //
@@ -526,7 +620,7 @@ public class Player extends ListActivity
     {
         if (tp.playlist.IsEmpty())
         {
-	    	UpdatePlayList();
+	    	tp.playlist.UpdateList();
 	    	
 	    	if (!tp.playlist.IsEmpty())
 	    	{
@@ -623,24 +717,14 @@ public class Player extends ListActivity
 	// 	Update TrackList
 	// ========================================= //
     
-    private void UpdatePlayList()
+    private void RefreshList(final String[] strList)
     {
-    	/*ProgressDialog progressDialog;
-    	progressDialog = new ProgressDialog(tp.getApplicationContext());
-    	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-    	progressDialog.setMessage("Loading...");
-    	progressDialog.setCancelable(false);*/
-    	
-    	
-    	
-    	tp.playlist.UpdateList();
-    	tp.playlist.SortByTitle();
-        this.RefreshList(tp.playlist.GetList());
-    }
-    
-    private void RefreshList(String[] strList)
-    {
-        this.setListAdapter(new ArrayAdapter<String>(this, R.layout.item, strList));
+        list.post(new Runnable() {
+            @Override
+            public void run() {
+                Player.this.setListAdapter(new ArrayAdapter<String>(Player.this, R.layout.item, strList));
+            }
+        });
     }
     
     
@@ -903,24 +987,18 @@ public class Player extends ListActivity
     	}
     }
 
+    /**
+     * Async rescan, returns immediately, use {@link turtle.player.Playlist.PlaylistObserver} to receive changes
+     */
     protected void rescan(){
         Stop();
 
-        tp.playlist.DatabaseClear(); // Don't Delete DB
-
-        try
-        {
-            UpdatePlayList();
-        }
-        catch (NullPointerException e)
-        {
-            Log.v(tp.playlist.preferences.GetTag(), e.getMessage());
-        }
-
-        if (!tp.playlist.IsEmpty())
-        {
-            SwitchToPlaylistSlide();
-        }
+        new Thread(new Runnable() {
+            public void run() {
+                tp.playlist.DatabaseClear(); // Don't Delete DB
+                tp.playlist.UpdateList();
+            }
+        }).start();
     }
     
 	// ========================================= //
@@ -970,7 +1048,7 @@ public class Player extends ListActivity
             if (resultCode == RESULT_OK) {
                 tp.playlist.preferences.SetMediaPath(
                         data.getStringExtra(DirChooserConstants.ACTIVITY_RETURN_KEY_DIR_CHOOSER_CHOOSED_DIR));
-
+                mediaDir.setText(tp.playlist.preferences.GetMediaPath().toString());
                 rescan();
             }
         } else {

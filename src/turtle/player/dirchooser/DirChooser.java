@@ -65,7 +65,7 @@ public class DirChooser extends Activity
 
         final String initialDir = getIntent().getExtras().getString(
                 DirChooserConstants.ACTIVITY_PARAM_KEY_DIR_CHOOSER_INITIAL_DIR);
-        setCurrDir(getExistingParentFolderFile(initialDir));
+        setCurrDir(new File(initialDir));
 
         initListeners();
     }
@@ -76,7 +76,7 @@ public class DirChooser extends Activity
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 File selectedFile = (File)parent.getItemAtPosition(position);
-                if (selectedFile.isDirectory()) {
+                if (selectedFile.isDirectory() && selectedFile.canRead()) {
                     setCurrDir(selectedFile);
                 }
             }
@@ -117,21 +117,5 @@ public class DirChooser extends Activity
     private void setAdapterForDir(File file){
         ArrayAdapter<File> adapter = new FileAdapter(this, file.listFiles());
         dirList.setAdapter(adapter);
-    }
-
-    private File getExistingParentFolderFile(String path){
-        if(path == null || !path.startsWith(DirChooserConstants.PATH_SEPERATOR)){
-            return new File(DirChooserConstants.PATH_SEPERATOR);
-        }
-
-        //Go up untill the string represents a valid directory
-        while(!new File(path).isDirectory()){
-            String pathWihoutTrailngSep = path.endsWith(DirChooserConstants.PATH_SEPERATOR) ?
-                    path.substring(0, path.length() - DirChooserConstants.PATH_SEPERATOR.length()) :
-                    path;
-
-            path = pathWihoutTrailngSep.substring(0, path.lastIndexOf(DirChooserConstants.PATH_SEPERATOR));
-        }
-        return new File(path);
     }
 }
