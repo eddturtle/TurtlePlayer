@@ -20,7 +20,7 @@
 package turtle.player;
 
 // Import - Java
-import java.io.IOException;
+import java.io.*;
 
 // Import - Android System
 import android.content.Intent;
@@ -29,18 +29,8 @@ import android.os.Handler;
 import android.util.Log;
 
 // Import - Android Widgets
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.ListView;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.SeekBar;
+import android.widget.*;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 // Import - Android Activity
@@ -62,6 +52,9 @@ import android.graphics.BitmapFactory;
 import android.telephony.TelephonyManager;
 import android.telephony.PhoneStateListener;
 import turtle.player.dirchooser.DirChooserConstants;
+import turtle.player.preferences.Key;
+import turtle.player.preferences.Keys;
+import turtle.player.preferences.PreferencesObserver;
 
 
 public class Player extends ListActivity
@@ -97,7 +90,15 @@ public class Player extends ListActivity
 	private ImageView nextButton;
 	private ImageView shuffleButton;
 	private ImageView repeatButton;
-	
+
+    // Settings Slide
+    CheckBox shuffleCheckBox;
+    CheckBox repeatCheckBox;
+    ImageView rescan;
+    ProgressBar rescanProgressBar;
+    TextView mediaDir;
+    ImageView chooseMediaDir;
+
 	private TextView duration;
 	
 	// Progress Bar Attributes
@@ -123,7 +124,7 @@ public class Player extends ListActivity
         // Call Main Initialise Function
         this.Init();
     }
-    
+
     @Override
     public void onDestroy()
     {
@@ -185,14 +186,16 @@ public class Player extends ListActivity
     
     private void Init()
     {
-    	SetupApplication();
-    	SetupButtons();
+        SetupApplication();
+
+        SetupObservers();
+        SetupButtons();
         SetupButtonListeners();
-    	SetupSlides();
-    	SetupList();
+        SetupSlides();
+        SetupList();
         SetupProgressBar();
         SetupTelephoneChecker();
-        
+
         //tp.playlist.DatabasePush();
     }
     
@@ -204,62 +207,71 @@ public class Player extends ListActivity
     private void SetupApplication()
     {
 		tp = (TurtlePlayer)getApplication();
-		tp.playlist.SetContext(tp.getApplicationContext());
+		tp.playlist = new Playlist(tp.getApplicationContext());
     }
     
 
 	
-    // ========================================= //
+    // ========================================= //Pla
  	// 	Setup Buttons - Part of Init()
 	// ========================================= //
      
-	private void SetupButtons()
-     {
-     	// Header Buttons
-     	list = (ImageView)findViewById(R.id.listButton);
-     	logo = (ImageView)findViewById(R.id.logoButton);
-     	settings = (ImageView)findViewById(R.id.settingsButton);
+	private void SetupButtons() {
+        // Header Buttons
+        list = (ImageView) findViewById(R.id.listButton);
+        logo = (ImageView) findViewById(R.id.logoButton);
+        settings = (ImageView) findViewById(R.id.settingsButton);
 
-     	// Now_Playing Footer Buttons
-     	backButton = (ImageView)findViewById(R.id.backButton);
-     	playButton = (ImageView)findViewById(R.id.playButton);
-     	nextButton = (ImageView)findViewById(R.id.nextButton);
-     	
-		shuffleButton = (ImageView)findViewById(R.id.shuffleButton);
-		if (tp.playlist.preferences.GetShuffle())
-		{
-			shuffleButton.setImageDrawable(getResources().getDrawable(R.drawable.shuffle48_active));
-		}
-		
-		repeatButton = (ImageView)findViewById(R.id.repeatButton);
-		if (tp.playlist.preferences.GetRepeat())
-		{
-			repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.repeat48_active));
-		}
+        // Now_Playing Footer Buttons
+        backButton = (ImageView) findViewById(R.id.backButton);
+        playButton = (ImageView) findViewById(R.id.playButton);
+        nextButton = (ImageView) findViewById(R.id.nextButton);
 
-     	// Playlist Footer Buttons
-     	trackButton = (ImageView)findViewById(R.id.trackButton);
-     	artistButton = (ImageView)findViewById(R.id.artistButton);
-     	albumButton = (ImageView)findViewById(R.id.albumButton);
-     	
-		// 1 = Artist
-		// 2 = Album
-		// 3 = Inside Artist
-		// 4 = Inside Album
-     	
-     	if (tp.playlist.GetReturnType() == 1 || tp.playlist.GetReturnType() == 3)
-     	{
-     		artistButton.setImageDrawable(getResources().getDrawable(R.drawable.artist48_active));
-     	}
-     	else if (tp.playlist.GetReturnType() == 2 || tp.playlist.GetReturnType() == 4)
-     	{
-     		albumButton.setImageDrawable(getResources().getDrawable(R.drawable.album48_active));
-     	}
-     	else
-     	{
-         	trackButton.setImageDrawable(getResources().getDrawable(R.drawable.track48_active));
-     	}
-	}
+        shuffleButton = (ImageView) findViewById(R.id.shuffleButton);
+        shuffleButton.setImageDrawable(
+                tp.playlist.preferences.GetShuffle() ?
+                        getResources().getDrawable(R.drawable.shuffle48_active) :
+                        getResources().getDrawable(R.drawable.shuffle48)
+        );
+
+        repeatButton = (ImageView) findViewById(R.id.repeatButton);
+        repeatButton.setImageDrawable(
+                tp.playlist.preferences.GetRepeat() ?
+                        getResources().getDrawable(R.drawable.repeat48_active) :
+                        getResources().getDrawable(R.drawable.repeat48)
+        );
+
+        // Playlist Footer Buttons
+        trackButton = (ImageView) findViewById(R.id.trackButton);
+        artistButton = (ImageView) findViewById(R.id.artistButton);
+        albumButton = (ImageView) findViewById(R.id.albumButton);
+
+        // Settings Slide
+        shuffleCheckBox = (CheckBox) findViewById(R.id.shuffleCheckBox);
+        shuffleCheckBox.setChecked(tp.playlist.preferences.GetShuffle());
+
+        repeatCheckBox = (CheckBox) findViewById(R.id.repeatCheckBox);
+        repeatCheckBox.setChecked(tp.playlist.preferences.GetRepeat());
+
+        rescan = (ImageView) findViewById(R.id.rescan);
+        mediaDir = (TextView) findViewById(R.id.mediaDir);
+        rescanProgressBar = (ProgressBar) findViewById(R.id.rescanProgressBar);
+        chooseMediaDir = (ImageView) findViewById(R.id.chooseMediaDir);
+        mediaDir.setText(tp.playlist.preferences.GetMediaPath().toString());
+
+        // 1 = Artist
+        // 2 = Album
+        // 3 = Inside Artist
+        // 4 = Inside Album
+
+        if (tp.playlist.GetReturnType() == 1 || tp.playlist.GetReturnType() == 3) {
+            artistButton.setImageDrawable(getResources().getDrawable(R.drawable.artist48_active));
+        } else if (tp.playlist.GetReturnType() == 2 || tp.playlist.GetReturnType() == 4) {
+            albumButton.setImageDrawable(getResources().getDrawable(R.drawable.album48_active));
+        } else {
+            trackButton.setImageDrawable(getResources().getDrawable(R.drawable.track48_active));
+        }
+    }
     
 	// ========================================= //
  	// 	Setup Button Listener Functions - Part of Init()
@@ -354,17 +366,34 @@ public class Player extends ListActivity
      	{
      	    public void onClick(View v)
      	    {
-     	    	ToggleShuffle();
+                 tp.playlist.preferences.SetShuffle(!tp.playlist.preferences.GetShuffle());
      	    }
      	});
-     	
-     	repeatButton.setOnClickListener(new OnClickListener()
-     	{
-     	    public void onClick(View v)
-     	    {
-     	    	ToggleRepeat();
-     	    }
-     	});
+
+         shuffleCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+         {
+             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+             {
+                 tp.playlist.preferences.SetShuffle(isChecked);
+             }
+         });
+
+         repeatButton.setOnClickListener(new OnClickListener()
+         {
+             public void onClick(View v)
+             {
+                 tp.playlist.preferences.SetRepeat(!tp.playlist.preferences.GetRepeat());
+             }
+         });
+
+         repeatCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+         {
+             @Override
+             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+             {
+                 tp.playlist.preferences.SetRepeat(isChecked);
+             }
+         });
      	
      	
      	// [playlist.xml] Footer Buttons
@@ -416,8 +445,6 @@ public class Player extends ListActivity
      	
      	
      	// [settings.xml]
-     	
-     	Button rescan = (Button)findViewById(R.id.rescan);
      	rescan.setOnClickListener(new OnClickListener()
      	{
      	    public void onClick(View v)
@@ -426,19 +453,153 @@ public class Player extends ListActivity
      	    }
      	});
 
-
-         Button chooseMediaDir = (Button)findViewById(R.id.chooseMediaDir);
          chooseMediaDir.setOnClickListener(new OnClickListener()
          {
              public void onClick(View v)
              {
                  Intent dirChooserIntent = new Intent( DIR_CHOOSER_ACTION);
                  dirChooserIntent.putExtra(DirChooserConstants.ACTIVITY_PARAM_KEY_DIR_CHOOSER_INITIAL_DIR,
-                         tp.playlist.preferences.GetMediaPath());
+                         tp.playlist.preferences.GetMediaPath().toString());
                  startActivityForResult(dirChooserIntent, DIR_CHOOSER_REQUEST);
              }
          });
      }
+
+    private void SetupObservers()
+    {
+        //Update Playlist
+        tp.playlist.addObserver(new Playlist.PlaylistObserverAdapter() {
+            @Override
+            public void endUpdatePlaylist() {
+                RefreshList(tp.playlist.GetList());
+            }
+        });
+
+        //Rescan Progress Bar
+        tp.playlist.addObserver(new Playlist.PlaylistObserverAdapter() {
+
+            @Override
+            public void startUpdatePlaylist() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        rescanProgressBar.setVisibility(View.VISIBLE);
+                        rescanProgressBar.setIndeterminate(true);
+                        rescan.setVisibility(View.INVISIBLE);
+                    }
+                });
+            }
+
+            @Override
+            public void startRescan(File mediaPath) {
+
+                final int[] numberOfTracks = new int[]{0};
+                try {
+                    Process p = Runtime.getRuntime().exec(new String[]{"ls", "-R",  mediaPath.toString()});
+                    BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                    String line = "";
+                    while(line != null){
+                        line = br.readLine();
+                        if(line != null && tp.playlist.isMP3.accept(null, line)){
+                            numberOfTracks[0] = numberOfTracks[0] + 1;
+                        }
+                    }
+                } catch (IOException e) {
+                    //Empty
+                }
+
+                //start sync anim
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        rescanProgressBar.setIndeterminate(false);
+                        rescanProgressBar.setProgress(0);
+                        rescanProgressBar.setMax(numberOfTracks[0]);
+                    }
+                });
+            }
+
+            @Override
+            public void trackAdded(Track track) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        rescanProgressBar.setProgress(rescanProgressBar.getProgress() + 1);
+                    }
+                });
+            }
+
+            @Override
+            public void endRescan() {
+                //start sync anim
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        rescanProgressBar.setIndeterminate(true);
+                    }
+                });
+            }
+
+            @Override
+            public void endUpdatePlaylist()
+            {
+                //stop sync anim
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        rescanProgressBar.setVisibility(View.GONE);
+                        rescan.setVisibility(View.VISIBLE);
+                        if (!tp.playlist.IsEmpty())
+                        {
+                            SwitchToPlaylistSlide();
+                        }
+                        else
+                        {
+                            Toast.makeText(getApplicationContext(), "No MP3s Found on SD Card", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+            }
+        });
+
+        //Update UI states
+        tp.playlist.preferences.addObserver(new PreferencesObserver() {
+            @Override
+            public void changed(Key key) {
+                if(key.equals(Keys.REPEAT)){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            boolean repeat = tp.playlist.preferences.GetRepeat();
+
+                            Toast.makeText(Player.this,
+                                    repeat ? "Repeat On" : "Repeat Off", Toast.LENGTH_SHORT).show();
+                            repeatButton.setImageDrawable(getResources().getDrawable(
+                                    repeat ? R.drawable.repeat48_active : R.drawable.repeat48));
+                            repeatCheckBox.setChecked(repeat);
+                        }
+                    });
+                }
+                else if(key.equals(Keys.SHUFFLE)){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            boolean shuffle = tp.playlist.preferences.GetShuffle();
+
+                            Toast.makeText(Player.this,
+                                    shuffle ? "Shuffle On" : "Shuffle Off", Toast.LENGTH_SHORT).show();
+                            shuffleButton.setImageDrawable(getResources().getDrawable(
+                                    shuffle ? R.drawable.shuffle48_active : R.drawable.shuffle48));
+                            shuffleCheckBox.setChecked(shuffle);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
      
      
  	// ========================================= //
@@ -484,36 +645,6 @@ public class Player extends ListActivity
      	nowPlayingSlide.setVisibility(LinearLayout.INVISIBLE);
      	playlistSlide.setVisibility(LinearLayout.INVISIBLE);
      	settingsSlide.setVisibility(LinearLayout.VISIBLE);
-     	
-     	CheckBox shuffleCheckBox = (CheckBox)findViewById(R.id.shuffleCheckBox);
-     	CheckBox repeatCheckBox = (CheckBox)findViewById(R.id.repeatCheckBox);
-     	
-     	if (tp.playlist.preferences.GetShuffle())
-     	{
-     		shuffleCheckBox.setChecked(true);
-     	}
-     	
-     	if (tp.playlist.preferences.GetRepeat())
-     	{
-     		repeatCheckBox.setChecked(true);
-     	}
-     	
-     	shuffleCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
-     	{
-     		@Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-     		{
-     			tp.playlist.preferences.SetShuffle(isChecked);
-     		}
-     	});
-     	
-     	repeatCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
-     	{
-     		@Override
-     		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-     		{
-     			tp.playlist.preferences.SetRepeat(isChecked);
-     		}
-     	});
 
      }
 
@@ -526,17 +657,7 @@ public class Player extends ListActivity
     {
         if (tp.playlist.IsEmpty())
         {
-	    	UpdatePlayList();
-	    	
-	    	if (!tp.playlist.IsEmpty())
-	    	{
-		    	SwitchToPlaylistSlide();
-	    	}
-	    	else
-	    	{
-	    		Toast toast = Toast.makeText(getApplicationContext(), "No MP3s Found on SD Card", Toast.LENGTH_LONG);
-	    		toast.show();
-	    	}
+	    	tp.playlist.UpdateList();
         }
     }
     
@@ -623,24 +744,14 @@ public class Player extends ListActivity
 	// 	Update TrackList
 	// ========================================= //
     
-    private void UpdatePlayList()
+    private void RefreshList(final String[] strList)
     {
-    	/*ProgressDialog progressDialog;
-    	progressDialog = new ProgressDialog(tp.getApplicationContext());
-    	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-    	progressDialog.setMessage("Loading...");
-    	progressDialog.setCancelable(false);*/
-    	
-    	
-    	
-    	tp.playlist.UpdateList();
-    	tp.playlist.SortByTitle();
-        this.RefreshList(tp.playlist.GetList());
-    }
-    
-    private void RefreshList(String[] strList)
-    {
-        this.setListAdapter(new ArrayAdapter<String>(this, R.layout.item, strList));
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Player.this.setListAdapter(new ArrayAdapter<String>(Player.this, R.layout.item, strList));
+            }
+        });
     }
     
     
@@ -843,84 +954,14 @@ public class Player extends ListActivity
     	}
     	
     }
-    
-    
-	// ========================================= //
-	// 	Toggle Shuffle
-	// ========================================= //
-    
-    public void ToggleShuffle()
-    {
-		Toast toast = Toast.makeText(this, "" , Toast.LENGTH_SHORT);
-		
-    	if (tp.playlist.preferences.GetShuffle())
-    	{
-    		// Turn Shuffle Off
-    		shuffleButton.setImageDrawable(getResources().getDrawable(R.drawable.shuffle48));
-    		tp.playlist.preferences.SetShuffle(false);
-    		
-    		toast.setText("Shuffle Off");
-    		toast.show();
-    	}
-    	else
-    	{
-    		// Turn Shuffle On
-    		shuffleButton.setImageDrawable(getResources().getDrawable(R.drawable.shuffle48_active));
-    		tp.playlist.preferences.SetShuffle(true);
-    		
-    		toast.setText("Shuffle On");
-    		toast.show();
-    	}
-    }
-    
-    
-    
-	// ========================================= //
-	// 	Toggle Repeat
-	// ========================================= //
-    
-    public void ToggleRepeat()
-    {
-		Toast toast = Toast.makeText(this, "" , Toast.LENGTH_SHORT);;
-		
-    	if (tp.playlist.preferences.GetRepeat())
-    	{
-    		// Turn Shuffle Off
-    		repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.repeat48));
-    		tp.playlist.preferences.SetRepeat(false);
-    		
-    		toast.setText("Repeat Off");
-    		toast.show();
-    	}
-    	else
-    	{
-    		// Turn Shuffle On
-    		repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.repeat48_active));
-    		tp.playlist.preferences.SetRepeat(true);
-    		
-    		toast.setText("Repeat On");
-    		toast.show();
-    	}
-    }
 
+    /**
+     * Async rescan, returns immediately, use {@link turtle.player.Playlist.PlaylistObserver} to receive changes
+     */
     protected void rescan(){
         Stop();
-
         tp.playlist.DatabaseClear(); // Don't Delete DB
-
-        try
-        {
-            UpdatePlayList();
-        }
-        catch (NullPointerException e)
-        {
-            Log.v(tp.playlist.preferences.GetTag(), e.getMessage());
-        }
-
-        if (!tp.playlist.IsEmpty())
-        {
-            SwitchToPlaylistSlide();
-        }
+        tp.playlist.UpdateList();
     }
     
 	// ========================================= //
@@ -970,7 +1011,7 @@ public class Player extends ListActivity
             if (resultCode == RESULT_OK) {
                 tp.playlist.preferences.SetMediaPath(
                         data.getStringExtra(DirChooserConstants.ACTIVITY_RETURN_KEY_DIR_CHOOSER_CHOOSED_DIR));
-
+                mediaDir.setText(tp.playlist.preferences.GetMediaPath().toString());
                 rescan();
             }
         } else {

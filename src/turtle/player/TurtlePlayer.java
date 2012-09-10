@@ -27,7 +27,7 @@ import android.media.MediaPlayer;
 public class TurtlePlayer extends Application 
 {
 	public MediaPlayer mp = new MediaPlayer();
-	public Playlist playlist = new Playlist();
+	public Playlist playlist;
 	public boolean isPaused = true;
 	public boolean isInitialised = false;
 	public Track currentlyPlaying = new Track();

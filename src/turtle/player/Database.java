@@ -96,27 +96,35 @@ public class Database extends SQLiteOpenHelper
 	
 	public void Push(List<Track> tList)
 	{
-		SQLiteDatabase db = this.getWritableDatabase();
-		ContentValues values;
-		
-		for (Track t : tList)
-		{
-			values = new ContentValues();
-			
-			values.put(KEY_TITLE, t.GetTitle());
-			values.put(KEY_NUMBER, t.GetNumber());
-			values.put(KEY_ARTIST, t.GetArtist());
-			values.put(KEY_ALBUM, t.GetAlbum());
-			values.put(KEY_LENGTH, t.GetLength());
-			values.put(KEY_SRC, t.GetSrc());
-			values.put(KEY_ROOTSRC, t.GetRootSrc());
-			values.put(KEY_HASALBUMART, this.BooleanToInt(t.HasAlbumArt()));
-			
-			db.insert(TABLE_NAME, null, values);
-			values = null;
-		}
-		
-		db.close();
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        try{
+            ContentValues values;
+
+            for (Track t : tList)
+            {
+                values = new ContentValues();
+
+                values.put(KEY_TITLE, t.GetTitle());
+                values.put(KEY_NUMBER, t.GetNumber());
+                values.put(KEY_ARTIST, t.GetArtist());
+                values.put(KEY_ALBUM, t.GetAlbum());
+                values.put(KEY_LENGTH, t.GetLength());
+                values.put(KEY_SRC, t.GetSrc());
+                values.put(KEY_ROOTSRC, t.GetRootSrc());
+                values.put(KEY_HASALBUMART, this.BooleanToInt(t.HasAlbumArt()));
+
+                db.insert(TABLE_NAME, null, values);
+                values = null;
+            }
+        }
+        finally {
+            if(db != null)
+            {
+                db.close();
+            }
+        }
 	}
 	
 	
@@ -167,10 +175,17 @@ public class Database extends SQLiteOpenHelper
 	public void Clear()
 	{
 		SQLiteDatabase db = this.getWritableDatabase();
-		
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
-		
-		onCreate(db);
+
+        try{
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+            onCreate(db);
+        }
+        finally {
+            if(db != null)
+            {
+                db.close();
+            }
+        }
 	}
 	
 	public boolean IsEmpty()
@@ -197,12 +212,16 @@ public class Database extends SQLiteOpenHelper
 		try
 		{
 			check = SQLiteDatabase.openDatabase("/data/data/hnd.turtle.player/databases/TurtlePlayer", null, SQLiteDatabase.OPEN_READONLY);
-			check.close();
 		}
 		catch (SQLiteException e)
 		{
 			// No Database
-		}
+		}finally {
+            if(check != null)
+            {
+                check.close();
+            }
+        }
 		
 		if (check != null)
 		{

@@ -20,11 +20,8 @@
 package turtle.player;
 
 // Import - Java
-import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.HashSet;
+import java.io.FileFilter;
+import java.util.*;
 import java.io.File;
 import java.io.FilenameFilter;
 
@@ -36,15 +33,15 @@ import android.media.MediaMetadataRetriever;
 
 // Import - Android Context
 import android.content.Context;
-import android.content.SharedPreferences;
-
-import android.preference.PreferenceManager;
-import android.content.res.Resources;
+import turtle.player.preferences.Keys;
+import turtle.player.preferences.Preferences;
+import turtle.player.preferences.SharedPreferencesAccess;
 
 public class Playlist {
+    public static final int MAX_DIR_SCAN_DEPTH = 50;
 
-	
-	// ========================================= //
+
+    // ========================================= //
 	// 	Attributes
 	// ========================================= //
 	
@@ -75,14 +72,11 @@ public class Playlist {
 	private double length;
 	private int trackCount;
 	
-	private Context mainContext;
-	
-	
 	// ========================================= //
 	// 	Constructor
 	// ========================================= //
 	
-	public Playlist()
+	public Playlist(Context mainContext)
 	{
 		trackList = new ArrayList<Track>();
 		artistList = new ArrayList<String>();
@@ -93,25 +87,14 @@ public class Playlist {
 		historyPosition = 0;
 		
 		// Location, Repeat, Shuffle (Remember Trailing / on Location)
-		preferences = new Preferences("/sdcard/Music/", true, true);
+		preferences = new Preferences(mainContext);
+        syncDB = new Database(mainContext);
 		stats = new Stats();
 		
 		lastUsedArtist = "";
 		lastUsedAlbum = "";
 		returnType = 0;
 	}
-	
-	
-	// ========================================= //
-	// 	Set Context
-	// ========================================= //
-	
-	public void SetContext(Context con)
-	{		
-		mainContext = con;
-		syncDB = new Database(mainContext);
-	}
-	
 	
 	// ========================================= //
 	// 	Destroy
@@ -136,6 +119,9 @@ public class Playlist {
 	public void AddTrack(Track nTrack)
 	{
 		trackList.add(nTrack);
+        for(PlaylistObserver observer : observers){
+            observer.trackAdded(nTrack);
+        }
 	}
 	
 	
@@ -199,58 +185,96 @@ public class Playlist {
 		}
 	};
 	
-	FilenameFilter isDIR = new FilenameFilter()
+	final static FileFilter isDIR = new FileFilter()
 	{
-		public boolean accept(File dir, String name)
-		{
-			return !name.contains(".");
-		}
+        final String[] IGNORED_DIRS = new String[]{
+                "/proc/",
+                "/sys/",
+                "/system/",
+                "/proc/",
+                "/root/",
+        };
+
+        @Override
+        public boolean accept(File file) {
+            for(String ignoredDir : IGNORED_DIRS)
+            {
+                file.toString().startsWith(ignoredDir);
+            }
+
+            return file.canRead() && file.isDirectory();
+        }
 	};
 	
 	
 	// ========================================= //
 	// 	Update List
 	// ========================================= //
-	
-	public void UpdateList()
-	{
-		this.ClearList();
-		//syncDB.Clear();
-		
-		// TODO EXISTS BUT MAYBE BLANK!?!
-		
-		if (!syncDB.Exists() || syncDB.IsEmpty())
-		{
-			try
-			{
-				metaDataReader = new MediaMetadataRetriever();
-				CheckDir(preferences.GetMediaPath());
-				metaDataReader.release();
-			}
-			catch (NullPointerException e)
-			{
-				Log.v(preferences.GetTag(), e.getMessage());
-			}
-			
-			syncDB = new Database(mainContext);
-			this.DatabasePush();
-		}
-		else
-		{
-			this.DatabasePull();
-		}
-	}
-	
+
+    public void UpdateList() {
+        new Thread(new Runnable() {
+            public void run() {
+                for (PlaylistObserver observer : observers) {
+                    observer.startUpdatePlaylist();
+                }
+
+                ClearList();
+                //syncDB.Clear();
+
+                try {
+                    // TODO EXISTS BUT MAYBE BLANK!?!
+                    if (!syncDB.Exists() || syncDB.IsEmpty()) {
+                        try {
+                            final File mediaPath = preferences.GetMediaPath();
+
+                            for (PlaylistObserver observer : observers) {
+                                observer.startRescan(mediaPath);
+                            }
+
+                            metaDataReader = new MediaMetadataRetriever();
+                            CheckDir(mediaPath);
+                            metaDataReader.release();
+                        } catch (NullPointerException e) {
+                            Log.v(preferences.GetTag(), e.getMessage());
+                        } finally {
+                            for (PlaylistObserver observer : observers) {
+                                observer.endRescan();
+                            }
+                        }
+
+                        syncDB = new Database(preferences.getContext());
+                        DatabasePush();
+                    } else {
+                        DatabasePull();
+                    }
+
+
+                    SortByTitle();
+                } finally {
+                    for (PlaylistObserver observer : observers) {
+                        observer.endUpdatePlaylist();
+                    }
+                }
+            }
+        }).start();
+    }
 	
 	// ========================================= //
 	// 	Check Directory for MP3s
 	// ========================================= //
-	
-	private void CheckDir(String src)
+
+    private void CheckDir(File rootNode){
+        CheckDir(rootNode, 0);
+    }
+
+    /**
+     * @param rootNode
+     * @param depth number of parent allready visited
+     */
+	private void CheckDir(File rootNode, int depth)
 	{
 		// http://www.exampledepot.com/egs/java.io/GetFiles.html
-		
-		File rootNode = new File(src);
+
 		boolean folderHasAlbumArt = false;
 		
 		try
@@ -262,7 +286,8 @@ public class Playlist {
 			
 			for (String mp3 : rootNode.list(isMP3))
 			{
-				metaDataReader.setDataSource(src + mp3);
+                Log.v(preferences.GetTag(), "register " + rootNode + "/" + mp3);
+				metaDataReader.setDataSource(rootNode + "/" + mp3);
 				
 				title = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
 				
@@ -320,19 +345,22 @@ public class Playlist {
 					album = "Unknown";
 				}
 				
-				Track t = new Track(trackCount, title, number, artist, album, length, src + mp3);
+				Track t = new Track(trackCount, title, number, artist, album, length, rootNode + "/" + mp3);
 				
 				t.SetAlbumArt(folderHasAlbumArt);
-				t.SetRootSrc(src);
+				t.SetRootSrc(rootNode + "/");
 				
 				this.AddTrack(t);
 				
 				trackCount++;
 			}
 			
-			for (String dir : rootNode.list(isDIR))
+			for (File dir : rootNode.listFiles(isDIR))
 			{
-				CheckDir(src + dir + "/");
+                if(depth < MAX_DIR_SCAN_DEPTH) // avoid Stack overflow - symbolic link points to a parent dir
+                {
+                    CheckDir(dir, depth + 1);
+                }
 			}
 		}
 		catch (NullPointerException e)
@@ -804,13 +832,11 @@ public class Playlist {
 	
 	public void DatabasePull()
 	{
-	    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mainContext);
-	    boolean previouslyStarted = prefs.getBoolean("firstTime", false);
+	    boolean previouslyStarted =
+                SharedPreferencesAccess.getValue(preferences.getContext(), Keys.FIRST_TIME);
 	    if(!previouslyStarted)
 	    {
-	    	SharedPreferences.Editor edit = prefs.edit();
-	    	edit.putBoolean("firstTime", Boolean.TRUE);
-	        edit.commit();
+            SharedPreferencesAccess.putValue(preferences.getContext(), Keys.FIRST_TIME, true);
 			trackList = syncDB.Pull();
 	    }
 	}
@@ -822,7 +848,7 @@ public class Playlist {
 	
 	public void DatabaseDelete()
 	{
-		mainContext.deleteDatabase("TurtlePlayer");
+        preferences.getContext().deleteDatabase("TurtlePlayer");
 	}
 	
 	public void DatabaseClose()
@@ -834,4 +860,51 @@ public class Playlist {
 	{
 		return returnType;
 	}
+
+    //Observable
+    List<PlaylistObserver> observers = new ArrayList<PlaylistObserver>();
+
+    public interface PlaylistObserver{
+        void trackAdded(Track track);
+        void startRescan(File mediaPath);
+        void endRescan();
+        void startUpdatePlaylist();
+        void endUpdatePlaylist();
+    }
+
+    public static abstract class PlaylistObserverAdapter implements  PlaylistObserver{
+        @Override
+        public void trackAdded(Track track) {
+            //do nothing
+        }
+
+        @Override
+        public void startRescan(File mediaPath) {
+            //do nothing
+        }
+
+        @Override
+        public void endRescan() {
+            //do nothing
+        }
+
+        @Override
+        public void startUpdatePlaylist() {
+            //do nothing
+        }
+
+        @Override
+        public void endUpdatePlaylist() {
+            //do nothing
+        }
+    }
+
+    public void addObserver(PlaylistObserver observer){
+        observers.add(observer);
+    }
+
+    public void removeObserver(PlaylistObserver observer){
+        observers.remove(observer);
+    }
+
 }
