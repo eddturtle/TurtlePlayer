@@ -115,7 +115,11 @@ public class DirChooser extends Activity
     }
 
     private void setAdapterForDir(File file){
-        ArrayAdapter<File> adapter = new FileAdapter(this, file.listFiles());
+        File [] files = file.listFiles();
+        if (files == null) {
+            files = new File[0];
+        }
+        ArrayAdapter<File> adapter = new FileAdapter(this, files);
         dirList.setAdapter(adapter);
     }
 }
