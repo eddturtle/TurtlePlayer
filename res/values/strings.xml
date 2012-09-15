@@ -35,8 +35,6 @@
     <string name="library">Library</string>
     <string name="rescan">Re-Scan SD Card</string>
 
-    <string name="pref_previously_started">firstTime</string>
-
     <string name="dirchooser_label">Dir Chooser</string>
 
 </resources>

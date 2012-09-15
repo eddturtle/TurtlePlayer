@@ -219,11 +219,10 @@ public class Playlist {
                 }
 
                 ClearList();
-                //syncDB.Clear();
 
                 try {
                     // TODO EXISTS BUT MAYBE BLANK!?!
-                    if (!syncDB.Exists() || syncDB.IsEmpty()) {
+                    if (syncDB.IsEmpty()) {
                         try {
                             final File mediaPath = preferences.GetMediaPath();
 
@@ -823,22 +822,13 @@ public class Playlist {
 	
 	public void DatabasePush()
 	{
-		if (syncDB.Exists())
-		{
-			syncDB.Clear();
-			syncDB.Push(trackList);
-		}
+        syncDB.Clear();
+        syncDB.Push(trackList);
 	}
 	
 	public void DatabasePull()
 	{
-	    boolean previouslyStarted =
-                SharedPreferencesAccess.getValue(preferences.getContext(), Keys.FIRST_TIME);
-	    if(!previouslyStarted)
-	    {
-            SharedPreferencesAccess.putValue(preferences.getContext(), Keys.FIRST_TIME, true);
-			trackList = syncDB.Pull();
-	    }
+        trackList = syncDB.Pull();
 	}
 	
 	public void DatabaseClear()
