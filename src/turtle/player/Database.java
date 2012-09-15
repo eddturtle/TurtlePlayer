@@ -203,35 +203,6 @@ public class Database extends SQLiteOpenHelper
 			return false;
 		}
 	}
-
-	
-	public boolean Exists()
-	{
-		SQLiteDatabase check = null;
-		
-		try
-		{
-			check = SQLiteDatabase.openDatabase("/data/data/hnd.turtle.player/databases/TurtlePlayer", null, SQLiteDatabase.OPEN_READONLY);
-		}
-		catch (SQLiteException e)
-		{
-			// No Database
-		}finally {
-            if(check != null)
-            {
-                check.close();
-            }
-        }
-		
-		if (check != null)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
 	
 	public int BooleanToInt(boolean val)
 	{
