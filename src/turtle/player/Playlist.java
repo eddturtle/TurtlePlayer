@@ -33,129 +33,81 @@ import android.media.MediaMetadataRetriever;
 
 // Import - Android Context
 import android.content.Context;
+import turtle.player.model.Album;
+import turtle.player.model.Artist;
+import turtle.player.model.Track;
+import turtle.player.playlist.PlayOrderRandom;
+import turtle.player.playlist.PlayOrderSorted;
+import turtle.player.playlist.PlayOrderStrategy;
+import turtle.player.playlist.filter.AllFilter;
+import turtle.player.playlist.filter.PlaylistFilter;
+import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
 import turtle.player.preferences.Preferences;
-import turtle.player.preferences.SharedPreferencesAccess;
+import turtle.player.preferences.PreferencesObserver;
+import turtle.player.util.GenericInstanceComperator;
 
 public class Playlist {
+
+    // Not in ClassDiagram
+    public Preferences preferences;
+    public Stats stats = new Stats();
+
     public static final int MAX_DIR_SCAN_DEPTH = 50;
+    private Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
 
+    private PlayOrderStrategy playOrderStrategy;
 
-    // ========================================= //
-	// 	Attributes
-	// ========================================= //
-	
-	private List<Track> trackList;
-	private List<String> artistList;
-	private List<String> albumList;
-	private LinkedList<Integer> historyList;
-	
+	private List<Track> trackList = new ArrayList<Track>();
+
 	private Database syncDB;
-	
-	private int listPosition; 
-	private int historyPosition;
-	
-	// Not in ClassDiagram
-	public Preferences preferences;
-	public Stats stats;
-	
-	private String lastUsedArtist;
-	private String lastUsedAlbum;
-	private int returnType;
-	
-	private MediaMetadataRetriever metaDataReader;
-	
-	private String title;
-	private int number;
-	private String artist;
-	private String album;
-	private double length;
-	private int trackCount;
-	
-	// ========================================= //
-	// 	Constructor
-	// ========================================= //
-	
-	public Playlist(Context mainContext)
-	{
-		trackList = new ArrayList<Track>();
-		artistList = new ArrayList<String>();
-		albumList = new ArrayList<String>();
-		historyList = new LinkedList<Integer>();
 
-		listPosition = 0;
-		historyPosition = 0;
-		
-		// Location, Repeat, Shuffle (Remember Trailing / on Location)
+    private Track currTrack = null;
+
+	private MediaMetadataRetriever metaDataReader;
+
+    private int number;
+
+    public Playlist(Context mainContext)
+	{
+
+        // Location, Repeat, Shuffle (Remember Trailing / on Location)
 		preferences = new Preferences(mainContext);
         syncDB = new Database(mainContext);
-		stats = new Stats();
-		
-		lastUsedArtist = "";
-		lastUsedAlbum = "";
-		returnType = 0;
+
+        filters.add(new AllFilter());
+
+        init();
 	}
+
+    private void init(){
+        preferences.addObserver(new PreferencesObserver()
+        {
+            @Override
+            public void changed(Key key)
+            {
+                if(key.equals(Keys.SHUFFLE))
+                {
+                    setPlayOrderStrategyAccordingPreferences();
+                }
+            }
+        });
+        setPlayOrderStrategyAccordingPreferences();
+    }
+
+    private void setPlayOrderStrategyAccordingPreferences(){
+        playOrderStrategy = preferences.GetShuffle() ?
+                new PlayOrderRandom(preferences) :
+                new PlayOrderSorted(preferences, new GenericInstanceComperator());
+    }
 	
-	// ========================================= //
-	// 	Destroy
-	// ========================================= //
-	
-	public void Destroy()
-	{
-		this.ClearList();
-		this.DatabaseClose();
-		
-		if (metaDataReader != null)
-		{
-			metaDataReader.release();
-		}
-	}
-	
-	
-	// ========================================= //
-	// 	Add Track
-	// ========================================= //
-	
-	public void AddTrack(Track nTrack)
+	private void AddTrack(Track nTrack)
 	{
 		trackList.add(nTrack);
         for(PlaylistObserver observer : observers){
             observer.trackAdded(nTrack);
         }
 	}
-	
-	
-	// ========================================= //
-	// 	Remove Track
-	// ========================================= //
-	
-	public boolean RemoveTrack(String title)
-	{
-		// http://www.java2s.com/Code/JavaAPI/java.util/foreachloopforArrayList.htm
-		
-		int count = 0;
-		boolean success = false;
-		
-		if (!trackList.isEmpty())
-		{
-			for (Track t : trackList)
-			{
-				count++;
-				if (t.GetTitle() == title)
-				{
-					trackList.remove(count);
-					success = true;
-				}
-			}
-		}
-		
-		return success;
-	}
-	
-	
-	// ========================================= //
-	// 	Filename Filters
-	// ========================================= //
 	
 	FilenameFilter hasAlbumArt = new FilenameFilter()
 	{
@@ -205,11 +157,18 @@ public class Playlist {
             return file.canRead() && file.isDirectory();
         }
 	};
-	
-	
-	// ========================================= //
-	// 	Update List
-	// ========================================= //
+
+    public Track getNext()
+    {
+        Track track = playOrderStrategy.getNext(getCurrTracks(), getCurrTrack());
+        return track;
+    }
+
+    public Track getPrevious()
+    {
+        Track track = playOrderStrategy.getPrevious(getCurrTracks(), getCurrTrack());
+        return track;
+    }
 
     public void UpdateList() {
         new Thread(new Runnable() {
@@ -221,7 +180,6 @@ public class Playlist {
                 ClearList();
 
                 try {
-                    // TODO EXISTS BUT MAYBE BLANK!?!
                     if (syncDB.IsEmpty()) {
                         try {
                             final File mediaPath = preferences.GetMediaPath();
@@ -246,9 +204,6 @@ public class Playlist {
                     } else {
                         DatabasePull();
                     }
-
-
-                    SortByTitle();
                 } finally {
                     for (PlaylistObserver observer : observers) {
                         observer.endUpdatePlaylist();
@@ -257,10 +212,6 @@ public class Playlist {
             }
         }).start();
     }
-	
-	// ========================================= //
-	// 	Check Directory for MP3s
-	// ========================================= //
 
     private void CheckDir(File rootNode){
         CheckDir(rootNode, 0);
@@ -287,8 +238,8 @@ public class Playlist {
 			{
                 Log.v(preferences.GetTag(), "register " + rootNode + "/" + mp3);
 				metaDataReader.setDataSource(rootNode + "/" + mp3);
-				
-				title = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+
+                String title = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
 				
 				String preFormat = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
 				String postFormat = "0";
@@ -324,11 +275,12 @@ public class Playlist {
 				{
 					number = 0;
 				}
-				
-				artist = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-				album = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-				length = Double.parseDouble(metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-				
+
+                double length = Double.parseDouble(metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+
+                String artist = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                String album = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+
 				if (title == null)
 				{
 					title = "Unknown";
@@ -343,15 +295,19 @@ public class Playlist {
 				{
 					album = "Unknown";
 				}
-				
-				Track t = new Track(trackCount, title, number, artist, album, length, rootNode + "/" + mp3);
-				
-				t.SetAlbumArt(folderHasAlbumArt);
-				t.SetRootSrc(rootNode + "/");
+
+                Track t = new Track(
+                        title,
+                        number,
+                        new Artist(artist),
+                        new Album(album),
+                        length,
+                        rootNode + "/" + mp3,
+                        rootNode + "/",
+                        folderHasAlbumArt
+                );
 				
 				this.AddTrack(t);
-				
-				trackCount++;
 			}
 			
 			for (File dir : rootNode.listFiles(isDIR))
@@ -369,415 +325,106 @@ public class Playlist {
 		}
 	}
 	
-	
-	// ========================================= //
-	// 	Clear List
-	// ========================================= //
-	
 	public void ClearList()
 	{
 		trackList.clear();
-		historyList.clear();
-	}
-	
-	
-	// ========================================= //
-	// 	Add to History
-	// ========================================= //
-	
-	public void AddToHistory()
-	{
-		if (historyPosition == 0)
-		{
-			historyList.add(listPosition);
-		}
-	}
-	
-	// ========================================= //
-	// 	Sort by Title
-	// ========================================= //
-
-	public void SortByTitle()
-	{
-		returnType = 0;
-		DatabasePull();
-		Collections.sort(trackList, new TitleComparator());
-	}
-	
-	public void SortByArtist()
-	{
-		returnType = 1;
-		DatabasePull();
-		Collections.sort(trackList, new ArtistComparator());
-		Collections.sort(artistList);
-	}
-	
-	public void SortByAlbum()
-	{
-		returnType = 2;
-		DatabasePull();
-		
-		try
-		{
-			Collections.sort(trackList, new AlbumComparator());
-			Collections.sort(albumList);
-		}
-		catch (NullPointerException e)
-		{
-			// TODO Log Error
-		}
-	}
-	
-	public void FilterListByArtist()
-	{
-		
-	}
-	
-	
-	// ========================================= //
-	// 	Find Previous Track
-	// ========================================= //
-	
-	public Track PreviousTrack()
-	{
-		if (historyPosition < (historyList.size() - 1))
-		{
-			historyPosition++;
-			listPosition = historyList.get((historyList.size() - 1) - historyPosition);
-			return trackList.get(listPosition);
-		}
-		else
-		{
-			return null;
-		}
-	}
-	
-	
-	// ========================================= //
-	// 	Find Next Track
-	// ========================================= //
-	
-	public Track NextTrack()
-	{
-		if (historyPosition != 0)
-		{
-			// In History List
-			historyPosition--;
-			listPosition = historyList.get((historyList.size() - 1) - historyPosition);
-		}
-		else
-		{
-			if (trackList.size() > 1)
-			{
-				if (preferences.GetShuffle())
-				{
-					int ranNum = (int)((Math.random() * trackList.size()));
-					
-					while (ranNum == listPosition)
-					{
-						ranNum = (int)((Math.random() * trackList.size()));
-					}
-					
-					listPosition = ranNum;
-				}
-				else
-				{
-					if ((this.GetPosition() + 1) >= this.Length())
-					{
-						if (preferences.GetRepeat())
-						{
-							listPosition = 0;					
-						}
-						else
-						{
-							return null;
-						}
-					}
-					else
-					{
-						++listPosition;
-					}
-				}
-			}
-		}
-		
-		return trackList.get(listPosition);
-	}
-	
-	
-	// ========================================= //
-	// 	Return Single Track
-	// ========================================= //
-	
-	public Track GetTrack(int position)
-	{
-		// Return Type:
-		// 0 = Track
-		// 1 = Artist
-		// 2 = Album
-		// 3 = Inside Artist
-		// 4 = Inside Album
-		
-		if (returnType != 3 && returnType != 4)
-		{
-			Track t = trackList.get(position);
-			
-			listPosition = position;
-			
-			if (t != null)
-			{
-				return t;
-			}
-			else
-			{
-				return null;			
-			}
-		}
-		else if (returnType == 3)
-		{
-			listPosition = position;
-			
-			ArrayList<Track> byAr = new ArrayList<Track>();
-			
-			for (Track t : trackList)
-			{
-				if (lastUsedArtist.contains(t.GetArtist()))
-				{
-					byAr.add(t);
-				}
-			}
-			
-			trackList = byAr;
-			
-			return byAr.get(position);
-		}
-		else
-		{
-			listPosition = position;
-			
-			ArrayList<Track> byAlbum = new ArrayList<Track>();
-			
-			for (Track t : trackList)
-			{
-				if (lastUsedAlbum.contains(t.GetAlbum()))
-				{
-					byAlbum.add(t);
-				}
-			}
-			
-			trackList = byAlbum;
-			
-			return trackList.get(position);
-		}
+        for(PlaylistObserver observer : observers){
+            observer.cleaned();
+        }
 	}
 
-	
-	
-	// ========================================= //
-	// 	Return Track List
-	// ========================================= //
-	
-	public String[] GetList()
+	public List<Track> getCurrTracks()
 	{
-		// Return Type:
-		// 0 = Track
-		// 1 = Artist
-		// 2 = Album
-		// 3 = Inside Artist
-		// 4 = Inside Album
-		
-		int count = 0;
-		String[] list;
-		
-		if (returnType == 0)
-		{
-			list = new String[trackList.size()];
-			for (Track t : trackList)
-			{
-				list[count] = t.GetTitle() + " - " + t.GetArtist();
-				count++;
-			}
-		}
-		else if (returnType == 1)
-		{
-			ArrayList<String> tempArray = new ArrayList<String>();
-			
-			for (Track t : trackList)
-			{
-				tempArray.add(t.GetArtist());
-				count++;
-			}
-			
-			HashSet<String> h = new HashSet<String>(tempArray);
-			tempArray.clear();
-			tempArray.addAll(h);
-			
-			Collections.sort(tempArray);
-			
-			int x = 0;
-			for (String s : tempArray)
-			{
-				if (s != null && !s.equals(""))
-				{
-					x++;
-				}
-			}
-			
-			list = new String[x];
-			artistList.clear();
-			
-			for (int i = 0; i < x; i++)
-			{
-				list[i] = tempArray.get(i);
-				artistList.add(list[i]);
-			}
-		}
-		else
-		{
-			ArrayList<String> tempArray = new ArrayList<String>();
-			
-			for (Track t : trackList)
-			{
-				tempArray.add(t.GetAlbum());
-				count++;
-			}
-			
-			HashSet<String> h = new HashSet<String>(tempArray);
-			tempArray.clear();
-			tempArray.addAll(h);
-			
-			Collections.sort(tempArray);
-			
-			int x = 0;
-			for (String s : tempArray)
-			{
-				if (s != null && !s.equals(""))
-				{
-					x++;
-				}
-			}
-			
-			list = new String[x];
-			albumList.clear();
-			
-			for (int i = 0; i < x; i++)
-			{
-				list[i] = tempArray.get(i);
-				albumList.add(list[i]);
-			}
-		}
-		
-		return list;
-	}
-	
-	public String[] GetTracksByArtist(int position)
-	{
-		// Return Type:
-		// 0 = Track
-		// 1 = Artist
-		// 2 = Album
-		// 3 = Inside Artist
-		// 4 = Inside Album
-		
-		if (returnType == 1)
-		{
-			Collections.sort(artistList);
-			
-			String[] list = new String[trackList.size()];
-			String artistName = artistList.get(position);
-			int i = 0;
-			
-			for (Track t : trackList)
-			{
-				if (artistName.contains(t.GetArtist()))
-				{
-					list[i] = t.GetTitle();
-					i++;
-				}
-			}
-			
-			String[] compact = new String[i];
-			
-			for (int k = 0; k < i; k++)
-			{
-				if (list[k] != "" && list[k] != null)
-				{
-					compact[k] = list[k];
-				}
-			}
-			
-			lastUsedArtist = artistName;
-			returnType = 3;
-			
-			return compact;
-		}
-		else
-		{
-			return null;
-		}
-	}
-	
-	public String[] GetTracksByAlbum(int position)
-	{
-		// Return Type:
-		// 0 = Track
-		// 1 = Artist
-		// 2 = Album
-		// 3 = Inside Artist
-		// 4 = Inside Album
-		
-		Collections.sort(albumList);
+        List<Track> tracks = new ArrayList<Track>();
 
-		ArrayList<Track> newList = new ArrayList<Track>();
-		String albumName = albumList.get(position);
-		int numOfTracks = 0;
-		
-		for (Track t : trackList)
-		{
-			if (albumName.contains(t.GetAlbum()))
-			{
-				newList.add(t);
-				numOfTracks++;
-			}
-		}
-		
-		Collections.sort(newList, new NumberComparator());
-		
-		String[] compact = new String[numOfTracks];
+		for(Track track : trackList){
+            for(PlaylistFilter filter : filters){
+                if(filter.accept(track)){
+                    tracks.add(track);
+                }
+            }
+        }
 
-		albumList.clear();
-		
-		for (int k = 0; k < numOfTracks; k++)
-		{
-			String v = String.valueOf(newList.get(k).GetNumber()) + ". " + newList.get(k).GetTitle();
-			
-			compact[k] = v;
-			albumList.add(k, v);
-		}
-		
-		lastUsedAlbum = albumName;
-		returnType = 4;
-		
-		Collections.sort(trackList, new NumberComparator());
-		
-		return compact;
+        return tracks;
 	}
-	
-	
-	// ========================================= //
-	// 	Return TrackList Length
-	// ========================================= //
-	
-	public int Length()
+
+    public Set<Track> getTracks(PlaylistFilter filter)
+    {
+        Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
+        filters.add(filter);
+        return getTracks(filters);
+    }
+
+    public Set<Track> getTracks(Set<PlaylistFilter> filters)
+    {
+        Set<Track> tracks = new HashSet<Track>();
+
+        for(Track track : trackList){
+            if(isValidAccordingFilter(track, filters)){
+                tracks.add(track);
+            }
+        }
+
+        return tracks;
+    }
+
+    public Set<Album> getAlbums(Set<PlaylistFilter> filters)
+    {
+        Set<Album> albums = new HashSet<Album>();
+
+        for(Track track : trackList){
+            if(isValidAccordingFilter(track, filters)){
+                albums.add(track.GetAlbum());
+            }
+        }
+
+        return albums;
+    }
+
+    public Set<Artist> getArtists(Set<PlaylistFilter> filters)
+    {
+        Set<Artist> artists = new HashSet<Artist>();
+
+        for(Track track : trackList)
+        {
+            if(isValidAccordingFilter(track, filters)){
+                artists.add(track.GetArtist());
+            }
+        }
+
+        return artists;
+    }
+
+    private boolean isValidAccordingFilter(Track track, Set<PlaylistFilter> filters)
+    {
+        int force = 0;
+        boolean accept = false;
+        for(PlaylistFilter filter : filters)
+        {
+            if(filter.getForce() > force)
+            {
+                accept = filter.accept(track);
+                force = filter.getForce();
+            }
+        }
+        return accept;
+    }
+
+    public Track getCurrTrack()
+    {
+        return currTrack;
+    }
+
+    public void setCurrTrack(Track currTrack)
+    {
+        this.currTrack = currTrack;
+    }
+
+    public int Length()
 	{
-		return trackList.size();
+		return getCurrTracks().size();
 	}
-	
-	
-	// ========================================= //
-	// 	Return TrackList Length
-	// ========================================= //
-	
+
 	public boolean IsEmpty()
 	{
 		if (trackList.size() < 1)
@@ -790,32 +437,7 @@ public class Playlist {
 		}
 	}
 	
-	
-	// ========================================= //
-	// 	List Position
-	// ========================================= //
-	
-	public int GetPosition()
-	{
-		return listPosition;
-	}
-	
-	public void SetPosition(int nlistPosition)
-	{
-		listPosition = nlistPosition;
-	}
-	
-	public void IncrementPosition()
-	{
-		listPosition++;
-	}
-	
-	public void DecrementPosition()
-	{
-		listPosition--;
-	}
-	
-	
+
 	// ========================================= //
 	// 	DB Sync
 	// ========================================= //
@@ -828,7 +450,12 @@ public class Playlist {
 	
 	public void DatabasePull()
 	{
-        trackList = syncDB.Pull();
+        ClearList();
+
+        for(Track track : syncDB.Pull())
+        {
+            AddTrack(track);
+        }
 	}
 	
 	public void DatabaseClear()
@@ -845,17 +472,16 @@ public class Playlist {
 	{
 		syncDB.close();
 	}
-	
-	public int GetReturnType()
-	{
-		return returnType;
-	}
 
-    //Observable
+    // ========================================= //
+    // 	Observable
+    // ========================================= //
+
     List<PlaylistObserver> observers = new ArrayList<PlaylistObserver>();
 
     public interface PlaylistObserver{
         void trackAdded(Track track);
+        void cleaned();
         void startRescan(File mediaPath);
         void endRescan();
         void startUpdatePlaylist();
@@ -865,6 +491,11 @@ public class Playlist {
     public static abstract class PlaylistObserverAdapter implements  PlaylistObserver{
         @Override
         public void trackAdded(Track track) {
+            //do nothing
+        }
+
+        @Override
+        public void cleaned() {
             //do nothing
         }
 

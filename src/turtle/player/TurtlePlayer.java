@@ -22,6 +22,7 @@ package turtle.player;
 // Import - Android Libs
 import android.app.Application;
 import android.media.MediaPlayer;
+import turtle.player.model.Track;
 
 
 public class TurtlePlayer extends Application 
@@ -30,7 +31,6 @@ public class TurtlePlayer extends Application
 	public Playlist playlist;
 	public boolean isPaused = true;
 	public boolean isInitialised = false;
-	public Track currentlyPlaying = new Track();
 	
 	public TurtlePlayer()
 	{
