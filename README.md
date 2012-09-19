@@ -15,4 +15,4 @@ The code is licenced under the [MIT](http://www.opensource.org/licenses/mit-lice
 +	Music Folder Location Chooser
 +	MP3 Meta Data Reader
 
-#####Find Out More at [www.turtle-player.co.uk](http://www.turtle-player.co.uk/ "www.turtle-player.co.uk")
+#####Find Out More & Download the .APK at [www.turtle-player.co.uk](http://www.turtle-player.co.uk/ "www.turtle-player.co.uk")
