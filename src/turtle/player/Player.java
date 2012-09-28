@@ -290,6 +290,10 @@ public class Player extends ListActivity
 				{
 					SwitchToPlaylistSlide();
 				}
+				else
+				{
+					Toast.makeText(getApplicationContext(), "Empty Playlist", Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 
@@ -319,6 +323,10 @@ public class Player extends ListActivity
 				{
 					Play(tp.playlist.PreviousTrack());
 				}
+				else
+				{
+					Toast.makeText(getApplicationContext(), "Empty Playlist", Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 
@@ -343,6 +351,10 @@ public class Player extends ListActivity
 					{
 						Play(tp.playlist.GetTrack(0));
 					}
+				}
+				else
+				{
+					Toast.makeText(getApplicationContext(), "Empty Playlist", Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
@@ -487,6 +499,7 @@ public class Player extends ListActivity
 			@Override
 			public void endUpdatePlaylist()
 			{
+				
 				RefreshList(tp.playlist.GetList());
 			}
 		});
@@ -592,6 +605,9 @@ public class Player extends ListActivity
 						rescan.setVisibility(View.VISIBLE);
 						if (!tp.playlist.IsEmpty())
 						{
+							ResetFooterButtons();
+							trackButton.setImageDrawable(getResources().getDrawable(
+									R.drawable.track48_active));
 							SwitchToPlaylistSlide();
 						}
 						else
@@ -877,16 +893,19 @@ public class Player extends ListActivity
 		artist.setVisibility(View.VISIBLE);
 		duration.setVisibility(View.VISIBLE);
 
-		title.setText(t.GetTitle());
-		artist.setText(t.GetArtist());
-
 		if (tp.isInitialised)
 		{
+			title.setText(t.GetTitle());
+			artist.setText(t.GetArtist());
+			
 			duration.setText(ConvertToMinutes(tp.mp.getCurrentPosition())
 					+ " / " + ConvertToMinutes(tp.mp.getDuration()));
 		}
 		else
 		{
+			title.setText("Welcome to");
+			artist.setText("Turtle Player");
+			
 			duration.setText("0:00");
 		}
 
@@ -1026,7 +1045,10 @@ public class Player extends ListActivity
 	 */
 	protected void rescan()
 	{
-		Stop();
+		if (tp.isInitialised)
+		{
+			Stop();
+		}
 		tp.playlist.DatabaseClear(); // Don't Delete DB
 		tp.playlist.UpdateList();
 	}
@@ -1045,31 +1067,31 @@ public class Player extends ListActivity
 		// 3 = Inside Artist
 		// 4 = Inside Album
 
-		if (tp.playlist.GetReturnType() == 0)
+		if (tp.playlist.GetReturnType() == 0) // Track
 		{
 			Track toPlay = tp.playlist.GetTrack(position);
 			Play(toPlay);
 			SwitchToNowPlayingSlide();
 		}
 		else
-			if (tp.playlist.GetReturnType() == 1)
+			if (tp.playlist.GetReturnType() == 1) // Artist
 			{
 				this.RefreshList(tp.playlist.GetTracksByArtist(position));
 			}
 			else
-				if (tp.playlist.GetReturnType() == 2)
+				if (tp.playlist.GetReturnType() == 2) // Album
 				{
 					this.RefreshList(tp.playlist.GetTracksByAlbum(position));
 				}
 				else
-					if (tp.playlist.GetReturnType() == 3)
+					if (tp.playlist.GetReturnType() == 3) // Inside Artist
 					{
 						Track toPlay = tp.playlist.GetTrack(position);
 						Play(toPlay);
 						SwitchToNowPlayingSlide();
 					}
 					else
-						if (tp.playlist.GetReturnType() == 4)
+						if (tp.playlist.GetReturnType() == 4) // Inside Album
 						{
 							Track toPlay = tp.playlist.GetTrack(position);
 							Play(toPlay);
