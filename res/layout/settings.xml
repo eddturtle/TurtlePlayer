@@ -10,6 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/playback"
+        android:paddingBottom="5dp"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <CheckBox
@@ -38,31 +39,33 @@
                   android:layout_height="wrap_content"
                   android:orientation="horizontal">
 
-        <!--android:src="@android:drawable/ic_menu_set_as"-->
+        <!-- android:src="@android:drawable/ic_menu_set_as" -->
         <ImageView
             android:id="@+id/rescan"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:src="@android:drawable/stat_notify_sync_noanim"
+            android:contentDescription="@string/sync_library"
             android:gravity="center_vertical"
-            android:paddingRight="2sp"/>
+            android:paddingRight="4sp"/>
 
         <TextView
                 android:id="@+id/mediaDir"
-                android:layout_width="wrap_content"
+                android:layout_width="0dip"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:textSize="18sp"
-                android:text="[sssssssssss/Current Folder]"
+                android:text="@string/media_path"
                 android:gravity="center_vertical"
                 android:singleLine="true"
                 android:ellipsize="start"/>
 
         <ImageView
                 android:id="@+id/chooseMediaDir"
-                android:layout_width="wrap_content"
+                android:layout_width="35dp"
                 android:layout_height="fill_parent"
                 android:src="@android:drawable/ic_menu_edit"
+                android:contentDescription="@string/edit_dir"
                 android:gravity="center_vertical"/>
 
     </LinearLayout>
@@ -74,5 +77,13 @@
             android:layout_height="wrap_content"
             android:max="100"
             android:visibility="gone"/>
-
+    
+    <TextView
+        android:id="@+id/about"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_desc"
+        android:paddingTop="20dp"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+    
 </LinearLayout>

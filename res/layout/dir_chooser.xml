@@ -9,21 +9,23 @@
                    android:layout_height="wrap_content"
                    android:orientation="horizontal"
                    android:background="#111111">
+                   
         <ImageView
                 android:id="@+id/up"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:src="@android:drawable/ic_input_delete"
+                android:contentDescription="@string/delete"
                 android:gravity="center_vertical"
                 android:paddingRight="2sp"/>
 
         <TextView
                 android:id="@+id/currDirLabel"
-                android:layout_width="wrap_content"
+                android:layout_width="0dip"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:textSize="18sp"
-                android:text="[sssssssssss/Current Folder]"
+                android:text="@string/media_path"
                 android:gravity="center_vertical"
                 android:singleLine="true"
                 android:ellipsize="start"/>
@@ -33,7 +35,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:src="@android:drawable/ic_menu_save"
-                android:gravity="center_vertical"/>
+                android:contentDescription="@string/save"
+                android:gravity="center_vertical"
+                android:padding="5dp" />
+        
     </LinearLayout>
 
     <ListView
@@ -44,4 +49,4 @@
             android:paddingBottom="0sp" >
     </ListView>
 
-</LinearLayout >
+</LinearLayout>
