@@ -3,6 +3,8 @@
 
     <!-- Global -->
     <string name="app_name">Turtle Player</string>
+    <string name="app_url">turtle-player.co.uk</string>
+    <string name="app_desc">Find out more about this open-source app at: turtle-player.co.uk</string>
     
     <!-- Header -->
     <string name="list">List</string>
@@ -13,28 +15,28 @@
     <string name="check_button">Check for MP3s</string>
     <string name="album_art">Album Art</string>
     
-    <string name="track">[Track]</string>
-    <string name="artist">[Artist]</string>
-    <string name="duration">[0.00]</string>
+    <string name="track">Track Name</string>
+    <string name="artist">Artist</string>
+    <string name="duration">0.00</string>
     
     <!-- Now Playing Footer -->
-    <string name="play">play</string>
-    <string name="pause">pause</string>
-    <string name="next">next</string>
-    <string name="back">back</string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="next">Next</string>
+    <string name="back">Back</string>
     
     <!-- Settings -->
     <string name="playback">Playback Settings</string>
     <string name="shuffle">Shuffle</string>
     <string name="repeat">Repeat</string>
     
-    <string name="media_path">Music Folder</string>
-    <string name="root">Root Folder</string>
-    <string name="save">Save</string>
-    
     <string name="library">Library</string>
-    <string name="rescan">Re-Scan SD Card</string>
+    <string name="sync_library">Sync Library</string>
+    <string name="media_path">Root/Current_Folder</string>
+    <string name="edit_dir">Edit Dir</string>
 
     <string name="dirchooser_label">Dir Chooser</string>
+    <string name="delete">Delete</string>
+    <string name="save">Save</string>
 
 </resources>
