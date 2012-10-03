@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Global -->
-    <string name="app_name">Turtle Player</string>
+    <string name="app_name">TurtlePlayer</string>
     <string name="app_url">turtle-player.co.uk</string>
     <string name="app_desc">Find out more about this open-source app at: turtle-player.co.uk</string>
     
