@@ -1,12 +1,14 @@
-package turtle.player.playlist;
+package turtle.player.playlist.playorder;
 
 import turtle.player.model.Track;
 import turtle.player.preferences.Preferences;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-public class PlayOrderRandom implements PlayOrderStrategy {
+public class PlayOrderRandom implements PlayOrderStrategy
+{
 
     final LimitedStack<Track> history = new LimitedStack<Track>(1000);
 
@@ -17,11 +19,13 @@ public class PlayOrderRandom implements PlayOrderStrategy {
     }
 
     @Override
-    public Track getNext(List<Track> tracks, Track currTrack) {
+    public Track getNext(Set<Track> tracks, Track currTrack) {
         List<Track> candidates = new ArrayList<Track>(tracks);
-        candidates.removeAll(history);
+
 
         final Track nextTrack;
+
+        candidates.removeAll(history);
 
         if(!candidates.isEmpty())
         {
@@ -31,7 +35,7 @@ public class PlayOrderRandom implements PlayOrderStrategy {
         {
             if(preferences.GetRepeat())
             {
-                nextTrack = tracks.get((int) ((Math.random() * tracks.size())));
+                nextTrack = new ArrayList<Track>(tracks).get((int) ((Math.random() * tracks.size())));
             }
             else
             {
@@ -44,7 +48,7 @@ public class PlayOrderRandom implements PlayOrderStrategy {
     }
 
     @Override
-    public Track getPrevious(List<Track> tracks, Track currTrack)
+    public Track getPrevious(Set<Track> tracks, Track currTrack)
     {
         while(history.size() > 0){
             Track candidate = history.pop();

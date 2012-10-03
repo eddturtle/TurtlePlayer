@@ -3,18 +3,17 @@ package turtle.player.view;
 import android.app.ListActivity;
 import android.view.View;
 import android.widget.ImageView;
-import turtle.player.Playlist;
+import turtle.player.playlist.Playlist;
 import turtle.player.R;
 import turtle.player.TurtlePlayer;
 import turtle.player.model.*;
 import turtle.player.playlist.filter.ChildsFilter;
+import turtle.player.playlist.filter.Filters;
 import turtle.player.playlist.filter.PlaylistFilter;
 import turtle.player.presentation.InstanceFormatter;
 import turtle.player.util.InstanceAdapter;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class FileChooser extends Playlist.PlaylistObserverAdapter
@@ -47,15 +46,13 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
     private TurtlePlayer tp;
     private ListActivity listActivity;
 
-    private Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
+    private PlaylistFilter filter = null;
 
     public FileChooser(Mode currMode, TurtlePlayer tp, ListActivity listActivity)
     {
         this.currMode = currMode;
         this.tp = tp;
         this.listActivity = listActivity;
-
-        filters.add(PlaylistFilter.ALL);
 
         change(currMode);
 
@@ -95,8 +92,7 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
             public Track visit(Album album)
             {
                 currType = Type.Track;
-                filters.clear();
-                filters.add(new ChildsFilter(album, tp.playlist));
+                filter = new ChildsFilter(album, tp.playlist);
                 return null;
             }
 
@@ -104,8 +100,7 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
             public Track visit(Artist artist)
             {
                 currType = Type.Track;
-                filters.clear();
-                filters.add(new ChildsFilter(artist, tp.playlist));
+                filter = new ChildsFilter(artist, tp.playlist);
                 return null;
             }
         });
@@ -143,8 +138,7 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
             default:
                 throw new RuntimeException(currMode.name() + " not expexted here");
         }
-        filters.clear();
-        filters.add(PlaylistFilter.ALL);
+        filter = null;
         update();
     }
 
@@ -156,13 +150,13 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
         switch (currType)
         {
             case Album:
-                instances = tp.playlist.getAlbums(filters);
+                instances = tp.playlist.getAlbums(filter);
                 break;
             case Artist:
-                instances = tp.playlist.getArtists(filters);
+                instances = tp.playlist.getArtists(filter);
                 break;
             case Track:
-                instances = tp.playlist.getTracks(filters);
+                instances = tp.playlist.getTracks(filter);
                 break;
             default:
                 throw new RuntimeException(currType.name() + " not expexted here");

@@ -1,10 +1,7 @@
 package turtle.player.playlist.filter;
 
-import turtle.player.Playlist;
+import turtle.player.playlist.Playlist;
 import turtle.player.model.*;
-
-import java.util.Arrays;
-import java.util.HashSet;
 
 public class ChildsFilter implements PlaylistFilter
 {

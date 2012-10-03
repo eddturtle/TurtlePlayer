@@ -1,13 +1,10 @@
-package turtle.player.playlist;
+package turtle.player.playlist.playorder;
 
-import turtle.player.Playlist;
 import turtle.player.model.Track;
+import turtle.player.playlist.Playlist;
 import turtle.player.preferences.Preferences;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class PlayOrderSorted extends Playlist.PlaylistObserverAdapter implements PlayOrderStrategy
 {
@@ -23,7 +20,7 @@ public class PlayOrderSorted extends Playlist.PlaylistObserverAdapter implements
     }
 
     @Override
-    public Track getNext(List<Track> tracks, Track currTrack)
+    public Track getNext(Set<Track> tracks, Track currTrack)
     {
         if(tracks.size() == 0)
         {
@@ -37,9 +34,9 @@ public class PlayOrderSorted extends Playlist.PlaylistObserverAdapter implements
 
         int indexOfCurrent = orderedList.indexOf(currTrack);
 
-        //current not in list, so retrun first one
+        //current not in list, so return first one
         if(indexOfCurrent < 0){
-            return tracks.get(0);
+            return orderedList.get(0);
         }
 
         int indexOfNext = indexOfCurrent + 1;
@@ -63,7 +60,7 @@ public class PlayOrderSorted extends Playlist.PlaylistObserverAdapter implements
     }
 
     @Override
-    public Track getPrevious(List<Track> tracks, Track currTrack)
+    public Track getPrevious(Set<Track> tracks, Track currTrack)
     {
         if(tracks.size() == 0)
         {

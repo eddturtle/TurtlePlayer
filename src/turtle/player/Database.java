@@ -22,7 +22,8 @@ package turtle.player;
 // Import - Java
 import java.util.ArrayList;
 import java.util.List;
- 
+import java.util.Set;
+
 // Import - Android Content
 import android.content.ContentValues;
 import android.content.Context;
@@ -92,7 +93,7 @@ public class Database extends SQLiteOpenHelper
 	// 	Push to Database
 	// ========================================= //
 	
-	public void Push(List<Track> tList)
+	public void Push(Set<Track> tList)
 	{
 
         SQLiteDatabase db = this.getWritableDatabase();

@@ -37,9 +37,11 @@ import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import turtle.player.common.filefilter.FileFilters;
 import turtle.player.dirchooser.DirChooserConstants;
 import turtle.player.model.Instance;
 import turtle.player.model.Track;
+import turtle.player.playlist.Playlist;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
 import turtle.player.preferences.PreferencesObserver;
@@ -414,7 +416,7 @@ public class Player extends ListActivity
                     while (line != null)
                     {
                         line = br.readLine();
-                        if (line != null && tp.playlist.isMP3.accept(null, line))
+                        if (line != null && FileFilters.PLAYABLE_FILES_FILTER.accept(null, line))
                         {
                             numberOfTracks[0] = numberOfTracks[0] + 1;
                         }
@@ -855,7 +857,7 @@ public class Player extends ListActivity
     }
 
     /**
-     * Async rescan, returns immediately, use {@link turtle.player.Playlist.PlaylistObserver} to receive changes
+     * Async rescan, returns immediately, use {@link turtle.player.playlist.Playlist.PlaylistObserver} to receive changes
      */
     protected void rescan(){
         Stop();

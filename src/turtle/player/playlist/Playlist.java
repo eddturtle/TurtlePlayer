@@ -17,7 +17,7 @@
  */
 
 // Package
-package turtle.player;
+package turtle.player.playlist;
 
 // Import - Java
 import java.io.FileFilter;
@@ -33,14 +33,18 @@ import android.media.MediaMetadataRetriever;
 
 // Import - Android Context
 import android.content.Context;
+import turtle.player.Database;
+import turtle.player.Stats;
+import turtle.player.common.filefilter.FileFilters;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
-import turtle.player.playlist.PlayOrderRandom;
-import turtle.player.playlist.PlayOrderSorted;
-import turtle.player.playlist.PlayOrderStrategy;
+import turtle.player.playlist.filter.Filters;
+import turtle.player.playlist.playorder.PlayOrderStrategy;
 import turtle.player.playlist.filter.AllFilter;
 import turtle.player.playlist.filter.PlaylistFilter;
+import turtle.player.playlist.playorder.PlayOrderRandom;
+import turtle.player.playlist.playorder.PlayOrderSorted;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
 import turtle.player.preferences.Preferences;
@@ -54,11 +58,12 @@ public class Playlist {
     public Stats stats = new Stats();
 
     public static final int MAX_DIR_SCAN_DEPTH = 50;
-    private Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
+    private Filters filters = new Filters();
 
     private PlayOrderStrategy playOrderStrategy;
 
-	private List<Track> trackList = new ArrayList<Track>();
+	private Set<Track> trackList = new HashSet<Track>();
+	private Set<Track> filteredTrackList = new HashSet<Track>();
 
 	private Database syncDB;
 
@@ -74,9 +79,6 @@ public class Playlist {
         // Location, Repeat, Shuffle (Remember Trailing / on Location)
 		preferences = new Preferences(mainContext);
         syncDB = new Database(mainContext);
-
-        filters.add(new AllFilter());
-
         init();
 	}
 
@@ -90,6 +92,15 @@ public class Playlist {
                 {
                     setPlayOrderStrategyAccordingPreferences();
                 }
+            }
+        });
+
+        filters.addObserver(new Filters.FilterObserver()
+        {
+            @Override
+            public void filterChanged()
+            {
+                filteredTrackList = filters.getValidTracks(trackList);
             }
         });
         setPlayOrderStrategyAccordingPreferences();
@@ -107,6 +118,9 @@ public class Playlist {
         for(PlaylistObserver observer : observers){
             observer.trackAdded(nTrack);
         }
+        if(filters.isValidAccordingFilters(nTrack)){
+            filteredTrackList.add(nTrack);
+        }
 	}
 	
 	FilenameFilter hasAlbumArt = new FilenameFilter()
@@ -116,27 +130,7 @@ public class Playlist {
 			return name.contains("Folder.jpg");
 		}
 	};
-	
-	FilenameFilter isMP3 = new FilenameFilter()
-	{
-		public boolean accept(File dir, String name)
-		{
-			boolean result = false;
-			
-			if (name.endsWith(".mp3"))
-			{
-				result = true;
-			}
-			
-			if (name.endsWith(".ogg"))
-			{
-				result = true;
-			}
-			
-			return result;
-		}
-	};
-	
+
 	final static FileFilter isDIR = new FileFilter()
 	{
         final String[] IGNORED_DIRS = new String[]{
@@ -234,7 +228,7 @@ public class Playlist {
 				folderHasAlbumArt = true;
 			}
 			
-			for (String mp3 : rootNode.list(isMP3))
+			for (String mp3 : rootNode.list(FileFilters.PLAYABLE_FILES_FILTER))
 			{
                 Log.v(preferences.GetTag(), "register " + rootNode + "/" + mp3);
 				metaDataReader.setDataSource(rootNode + "/" + mp3);
@@ -333,25 +327,15 @@ public class Playlist {
         }
 	}
 
-	public List<Track> getCurrTracks()
+	public Set<Track> getCurrTracks()
 	{
-        List<Track> tracks = new ArrayList<Track>();
-
-		for(Track track : trackList){
-            for(PlaylistFilter filter : filters){
-                if(filter.accept(track)){
-                    tracks.add(track);
-                }
-            }
-        }
-
-        return tracks;
+        return filteredTrackList;
 	}
 
     public Set<Track> getTracks(PlaylistFilter filter)
     {
         Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
-        filters.add(filter);
+        filters.add(filter == null ? PlaylistFilter.ALL : filter);
         return getTracks(filters);
     }
 
@@ -360,7 +344,7 @@ public class Playlist {
         Set<Track> tracks = new HashSet<Track>();
 
         for(Track track : trackList){
-            if(isValidAccordingFilter(track, filters)){
+            if(Filters.isValidAccordingFilters(track, filters)){
                 tracks.add(track);
             }
         }
@@ -368,17 +352,31 @@ public class Playlist {
         return tracks;
     }
 
+    public Set<Album> getAlbums(PlaylistFilter filter)
+    {
+        Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
+        filters.add(filter == null ? PlaylistFilter.ALL : filter);
+        return getAlbums(filters);
+    }
+
     public Set<Album> getAlbums(Set<PlaylistFilter> filters)
     {
         Set<Album> albums = new HashSet<Album>();
 
         for(Track track : trackList){
-            if(isValidAccordingFilter(track, filters)){
+            if(Filters.isValidAccordingFilters(track, filters)){
                 albums.add(track.GetAlbum());
             }
         }
 
         return albums;
+    }
+
+    public Set<Album> getArtists(PlaylistFilter filter)
+    {
+        Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
+        filters.add(filter == null ? PlaylistFilter.ALL : filter);
+        return getAlbums(filters);
     }
 
     public Set<Artist> getArtists(Set<PlaylistFilter> filters)
@@ -387,27 +385,12 @@ public class Playlist {
 
         for(Track track : trackList)
         {
-            if(isValidAccordingFilter(track, filters)){
+            if(Filters.isValidAccordingFilters(track, filters)){
                 artists.add(track.GetArtist());
             }
         }
 
         return artists;
-    }
-
-    private boolean isValidAccordingFilter(Track track, Set<PlaylistFilter> filters)
-    {
-        int force = 0;
-        boolean accept = false;
-        for(PlaylistFilter filter : filters)
-        {
-            if(filter.getForce() > force)
-            {
-                accept = filter.accept(track);
-                force = filter.getForce();
-            }
-        }
-        return accept;
     }
 
     public Track getCurrTrack()
@@ -461,16 +444,6 @@ public class Playlist {
 	public void DatabaseClear()
 	{
 		syncDB.Clear();
-	}
-	
-	public void DatabaseDelete()
-	{
-        preferences.getContext().deleteDatabase("TurtlePlayer");
-	}
-	
-	public void DatabaseClose()
-	{
-		syncDB.close();
 	}
 
     // ========================================= //

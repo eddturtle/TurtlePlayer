@@ -97,6 +97,7 @@ public class Preferences {
         }
         return new File(path);
     }
+
     //Observable -------------------------------------------------
 
     List<PreferencesObserver> observers = new ArrayList<PreferencesObserver>();
@@ -116,6 +117,4 @@ public class Preferences {
     public void removeObserver(PreferencesObserver observer){
         observers.remove(observer);
     }
-
-
 }
