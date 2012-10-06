@@ -1,6 +1,7 @@
 package turtle.player.playlist.playorder;
 
 import turtle.player.model.Track;
+import turtle.player.playlist.Playlist;
 import turtle.player.preferences.Preferences;
 
 import java.util.ArrayList;
@@ -12,30 +13,40 @@ public class PlayOrderRandom implements PlayOrderStrategy
 
     final LimitedStack<Track> history = new LimitedStack<Track>(1000);
 
-    final Preferences preferences;
+    private Preferences preferences;
+    private Playlist playlist;
 
-    public PlayOrderRandom(Preferences preferences) {
+    public PlayOrderStrategy connect(Preferences preferences, Playlist playlist){
         this.preferences = preferences;
+        this.playlist = playlist;
+        return this;
     }
 
     @Override
-    public Track getNext(Set<Track> tracks, Track currTrack) {
-        List<Track> candidates = new ArrayList<Track>(tracks);
+    public void disconnect()
+    {
+        //empty
+    }
 
+    @Override
+    public Track getNext(Track currTrack) {
+
+        List<Track> candidates = new ArrayList<Track>(playlist.getCurrTracks());
+        List<Track> notPlayedCandidates = new ArrayList<Track>(playlist.getCurrTracks());
+
+        notPlayedCandidates.removeAll(history);
 
         final Track nextTrack;
 
-        candidates.removeAll(history);
-
-        if(!candidates.isEmpty())
+        if(!notPlayedCandidates.isEmpty())
         {
-            nextTrack = candidates.get((int)((Math.random() * candidates.size())));
+            nextTrack = notPlayedCandidates.get((int)((Math.random() * notPlayedCandidates.size())));
         }
         else
         {
             if(preferences.GetRepeat())
             {
-                nextTrack = new ArrayList<Track>(tracks).get((int) ((Math.random() * tracks.size())));
+                nextTrack = new ArrayList<Track>(candidates).get((int) ((Math.random() * candidates.size())));
             }
             else
             {
@@ -48,11 +59,11 @@ public class PlayOrderRandom implements PlayOrderStrategy
     }
 
     @Override
-    public Track getPrevious(Set<Track> tracks, Track currTrack)
+    public Track getPrevious(Track currTrack)
     {
         while(history.size() > 0){
             Track candidate = history.pop();
-            if(tracks.contains(candidate))
+            if(playlist.getCurrTracks().contains(candidate))
             {
                 return candidate;
             }

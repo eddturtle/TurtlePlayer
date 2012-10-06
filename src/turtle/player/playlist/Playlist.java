@@ -41,7 +41,6 @@ import turtle.player.model.Artist;
 import turtle.player.model.Track;
 import turtle.player.playlist.filter.Filters;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
-import turtle.player.playlist.filter.AllFilter;
 import turtle.player.playlist.filter.PlaylistFilter;
 import turtle.player.playlist.playorder.PlayOrderRandom;
 import turtle.player.playlist.playorder.PlayOrderSorted;
@@ -108,16 +107,29 @@ public class Playlist {
             @Override
             public void filterChanged()
             {
+                filteredTrackList = new HashSet<Track>();
+                for(PlaylistObserver observer : observers){
+                    observer.playlistCleaned();
+                }
+
                 filteredTrackList = filters.getValidTracks(trackList);
+
+                for(PlaylistObserver observer : observers){
+                    observer.playlistSetted(filteredTrackList);
+                }
             }
         });
         setPlayOrderStrategyAccordingPreferences();
     }
 
     private void setPlayOrderStrategyAccordingPreferences(){
+        if(playOrderStrategy != null)
+        {
+            playOrderStrategy.disconnect();
+        }
         playOrderStrategy = preferences.GetShuffle() ?
-                new PlayOrderRandom(preferences) :
-                new PlayOrderSorted(preferences, new GenericInstanceComperator());
+                PlayOrderStrategy.RANDOM.connect(preferences, this) :
+                PlayOrderStrategy.SORTED.connect(preferences, this);
     }
 	
 	private void AddTrack(Track nTrack)
@@ -128,6 +140,10 @@ public class Playlist {
         }
         if(filters.isValidAccordingFilters(nTrack)){
             filteredTrackList.add(nTrack);
+
+            for(PlaylistObserver observer : observers){
+                observer.trackAddedToPlaylist(nTrack);
+            }
         }
 	}
 	
@@ -164,7 +180,7 @@ public class Playlist {
     {
         PerformanceMeasure.start(durtions.NEXT.name());
 
-        Track track = playOrderStrategy.getNext(getCurrTracks(), getCurrTrack());
+        Track track = playOrderStrategy.getNext(getCurrTrack());
 
         PerformanceMeasure.stop(durtions.NEXT.name());
 
@@ -173,9 +189,9 @@ public class Playlist {
 
     public Track getPrevious()
     {
-        PerformanceMeasure.stop(durtions.NEXT.name());
+        PerformanceMeasure.start(durtions.PREV.name());
 
-        Track track = playOrderStrategy.getPrevious(getCurrTracks(), getCurrTrack());
+        Track track = playOrderStrategy.getPrevious(getCurrTrack());
 
         PerformanceMeasure.stop(durtions.PREV.name());
 
@@ -481,9 +497,12 @@ public class Playlist {
         void endRescan();
         void startUpdatePlaylist();
         void endUpdatePlaylist();
+        void trackAddedToPlaylist(Track track);
+        void playlistSetted(Set<Track> tracks);
+        void playlistCleaned();
     }
 
-    public static abstract class PlaylistObserverAdapter implements  PlaylistObserver{
+    public static class PlaylistObserverAdapter implements  PlaylistObserver{
         @Override
         public void trackAdded(Track track) {
             //do nothing
@@ -511,6 +530,24 @@ public class Playlist {
 
         @Override
         public void endUpdatePlaylist() {
+            //do nothing
+        }
+
+        @Override
+        public void trackAddedToPlaylist(Track track)
+        {
+            //do nothing
+        }
+
+        @Override
+        public void playlistSetted(Set<Track> tracks)
+        {
+            //do nothing
+        }
+
+        @Override
+        public void playlistCleaned()
+        {
             //do nothing
         }
     }

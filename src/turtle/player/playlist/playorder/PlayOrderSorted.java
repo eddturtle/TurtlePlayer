@@ -9,43 +9,58 @@ import java.util.*;
 public class PlayOrderSorted extends Playlist.PlaylistObserverAdapter implements PlayOrderStrategy
 {
 
-    final Preferences preferences;
+    final private Comparator<? super Track> order;
 
-    Comparator<? super Track> order;
+    private List<Track> sortedTracks = new ArrayList<Track>();
+    Preferences preferences;
+    Playlist playlist;
 
-    public PlayOrderSorted(Preferences preferences, Comparator<? super Track> order)
+    PlayOrderSorted(Comparator<? super Track> order)
     {
-        this.preferences = preferences;
         this.order = order;
     }
 
+    public PlayOrderStrategy connect(Preferences preferences, Playlist playlist){
+
+        this.playlist = playlist;
+        playlist.addObserver(this);
+
+        playlistSetted(playlist.getCurrTracks());
+
+        this.preferences = preferences;
+
+        return this;
+    }
+
+    public void disconnect(){
+        playlist.removeObserver(this);
+        sortedTracks = new ArrayList<Track>();
+    }
+
     @Override
-    public Track getNext(Set<Track> tracks, Track currTrack)
+    public Track getNext(Track currTrack)
     {
-        if(tracks.size() == 0)
+        if(sortedTracks.size() == 0)
         {
             return null;
         }
 
-        List<Track> orderedList = new ArrayList<Track>(tracks);
-        Collections.sort(orderedList, order);
-
         Track nextTrack;
 
-        int indexOfCurrent = orderedList.indexOf(currTrack);
+        int indexOfCurrent = sortedTracks.indexOf(currTrack);
 
         //current not in list, so return first one
         if(indexOfCurrent < 0){
-            return orderedList.get(0);
+            return sortedTracks.get(0);
         }
 
         int indexOfNext = indexOfCurrent + 1;
 
-        if(indexOfNext >= orderedList.size())
+        if(indexOfNext >= sortedTracks.size())
         {
             if(preferences.GetRepeat())
             {
-                nextTrack = orderedList.get(indexOfNext % orderedList.size());
+                nextTrack = sortedTracks.get(indexOfNext % sortedTracks.size());
             }
             else
             {
@@ -54,26 +69,52 @@ public class PlayOrderSorted extends Playlist.PlaylistObserverAdapter implements
         }
         else
         {
-            nextTrack = orderedList.get(indexOfNext);
+            nextTrack = sortedTracks.get(indexOfNext);
         }
         return nextTrack;
     }
 
     @Override
-    public Track getPrevious(Set<Track> tracks, Track currTrack)
+    public Track getPrevious(Track currTrack)
     {
-        if(tracks.size() == 0)
+        if(sortedTracks.size() == 0)
         {
             return null;
         }
 
-        List<Track> orderedList = new ArrayList<Track>(tracks);
-        Collections.sort(orderedList, order);
-
-        int indexOfCurrent = orderedList.indexOf(currTrack);
+        int indexOfCurrent = sortedTracks.indexOf(currTrack);
         if(indexOfCurrent <= 0){
             return null;
         }
-        return orderedList.get(indexOfCurrent - 1);
+        return sortedTracks.get(indexOfCurrent - 1);
     }
+
+    @Override
+    public void trackAddedToPlaylist(Track track)
+    {
+        //copy of: http://www.exampledepot.com/egs/java.util/coll_InsertInList.html
+
+        // Search for the non-existent item
+        int index = Collections.binarySearch(sortedTracks, track, order);
+
+        // Add the non-existent item to the list
+        if (index < 0) {
+            sortedTracks.add(-index-1, track);
+        }
+    }
+
+    @Override
+    public void playlistSetted(Set<Track> tracks)
+    {
+        sortedTracks = new ArrayList<Track>(tracks);
+        Collections.sort(sortedTracks, order);
+    }
+
+    @Override
+    public void playlistCleaned()
+    {
+        playlistSetted(new HashSet<Track>());
+    }
+
+
 }
