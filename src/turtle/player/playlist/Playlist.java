@@ -50,8 +50,16 @@ import turtle.player.preferences.Keys;
 import turtle.player.preferences.Preferences;
 import turtle.player.preferences.PreferencesObserver;
 import turtle.player.util.GenericInstanceComperator;
+import turtle.player.util.dev.PerformanceMeasure;
 
 public class Playlist {
+
+    //Log Constants
+    private enum durtions{
+        NEXT,
+        PREV,
+        PULL
+    }
 
     // Not in ClassDiagram
     public Preferences preferences;
@@ -154,13 +162,23 @@ public class Playlist {
 
     public Track getNext()
     {
+        PerformanceMeasure.start(durtions.NEXT.name());
+
         Track track = playOrderStrategy.getNext(getCurrTracks(), getCurrTrack());
+
+        PerformanceMeasure.stop(durtions.NEXT.name());
+
         return track;
     }
 
     public Track getPrevious()
     {
+        PerformanceMeasure.stop(durtions.NEXT.name());
+
         Track track = playOrderStrategy.getPrevious(getCurrTracks(), getCurrTrack());
+
+        PerformanceMeasure.stop(durtions.PREV.name());
+
         return track;
     }
 
@@ -435,10 +453,14 @@ public class Playlist {
 	{
         ClearList();
 
+        PerformanceMeasure.start(durtions.PULL.name());
+
         for(Track track : syncDB.Pull())
         {
             AddTrack(track);
         }
+
+        PerformanceMeasure.stop(durtions.PULL.name());
 	}
 	
 	public void DatabaseClear()
