@@ -22,7 +22,8 @@ package turtle.player;
 // Import - Java
 import java.util.ArrayList;
 import java.util.List;
- 
+import java.util.Set;
+
 // Import - Android Content
 import android.content.ContentValues;
 import android.content.Context;
@@ -32,6 +33,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.DatabaseUtils;
+import turtle.player.model.Album;
+import turtle.player.model.Artist;
+import turtle.player.model.Track;
 
 
 public class Database extends SQLiteOpenHelper
@@ -44,7 +48,7 @@ public class Database extends SQLiteOpenHelper
 	private static final int DATABASE_VERSION = 1;
 	private static final String DATABASE_NAME = "TurtlePlayer";
 	private static final String TABLE_NAME = "Tracks";
-	
+
 	private static final String KEY_ID = "id";
 	private static final String KEY_TITLE = "title";
 	private static final String KEY_NUMBER = "number";
@@ -55,11 +59,7 @@ public class Database extends SQLiteOpenHelper
 	private static final String KEY_ROOTSRC = "rootSrc";
 	private static final String KEY_HASALBUMART = "hasAlbumArt";
 	
-	
-	// ========================================= //
-	// 	Constructor, onCreate & onDestroy
-	// ========================================= //
-	
+
 	public Database(Context context)
 	{
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -93,7 +93,7 @@ public class Database extends SQLiteOpenHelper
 	// 	Push to Database
 	// ========================================= //
 	
-	public void Push(List<Track> tList)
+	public void Push(Set<Track> tList)
 	{
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -107,8 +107,8 @@ public class Database extends SQLiteOpenHelper
 
                 values.put(KEY_TITLE, t.GetTitle());
                 values.put(KEY_NUMBER, t.GetNumber());
-                values.put(KEY_ARTIST, t.GetArtist());
-                values.put(KEY_ALBUM, t.GetAlbum());
+                values.put(KEY_ARTIST, t.GetArtist().getName());
+                values.put(KEY_ALBUM, t.GetAlbum().getName());
                 values.put(KEY_LENGTH, t.GetLength());
                 values.put(KEY_SRC, t.GetSrc());
                 values.put(KEY_ROOTSRC, t.GetRootSrc());
@@ -139,30 +139,24 @@ public class Database extends SQLiteOpenHelper
 		
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor cursor = db.rawQuery(query, null);
-		
-		int count = 0;
+
 		Track t;
 		
 		if (cursor.moveToFirst())
 		{
 			do
 			{
-				t = new Track();
-				
-				t.SetId(count);
-				t.SetTitle(cursor.getString(1));
-				t.SetNumber(Integer.parseInt(cursor.getString(2)));
-				t.SetArtist(cursor.getString(3));
-				t.SetAlbum(cursor.getString(4));
-				t.SetLength(cursor.getDouble(5));
-				t.SetSrc(cursor.getString(6));
-				t.SetRootSrc(cursor.getString(7));
-				t.SetAlbumArt(this.IntToBoolean(cursor.getInt(8)));
-				
+                t = new Track(
+                        cursor.getString(1),
+                        Integer.parseInt(cursor.getString(2)),
+                        new Artist(cursor.getString(3)),
+                        new Album(cursor.getString(4)),
+                        cursor.getDouble(5),
+                        cursor.getString(6),
+                        cursor.getString(7),
+                        this.IntToBoolean(cursor.getInt(8))
+                );
 				tList.add(t);
-				
-				count++;
-				t = null;
 				
 			} while (cursor.moveToNext());
 		}

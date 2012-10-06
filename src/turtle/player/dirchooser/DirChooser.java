@@ -49,7 +49,8 @@ public class DirChooser extends Activity
     private File currDir;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dir_chooser);
 
@@ -70,7 +71,8 @@ public class DirChooser extends Activity
         initListeners();
     }
 
-    private void initListeners() {
+    private void initListeners()
+    {
         dirList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
@@ -103,18 +105,21 @@ public class DirChooser extends Activity
         });
     }
 
-    private void setCurrDir(File file){
+    private void setCurrDir(File file)
+    {
         currDir = file;
         currDirLabel.setText(file.getAbsolutePath());
         setAdapterForDir(file);
         toggleUpButton(file);
     }
 
-    private void toggleUpButton(File file){
+    private void toggleUpButton(File file)
+    {
         upButton.setEnabled(file.getParentFile() != null);
     }
 
-    private void setAdapterForDir(File file){
+    private void setAdapterForDir(File file)
+    {
         File [] files = file.listFiles();
         if (files == null) {
             files = new File[0];
