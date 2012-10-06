@@ -254,6 +254,10 @@ public class Player extends ListActivity
      	    	{
  	    	    	SwitchToPlaylistSlide();
      	    	}
+                else
+                {
+                    Toast.makeText(getApplicationContext(), "Empty Playlist", Toast.LENGTH_SHORT).show();
+                }
      	    }
      	});
 
@@ -284,6 +288,10 @@ public class Player extends ListActivity
      	    	{
      	    		Play(tp.playlist.getPrevious());
      	    	}
+                else
+                {
+                    Toast.makeText(getApplicationContext(), "Empty Playlist", Toast.LENGTH_SHORT).show();
+                }
      	    }
      	});
 
@@ -309,6 +317,10 @@ public class Player extends ListActivity
      	    			Play(tp.playlist.getNext());
      	    		}
      	    	}
+                else
+                {
+                    Toast.makeText(getApplicationContext(), "Empty Playlist", Toast.LENGTH_SHORT).show();
+                }
      	    }
      	});
 
@@ -724,6 +736,8 @@ public class Player extends ListActivity
     	}
     	else
     	{
+            title.setText("Welcome to");
+            artist.setText("Turtle Player");
     		duration.setText("0:00");
     	}
     	
@@ -860,7 +874,10 @@ public class Player extends ListActivity
      * Async rescan, returns immediately, use {@link turtle.player.playlist.Playlist.PlaylistObserver} to receive changes
      */
     protected void rescan(){
-        Stop();
+        if(tp.isInitialised)
+        {
+            Stop();
+        }
         tp.playlist.DatabaseClear(); // Don't Delete DB
         tp.playlist.UpdateList();
     }

@@ -296,7 +296,7 @@ public class Playlist {
 					}
 					catch (NumberFormatException e)
 					{
-						// TODO fill
+                        Log.v(preferences.GetTag(), e.getMessage());
 					}
 				}
 				else
