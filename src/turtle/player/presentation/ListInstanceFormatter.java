@@ -8,8 +8,6 @@ import turtle.player.util.Shorty;
 
 public class ListInstanceFormatter extends InstanceFormatter
 {
-    private final static String DELIMITER = " - ";
-
     @Override
     public String visit(Track track)
     {

@@ -4,19 +4,19 @@ import java.io.File;
 
 public class NameFilter extends  AccessableFileFilter
 {
-    final String[] names;
+    final String[] patterns;
 
-    public NameFilter(String... names)
+    public NameFilter(String... patterns)
     {
-        this.names = names;
+        this.patterns = patterns;
     }
 
     @Override
-    public boolean accept(File dir, String pattern)
+    public boolean accept(File dir, String name)
     {
-        if(super.accept(dir, pattern))
+        if(super.accept(dir, name))
         {
-            for(String name : names)
+            for(String pattern : patterns)
             {
                 if(name.toLowerCase().matches(pattern))
                 {
