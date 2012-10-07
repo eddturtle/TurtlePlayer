@@ -49,6 +49,7 @@ import turtle.player.preferences.Keys;
 import turtle.player.preferences.Preferences;
 import turtle.player.preferences.PreferencesObserver;
 import turtle.player.util.GenericInstanceComperator;
+import turtle.player.util.Shorty;
 import turtle.player.util.dev.PerformanceMeasure;
 
 public class Playlist {
@@ -77,8 +78,6 @@ public class Playlist {
     private Track currTrack = null;
 
 	private MediaMetadataRetriever metaDataReader;
-
-    private int number;
 
     public Playlist(Context mainContext)
 	{
@@ -266,44 +265,8 @@ public class Playlist {
 				metaDataReader.setDataSource(rootNode + "/" + mp3);
 
                 String title = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-				
-				String preFormat = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
-				String postFormat = "0";
-				String item;
-				boolean passed = false;
-				
-				if (preFormat != null && preFormat != "")
-				{
-					for (int i = 0; i < preFormat.length(); i++)
-					{
-						item = preFormat.substring(i,i+1);
-						
-						if (item != "/" && passed != true)
-						{
-							postFormat = postFormat + item;
-						}
-						else
-						{
-							passed = true;
-						}
-					}
-					
-					try
-					{
-						number = Integer.parseInt(postFormat);
-					}
-					catch (NumberFormatException e)
-					{
-                        Log.v(preferences.GetTag(), e.getMessage());
-					}
-				}
-				else
-				{
-					number = 0;
-				}
-
+				int number = parseTrackNumber(metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER));
                 double length = Double.parseDouble(metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-
                 String artist = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
                 String album = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
 
@@ -350,6 +313,18 @@ public class Playlist {
 			Log.v(preferences.GetTag(), e.getMessage());
 		}
 	}
+
+    static int parseTrackNumber(String trackNumber)
+    {
+        //strips all chars beginning at first non digit
+        String strippedTrackNumber = trackNumber.replaceAll("\\D.*", "");
+
+        if(strippedTrackNumber.length() > 0)
+        {
+            return Integer.parseInt(strippedTrackNumber);
+        }
+        return 0;
+    }
 
     private String getAlbumArt(File dir)
     {
