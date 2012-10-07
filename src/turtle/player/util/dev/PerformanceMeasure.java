@@ -16,16 +16,20 @@ public class PerformanceMeasure
 
         Long dublicated = startMillis.put(id, System.currentTimeMillis());
         if(dublicated != null){
-            throw new RuntimeException("chek your calls to PerformanceMeasure with id: " + id);
+            startMillis.remove(id);
+            Log.v(TAG, id + ": intersecting call to PerformanceMeasure, ignoring");
         }
 
     }
 
-    public static void stop(String id){
+    public static void stop(String id)
+    {
         Long startMillisOfId = startMillis.get(id);
 
-        if(startMillisOfId == null){
-            throw new RuntimeException("chek your calls to PerformanceMeasure with id: " + id);
+        if(startMillisOfId == null)
+        {
+            Log.v(TAG, id + ": intersecting call to PerformanceMeasure, ignoring");
+            return;
         }
 
         Long millis = System.currentTimeMillis() - startMillisOfId;
