@@ -727,7 +727,7 @@ public class Player extends ListActivity
     	artist.setVisibility(View.VISIBLE);
     	duration.setVisibility(View.VISIBLE);
 
-        title.setText(t.accept(InstanceFormatter.SHORT));
+        title.setText(t.accept(InstanceFormatter.SHORT_WITH_NUMBER));
     	artist.setText(t.GetAlbum().accept(InstanceFormatter.SHORT));
     	
     	if (tp.isInitialised)
