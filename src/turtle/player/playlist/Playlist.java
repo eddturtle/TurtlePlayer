@@ -77,8 +77,6 @@ public class Playlist {
 
     private Track currTrack = null;
 
-	private MediaMetadataRetriever metaDataReader;
-
     public Playlist(Context mainContext)
 	{
 
@@ -207,9 +205,8 @@ public class Playlist {
                                 observer.startRescan(mediaPath);
                             }
 
-                            metaDataReader = new MediaMetadataRetriever();
                             CheckDir(mediaPath);
-                            metaDataReader.release();
+
                         } catch (NullPointerException e) {
                             Log.v(preferences.GetTag(), e.getMessage());
                         } finally {
@@ -233,14 +230,16 @@ public class Playlist {
     }
 
     private void CheckDir(File rootNode){
-        CheckDir(rootNode, 0, null);
+        MediaMetadataRetriever metaDataReader = new MediaMetadataRetriever();
+        CheckDir(metaDataReader, rootNode, 0, null);
+        metaDataReader.release();
     }
 
     /**
      * @param rootNode
      * @param depth number of parent allready visited
      */
-	private void CheckDir(File rootNode, int depth, String parentAlbumArt)
+	private void CheckDir(MediaMetadataRetriever metaDataReader, File rootNode, int depth, String parentAlbumArt)
 	{
 		// http://www.exampledepot.com/egs/java.io/GetFiles.html
 
@@ -262,11 +261,11 @@ public class Playlist {
                 Log.v(preferences.GetTag(), "register " + rootNode + "/" + mp3);
 				metaDataReader.setDataSource(rootNode + "/" + mp3);
 
-                String title = extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-				int number = parseTrackNumber(extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER));
-                double length = parseDuration(extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-                String artist = extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-                String album = extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+                String title = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_TITLE);
+				int number = parseTrackNumber(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER));
+                double length = parseDuration(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_DURATION));
+                String artist = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                String album = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ALBUM);
 
 				if (Shorty.isVoid(title))
 				{
@@ -301,7 +300,7 @@ public class Playlist {
 			{
                 if(depth < MAX_DIR_SCAN_DEPTH) // avoid Stack overflow - symbolic link points to a parent dir
                 {
-                    CheckDir(dir, depth + 1, albumArt);
+                    CheckDir(metaDataReader, dir, depth + 1, albumArt);
                 }
 			}
 		}
@@ -319,7 +318,7 @@ public class Playlist {
      * @param keyCode see {@link MediaMetadataRetriever#extractMetadata(int)}
      * @return
      */
-    String extractMetadata(int keyCode)
+    String extractMetadata(MediaMetadataRetriever metaDataReader, int keyCode)
     {
         String metaData = Shorty.avoidNull(metaDataReader.extractMetadata(keyCode));
 
