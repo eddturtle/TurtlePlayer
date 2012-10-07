@@ -34,9 +34,9 @@ public class Track implements Instance
 	private double length;
 	private String src;
 	private String rootSrc;
-	private boolean hasAlbumArt;
+	private String albumArt;
 
-    public Track(String title, int number, Artist artist, Album album, double length, String src, String rootSrc, boolean hasAlbumArt)
+    public Track(String title, int number, Artist artist, Album album, double length, String src, String rootSrc, String albumArt)
     {
         this.title = title;
         this.number = number;
@@ -45,7 +45,7 @@ public class Track implements Instance
         this.length = length;
         this.src = src;
         this.rootSrc = rootSrc;
-        this.hasAlbumArt = hasAlbumArt;
+        this.albumArt = albumArt;
     }
 
     public String GetTitle()
@@ -83,9 +83,9 @@ public class Track implements Instance
 		return rootSrc;
 	}
 
-	public boolean HasAlbumArt()
+	public String albumArt()
 	{
-		return hasAlbumArt;
+		return albumArt;
 	}
 
     /**

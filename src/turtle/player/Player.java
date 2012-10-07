@@ -744,11 +744,9 @@ public class Player extends ListActivity
 		ImageView iv = (ImageView)findViewById(R.id.albumArt);
 		
 		
-    	if (t.HasAlbumArt() && t.GetRootSrc() != null)
+    	if (t.albumArt() != null)
     	{
-    		String location = t.GetRootSrc() + "Folder.jpg";
-    		Bitmap bmp = BitmapFactory.decodeFile(location);
-    		
+    		Bitmap bmp = BitmapFactory.decodeFile(t.albumArt());
     		iv.setImageBitmap(bmp);
     	}
     	else

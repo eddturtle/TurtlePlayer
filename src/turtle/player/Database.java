@@ -45,7 +45,7 @@ public class Database extends SQLiteOpenHelper
 	// 	Attributes
 	// ========================================= //
 	
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 	private static final String DATABASE_NAME = "TurtlePlayer";
 	private static final String TABLE_NAME = "Tracks";
 
@@ -57,7 +57,7 @@ public class Database extends SQLiteOpenHelper
 	private static final String KEY_LENGTH = "length";
 	private static final String KEY_SRC = "src";
 	private static final String KEY_ROOTSRC = "rootSrc";
-	private static final String KEY_HASALBUMART = "hasAlbumArt";
+	private static final String KEY_ALBUMART = "hasAlbumArt";
 	
 
 	public Database(Context context)
@@ -77,7 +77,7 @@ public class Database extends SQLiteOpenHelper
 				+ KEY_LENGTH + " REAL, "
 				+ KEY_SRC + " TEXT, "
 				+ KEY_ROOTSRC + " TEXT, "
-				+ KEY_HASALBUMART + " INTEGER);";
+				+ KEY_ALBUMART + " TEXT);";
 		db.execSQL(CREATE_TABLE);
 	}
 	
@@ -112,7 +112,7 @@ public class Database extends SQLiteOpenHelper
                 values.put(KEY_LENGTH, t.GetLength());
                 values.put(KEY_SRC, t.GetSrc());
                 values.put(KEY_ROOTSRC, t.GetRootSrc());
-                values.put(KEY_HASALBUMART, this.BooleanToInt(t.HasAlbumArt()));
+                values.put(KEY_ALBUMART, t.albumArt());
 
                 db.insert(TABLE_NAME, null, values);
                 values = null;
@@ -154,7 +154,7 @@ public class Database extends SQLiteOpenHelper
                         cursor.getDouble(5),
                         cursor.getString(6),
                         cursor.getString(7),
-                        this.IntToBoolean(cursor.getInt(8))
+                        cursor.getString(8)
                 );
 				tList.add(t);
 				
@@ -188,30 +188,6 @@ public class Database extends SQLiteOpenHelper
 		long rows = DatabaseUtils.queryNumEntries(db, TABLE_NAME);
 		
 		if (rows == 0)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-	
-	public int BooleanToInt(boolean val)
-	{
-		if (val)
-		{
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
-	}
-	
-	public boolean IntToBoolean(int item)
-	{
-		if (item == 1)
 		{
 			return true;
 		}

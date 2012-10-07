@@ -146,14 +146,6 @@ public class Playlist {
             }
         }
 	}
-	
-	FilenameFilter hasAlbumArt = new FilenameFilter()
-	{
-		public boolean accept(File dir, String name)
-		{
-			return name.contains("Folder.jpg");
-		}
-	};
 
 	final static FileFilter isDIR = new FileFilter()
 	{
@@ -242,14 +234,14 @@ public class Playlist {
     }
 
     private void CheckDir(File rootNode){
-        CheckDir(rootNode, 0);
+        CheckDir(rootNode, 0, null);
     }
 
     /**
      * @param rootNode
      * @param depth number of parent allready visited
      */
-	private void CheckDir(File rootNode, int depth)
+	private void CheckDir(File rootNode, int depth, String parentAlbumArt)
 	{
 		// http://www.exampledepot.com/egs/java.io/GetFiles.html
 
@@ -257,12 +249,18 @@ public class Playlist {
 		
 		try
 		{
-			if (rootNode.list(hasAlbumArt).length > 0)
-			{
-				folderHasAlbumArt = true;
-			}
-			
-			for (String mp3 : rootNode.list(FileFilters.PLAYABLE_FILES_FILTER))
+            String albumArt = getAlbumArt(rootNode);
+
+            if(albumArt != null)
+            {
+                albumArt = rootNode + "/" + albumArt;
+            }
+            else
+            {
+                albumArt = parentAlbumArt;
+            }
+
+            for (String mp3 : rootNode.list(FileFilters.PLAYABLE_FILES_FILTER))
 			{
                 Log.v(preferences.GetTag(), "register " + rootNode + "/" + mp3);
 				metaDataReader.setDataSource(rootNode + "/" + mp3);
@@ -332,7 +330,7 @@ public class Playlist {
                         length,
                         rootNode + "/" + mp3,
                         rootNode + "/",
-                        folderHasAlbumArt
+                        albumArt
                 );
 				
 				this.AddTrack(t);
@@ -342,7 +340,7 @@ public class Playlist {
 			{
                 if(depth < MAX_DIR_SCAN_DEPTH) // avoid Stack overflow - symbolic link points to a parent dir
                 {
-                    CheckDir(dir, depth + 1);
+                    CheckDir(dir, depth + 1, albumArt);
                 }
 			}
 		}
@@ -352,8 +350,20 @@ public class Playlist {
 			Log.v(preferences.GetTag(), e.getMessage());
 		}
 	}
-	
-	public void ClearList()
+
+    private String getAlbumArt(File dir)
+    {
+        for(FilenameFilter filenameFilter : FileFilters.folderArtFilters)
+        {
+            String[] paths = dir.list(filenameFilter);
+            if(paths.length > 0){
+                return paths[0];
+            }
+        }
+        return null;
+    }
+
+    public void ClearList()
 	{
 		trackList.clear();
         for(PlaylistObserver observer : observers){
