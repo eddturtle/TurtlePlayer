@@ -268,17 +268,17 @@ public class Playlist {
                 String artist = extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
                 String album = extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
 
-				if (title == null)
+				if (Shorty.isVoid(title))
 				{
 					title = "Unknown";
 				}
 				
-				if (artist == null)
+				if (Shorty.isVoid(artist))
 				{
 					artist = "Unknown";
 				}
 				
-				if (album == null)
+				if (Shorty.isVoid(album))
 				{
 					album = "Unknown";
 				}
