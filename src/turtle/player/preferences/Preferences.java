@@ -31,7 +31,7 @@ public class Preferences {
 
 	// Not in ClassDiagram
 
-	private static final String TAG = "TurtlePlayer";
+	public static final String TAG = "TurtlePlayer";
 
     final Context context;
 

@@ -18,8 +18,21 @@ public class InstanceAdapter extends ArrayAdapter<Instance>
 {
     final InstanceFormatter formatter;
 
-    public InstanceAdapter(Context context, Set<? extends Instance> instances, InstanceFormatter formatter) {
-        super(context, R.layout.file_list_entry, getSortedInstances(instances, new FormattedInstanceComparator(formatter)));
+    /**
+     * @param context
+     * @param instances
+     * @param formatter
+     * @param comparator if null, {@link FormattedInstanceComparator} is used
+     */
+    public InstanceAdapter(
+            Context context,
+            Set<? extends Instance> instances,
+            InstanceFormatter formatter,
+            Comparator<Instance> comparator)
+    {
+        super(context, R.layout.file_list_entry,
+                getSortedInstances(instances, comparator == null ?
+                        new FormattedInstanceComparator(formatter) : comparator));
 
         this.formatter = formatter;
     }

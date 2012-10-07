@@ -49,6 +49,7 @@ import turtle.player.preferences.Keys;
 import turtle.player.preferences.Preferences;
 import turtle.player.preferences.PreferencesObserver;
 import turtle.player.util.GenericInstanceComperator;
+import turtle.player.util.Shorty;
 import turtle.player.util.dev.PerformanceMeasure;
 
 public class Playlist {
@@ -75,10 +76,6 @@ public class Playlist {
 	private Database syncDB;
 
     private Track currTrack = null;
-
-	private MediaMetadataRetriever metaDataReader;
-
-    private int number;
 
     public Playlist(Context mainContext)
 	{
@@ -208,9 +205,8 @@ public class Playlist {
                                 observer.startRescan(mediaPath);
                             }
 
-                            metaDataReader = new MediaMetadataRetriever();
                             CheckDir(mediaPath);
-                            metaDataReader.release();
+
                         } catch (NullPointerException e) {
                             Log.v(preferences.GetTag(), e.getMessage());
                         } finally {
@@ -234,19 +230,19 @@ public class Playlist {
     }
 
     private void CheckDir(File rootNode){
-        CheckDir(rootNode, 0, null);
+        MediaMetadataRetriever metaDataReader = new MediaMetadataRetriever();
+        CheckDir(metaDataReader, rootNode, 0, null);
+        metaDataReader.release();
     }
 
     /**
      * @param rootNode
      * @param depth number of parent allready visited
      */
-	private void CheckDir(File rootNode, int depth, String parentAlbumArt)
+	private void CheckDir(MediaMetadataRetriever metaDataReader, File rootNode, int depth, String parentAlbumArt)
 	{
 		// http://www.exampledepot.com/egs/java.io/GetFiles.html
 
-		boolean folderHasAlbumArt = false;
-		
 		try
 		{
             String albumArt = getAlbumArt(rootNode);
@@ -265,59 +261,23 @@ public class Playlist {
                 Log.v(preferences.GetTag(), "register " + rootNode + "/" + mp3);
 				metaDataReader.setDataSource(rootNode + "/" + mp3);
 
-                String title = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-				
-				String preFormat = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
-				String postFormat = "0";
-				String item;
-				boolean passed = false;
-				
-				if (preFormat != null && preFormat != "")
-				{
-					for (int i = 0; i < preFormat.length(); i++)
-					{
-						item = preFormat.substring(i,i+1);
-						
-						if (item != "/" && passed != true)
-						{
-							postFormat = postFormat + item;
-						}
-						else
-						{
-							passed = true;
-						}
-					}
-					
-					try
-					{
-						number = Integer.parseInt(postFormat);
-					}
-					catch (NumberFormatException e)
-					{
-                        Log.v(preferences.GetTag(), e.getMessage());
-					}
-				}
-				else
-				{
-					number = 0;
-				}
+                String title = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_TITLE);
+				int number = parseTrackNumber(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER));
+                double length = parseDuration(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_DURATION));
+                String artist = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                String album = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ALBUM);
 
-                double length = Double.parseDouble(metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-
-                String artist = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-                String album = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-
-				if (title == null)
+				if (Shorty.isVoid(title))
 				{
 					title = "Unknown";
 				}
 				
-				if (artist == null)
+				if (Shorty.isVoid(artist))
 				{
 					artist = "Unknown";
 				}
 				
-				if (album == null)
+				if (Shorty.isVoid(album))
 				{
 					album = "Unknown";
 				}
@@ -340,7 +300,7 @@ public class Playlist {
 			{
                 if(depth < MAX_DIR_SCAN_DEPTH) // avoid Stack overflow - symbolic link points to a parent dir
                 {
-                    CheckDir(dir, depth + 1, albumArt);
+                    CheckDir(metaDataReader, dir, depth + 1, albumArt);
                 }
 			}
 		}
@@ -350,6 +310,49 @@ public class Playlist {
 			Log.v(preferences.GetTag(), e.getMessage());
 		}
 	}
+
+    /**
+     * calls {@link MediaMetadataRetriever#extractMetadata(int)} and removes
+     * chunk after 0 terminated string
+     *
+     * @param keyCode see {@link MediaMetadataRetriever#extractMetadata(int)}
+     * @return
+     */
+    String extractMetadata(MediaMetadataRetriever metaDataReader, int keyCode)
+    {
+        String metaData = Shorty.avoidNull(metaDataReader.extractMetadata(keyCode));
+
+        //replace all chars exept letters and digits, space and dash
+        //return metaData.replaceAll("^\\w\\s-,:;?$[]\"]","");
+
+        int indexOfZeroTermination = metaData.indexOf(0);
+        return indexOfZeroTermination < 0 ? metaData : metaData.substring(0, indexOfZeroTermination);
+    }
+
+    static int parseTrackNumber(String trackNumber)
+    {
+        //strips all chars beginning at first non digit
+        String strippedTrackNumber = trackNumber.replaceAll("\\D.*", "");
+
+        if(strippedTrackNumber.length() > 0)
+        {
+            return Integer.parseInt(strippedTrackNumber);
+        }
+        return 0;
+    }
+
+    static double parseDuration(String duration)
+    {
+        try
+        {
+            return Double.parseDouble(duration);
+        }
+        catch (NumberFormatException e)
+        {
+            Log.v(Preferences.TAG, "Not able to parse duration '" + duration + "': " + e.getMessage());
+        }
+        return 0;
+    }
 
     private String getAlbumArt(File dir)
     {
