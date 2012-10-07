@@ -262,11 +262,11 @@ public class Playlist {
                 Log.v(preferences.GetTag(), "register " + rootNode + "/" + mp3);
 				metaDataReader.setDataSource(rootNode + "/" + mp3);
 
-                String title = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-				int number = parseTrackNumber(metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER));
-                double length = Double.parseDouble(metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-                String artist = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-                String album = metaDataReader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+                String title = extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+				int number = parseTrackNumber(extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER));
+                double length = parseDuration(extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+                String artist = extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                String album = extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
 
 				if (title == null)
 				{
@@ -312,6 +312,24 @@ public class Playlist {
 		}
 	}
 
+    /**
+     * calls {@link MediaMetadataRetriever#extractMetadata(int)} and removes
+     * chunk after 0 terminated string
+     *
+     * @param keyCode see {@link MediaMetadataRetriever#extractMetadata(int)}
+     * @return
+     */
+    String extractMetadata(int keyCode)
+    {
+        String metaData = Shorty.avoidNull(metaDataReader.extractMetadata(keyCode));
+
+        //replace all chars exept letters and digits, space and dash
+        //return metaData.replaceAll("^\\w\\s-,:;?$[]\"]","");
+
+        int indexOfZeroTermination = metaData.indexOf(0);
+        return indexOfZeroTermination < 0 ? metaData : metaData.substring(0, indexOfZeroTermination);
+    }
+
     static int parseTrackNumber(String trackNumber)
     {
         //strips all chars beginning at first non digit
@@ -320,6 +338,19 @@ public class Playlist {
         if(strippedTrackNumber.length() > 0)
         {
             return Integer.parseInt(strippedTrackNumber);
+        }
+        return 0;
+    }
+
+    static double parseDuration(String duration)
+    {
+        try
+        {
+            return Double.parseDouble(duration);
+        }
+        catch (NumberFormatException e)
+        {
+            Log.v(Preferences.TAG, "Not able to parse duration '" + duration + "': " + e.getMessage());
         }
         return 0;
     }
