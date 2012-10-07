@@ -244,8 +244,6 @@ public class Playlist {
 	{
 		// http://www.exampledepot.com/egs/java.io/GetFiles.html
 
-		boolean folderHasAlbumArt = false;
-		
 		try
 		{
             String albumArt = getAlbumArt(rootNode);

@@ -11,6 +11,7 @@ import turtle.player.playlist.filter.ChildsFilter;
 import turtle.player.playlist.filter.Filters;
 import turtle.player.playlist.filter.PlaylistFilter;
 import turtle.player.presentation.InstanceFormatter;
+import turtle.player.util.GenericInstanceComperator;
 import turtle.player.util.InstanceAdapter;
 
 import java.util.HashSet;
@@ -171,7 +172,8 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
                         new InstanceAdapter(
                                 tp.getApplicationContext(),
                                 instances,
-                                InstanceFormatter.LIST
+                                InstanceFormatter.LIST,
+                                new GenericInstanceComperator()
                         )
                 );
             }
