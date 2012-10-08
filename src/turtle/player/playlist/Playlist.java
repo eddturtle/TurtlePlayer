@@ -16,19 +16,12 @@
  * 
  */
 
-// Package
 package turtle.player.playlist;
 
-// Import - Java
+
 import java.util.*;
 import java.io.File;
-
-// Import - Android Log
 import android.util.Log;
-
-// Import - Android Media
-
-// Import - Android Context
 import android.content.Context;
 import turtle.player.persistance.Database;
 import turtle.player.Stats;
@@ -45,259 +38,288 @@ import turtle.player.preferences.Preferences;
 import turtle.player.preferences.PreferencesObserver;
 import turtle.player.util.dev.PerformanceMeasure;
 
-public class Playlist {
+public class Playlist
+{
 
-    //Log Constants
-    private enum durations
-    {
-        NEXT,
-        PREV,
-        PULL
-    }
+	//Log Constants
+	private enum durations
+	{
+		NEXT,
+		PREV,
+		PULL
+	}
 
-    // Not in ClassDiagram
-    public Preferences preferences;
-    public Stats stats = new Stats();
+	// Not in ClassDiagram
+	public Preferences preferences;
+	public Stats stats = new Stats();
 
-    private Filters filters = new Filters();
+	private Filters filters = new Filters();
 
-    private PlayOrderStrategy playOrderStrategy;
+	private PlayOrderStrategy playOrderStrategy;
 
 	private Set<Track> trackList = new HashSet<Track>();
 	private Set<Track> filteredTrackList = new HashSet<Track>();
 
 	private Database syncDB;
 
-    private Track currTrack = null;
+	private Track currTrack = null;
 
-    public Playlist(Context mainContext)
+	public Playlist(Context mainContext)
 	{
 
-        // Location, Repeat, Shuffle (Remember Trailing / on Location)
+		// Location, Repeat, Shuffle (Remember Trailing / on Location)
 		preferences = new Preferences(mainContext);
-        syncDB = new Database(mainContext);
+		syncDB = new Database(mainContext);
 
-        syncDB.addObserver(new Database.DbObserver(){
-            @Override
-            public void trackAdded(Track track)
-            {
-                AddTrack(track);
-            }
+		syncDB.addObserver(new Database.DbObserver()
+		{
+			@Override
+			public void trackAdded(Track track)
+			{
+				AddTrack(track);
+			}
 
-            @Override
-            public void cleaned()
-            {
-                ClearList();
-            }
-        });
+			@Override
+			public void cleaned()
+			{
+				ClearList();
+			}
+		});
 
-        init();
+		init();
 	}
 
-    private void init(){
-        preferences.addObserver(new PreferencesObserver()
-        {
-            @Override
-            public void changed(Key key)
-            {
-                if(key.equals(Keys.SHUFFLE))
-                {
-                    setPlayOrderStrategyAccordingPreferences();
-                }
-            }
-        });
+	private void init()
+	{
+		preferences.addObserver(new PreferencesObserver()
+		{
+			@Override
+			public void changed(Key key)
+			{
+				if (key.equals(Keys.SHUFFLE))
+				{
+					setPlayOrderStrategyAccordingPreferences();
+				}
+			}
+		});
 
-        filters.addObserver(new Filters.FilterObserver()
-        {
-            @Override
-            public void filterChanged()
-            {
-                filteredTrackList = new HashSet<Track>();
-                for(PlaylistObserver observer : observers){
-                    observer.playlistCleaned();
-                }
+		filters.addObserver(new Filters.FilterObserver()
+		{
+			@Override
+			public void filterChanged()
+			{
+				filteredTrackList = new HashSet<Track>();
+				for (PlaylistObserver observer : observers)
+				{
+					observer.playlistCleaned();
+				}
 
-                filteredTrackList = filters.getValidTracks(trackList);
+				filteredTrackList = filters.getValidTracks(trackList);
 
-                for(PlaylistObserver observer : observers){
-                    observer.playlistSetted(filteredTrackList);
-                }
-            }
-        });
-        setPlayOrderStrategyAccordingPreferences();
-    }
+				for (PlaylistObserver observer : observers)
+				{
+					observer.playlistSetted(filteredTrackList);
+				}
+			}
+		});
+		setPlayOrderStrategyAccordingPreferences();
+	}
 
-    private void setPlayOrderStrategyAccordingPreferences(){
-        if(playOrderStrategy != null)
-        {
-            playOrderStrategy.disconnect();
-        }
-        playOrderStrategy = preferences.GetShuffle() ?
-                PlayOrderStrategy.RANDOM.connect(preferences, this) :
-                PlayOrderStrategy.SORTED.connect(preferences, this);
-    }
-	
+	private void setPlayOrderStrategyAccordingPreferences()
+	{
+		if (playOrderStrategy != null)
+		{
+			playOrderStrategy.disconnect();
+		}
+		playOrderStrategy = preferences.GetShuffle() ?
+				  PlayOrderStrategy.RANDOM.connect(preferences, this) :
+				  PlayOrderStrategy.SORTED.connect(preferences, this);
+	}
+
 	private void AddTrack(Track nTrack)
 	{
 		trackList.add(nTrack);
-        for(PlaylistObserver observer : observers){
-            observer.trackAdded(nTrack);
-        }
-        if(filters.isValidAccordingFilters(nTrack)){
-            filteredTrackList.add(nTrack);
+		for (PlaylistObserver observer : observers)
+		{
+			observer.trackAdded(nTrack);
+		}
+		if (filters.isValidAccordingFilters(nTrack))
+		{
+			filteredTrackList.add(nTrack);
 
-            for(PlaylistObserver observer : observers){
-                observer.trackAddedToPlaylist(nTrack);
-            }
-        }
+			for (PlaylistObserver observer : observers)
+			{
+				observer.trackAddedToPlaylist(nTrack);
+			}
+		}
 	}
 
-    public Track getNext()
-    {
-        PerformanceMeasure.start(durations.NEXT.name());
+	public Track getNext()
+	{
+		PerformanceMeasure.start(durations.NEXT.name());
 
-        Track track = playOrderStrategy.getNext(getCurrTrack());
+		Track track = playOrderStrategy.getNext(getCurrTrack());
 
-        PerformanceMeasure.stop(durations.NEXT.name());
+		PerformanceMeasure.stop(durations.NEXT.name());
 
-        return track;
-    }
+		return track;
+	}
 
-    public Track getPrevious()
-    {
-        PerformanceMeasure.start(durations.PREV.name());
+	public Track getPrevious()
+	{
+		PerformanceMeasure.start(durations.PREV.name());
 
-        Track track = playOrderStrategy.getPrevious(getCurrTrack());
+		Track track = playOrderStrategy.getPrevious(getCurrTrack());
 
-        PerformanceMeasure.stop(durations.PREV.name());
+		PerformanceMeasure.stop(durations.PREV.name());
 
-        return track;
-    }
+		return track;
+	}
 
-    public void UpdateList() {
-        new Thread(new Runnable() {
-            public void run() {
-                for (PlaylistObserver observer : observers) {
-                    observer.startUpdatePlaylist();
-                }
+	public void UpdateList()
+	{
+		new Thread(new Runnable()
+		{
+			public void run()
+			{
+				for (PlaylistObserver observer : observers)
+				{
+					observer.startUpdatePlaylist();
+				}
 
-                ClearList();
+				ClearList();
 
-                try {
-                    if (syncDB.isEmpty()) {
-                        try {
-                            final File mediaPath = preferences.GetMediaPath();
+				try
+				{
+					if (syncDB.isEmpty())
+					{
+						try
+						{
+							final File mediaPath = preferences.GetMediaPath();
 
-                            for (PlaylistObserver observer : observers) {
-                                observer.startRescan(mediaPath);
-                            }
+							for (PlaylistObserver observer : observers)
+							{
+								observer.startRescan(mediaPath);
+							}
 
-                            FsReader.scanDir(syncDB, mediaPath);
+							FsReader.scanDir(syncDB, mediaPath);
 
-                        } catch (NullPointerException e) {
-                            Log.v(preferences.GetTag(), e.getMessage());
-                        } finally {
-                            for (PlaylistObserver observer : observers) {
-                                observer.endRescan();
-                            }
-                        }
-                    } else {
-                        DatabasePull();
-                    }
-                } finally {
-                    for (PlaylistObserver observer : observers) {
-                        observer.endUpdatePlaylist();
-                    }
-                }
-            }
-        }).start();
-    }
+						} catch (NullPointerException e)
+						{
+							Log.v(preferences.GetTag(), e.getMessage());
+						} finally
+						{
+							for (PlaylistObserver observer : observers)
+							{
+								observer.endRescan();
+							}
+						}
+					} else
+					{
+						DatabasePull();
+					}
+				} finally
+				{
+					for (PlaylistObserver observer : observers)
+					{
+						observer.endUpdatePlaylist();
+					}
+				}
+			}
+		}).start();
+	}
 
-    public void ClearList()
+	public void ClearList()
 	{
 		trackList.clear();
-        for(PlaylistObserver observer : observers){
-            observer.cleaned();
-        }
+		for (PlaylistObserver observer : observers)
+		{
+			observer.cleaned();
+		}
 	}
 
 	public Set<Track> getCurrTracks()
 	{
-        return filteredTrackList;
+		return filteredTrackList;
 	}
 
-    public Set<Track> getTracks(PlaylistFilter filter)
-    {
-        Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
-        filters.add(filter == null ? PlaylistFilter.ALL : filter);
-        return getTracks(filters);
-    }
+	public Set<Track> getTracks(PlaylistFilter filter)
+	{
+		Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
+		filters.add(filter == null ? PlaylistFilter.ALL : filter);
+		return getTracks(filters);
+	}
 
-    public Set<Track> getTracks(Set<PlaylistFilter> filters)
-    {
-        Set<Track> tracks = new HashSet<Track>();
+	public Set<Track> getTracks(Set<PlaylistFilter> filters)
+	{
+		Set<Track> tracks = new HashSet<Track>();
 
-        for(Track track : trackList){
-            if(Filters.isValidAccordingFilters(track, filters)){
-                tracks.add(track);
-            }
-        }
+		for (Track track : trackList)
+		{
+			if (Filters.isValidAccordingFilters(track, filters))
+			{
+				tracks.add(track);
+			}
+		}
 
-        return tracks;
-    }
+		return tracks;
+	}
 
-    public Set<Album> getAlbums(PlaylistFilter filter)
-    {
-        Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
-        filters.add(filter == null ? PlaylistFilter.ALL : filter);
-        return getAlbums(filters);
-    }
+	public Set<Album> getAlbums(PlaylistFilter filter)
+	{
+		Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
+		filters.add(filter == null ? PlaylistFilter.ALL : filter);
+		return getAlbums(filters);
+	}
 
-    public Set<Album> getAlbums(Set<PlaylistFilter> filters)
-    {
-        Set<Album> albums = new HashSet<Album>();
+	public Set<Album> getAlbums(Set<PlaylistFilter> filters)
+	{
+		Set<Album> albums = new HashSet<Album>();
 
-        for(Track track : trackList){
-            if(Filters.isValidAccordingFilters(track, filters)){
-                albums.add(track.GetAlbum());
-            }
-        }
+		for (Track track : trackList)
+		{
+			if (Filters.isValidAccordingFilters(track, filters))
+			{
+				albums.add(track.GetAlbum());
+			}
+		}
 
-        return albums;
-    }
+		return albums;
+	}
 
-    public Set<Album> getArtists(PlaylistFilter filter)
-    {
-        Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
-        filters.add(filter == null ? PlaylistFilter.ALL : filter);
-        return getAlbums(filters);
-    }
+	public Set<Album> getArtists(PlaylistFilter filter)
+	{
+		Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
+		filters.add(filter == null ? PlaylistFilter.ALL : filter);
+		return getAlbums(filters);
+	}
 
-    public Set<Artist> getArtists(Set<PlaylistFilter> filters)
-    {
-        Set<Artist> artists = new HashSet<Artist>();
+	public Set<Artist> getArtists(Set<PlaylistFilter> filters)
+	{
+		Set<Artist> artists = new HashSet<Artist>();
 
-        for(Track track : trackList)
-        {
-            if(Filters.isValidAccordingFilters(track, filters)){
-                artists.add(track.GetArtist());
-            }
-        }
+		for (Track track : trackList)
+		{
+			if (Filters.isValidAccordingFilters(track, filters))
+			{
+				artists.add(track.GetArtist());
+			}
+		}
 
-        return artists;
-    }
+		return artists;
+	}
 
-    public Track getCurrTrack()
-    {
-        return currTrack;
-    }
+	public Track getCurrTrack()
+	{
+		return currTrack;
+	}
 
-    public void setCurrTrack(Track currTrack)
-    {
-        this.currTrack = currTrack;
-    }
+	public void setCurrTrack(Track currTrack)
+	{
+		this.currTrack = currTrack;
+	}
 
-    public int Length()
+	public int Length()
 	{
 		return getCurrTracks().size();
 	}
@@ -307,106 +329,121 @@ public class Playlist {
 		if (trackList.size() < 1)
 		{
 			return true;
-		}
-		else
+		} else
 		{
 			return false;
 		}
 	}
-	
+
 	public void DatabasePull()
 	{
-        ClearList();
+		ClearList();
 
-        PerformanceMeasure.start(durations.PULL.name());
+		PerformanceMeasure.start(durations.PULL.name());
 
-        for(Track track : syncDB.pull())
-        {
-            AddTrack(track);
-        }
+		for (Track track : syncDB.pull())
+		{
+			AddTrack(track);
+		}
 
-        PerformanceMeasure.stop(durations.PULL.name());
+		PerformanceMeasure.stop(durations.PULL.name());
 	}
-	
+
 	public void DatabaseClear()
 	{
 		syncDB.clear();
 	}
 
-    // ========================================= //
-    // 	Observable
-    // ========================================= //
+	//------------------------------------------------------ 	Observable
 
-    List<PlaylistObserver> observers = new ArrayList<PlaylistObserver>();
+	List<PlaylistObserver> observers = new ArrayList<PlaylistObserver>();
 
-    public interface PlaylistObserver{
-        void trackAdded(Track track);
-        void cleaned();
-        void startRescan(File mediaPath);
-        void endRescan();
-        void startUpdatePlaylist();
-        void endUpdatePlaylist();
-        void trackAddedToPlaylist(Track track);
-        void playlistSetted(Set<Track> tracks);
-        void playlistCleaned();
-    }
+	public interface PlaylistObserver
+	{
+		void trackAdded(Track track);
 
-    public static class PlaylistObserverAdapter implements  PlaylistObserver{
-        @Override
-        public void trackAdded(Track track) {
-            //do nothing
-        }
+		void cleaned();
 
-        @Override
-        public void cleaned() {
-            //do nothing
-        }
+		void startRescan(File mediaPath);
 
-        @Override
-        public void startRescan(File mediaPath) {
-            //do nothing
-        }
+		void endRescan();
 
-        @Override
-        public void endRescan() {
-            //do nothing
-        }
+		void startUpdatePlaylist();
 
-        @Override
-        public void startUpdatePlaylist() {
-            //do nothing
-        }
+		void endUpdatePlaylist();
 
-        @Override
-        public void endUpdatePlaylist() {
-            //do nothing
-        }
+		void trackAddedToPlaylist(Track track);
 
-        @Override
-        public void trackAddedToPlaylist(Track track)
-        {
-            //do nothing
-        }
+		void playlistSetted(Set<Track> tracks);
 
-        @Override
-        public void playlistSetted(Set<Track> tracks)
-        {
-            //do nothing
-        }
+		void playlistCleaned();
+	}
 
-        @Override
-        public void playlistCleaned()
-        {
-            //do nothing
-        }
-    }
+	public static class PlaylistObserverAdapter implements PlaylistObserver
+	{
+		@Override
+		public void trackAdded(Track track)
+		{
+			//do nothing
+		}
 
-    public void addObserver(PlaylistObserver observer){
-        observers.add(observer);
-    }
+		@Override
+		public void cleaned()
+		{
+			//do nothing
+		}
 
-    public void removeObserver(PlaylistObserver observer){
-        observers.remove(observer);
-    }
+		@Override
+		public void startRescan(File mediaPath)
+		{
+			//do nothing
+		}
+
+		@Override
+		public void endRescan()
+		{
+			//do nothing
+		}
+
+		@Override
+		public void startUpdatePlaylist()
+		{
+			//do nothing
+		}
+
+		@Override
+		public void endUpdatePlaylist()
+		{
+			//do nothing
+		}
+
+		@Override
+		public void trackAddedToPlaylist(Track track)
+		{
+			//do nothing
+		}
+
+		@Override
+		public void playlistSetted(Set<Track> tracks)
+		{
+			//do nothing
+		}
+
+		@Override
+		public void playlistCleaned()
+		{
+			//do nothing
+		}
+	}
+
+	public void addObserver(PlaylistObserver observer)
+	{
+		observers.add(observer);
+	}
+
+	public void removeObserver(PlaylistObserver observer)
+	{
+		observers.remove(observer);
+	}
 
 }

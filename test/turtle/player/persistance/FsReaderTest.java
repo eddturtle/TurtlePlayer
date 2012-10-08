@@ -1,21 +1,23 @@
-package turtle.player.persistance;/*
- * 
+/**
+ *
  * TURTLE PLAYER
- * 
+ *
  * Licensed under MIT & GPL
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
  * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
  * OR OTHER DEALINGS IN THE SOFTWARE.
- * 
- * Created by Edd Turtle (www.eddturtle.co.uk)
+ *
  * More Information @ www.turtle-player.co.uk
- * 
- * author: honegs
+ *
+ * @author Simon Honegger (Hoene84)
  */
+
+
+package turtle.player.persistance;
 
 import org.junit.Test;
 import turtle.player.playlist.Playlist;
