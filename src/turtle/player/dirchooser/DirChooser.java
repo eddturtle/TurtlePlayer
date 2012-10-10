@@ -1,25 +1,22 @@
-/*
- * 
+/**
+ *
  * TURTLE PLAYER
- * 
+ *
  * Licensed under MIT & GPL
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
  * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
  * OR OTHER DEALINGS IN THE SOFTWARE.
- * 
- * Created by Edd Turtle (www.eddturtle.co.uk)
+ *
  * More Information @ www.turtle-player.co.uk
- * 
+ *
+ * @author Simon Honegger (Hoene84)
  */
 
-// Package
 package turtle.player.dirchooser;
-
-// Import - Java
 
 import android.app.Activity;
 import android.content.Intent;
@@ -40,91 +37,97 @@ import java.io.File;
 public class DirChooser extends Activity
 {
 
-    private ListView dirList;
-    private TextView currDirLabel;
+	private ListView dirList;
+	private TextView currDirLabel;
 
-    private ImageView upButton;
-    private ImageView chooseDir;
+	private ImageView upButton;
+	private ImageView chooseDir;
 
-    private File currDir;
+	private File currDir;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.dir_chooser);
+	@Override
+	protected void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.dir_chooser);
 
-        init();
-    }
+		init();
+	}
 
-    private void init()
-    {
-        dirList =  (ListView) findViewById(R.id.dirList);
-        currDirLabel = (TextView) findViewById(R.id.currDirLabel);
-        upButton  = (ImageView) findViewById(R.id.up);
-        chooseDir = (ImageView) findViewById(R.id.choose_dir);
+	private void init()
+	{
+		dirList = (ListView) findViewById(R.id.dirList);
+		currDirLabel = (TextView) findViewById(R.id.currDirLabel);
+		upButton = (ImageView) findViewById(R.id.up);
+		chooseDir = (ImageView) findViewById(R.id.choose_dir);
 
-        final String initialDir = getIntent().getExtras().getString(
-                DirChooserConstants.ACTIVITY_PARAM_KEY_DIR_CHOOSER_INITIAL_DIR);
-        setCurrDir(new File(initialDir));
+		final String initialDir = getIntent().getExtras().getString(
+				  DirChooserConstants.ACTIVITY_PARAM_KEY_DIR_CHOOSER_INITIAL_DIR);
+		setCurrDir(new File(initialDir));
 
-        initListeners();
-    }
+		initListeners();
+	}
 
-    private void initListeners()
-    {
-        dirList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                File selectedFile = (File)parent.getItemAtPosition(position);
-                if (selectedFile.isDirectory() && selectedFile.canRead()) {
-                    setCurrDir(selectedFile);
-                }
-            }
-        });
+	private void initListeners()
+	{
+		dirList.setOnItemClickListener(new AdapterView.OnItemClickListener()
+		{
+			@Override
+			public void onItemClick(AdapterView<?> parent,
+											View view,
+											int position,
+											long id)
+			{
+				File selectedFile = (File) parent.getItemAtPosition(position);
+				if (selectedFile.isDirectory() && selectedFile.canRead())
+				{
+					setCurrDir(selectedFile);
+				}
+			}
+		});
 
-        chooseDir.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                Intent intent = getIntent();
-                intent.putExtra(DirChooserConstants.ACTIVITY_RETURN_KEY_DIR_CHOOSER_CHOOSED_DIR,
-                        currDir.getAbsolutePath() + DirChooserConstants.PATH_SEPERATOR);
-                setResult(RESULT_OK, intent);
-                finish();
-            }
-        });
+		chooseDir.setOnClickListener(new View.OnClickListener()
+		{
+			public void onClick(View v)
+			{
+				Intent intent = getIntent();
+				intent.putExtra(DirChooserConstants.ACTIVITY_RETURN_KEY_DIR_CHOOSER_CHOOSED_DIR,
+						  currDir.getAbsolutePath() + DirChooserConstants.PATH_SEPERATOR);
+				setResult(RESULT_OK, intent);
+				finish();
+			}
+		});
 
-        upButton.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                setCurrDir(currDir.getParentFile());
-            }
-        });
-    }
+		upButton.setOnClickListener(new View.OnClickListener()
+		{
+			public void onClick(View v)
+			{
+				setCurrDir(currDir.getParentFile());
+			}
+		});
+	}
 
-    private void setCurrDir(File file)
-    {
-        currDir = file;
-        currDirLabel.setText(file.getAbsolutePath());
-        setAdapterForDir(file);
-        toggleUpButton(file);
-    }
+	private void setCurrDir(File file)
+	{
+		currDir = file;
+		currDirLabel.setText(file.getAbsolutePath());
+		setAdapterForDir(file);
+		toggleUpButton(file);
+	}
 
-    private void toggleUpButton(File file)
-    {
-        upButton.setEnabled(file.getParentFile() != null);
-    }
+	private void toggleUpButton(File file)
+	{
+		upButton.setEnabled(file.getParentFile() != null);
+	}
 
-    private void setAdapterForDir(File file)
-    {
-        File [] files = file.listFiles();
-        if (files == null) {
-            files = new File[0];
-        }
-        ArrayAdapter<File> adapter = new FileAdapter(this, files);
-        dirList.setAdapter(adapter);
-    }
+	private void setAdapterForDir(File file)
+	{
+		File[] files = file.listFiles();
+		if (files == null)
+		{
+			files = new File[0];
+		}
+		ArrayAdapter<File> adapter = new FileAdapter(this, files);
+		dirList.setAdapter(adapter);
+	}
 }

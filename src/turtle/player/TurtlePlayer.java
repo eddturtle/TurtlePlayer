@@ -19,19 +19,17 @@
 // Package
 package turtle.player;
 
-// Import - Android Libs
 import android.app.Application;
 import android.media.MediaPlayer;
 import turtle.player.playlist.Playlist;
 
-
-public class TurtlePlayer extends Application 
+public class TurtlePlayer extends Application
 {
 	public MediaPlayer mp = new MediaPlayer();
 	public Playlist playlist;
 	public boolean isPaused = true;
 	public boolean isInitialised = false;
-	
+
 	public TurtlePlayer()
 	{
 		/*mp = new MediaPlayer();

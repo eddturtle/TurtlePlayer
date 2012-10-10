@@ -1,11 +1,30 @@
+/**
+ *
+ * TURTLE PLAYER
+ *
+ * Licensed under MIT & GPL
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+ * OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * More Information @ www.turtle-player.co.uk
+ *
+ * @author Simon Honegger (Hoene84)
+ */
+
 package turtle.player.dirchooser;
 
 
-public class DirChooserConstants {
+public class DirChooserConstants
+{
 
-    //input/output
-    public final static String ACTIVITY_PARAM_KEY_DIR_CHOOSER_INITIAL_DIR = "initialDir";
-    public final static String ACTIVITY_RETURN_KEY_DIR_CHOOSER_CHOOSED_DIR = "choosedDir";
+	//input/output
+	public final static String ACTIVITY_PARAM_KEY_DIR_CHOOSER_INITIAL_DIR = "initialDir";
+	public final static String ACTIVITY_RETURN_KEY_DIR_CHOOSER_CHOOSED_DIR = "choosedDir";
 
-    public static final String PATH_SEPERATOR = "/";
+	public static final String PATH_SEPERATOR = "/";
 }
