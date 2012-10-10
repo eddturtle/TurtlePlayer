@@ -20,42 +20,36 @@
 package turtle.player.playlist;
 
 // Import - Java
-import java.io.FileFilter;
 import java.util.*;
 import java.io.File;
-import java.io.FilenameFilter;
 
 // Import - Android Log
 import android.util.Log;
 
 // Import - Android Media
-import android.media.MediaMetadataRetriever;
 
 // Import - Android Context
 import android.content.Context;
-import turtle.player.Database;
+import turtle.player.persistance.Database;
 import turtle.player.Stats;
-import turtle.player.common.filefilter.FileFilters;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
+import turtle.player.persistance.FsReader;
 import turtle.player.playlist.filter.Filters;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
 import turtle.player.playlist.filter.PlaylistFilter;
-import turtle.player.playlist.playorder.PlayOrderRandom;
-import turtle.player.playlist.playorder.PlayOrderSorted;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
 import turtle.player.preferences.Preferences;
 import turtle.player.preferences.PreferencesObserver;
-import turtle.player.util.GenericInstanceComperator;
-import turtle.player.util.Shorty;
 import turtle.player.util.dev.PerformanceMeasure;
 
 public class Playlist {
 
     //Log Constants
-    private enum durtions{
+    private enum durations
+    {
         NEXT,
         PREV,
         PULL
@@ -65,7 +59,6 @@ public class Playlist {
     public Preferences preferences;
     public Stats stats = new Stats();
 
-    public static final int MAX_DIR_SCAN_DEPTH = 50;
     private Filters filters = new Filters();
 
     private PlayOrderStrategy playOrderStrategy;
@@ -83,6 +76,21 @@ public class Playlist {
         // Location, Repeat, Shuffle (Remember Trailing / on Location)
 		preferences = new Preferences(mainContext);
         syncDB = new Database(mainContext);
+
+        syncDB.addObserver(new Database.DbObserver(){
+            @Override
+            public void trackAdded(Track track)
+            {
+                AddTrack(track);
+            }
+
+            @Override
+            public void cleaned()
+            {
+                ClearList();
+            }
+        });
+
         init();
 	}
 
@@ -144,45 +152,24 @@ public class Playlist {
         }
 	}
 
-	final static FileFilter isDIR = new FileFilter()
-	{
-        final String[] IGNORED_DIRS = new String[]{
-                "/proc/",
-                "/sys/",
-                "/system/",
-                "/proc/",
-                "/root/",
-        };
-
-        @Override
-        public boolean accept(File file) {
-            for(String ignoredDir : IGNORED_DIRS)
-            {
-                file.toString().startsWith(ignoredDir);
-            }
-
-            return file.canRead() && file.isDirectory();
-        }
-	};
-
     public Track getNext()
     {
-        PerformanceMeasure.start(durtions.NEXT.name());
+        PerformanceMeasure.start(durations.NEXT.name());
 
         Track track = playOrderStrategy.getNext(getCurrTrack());
 
-        PerformanceMeasure.stop(durtions.NEXT.name());
+        PerformanceMeasure.stop(durations.NEXT.name());
 
         return track;
     }
 
     public Track getPrevious()
     {
-        PerformanceMeasure.start(durtions.PREV.name());
+        PerformanceMeasure.start(durations.PREV.name());
 
         Track track = playOrderStrategy.getPrevious(getCurrTrack());
 
-        PerformanceMeasure.stop(durtions.PREV.name());
+        PerformanceMeasure.stop(durations.PREV.name());
 
         return track;
     }
@@ -197,7 +184,7 @@ public class Playlist {
                 ClearList();
 
                 try {
-                    if (syncDB.IsEmpty()) {
+                    if (syncDB.isEmpty()) {
                         try {
                             final File mediaPath = preferences.GetMediaPath();
 
@@ -205,7 +192,7 @@ public class Playlist {
                                 observer.startRescan(mediaPath);
                             }
 
-                            CheckDir(mediaPath);
+                            FsReader.scanDir(syncDB, mediaPath);
 
                         } catch (NullPointerException e) {
                             Log.v(preferences.GetTag(), e.getMessage());
@@ -214,9 +201,6 @@ public class Playlist {
                                 observer.endRescan();
                             }
                         }
-
-                        syncDB = new Database(preferences.getContext());
-                        DatabasePush();
                     } else {
                         DatabasePull();
                     }
@@ -227,143 +211,6 @@ public class Playlist {
                 }
             }
         }).start();
-    }
-
-    private void CheckDir(File rootNode){
-        MediaMetadataRetriever metaDataReader = new MediaMetadataRetriever();
-        CheckDir(metaDataReader, rootNode, 0, null);
-        metaDataReader.release();
-    }
-
-    /**
-     * @param rootNode
-     * @param depth number of parent allready visited
-     */
-	private void CheckDir(MediaMetadataRetriever metaDataReader, File rootNode, int depth, String parentAlbumArt)
-	{
-		// http://www.exampledepot.com/egs/java.io/GetFiles.html
-
-		try
-		{
-            String albumArt = getAlbumArt(rootNode);
-
-            if(albumArt != null)
-            {
-                albumArt = rootNode + "/" + albumArt;
-            }
-            else
-            {
-                albumArt = parentAlbumArt;
-            }
-
-            for (String mp3 : rootNode.list(FileFilters.PLAYABLE_FILES_FILTER))
-			{
-                Log.v(preferences.GetTag(), "register " + rootNode + "/" + mp3);
-				metaDataReader.setDataSource(rootNode + "/" + mp3);
-
-                String title = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_TITLE);
-				int number = parseTrackNumber(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER));
-                double length = parseDuration(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_DURATION));
-                String artist = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ARTIST);
-                String album = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ALBUM);
-
-				if (Shorty.isVoid(title))
-				{
-					title = "Unknown";
-				}
-				
-				if (Shorty.isVoid(artist))
-				{
-					artist = "Unknown";
-				}
-				
-				if (Shorty.isVoid(album))
-				{
-					album = "Unknown";
-				}
-
-                Track t = new Track(
-                        title,
-                        number,
-                        new Artist(artist),
-                        new Album(album),
-                        length,
-                        rootNode + "/" + mp3,
-                        rootNode + "/",
-                        albumArt
-                );
-				
-				this.AddTrack(t);
-			}
-			
-			for (File dir : rootNode.listFiles(isDIR))
-			{
-                if(depth < MAX_DIR_SCAN_DEPTH) // avoid Stack overflow - symbolic link points to a parent dir
-                {
-                    CheckDir(metaDataReader, dir, depth + 1, albumArt);
-                }
-			}
-		}
-		catch (NullPointerException e)
-		{
-			// Probably No SD-Card
-			Log.v(preferences.GetTag(), e.getMessage());
-		}
-	}
-
-    /**
-     * calls {@link MediaMetadataRetriever#extractMetadata(int)} and removes
-     * chunk after 0 terminated string
-     *
-     * @param keyCode see {@link MediaMetadataRetriever#extractMetadata(int)}
-     * @return
-     */
-    String extractMetadata(MediaMetadataRetriever metaDataReader, int keyCode)
-    {
-        String metaData = Shorty.avoidNull(metaDataReader.extractMetadata(keyCode));
-
-        //replace all chars exept letters and digits, space and dash
-        //return metaData.replaceAll("^\\w\\s-,:;?$[]\"]","");
-
-        int indexOfZeroTermination = metaData.indexOf(0);
-        return indexOfZeroTermination < 0 ? metaData : metaData.substring(0, indexOfZeroTermination);
-    }
-
-    static int parseTrackNumber(String trackNumber)
-    {
-        //strips all chars beginning at first non digit
-        String strippedTrackNumber = trackNumber.replaceAll("\\D.*", "");
-
-        if(strippedTrackNumber.length() > 0)
-        {
-            return Integer.parseInt(strippedTrackNumber);
-        }
-        return 0;
-    }
-
-    static double parseDuration(String duration)
-    {
-        try
-        {
-            return Double.parseDouble(duration);
-        }
-        catch (NumberFormatException e)
-        {
-            Log.v(Preferences.TAG, "Not able to parse duration '" + duration + "': " + e.getMessage());
-        }
-        return 0;
-    }
-
-    private String getAlbumArt(File dir)
-    {
-        for(FilenameFilter filenameFilter : FileFilters.folderArtFilters)
-        {
-            String[] paths = dir.list(filenameFilter);
-            if(paths.length > 0){
-                return paths[0];
-            }
-        }
-        return null;
     }
 
     public void ClearList()
@@ -467,34 +314,23 @@ public class Playlist {
 		}
 	}
 	
-
-	// ========================================= //
-	// 	DB Sync
-	// ========================================= //
-	
-	public void DatabasePush()
-	{
-        syncDB.Clear();
-        syncDB.Push(trackList);
-	}
-	
 	public void DatabasePull()
 	{
         ClearList();
 
-        PerformanceMeasure.start(durtions.PULL.name());
+        PerformanceMeasure.start(durations.PULL.name());
 
-        for(Track track : syncDB.Pull())
+        for(Track track : syncDB.pull())
         {
             AddTrack(track);
         }
 
-        PerformanceMeasure.stop(durtions.PULL.name());
+        PerformanceMeasure.stop(durations.PULL.name());
 	}
 	
 	public void DatabaseClear()
 	{
-		syncDB.Clear();
+		syncDB.clear();
 	}
 
     // ========================================= //
