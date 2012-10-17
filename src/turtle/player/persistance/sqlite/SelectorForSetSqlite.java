@@ -1,4 +1,10 @@
-package turtle.player.persistance;
+package turtle.player.persistance.sqlite;
+
+import android.database.Cursor;
+import turtle.player.persistance.selector.SelectorForSet;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -17,26 +23,26 @@ package turtle.player.persistance;
  * @author Simon Honegger (Hoene84)
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * @param <C> eg Cursor
- * @param <Q> eg sql as String
- * @param <D> DB for write operations
+ * @param <Q> eg sql String
+ * @param <I> resulting set contains instance I
  */
-public interface Database<Q, C, D>
+public abstract class SelectorForSetSqlite<Q, I> implements SelectorForSet<Q, I, Cursor, Cursor>
 {
-	abstract void read(Q query, DbReadOp<C> readOp);
-	abstract void write(DbWriteOp<D> writeOp);
-
-	interface DbReadOp<C>
+	@Override
+	public Set<I> create(Cursor cursor)
 	{
-		public void read(C db);
-	}
+		Set<I> result = new HashSet<I>();
 
-	interface DbWriteOp<D>
-	{
-		public void write(D db);
+		if (cursor.moveToFirst())
+		{
+			do
+			{
+				result.add(createPart(cursor));
+
+			} while (cursor.moveToNext());
+		}
+
+		return result;
 	}
 }

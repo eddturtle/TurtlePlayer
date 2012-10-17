@@ -1,4 +1,9 @@
-package turtle.player.persistance;
+package turtle.player.persistance.creator;
+
+import android.database.Cursor;
+import turtle.player.model.Instance;
+import turtle.player.model.InstanceCreator;
+import turtle.player.model.Track;
 
 /**
  * TURTLE PLAYER
@@ -17,26 +22,7 @@ package turtle.player.persistance;
  * @author Simon Honegger (Hoene84)
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * @param <C> eg Cursor
- * @param <Q> eg sql as String
- * @param <D> DB for write operations
- */
-public interface Database<Q, C, D>
+public interface Creator<T, S>
 {
-	abstract void read(Q query, DbReadOp<C> readOp);
-	abstract void write(DbWriteOp<D> writeOp);
-
-	interface DbReadOp<C>
-	{
-		public void read(C db);
-	}
-
-	interface DbWriteOp<D>
-	{
-		public void write(D db);
-	}
+	T create(S source);
 }

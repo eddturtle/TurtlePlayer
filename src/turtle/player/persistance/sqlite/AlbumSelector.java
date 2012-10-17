@@ -1,4 +1,10 @@
-package turtle.player.persistance;
+package turtle.player.persistance.sqlite;
+
+import android.database.Cursor;
+import turtle.player.model.Album;
+import turtle.player.model.Artist;
+import turtle.player.model.Track;
+import turtle.player.persistance.TurtleDatabase;
 
 /**
  * TURTLE PLAYER
@@ -17,26 +23,17 @@ package turtle.player.persistance;
  * @author Simon Honegger (Hoene84)
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * @param <C> eg Cursor
- * @param <Q> eg sql as String
- * @param <D> DB for write operations
- */
-public interface Database<Q, C, D>
+public class AlbumSelector extends SelectorForSetSqlite<String, Album>
 {
-	abstract void read(Q query, DbReadOp<C> readOp);
-	abstract void write(DbWriteOp<D> writeOp);
-
-	interface DbReadOp<C>
+	@Override
+	public String get()
 	{
-		public void read(C db);
+		return "SELECT DISTINCT " + TurtleDatabase.KEY_ALBUM + " FROM " + TurtleDatabase.TABLE_NAME;
 	}
 
-	interface DbWriteOp<D>
+	@Override
+	public Album createPart(Cursor cursor)
 	{
-		public void write(D db);
+		return new Album(cursor.getString(1));
 	}
 }

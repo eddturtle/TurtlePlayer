@@ -1,4 +1,4 @@
-package turtle.player.persistance;
+package turtle.player.persistance.filter;
 
 /**
  * TURTLE PLAYER
@@ -17,26 +17,31 @@ package turtle.player.persistance;
  * @author Simon Honegger (Hoene84)
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * @param <C> eg Cursor
- * @param <Q> eg sql as String
- * @param <D> DB for write operations
- */
-public interface Database<Q, C, D>
+public class FieldFilter<Q> implements Filter<Q>
 {
-	abstract void read(Q query, DbReadOp<C> readOp);
-	abstract void write(DbWriteOp<D> writeOp);
+	private final String fieldName;
+	private final String fieldValue;
 
-	interface DbReadOp<C>
+	public FieldFilter(String fieldName,
+							 String fieldValue)
 	{
-		public void read(C db);
+		this.fieldName = fieldName;
+		this.fieldValue = fieldValue;
 	}
 
-	interface DbWriteOp<D>
+	public String getFieldName()
 	{
-		public void write(D db);
+		return fieldName;
+	}
+
+	public String getFieldValue()
+	{
+		return fieldValue;
+	}
+
+	@Override
+	public Q accept(Q query, FilterVisitor<Q> visitor)
+	{
+		return visitor.visit(query, this);
 	}
 }

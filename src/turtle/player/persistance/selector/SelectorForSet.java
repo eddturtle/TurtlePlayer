@@ -1,4 +1,6 @@
-package turtle.player.persistance;
+package turtle.player.persistance.selector;
+
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -17,26 +19,13 @@ package turtle.player.persistance;
  * @author Simon Honegger (Hoene84)
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * @param <C> eg Cursor
- * @param <Q> eg sql as String
- * @param <D> DB for write operations
+ * @param <Q> eg sql String
+ * @param <I> resulting set contains instance I
+ * @param <C> eg cursor (one shot cursor)
+ * @param <P> eg cursor (set)
  */
-public interface Database<Q, C, D>
+public interface SelectorForSet<Q, I, C, P> extends Selector<Q, Set<I>, P>
 {
-	abstract void read(Q query, DbReadOp<C> readOp);
-	abstract void write(DbWriteOp<D> writeOp);
-
-	interface DbReadOp<C>
-	{
-		public void read(C db);
-	}
-
-	interface DbWriteOp<D>
-	{
-		public void write(D db);
-	}
+	I createPart(C queryResult);
 }

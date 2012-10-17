@@ -1,4 +1,8 @@
-package turtle.player.persistance;
+package turtle.player.persistance.sqlite;
+
+import android.database.Cursor;
+import turtle.player.persistance.TurtleDatabase;
+import turtle.player.persistance.selector.Selector;
 
 /**
  * TURTLE PLAYER
@@ -17,26 +21,17 @@ package turtle.player.persistance;
  * @author Simon Honegger (Hoene84)
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * @param <C> eg Cursor
- * @param <Q> eg sql as String
- * @param <D> DB for write operations
- */
-public interface Database<Q, C, D>
+public class Counter implements Selector<String, Integer, Cursor>
 {
-	abstract void read(Q query, DbReadOp<C> readOp);
-	abstract void write(DbWriteOp<D> writeOp);
-
-	interface DbReadOp<C>
+	@Override
+	public String get()
 	{
-		public void read(C db);
+		return "SELECT count(*) FROM " + TurtleDatabase.TABLE_NAME;
 	}
 
-	interface DbWriteOp<D>
+	@Override
+	public Integer create(Cursor queryResult)
 	{
-		public void write(D db);
+		return queryResult.getInt(1);
 	}
 }

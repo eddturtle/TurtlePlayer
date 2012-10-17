@@ -22,18 +22,19 @@ import android.app.ListActivity;
 import android.view.View;
 import android.widget.ImageView;
 import turtle.player.R;
-import turtle.player.TurtlePlayer;
 import turtle.player.model.*;
+import turtle.player.persistance.Database;
+import turtle.player.persistance.TurtleDatabase;
+import turtle.player.persistance.filter.FieldFilter;
+import turtle.player.persistance.filter.Filter;
 import turtle.player.playlist.Playlist;
-import turtle.player.playlist.filter.ChildsFilter;
-import turtle.player.playlist.filter.PlaylistFilter;
 import turtle.player.presentation.InstanceFormatter;
 import turtle.player.util.GenericInstanceComperator;
 import turtle.player.util.InstanceAdapter;
 
 import java.util.Set;
 
-public class FileChooser extends Playlist.PlaylistObserverAdapter
+public class FileChooser implements TurtleDatabase.DbObserver
 {
 	public enum Mode
 	{
@@ -64,17 +65,17 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
 
 	private Mode currMode;
 	private Type currType;
-	private TurtlePlayer tp;
+	private TurtleDatabase database;
 	private ListActivity listActivity;
 
-	private PlaylistFilter filter = null;
+	private Filter<String> filter = null;
 
 	public FileChooser(Mode currMode,
-							 TurtlePlayer tp,
+							 Database<?,?,?> db,
 							 ListActivity listActivity)
 	{
 		this.currMode = currMode;
-		this.tp = tp;
+		this.database = database;
 		this.listActivity = listActivity;
 
 		change(currMode);
@@ -84,8 +85,7 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
 
 	private void init()
 	{
-
-		tp.playlist.addObserver(this);
+		database.addObserver(this);
 		for (final Mode currMode : Mode.values())
 		{
 			getButton(currMode).setOnClickListener(new View.OnClickListener()
@@ -117,7 +117,7 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
 			public Track visit(Album album)
 			{
 				currType = Type.Track;
-				filter = new ChildsFilter(album, tp.playlist);
+				filter = new FieldFilter<String>(TurtleDatabase.KEY_ALBUM, album.getName());
 				return null;
 			}
 
@@ -125,7 +125,7 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
 			public Track visit(Artist artist)
 			{
 				currType = Type.Track;
-				filter = new ChildsFilter(artist, tp.playlist);
+				filter = new FieldFilter<String>(TurtleDatabase.KEY_ARTIST, artist.getName());
 				return null;
 			}
 		});
@@ -175,13 +175,13 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
 		switch (currType)
 		{
 			case Album:
-				instances = tp.playlist.getAlbums(filter);
+				instances = database.getAlbums(filter);
 				break;
 			case Artist:
-				instances = tp.playlist.getArtists(filter);
+				instances = database.getArtist(filter);
 				break;
 			case Track:
-				instances = tp.playlist.getTracks(filter);
+				instances = database.getTracks(filter);
 				break;
 			default:
 				throw new RuntimeException(currType.name() + " not expexted here");
@@ -194,7 +194,7 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
 			{
 				listActivity.setListAdapter(
 						  new InstanceAdapter(
-									 tp.getApplicationContext(),
+									 listActivity.getApplicationContext(),
 									 instances,
 									 InstanceFormatter.LIST,
 									 new GenericInstanceComperator()
@@ -205,7 +205,7 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
 	}
 
 	@Override
-	public void endUpdatePlaylist()
+	public void updated()
 	{
 		update();
 	}

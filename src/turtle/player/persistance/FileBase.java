@@ -1,5 +1,14 @@
 package turtle.player.persistance;
 
+import android.database.Cursor;
+import turtle.player.model.*;
+import turtle.player.persistance.filter.Filter;
+import turtle.player.persistance.query.Query;
+import turtle.player.persistance.selector.Selector;
+import turtle.player.persistance.sqlite.QuerySqlite;
+
+import java.util.Set;
+
 /**
  * TURTLE PLAYER
  * <p/>
@@ -17,26 +26,14 @@ package turtle.player.persistance;
  * @author Simon Honegger (Hoene84)
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * @param <C> eg Cursor
  * @param <Q> eg sql as String
- * @param <D> DB for write operations
  */
-public interface Database<Q, C, D>
+public interface FileBase<Q>
 {
-	abstract void read(Q query, DbReadOp<C> readOp);
-	abstract void write(DbWriteOp<D> writeOp);
+	Set<Track> getTracks(Filter<Q>... filters);
 
-	interface DbReadOp<C>
-	{
-		public void read(C db);
-	}
+	Set<Album> getAlbums(Filter<Q>... filters);
 
-	interface DbWriteOp<D>
-	{
-		public void write(D db);
-	}
+	Set<Artist> getArtist(Filter<Q>... filters);
 }

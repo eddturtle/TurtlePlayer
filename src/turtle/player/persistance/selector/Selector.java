@@ -1,4 +1,11 @@
-package turtle.player.persistance;
+package turtle.player.persistance.selector;
+
+import turtle.player.model.Instance;
+import turtle.player.model.InstanceCreator;
+import turtle.player.persistance.creator.Creator;
+import turtle.player.persistance.filter.Filter;
+import turtle.player.persistance.query.Query;
+import turtle.player.util.InstanceAdapter;
 
 /**
  * TURTLE PLAYER
@@ -17,26 +24,13 @@ package turtle.player.persistance;
  * @author Simon Honegger (Hoene84)
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * @param <C> eg Cursor
- * @param <Q> eg sql as String
- * @param <D> DB for write operations
+ * @param <Q> eg sql String
+ * @param <I> resulting instance
+ * @param <C> eg cursor
  */
-public interface Database<Q, C, D>
+public interface Selector<Q, I, C> extends Creator<I, C>
 {
-	abstract void read(Q query, DbReadOp<C> readOp);
-	abstract void write(DbWriteOp<D> writeOp);
-
-	interface DbReadOp<C>
-	{
-		public void read(C db);
-	}
-
-	interface DbWriteOp<D>
-	{
-		public void write(D db);
-	}
+	Q get();
+	I create(C queryResult);
 }

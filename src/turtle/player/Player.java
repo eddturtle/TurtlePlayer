@@ -38,6 +38,7 @@ import turtle.player.common.filefilter.FileFilters;
 import turtle.player.dirchooser.DirChooserConstants;
 import turtle.player.model.Instance;
 import turtle.player.model.Track;
+import turtle.player.persistance.TurtleDatabase;
 import turtle.player.playlist.Playlist;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
@@ -191,8 +192,9 @@ public class Player extends ListActivity
 	private void SetupApplication()
 	{
 		tp = (TurtlePlayer) getApplication();
-		tp.playlist = new Playlist(tp.getApplicationContext());
-		fileChooser = new FileChooser(FileChooser.Mode.Track, tp, this);
+		tp.db = new TurtleDatabase(tp.getApplicationContext());
+		tp.playlist = new Playlist(tp.getApplicationContext(), tp.db);
+		fileChooser = new FileChooser(FileChooser.Mode.Track, tp.db, this);
 	}
 
 

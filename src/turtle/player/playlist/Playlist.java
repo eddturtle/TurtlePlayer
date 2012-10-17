@@ -19,24 +19,22 @@
 package turtle.player.playlist;
 
 
-import java.util.*;
-import java.io.File;
-import android.util.Log;
 import android.content.Context;
-import turtle.player.persistance.Database;
+import android.util.Log;
 import turtle.player.Stats;
-import turtle.player.model.Album;
-import turtle.player.model.Artist;
 import turtle.player.model.Track;
 import turtle.player.persistance.FsReader;
-import turtle.player.playlist.filter.Filters;
+import turtle.player.persistance.TurtleDatabase;
+import turtle.player.persistance.filter.Filter;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
-import turtle.player.playlist.filter.PlaylistFilter;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
 import turtle.player.preferences.Preferences;
 import turtle.player.preferences.PreferencesObserver;
 import turtle.player.util.dev.PerformanceMeasure;
+
+import java.io.File;
+import java.util.*;
 
 public class Playlist
 {
@@ -53,39 +51,18 @@ public class Playlist
 	public Preferences preferences;
 	public Stats stats = new Stats();
 
-	private Filters filters = new Filters();
-
 	private PlayOrderStrategy playOrderStrategy;
-
-	private Set<Track> trackList = new HashSet<Track>();
-	private Set<Track> filteredTrackList = new HashSet<Track>();
-
-	private Database syncDB;
+	private TurtleDatabase db;
+	private Set<Filter<String>> filters = new HashSet<Filter<String>>();
 
 	private Track currTrack = null;
 
-	public Playlist(Context mainContext)
+	public Playlist(Context mainContext, TurtleDatabase db)
 	{
 
 		// Location, Repeat, Shuffle (Remember Trailing / on Location)
 		preferences = new Preferences(mainContext);
-		syncDB = new Database(mainContext);
-
-		syncDB.addObserver(new Database.DbObserver()
-		{
-			@Override
-			public void trackAdded(Track track)
-			{
-				AddTrack(track);
-			}
-
-			@Override
-			public void cleaned()
-			{
-				ClearList();
-			}
-		});
-
+		this.db = db;
 		init();
 	}
 
@@ -102,26 +79,6 @@ public class Playlist
 				}
 			}
 		});
-
-		filters.addObserver(new Filters.FilterObserver()
-		{
-			@Override
-			public void filterChanged()
-			{
-				filteredTrackList = new HashSet<Track>();
-				for (PlaylistObserver observer : observers)
-				{
-					observer.playlistCleaned();
-				}
-
-				filteredTrackList = filters.getValidTracks(trackList);
-
-				for (PlaylistObserver observer : observers)
-				{
-					observer.playlistSetted(filteredTrackList);
-				}
-			}
-		});
 		setPlayOrderStrategyAccordingPreferences();
 	}
 
@@ -134,24 +91,6 @@ public class Playlist
 		playOrderStrategy = preferences.GetShuffle() ?
 				  PlayOrderStrategy.RANDOM.connect(preferences, this) :
 				  PlayOrderStrategy.SORTED.connect(preferences, this);
-	}
-
-	private void AddTrack(Track nTrack)
-	{
-		trackList.add(nTrack);
-		for (PlaylistObserver observer : observers)
-		{
-			observer.trackAdded(nTrack);
-		}
-		if (filters.isValidAccordingFilters(nTrack))
-		{
-			filteredTrackList.add(nTrack);
-
-			for (PlaylistObserver observer : observers)
-			{
-				observer.trackAddedToPlaylist(nTrack);
-			}
-		}
 	}
 
 	public Track getNext()
@@ -187,11 +126,9 @@ public class Playlist
 					observer.startUpdatePlaylist();
 				}
 
-				ClearList();
-
 				try
 				{
-					if (syncDB.isEmpty())
+					if (db.isEmpty())
 					{
 						try
 						{
@@ -202,7 +139,7 @@ public class Playlist
 								observer.startRescan(mediaPath);
 							}
 
-							FsReader.scanDir(syncDB, mediaPath);
+							FsReader.scanDir(db, mediaPath);
 
 						} catch (NullPointerException e)
 						{
@@ -214,9 +151,6 @@ public class Playlist
 								observer.endRescan();
 							}
 						}
-					} else
-					{
-						DatabasePull();
 					}
 				} finally
 				{
@@ -229,84 +163,9 @@ public class Playlist
 		}).start();
 	}
 
-	public void ClearList()
-	{
-		trackList.clear();
-		for (PlaylistObserver observer : observers)
-		{
-			observer.cleaned();
-		}
-	}
-
 	public Set<Track> getCurrTracks()
 	{
-		return filteredTrackList;
-	}
-
-	public Set<Track> getTracks(PlaylistFilter filter)
-	{
-		Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
-		filters.add(filter == null ? PlaylistFilter.ALL : filter);
-		return getTracks(filters);
-	}
-
-	public Set<Track> getTracks(Set<PlaylistFilter> filters)
-	{
-		Set<Track> tracks = new HashSet<Track>();
-
-		for (Track track : trackList)
-		{
-			if (Filters.isValidAccordingFilters(track, filters))
-			{
-				tracks.add(track);
-			}
-		}
-
-		return tracks;
-	}
-
-	public Set<Album> getAlbums(PlaylistFilter filter)
-	{
-		Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
-		filters.add(filter == null ? PlaylistFilter.ALL : filter);
-		return getAlbums(filters);
-	}
-
-	public Set<Album> getAlbums(Set<PlaylistFilter> filters)
-	{
-		Set<Album> albums = new HashSet<Album>();
-
-		for (Track track : trackList)
-		{
-			if (Filters.isValidAccordingFilters(track, filters))
-			{
-				albums.add(track.GetAlbum());
-			}
-		}
-
-		return albums;
-	}
-
-	public Set<Album> getArtists(PlaylistFilter filter)
-	{
-		Set<PlaylistFilter> filters = new HashSet<PlaylistFilter>();
-		filters.add(filter == null ? PlaylistFilter.ALL : filter);
-		return getAlbums(filters);
-	}
-
-	public Set<Artist> getArtists(Set<PlaylistFilter> filters)
-	{
-		Set<Artist> artists = new HashSet<Artist>();
-
-		for (Track track : trackList)
-		{
-			if (Filters.isValidAccordingFilters(track, filters))
-			{
-				artists.add(track.GetArtist());
-			}
-		}
-
-		return artists;
+		return db.getTracks((Filter<String>[]) new ArrayList<Filter<String>>(filters).toArray());
 	}
 
 	public Track getCurrTrack()
@@ -326,32 +185,12 @@ public class Playlist
 
 	public boolean IsEmpty()
 	{
-		if (trackList.size() < 1)
-		{
-			return true;
-		} else
-		{
-			return false;
-		}
-	}
-
-	public void DatabasePull()
-	{
-		ClearList();
-
-		PerformanceMeasure.start(durations.PULL.name());
-
-		for (Track track : syncDB.pull())
-		{
-			AddTrack(track);
-		}
-
-		PerformanceMeasure.stop(durations.PULL.name());
+		return db.isEmpty();
 	}
 
 	public void DatabaseClear()
 	{
-		syncDB.clear();
+		db.clear();
 	}
 
 	//------------------------------------------------------ 	Observable
