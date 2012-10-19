@@ -39,12 +39,10 @@ import java.util.Set;
 // Import - Android Database
 
 
-public class TurtleDatabase extends SQLiteOpenHelper implements FileBase<String>, Database<String, Cursor, SQLiteDatabase>
+public class TurtleDatabase extends ObservableDatabase<String, Cursor, SQLiteDatabase> implements FileBase<String>
 {
 
 	//TODO: this should not be public, instead package visible
-	public static final int DATABASE_VERSION = 2;
-	public static final String DATABASE_NAME = "TurtlePlayer";
 	public static final String TABLE_NAME = "Tracks";
 
 	public static final String KEY_ID = "id";
@@ -57,35 +55,15 @@ public class TurtleDatabase extends SQLiteOpenHelper implements FileBase<String>
 	public static final String KEY_ROOTSRC = "rootSrc";
 	public static final String KEY_ALBUMART = "hasAlbumArt";
 
+	final TurtleDatabaseImpl turtleDatabaseImpl;
+
 
 	public TurtleDatabase(Context context)
 	{
-		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		turtleDatabaseImpl = new TurtleDatabaseImpl(context);
 	}
 
-	@Override
-	public void onCreate(SQLiteDatabase db)
-	{
-		String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " ("
-				  + KEY_ID + " INTEGER PRIMARY KEY, "
-				  + KEY_TITLE + " TEXT, "
-				  + KEY_NUMBER + " INTEGER, "
-				  + KEY_ARTIST + " TEXT, "
-				  + KEY_ALBUM + " TEXT, "
-				  + KEY_LENGTH + " REAL, "
-				  + KEY_SRC + " TEXT, "
-				  + KEY_ROOTSRC + " TEXT, "
-				  + KEY_ALBUMART + " TEXT);";
-		db.execSQL(CREATE_TABLE);
-	}
 
-	@Override
-	public void onUpgrade(SQLiteDatabase db,
-								 int oldVersion,
-								 int newVersion)
-	{db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
-		onCreate(db);
-	}
 
 	public void push(final Track track)
 	{
@@ -153,7 +131,7 @@ public class TurtleDatabase extends SQLiteOpenHelper implements FileBase<String>
 	public void read(String query,
 						  Database.DbReadOp<Cursor> readOp)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
+		SQLiteDatabase db = turtleDatabaseImpl.getReadableDatabase();
 		try
 		{
 			readOp.read(db.rawQuery(query, null));
@@ -167,7 +145,7 @@ public class TurtleDatabase extends SQLiteOpenHelper implements FileBase<String>
 	@Override
 	public void write(DbWriteOp<SQLiteDatabase> writeOp)
 	{
-		SQLiteDatabase db = this.getReadableDatabase();
+		SQLiteDatabase db = turtleDatabaseImpl.getReadableDatabase();
 		try
 		{
 			writeOp.write(db);
@@ -178,28 +156,4 @@ public class TurtleDatabase extends SQLiteOpenHelper implements FileBase<String>
 		}
 	}
 
-	//--------------------------------------------- Observable
-
-	private List<DbObserver> observers = new ArrayList<DbObserver>();
-
-	public void notifyUpdate(){
-		for(DbObserver observer : observers){
-			observer.updated();
-		}
-	}
-
-	public interface DbObserver
-	{
-		void updated();
-	}
-
-	public void addObserver(DbObserver observer)
-	{
-		observers.add(observer);
-	}
-
-	public void removeObserver(DbObserver observer)
-	{
-		observers.remove(observer);
-	}
 }
