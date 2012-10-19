@@ -34,6 +34,6 @@ public class AlbumSelector extends SelectorForSetSqlite<String, Album>
 	@Override
 	public Album createPart(Cursor cursor)
 	{
-		return new Album(cursor.getString(1));
+		return new Album(cursor.getString(0));
 	}
 }

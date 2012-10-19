@@ -35,14 +35,14 @@ public class TrackSelector extends SelectorForSetSqlite<String, Track>
 	public Track createPart(Cursor cursor)
 	{
 		return new Track(
-				  cursor.getString(1),
-				  Integer.parseInt(cursor.getString(2)),
-				  new Artist(cursor.getString(3)),
-				  new Album(cursor.getString(4)),
-				  cursor.getDouble(5),
-				  cursor.getString(6),
-				  cursor.getString(7),
-				  cursor.getString(8)
+				  cursor.getString(cursor.getColumnIndex(TurtleDatabase.KEY_TITLE)),
+				  Integer.parseInt(cursor.getString(cursor.getColumnIndex(TurtleDatabase.KEY_NUMBER))),
+				  new Artist(cursor.getString(cursor.getColumnIndex(TurtleDatabase.KEY_ARTIST))),
+				  new Album(cursor.getString(cursor.getColumnIndex(TurtleDatabase.KEY_ALBUM))),
+				  cursor.getDouble(cursor.getColumnIndex(TurtleDatabase.KEY_LENGTH)),
+				  cursor.getString(cursor.getColumnIndex(TurtleDatabase.KEY_SRC)),
+				  cursor.getString(cursor.getColumnIndex(TurtleDatabase.KEY_ROOTSRC)),
+				  cursor.getString(cursor.getColumnIndex(TurtleDatabase.KEY_ALBUMART))
 		);
 	}
 }

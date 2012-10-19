@@ -1,12 +1,7 @@
-package turtle.player.persistance;
+package turtle.player.persistance.filter;
 
-import android.database.Cursor;
-import turtle.player.model.*;
-import turtle.player.persistance.filter.Filter;
-import turtle.player.persistance.query.Query;
-import turtle.player.persistance.selector.Selector;
-import turtle.player.persistance.sqlite.QuerySqlite;
-
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -26,14 +21,35 @@ import java.util.Set;
  * @author Simon Honegger (Hoene84)
  */
 
-/**
- * @param <Q> eg sql as String
- */
-public interface FileBase<Q>
+public class FilterSet<Q> implements Filter<Q>
 {
-	Set<Track> getTracks(Filter<Q> filter);
+	private final Set<Filter<Q>> filters = new HashSet<Filter<Q>>();
 
-	Set<Album> getAlbums(Filter<Q> filter);
+	public FilterSet(Filter<Q>... filter)
+	{
+		for(Filter<Q> currFilter : filter)
+		{
+			filters.add(currFilter);
+		}
+	}
 
-	Set<Artist> getArtist(Filter<Q> filter);
+	public FilterSet(Set<Filter<Q>> filters)
+	{
+		filters.addAll(filters);
+	}
+
+	@Override
+	public Q accept(Q query,
+						 FilterVisitor<Q> visitor)
+	{
+		return visitor.visit(query, this);
+	}
+
+	/**
+	 * @return never null, Set can be empty
+	 */
+	public Set<Filter<Q>> getFilters()
+	{
+		return filters;
+	}
 }

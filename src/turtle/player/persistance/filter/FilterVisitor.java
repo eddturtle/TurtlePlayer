@@ -20,4 +20,6 @@ package turtle.player.persistance.filter;
 public interface FilterVisitor<Q>
 {
 	public Q visit(Q query, FieldFilter fieldFilter);
+
+	public Q visit(Q query, FilterSet<Q> fieldFilter);
 }

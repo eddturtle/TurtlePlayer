@@ -26,6 +26,7 @@ import turtle.player.model.Track;
 import turtle.player.persistance.FsReader;
 import turtle.player.persistance.TurtleDatabase;
 import turtle.player.persistance.filter.Filter;
+import turtle.player.persistance.filter.FilterSet;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
@@ -93,6 +94,11 @@ public class Playlist
 				  PlayOrderStrategy.SORTED.connect(preferences, this);
 	}
 
+	public Filter<String> getFilter()
+	{
+		return filters.isEmpty() ? null : new FilterSet<String>(filters);
+	}
+
 	public Track getNext()
 	{
 		PerformanceMeasure.start(durations.NEXT.name());
@@ -128,7 +134,7 @@ public class Playlist
 
 				try
 				{
-					if (db.isEmpty())
+					if (db.isEmpty(null))
 					{
 						try
 						{
@@ -165,7 +171,7 @@ public class Playlist
 
 	public Set<Track> getCurrTracks()
 	{
-		return db.getTracks((Filter<String>[]) new ArrayList<Filter<String>>(filters).toArray());
+		return db.getTracks(getFilter());
 	}
 
 	public Track getCurrTrack()
@@ -185,7 +191,7 @@ public class Playlist
 
 	public boolean IsEmpty()
 	{
-		return db.isEmpty();
+		return db.isEmpty(null);
 	}
 
 	public void DatabaseClear()

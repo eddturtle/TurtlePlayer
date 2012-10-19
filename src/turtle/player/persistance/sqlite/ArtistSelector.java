@@ -33,6 +33,6 @@ public class ArtistSelector extends SelectorForSetSqlite<String, Artist>
 	@Override
 	public Artist createPart(Cursor cursor)
 	{
-		return new Artist(cursor.getString(1));
+		return new Artist(cursor.getString(0));
 	}
 }

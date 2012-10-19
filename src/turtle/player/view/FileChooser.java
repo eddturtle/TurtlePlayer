@@ -71,11 +71,11 @@ public class FileChooser implements TurtleDatabase.DbObserver
 	private Filter<String> filter = null;
 
 	public FileChooser(Mode currMode,
-							 Database<?,?,?> db,
+							 TurtleDatabase db,
 							 ListActivity listActivity)
 	{
 		this.currMode = currMode;
-		this.database = database;
+		this.database = db;
 		this.listActivity = listActivity;
 
 		change(currMode);

@@ -126,27 +126,27 @@ public class TurtleDatabase extends SQLiteOpenHelper implements FileBase<String>
 		});
 	}
 
-	public boolean isEmpty(Filter<String>... filters)
+	public boolean isEmpty(Filter<String> filter)
 	{
-		return new QuerySqlite<Integer>(new Counter()).execute(this, filters) > 0;
+		return new QuerySqlite<Integer>(new Counter()).execute(this, filter).equals(0);
 	}
 
 	@Override
-	public Set<Track> getTracks(Filter<String>... filters)
+	public Set<Track> getTracks(Filter<String> filter)
 	{
-		return new QuerySqlite<Set<Track>>(new TrackSelector()).execute(this, filters);
+		return new QuerySqlite<Set<Track>>(new TrackSelector()).execute(this, filter);
 	}
 
 	@Override
-	public Set<Album> getAlbums(Filter<String>... filters)
+	public Set<Album> getAlbums(Filter<String> filter)
 	{
-		return new QuerySqlite<Set<Album>>(new AlbumSelector()).execute(this, filters);
+		return new QuerySqlite<Set<Album>>(new AlbumSelector()).execute(this, filter);
 	}
 
 	@Override
-	public Set<Artist> getArtist(Filter<String>... filters)
+	public Set<Artist> getArtist(Filter<String> filter)
 	{
-		return new QuerySqlite<Set<Artist>>(new ArtistSelector()).execute(this, filters);
+		return new QuerySqlite<Set<Artist>>(new ArtistSelector()).execute(this, filter);
 	}
 
 	@Override

@@ -32,6 +32,7 @@ public class Counter implements Selector<String, Integer, Cursor>
 	@Override
 	public Integer create(Cursor queryResult)
 	{
-		return queryResult.getInt(1);
+		queryResult.moveToFirst();
+		return queryResult.getInt(0);
 	}
 }

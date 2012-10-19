@@ -6,11 +6,13 @@ import turtle.player.model.Instance;
 import turtle.player.persistance.Database;
 import turtle.player.persistance.filter.FieldFilter;
 import turtle.player.persistance.filter.Filter;
+import turtle.player.persistance.filter.FilterSet;
 import turtle.player.persistance.query.Query;
 import turtle.player.persistance.selector.Selector;
 
 import java.io.FileReader;
 import java.lang.ref.Reference;
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -32,6 +34,8 @@ import java.lang.ref.Reference;
 public class QuerySqlite<I> implements Query<String, I, Cursor>
 {
 
+	private final static String FILTER_CONNECTOR = " and ";
+
 	Selector<String, I, Cursor> selector;
 
 	public QuerySqlite(Selector<String, I, Cursor> selector)
@@ -45,28 +49,24 @@ public class QuerySqlite<I> implements Query<String, I, Cursor>
 	}
 
 	@Override
-	public String get(Filter<String>... filters)
+	public String get(Filter<String> filter)
 	{
 		String sql = getSelector().get();
 
-		if(filters.length > 0){
+		if(filter != null){
 			sql += " where ";
+			sql = filter.accept(sql, this);
 		}
-
-		for(Filter<String> f : filters){
-			sql = f.accept(sql, this);
-		}
-
 		return sql;
 	}
 
 	@Override
 	public I execute(Database<String, Cursor, ?> db,
-						  Filter<String>... filters)
+						  Filter<String> filter)
 	{
 		final Object[] returnValue = new Object[1];
 
-		db.read(get(filters), new Database.DbReadOp<Cursor>()
+		db.read(get(filter), new Database.DbReadOp<Cursor>()
 		{
 			@Override
 			public void read(Cursor db)
@@ -81,6 +81,19 @@ public class QuerySqlite<I> implements Query<String, I, Cursor>
 	@Override
 	public String visit(String query, FieldFilter fieldFilter)
 	{
-		return query + " and " + fieldFilter.getFieldName() + " = " + fieldFilter.getFieldValue() + " ";
+		return fieldFilter.getFieldName() + " = " + fieldFilter.getFieldValue();
+	}
+
+	@Override
+	public String visit(String query, FilterSet<String> filterSet)
+	{
+		for(Filter<String> filter : filterSet.getFilters()){
+			query += filter.accept(query, this);
+			query += FILTER_CONNECTOR;
+		}
+
+		return query.endsWith(FILTER_CONNECTOR) ?
+				  query.substring(0, query.length() - FILTER_CONNECTOR.length()) :
+				  query; //cut off last FILTER_CONNECTOR
 	}
 }
