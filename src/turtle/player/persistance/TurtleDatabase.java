@@ -29,6 +29,7 @@ import turtle.player.model.Track;
 import turtle.player.persistance.Database;
 import turtle.player.persistance.FileBase;
 import turtle.player.persistance.filter.Filter;
+import turtle.player.persistance.sql.Sql;
 import turtle.player.persistance.sqlite.*;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ import java.util.Set;
 // Import - Android Database
 
 
-public class TurtleDatabase extends ObservableDatabase<String, Cursor, SQLiteDatabase> implements FileBase<String>
+public class TurtleDatabase extends ObservableDatabase<Sql, Cursor, SQLiteDatabase> implements FileBase<Sql>
 {
 
 	//TODO: this should not be public, instead package visible
@@ -104,37 +105,37 @@ public class TurtleDatabase extends ObservableDatabase<String, Cursor, SQLiteDat
 		});
 	}
 
-	public boolean isEmpty(Filter<String> filter)
+	public boolean isEmpty(Filter<Sql> filter)
 	{
 		return new QuerySqlite<Integer>(new Counter()).execute(this, filter).equals(0);
 	}
 
 	@Override
-	public Set<Track> getTracks(Filter<String> filter)
+	public Set<Track> getTracks(Filter<Sql> filter)
 	{
 		return new QuerySqlite<Set<Track>>(new TrackSelector()).execute(this, filter);
 	}
 
 	@Override
-	public Set<Album> getAlbums(Filter<String> filter)
+	public Set<Album> getAlbums(Filter<Sql> filter)
 	{
 		return new QuerySqlite<Set<Album>>(new AlbumSelector()).execute(this, filter);
 	}
 
 	@Override
-	public Set<Artist> getArtist(Filter<String> filter)
+	public Set<Artist> getArtist(Filter<Sql> filter)
 	{
 		return new QuerySqlite<Set<Artist>>(new ArtistSelector()).execute(this, filter);
 	}
 
 	@Override
-	public void read(String query,
+	public void read(Sql query,
 						  Database.DbReadOp<Cursor> readOp)
 	{
 		SQLiteDatabase db = turtleDatabaseImpl.getReadableDatabase();
 		try
 		{
-			readOp.read(db.rawQuery(query, null));
+			readOp.read(db.rawQuery(query.getSql(), query.getParams().toArray(new String[query.getParams().size()])));
 		}
 		finally
 		{

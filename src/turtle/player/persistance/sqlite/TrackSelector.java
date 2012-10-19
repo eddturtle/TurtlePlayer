@@ -5,6 +5,7 @@ import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
 import turtle.player.persistance.TurtleDatabase;
+import turtle.player.persistance.sql.Sql;
 
 /**
  * TURTLE PLAYER
@@ -23,12 +24,12 @@ import turtle.player.persistance.TurtleDatabase;
  * @author Simon Honegger (Hoene84)
  */
 
-public class TrackSelector extends SelectorForSetSqlite<String, Track>
+public class TrackSelector extends SelectorForSetSqlite<Sql, Track>
 {
 	@Override
-	public String get()
+	public Sql get()
 	{
-		return "SELECT * FROM " + TurtleDatabase.TABLE_NAME;
+		return new Sql("SELECT * FROM " + TurtleDatabase.TABLE_NAME);
 	}
 
 	@Override

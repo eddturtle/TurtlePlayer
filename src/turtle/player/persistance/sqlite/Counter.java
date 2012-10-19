@@ -1,8 +1,13 @@
 package turtle.player.persistance.sqlite;
 
 import android.database.Cursor;
+import com.mysema.query.sql.SQLQuery;
+import com.mysema.query.sql.SQLQueryImpl;
 import turtle.player.persistance.TurtleDatabase;
 import turtle.player.persistance.selector.Selector;
+import turtle.player.persistance.sql.Sql;
+
+import java.sql.Connection;
 
 /**
  * TURTLE PLAYER
@@ -21,12 +26,12 @@ import turtle.player.persistance.selector.Selector;
  * @author Simon Honegger (Hoene84)
  */
 
-public class Counter implements Selector<String, Integer, Cursor>
+public class Counter implements Selector<Sql, Integer, Cursor>
 {
 	@Override
-	public String get()
+	public Sql get()
 	{
-		return "SELECT count(*) FROM " + TurtleDatabase.TABLE_NAME;
+		return new Sql("SELECT count(*) FROM " + TurtleDatabase.TABLE_NAME);
 	}
 
 	@Override

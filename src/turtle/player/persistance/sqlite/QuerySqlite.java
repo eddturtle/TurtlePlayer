@@ -9,9 +9,11 @@ import turtle.player.persistance.filter.Filter;
 import turtle.player.persistance.filter.FilterSet;
 import turtle.player.persistance.query.Query;
 import turtle.player.persistance.selector.Selector;
+import turtle.player.persistance.sql.Sql;
 
 import java.io.FileReader;
 import java.lang.ref.Reference;
+import java.text.FieldPosition;
 import java.util.Set;
 
 /**
@@ -31,38 +33,37 @@ import java.util.Set;
  * @author Simon Honegger (Hoene84)
  */
 
-public class QuerySqlite<I> implements Query<String, I, Cursor>
+public class QuerySqlite<I> implements Query<Sql, I, Cursor>
 {
 
 	private final static String FILTER_CONNECTOR = " and ";
 
-	Selector<String, I, Cursor> selector;
+	Selector<Sql, I, Cursor> selector;
 
-	public QuerySqlite(Selector<String, I, Cursor> selector)
+	public QuerySqlite(Selector<Sql, I, Cursor> selector)
 	{
 		this.selector = selector;
 	}
 
-	public Selector<String, I, Cursor> getSelector()
+	public Selector<Sql, I, Cursor> getSelector()
 	{
 		return selector;
 	}
 
 	@Override
-	public String get(Filter<String> filter)
+	public Sql get(Filter<Sql> filter)
 	{
-		String sql = getSelector().get();
+		Sql sql = getSelector().get();
 
 		if(filter != null){
-			sql += " where ";
+			sql.append(" where ");
 			sql = filter.accept(sql, this);
 		}
 		return sql;
 	}
 
 	@Override
-	public I execute(Database<String, Cursor, ?> db,
-						  Filter<String> filter)
+	public I execute(Database<Sql, Cursor, ?> db, Filter<Sql> filter)
 	{
 		final Object[] returnValue = new Object[1];
 
@@ -79,21 +80,20 @@ public class QuerySqlite<I> implements Query<String, I, Cursor>
 	}
 
 	@Override
-	public String visit(String query, FieldFilter fieldFilter)
+	public Sql visit(Sql query, FieldFilter fieldFilter)
 	{
-		return fieldFilter.getFieldName() + " = " + fieldFilter.getFieldValue();
+		return query.append(fieldFilter.getFieldName() + " = ?1 ", fieldFilter.getFieldValue());
 	}
 
 	@Override
-	public String visit(String query, FilterSet<String> filterSet)
+	public Sql visit(Sql query, FilterSet<Sql> filterSet)
 	{
-		for(Filter<String> filter : filterSet.getFilters()){
-			query += filter.accept(query, this);
-			query += FILTER_CONNECTOR;
+		for(Filter<Sql> filter : filterSet.getFilters()){
+			query.append(filter.accept(query, this));
+			query.append(FILTER_CONNECTOR);
 		}
 
-		return query.endsWith(FILTER_CONNECTOR) ?
-				  query.substring(0, query.length() - FILTER_CONNECTOR.length()) :
-				  query; //cut off last FILTER_CONNECTOR
+		query.removeLast(FILTER_CONNECTOR);
+		return query;
 	}
 }

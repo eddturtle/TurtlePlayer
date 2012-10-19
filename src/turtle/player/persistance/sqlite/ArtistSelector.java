@@ -4,6 +4,7 @@ import android.database.Cursor;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.persistance.TurtleDatabase;
+import turtle.player.persistance.sql.Sql;
 
 /**
  * TURTLE PLAYER
@@ -22,12 +23,12 @@ import turtle.player.persistance.TurtleDatabase;
  * @author Simon Honegger (Hoene84)
  */
 
-public class ArtistSelector extends SelectorForSetSqlite<String, Artist>
+public class ArtistSelector extends SelectorForSetSqlite<Sql, Artist>
 {
 	@Override
-	public String get()
+	public Sql get()
 	{
-		return "SELECT DISTINCT " + TurtleDatabase.KEY_ARTIST + " FROM " + TurtleDatabase.TABLE_NAME;
+		return new Sql("SELECT DISTINCT " + TurtleDatabase.KEY_ARTIST + " FROM " + TurtleDatabase.TABLE_NAME);
 	}
 
 	@Override

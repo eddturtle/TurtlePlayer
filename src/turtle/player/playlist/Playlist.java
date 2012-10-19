@@ -27,6 +27,7 @@ import turtle.player.persistance.FsReader;
 import turtle.player.persistance.TurtleDatabase;
 import turtle.player.persistance.filter.Filter;
 import turtle.player.persistance.filter.FilterSet;
+import turtle.player.persistance.sql.Sql;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
@@ -54,7 +55,7 @@ public class Playlist
 
 	private PlayOrderStrategy playOrderStrategy;
 	private TurtleDatabase db;
-	private Set<Filter<String>> filters = new HashSet<Filter<String>>();
+	private Set<Filter<Sql>> filters = new HashSet<Filter<Sql>>();
 
 	private Track currTrack = null;
 
@@ -94,9 +95,9 @@ public class Playlist
 				  PlayOrderStrategy.SORTED.connect(preferences, this);
 	}
 
-	public Filter<String> getFilter()
+	public Filter<Sql> getFilter()
 	{
-		return filters.isEmpty() ? null : new FilterSet<String>(filters);
+		return filters.isEmpty() ? null : new FilterSet<Sql>(filters);
 	}
 
 	public Track getNext()

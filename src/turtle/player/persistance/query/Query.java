@@ -27,7 +27,7 @@ import java.util.Set;
 
 public interface Query<R, I, C> extends FilterVisitor<R>
 {
-	R get(Filter<String> filter);
+	R get(Filter<R> filter);
 
 	I execute(Database<R, C, ?> db, Filter<R> filter);
 
