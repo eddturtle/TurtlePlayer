@@ -1,6 +1,6 @@
-package turtle.player.model;
+package turtle.player.persistance.framework.selector;
 
-import turtle.player.persistance.framework.creator.Creator;
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +19,13 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+/**
+ * @param <Q> eg sql String
+ * @param <I> resulting set contains instance I
+ * @param <C> eg cursor (one shot cursor)
+ * @param <P> eg cursor (set)
+ */
+public interface SelectorForSet<Q, I, C, P> extends Selector<Q, Set<I>, P>
 {
-	T create(S source);
+	I createPart(C queryResult);
 }

@@ -1,6 +1,6 @@
-package turtle.player.model;
+package turtle.player.persistance.framework.filter;
 
-import turtle.player.persistance.framework.creator.Creator;
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +19,10 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+/**
+ * @param <I> eg Instance
+ */
+public interface ResultFilter<I>
 {
-	T create(S source);
+	Set<I> apply(Set<I> results);
 }

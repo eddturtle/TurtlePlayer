@@ -1,4 +1,4 @@
-package turtle.player.model;
+package turtle.player.persistance.framework.selector;
 
 import turtle.player.persistance.framework.creator.Creator;
 
@@ -19,7 +19,13 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+/**
+ * @param <Q> eg sql String
+ * @param <I> resulting instance
+ * @param <C> eg cursor
+ */
+public interface Selector<Q, I, C> extends Creator<I, C>
 {
-	T create(S source);
+	Q get();
+	I create(C queryResult);
 }

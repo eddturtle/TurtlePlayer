@@ -1,6 +1,7 @@
-package turtle.player.model;
+package turtle.player.persistance.framework.filter;
 
-import turtle.player.persistance.framework.creator.Creator;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +20,35 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+public class FilterSet<Q> implements Filter<Q>
 {
-	T create(S source);
+	private final Set<Filter<Q>> filters = new HashSet<Filter<Q>>();
+
+	public FilterSet(Filter<Q>... filter)
+	{
+		for(Filter<Q> currFilter : filter)
+		{
+			filters.add(currFilter);
+		}
+	}
+
+	public FilterSet(Set<Filter<Q>> filters)
+	{
+		filters.addAll(filters);
+	}
+
+	@Override
+	public Q accept(Q query,
+						 FilterVisitor<Q> visitor)
+	{
+		return visitor.visit(query, this);
+	}
+
+	/**
+	 * @return never null, Set can be empty
+	 */
+	public Set<Filter<Q>> getFilters()
+	{
+		return filters;
+	}
 }

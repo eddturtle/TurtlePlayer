@@ -1,6 +1,9 @@
-package turtle.player.model;
+package turtle.player.persistance.turtle;
 
-import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.model.*;
+import turtle.player.persistance.framework.filter.Filter;
+
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +22,14 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+/**
+ * @param <Q> eg sql as String
+ */
+public interface FileBase<Q>
 {
-	T create(S source);
+	Set<Track> getTracks(Filter<Q> filter);
+
+	Set<Album> getAlbums(Filter<Q> filter);
+
+	Set<Artist> getArtist(Filter<Q> filter);
 }

@@ -1,6 +1,4 @@
-package turtle.player.model;
-
-import turtle.player.persistance.framework.creator.Creator;
+package turtle.player.persistance.framework.filter;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +17,9 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+public interface FilterVisitor<Q>
 {
-	T create(S source);
+	public Q visit(Q query, FieldFilter fieldFilter);
+
+	public Q visit(Q query, FilterSet<Q> fieldFilter);
 }

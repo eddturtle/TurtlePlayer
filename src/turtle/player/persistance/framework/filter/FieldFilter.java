@@ -1,6 +1,4 @@
-package turtle.player.model;
-
-import turtle.player.persistance.framework.creator.Creator;
+package turtle.player.persistance.framework.filter;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +17,31 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+public class FieldFilter<Q> implements Filter<Q>
 {
-	T create(S source);
+	private final String fieldName;
+	private final String fieldValue;
+
+	public FieldFilter(String fieldName,
+							 String fieldValue)
+	{
+		this.fieldName = fieldName;
+		this.fieldValue = fieldValue;
+	}
+
+	public String getFieldName()
+	{
+		return fieldName;
+	}
+
+	public String getFieldValue()
+	{
+		return fieldValue;
+	}
+
+	@Override
+	public Q accept(Q query, FilterVisitor<Q> visitor)
+	{
+		return visitor.visit(query, this);
+	}
 }

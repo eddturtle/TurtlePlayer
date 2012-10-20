@@ -1,6 +1,8 @@
-package turtle.player.model;
+package turtle.player.persistance.source.sqlite;
 
-import turtle.player.persistance.framework.creator.Creator;
+import android.database.Cursor;
+import turtle.player.persistance.framework.selector.Selector;
+import turtle.player.persistance.source.sql.Sql;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +21,25 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+public class Counter implements Selector<Sql, Integer, Cursor>
 {
-	T create(S source);
+	private final String tableName;
+
+	public Counter(String tableName)
+	{
+		this.tableName = tableName;
+	}
+
+	@Override
+	public Sql get()
+	{
+		return new Sql("SELECT count(*) FROM " + tableName);
+	}
+
+	@Override
+	public Integer create(Cursor queryResult)
+	{
+		queryResult.moveToFirst();
+		return queryResult.getInt(0);
+	}
 }

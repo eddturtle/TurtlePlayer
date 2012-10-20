@@ -1,6 +1,4 @@
-package turtle.player.model;
-
-import turtle.player.persistance.framework.creator.Creator;
+package turtle.player.persistance.framework.filter;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +17,10 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+/**
+ * @param <Q> eg sql as String
+ */
+public interface Filter<Q>
 {
-	T create(S source);
+	Q accept(Q query, FilterVisitor<Q> visitor);
 }

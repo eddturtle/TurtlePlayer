@@ -1,6 +1,4 @@
-package turtle.player.model;
-
-import turtle.player.persistance.framework.creator.Creator;
+package turtle.player.persistance.framework.query;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +17,7 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+public interface QueryExecutor<T, I, C>
 {
-	T create(S source);
+	I execute (Query<T, I, C> query);
 }

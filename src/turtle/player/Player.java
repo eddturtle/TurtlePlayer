@@ -38,7 +38,7 @@ import turtle.player.common.filefilter.FileFilters;
 import turtle.player.dirchooser.DirChooserConstants;
 import turtle.player.model.Instance;
 import turtle.player.model.Track;
-import turtle.player.persistance.TurtleDatabase;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.playlist.Playlist;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;

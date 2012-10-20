@@ -1,6 +1,11 @@
-package turtle.player.model;
+package turtle.player.persistance.source.sqlite;
 
-import turtle.player.persistance.framework.creator.Creator;
+import android.database.Cursor;
+import turtle.player.persistance.framework.selector.SelectorForSet;
+import turtle.player.persistance.source.sql.Sql;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +24,25 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+/**
+ * @param <I> resulting set contains instance I
+ */
+public abstract class SelectorForSetSqlite<I> implements SelectorForSet<Sql, I, Cursor, Cursor>
 {
-	T create(S source);
+	@Override
+	public Set<I> create(Cursor cursor)
+	{
+		Set<I> result = new HashSet<I>();
+
+		if (cursor.moveToFirst())
+		{
+			do
+			{
+				result.add(createPart(cursor));
+
+			} while (cursor.moveToNext());
+		}
+
+		return result;
+	}
 }

@@ -1,6 +1,9 @@
-package turtle.player.model;
+package turtle.player.persistance.framework.query;
 
-import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.persistance.framework.db.Database;
+import turtle.player.persistance.framework.filter.Filter;
+import turtle.player.persistance.framework.filter.FilterVisitor;
+import turtle.player.persistance.framework.selector.Selector;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +22,11 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+public interface Query<R, I, C> extends FilterVisitor<R>
 {
-	T create(S source);
+	R get(Filter<R> filter);
+
+	I execute(Database<R, C, ?> db, Filter<R> filter);
+
+	Selector<?, I, C> getSelector();
 }

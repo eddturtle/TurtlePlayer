@@ -1,6 +1,9 @@
-package turtle.player.model;
+package turtle.player.persistance.turtle.selector;
 
-import turtle.player.persistance.framework.creator.Creator;
+import android.database.Cursor;
+import turtle.player.model.Artist;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.persistance.source.sql.SelectorDistinct;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +22,16 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+public class ArtistSelector extends SelectorDistinct<Artist>
 {
-	T create(S source);
+	public ArtistSelector()
+	{
+		super(TurtleDatabase.TABLE_NAME, TurtleDatabase.KEY_ARTIST);
+	}
+
+	@Override
+	public Artist createPart(Cursor cursor)
+	{
+		return new Artist(cursor.getString(0));
+	}
 }

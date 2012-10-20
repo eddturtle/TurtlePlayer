@@ -1,6 +1,6 @@
-package turtle.player.model;
+package turtle.player.persistance.source.sql;
 
-import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.persistance.source.sqlite.SelectorForSetSqlite;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +19,21 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+public abstract class SelectorDistinct<I> extends SelectorForSetSqlite<I>
 {
-	T create(S source);
+	private final String tableName;
+	private final String columnName;
+
+	protected SelectorDistinct(String tableName,
+										String columnName)
+	{
+		this.tableName = tableName;
+		this.columnName = columnName;
+	}
+
+	@Override
+	public Sql get()
+	{
+		return new Sql("SELECT DISTINCT " + columnName + " FROM " + tableName);
+	}
 }

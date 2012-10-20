@@ -1,6 +1,4 @@
-package turtle.player.model;
-
-import turtle.player.persistance.framework.creator.Creator;
+package turtle.player.persistance.framework.db;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +17,26 @@ import turtle.player.persistance.framework.creator.Creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface InstanceCreator<T extends Instance, S> extends Creator<T, S>
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @param <C> eg Cursor
+ * @param <Q> eg sql as String
+ * @param <D> DB for write operations
+ */
+public interface Database<Q, C, D>
 {
-	T create(S source);
+	abstract void read(Q query, DbReadOp<C> readOp);
+	abstract void write(DbWriteOp<D> writeOp);
+
+	interface DbReadOp<C>
+	{
+		public void read(C db);
+	}
+
+	interface DbWriteOp<D>
+	{
+		public void write(D db);
+	}
 }
