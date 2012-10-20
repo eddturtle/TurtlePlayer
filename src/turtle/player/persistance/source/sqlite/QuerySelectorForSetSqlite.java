@@ -1,8 +1,11 @@
 package turtle.player.persistance.source.sqlite;
 
 import android.database.Cursor;
-import turtle.player.persistance.framework.selector.QuerySelector;
+import turtle.player.persistance.framework.selector.QuerySelectorForSet;
 import turtle.player.persistance.source.sql.Sql;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -21,25 +24,25 @@ import turtle.player.persistance.source.sql.Sql;
  * @author Simon Honegger (Hoene84)
  */
 
-public class Counter implements QuerySelector<Sql, Integer, Cursor>
+/**
+ * @param <I> resulting set contains instance I
+ */
+public abstract class QuerySelectorForSetSqlite<I> implements QuerySelectorForSet<Sql, I, Cursor, Cursor>
 {
-	private final String tableName;
-
-	public Counter(String tableName)
-	{
-		this.tableName = tableName;
-	}
-
 	@Override
-	public Sql get()
+	public Set<I> create(Cursor cursor)
 	{
-		return new Sql("SELECT count(*) FROM " + tableName);
-	}
+		Set<I> result = new HashSet<I>();
 
-	@Override
-	public Integer create(Cursor queryResult)
-	{
-		queryResult.moveToFirst();
-		return queryResult.getInt(0);
+		if (cursor.moveToFirst())
+		{
+			do
+			{
+				result.add(createPart(cursor));
+
+			} while (cursor.moveToNext());
+		}
+
+		return result;
 	}
 }

@@ -32,9 +32,10 @@ import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.source.sql.Sql;
 import turtle.player.persistance.source.sqlite.Counter;
 import turtle.player.persistance.source.sqlite.QuerySqlite;
-import turtle.player.persistance.turtle.selector.AlbumSelector;
-import turtle.player.persistance.turtle.selector.ArtistSelector;
-import turtle.player.persistance.turtle.selector.TrackSelector;
+import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.selector.AlbumQuerySelector;
+import turtle.player.persistance.turtle.selector.ArtistQuerySelector;
+import turtle.player.persistance.turtle.selector.TrackQuerySelector;
 
 import java.util.Set;
 
@@ -45,25 +46,12 @@ import java.util.Set;
 public class TurtleDatabase extends ObservableDatabase<Sql, Cursor, SQLiteDatabase> implements FileBase<Sql>
 {
 
-	//TODO: this should not be public, instead package visible
-	public static final String TABLE_NAME = "Tracks";
-
-	public static final String KEY_ID = "id";
-	public static final String KEY_TITLE = "title";
-	public static final String KEY_NUMBER = "number";
-	public static final String KEY_ARTIST = "artist";
-	public static final String KEY_ALBUM = "album";
-	public static final String KEY_LENGTH = "length";
-	public static final String KEY_SRC = "src";
-	public static final String KEY_ROOTSRC = "rootSrc";
-	public static final String KEY_ALBUMART = "hasAlbumArt";
-
 	final TurtleDatabaseImpl turtleDatabaseImpl;
 
 
 	public TurtleDatabase(Context context)
 	{
-		turtleDatabaseImpl = new TurtleDatabaseImpl(context);
+		turtleDatabaseImpl = new TurtleDatabaseImpl(context, this, Tables.TRACKS);
 	}
 
 	public void push(final Track track)
@@ -76,16 +64,16 @@ public class TurtleDatabase extends ObservableDatabase<Sql, Cursor, SQLiteDataba
 			{
 				ContentValues values = new ContentValues();
 
-				values.put(KEY_TITLE, track.GetTitle());
-				values.put(KEY_NUMBER, track.GetNumber());
-				values.put(KEY_ARTIST, track.GetArtist().getName());
-				values.put(KEY_ALBUM, track.GetAlbum().getName());
-				values.put(KEY_LENGTH, track.GetLength());
-				values.put(KEY_SRC, track.GetSrc());
-				values.put(KEY_ROOTSRC, track.GetRootSrc());
-				values.put(KEY_ALBUMART, track.albumArt());
+				values.put(Tables.TRACKS.TITLE.getName(), track.GetTitle());
+				values.put(Tables.TRACKS.NUMBER.getName(), track.GetNumber());
+				values.put(Tables.TRACKS.ARTIST.getName(), track.GetArtist().getName());
+				values.put(Tables.TRACKS.ALBUM.getName(), track.GetAlbum().getName());
+				values.put(Tables.TRACKS.LENGTH.getName(), track.GetLength());
+				values.put(Tables.TRACKS.SRC.getName(), track.GetSrc());
+				values.put(Tables.TRACKS.ROOTSRC.getName(), track.GetRootSrc());
+				values.put(Tables.TRACKS.ALBUMART.getName(), track.albumArt());
 
-				db.insert(TABLE_NAME, null, values);
+				db.insert(Tables.TRACKS.getName(), null, values);
 
 				notifyUpdate();
 			}
@@ -99,7 +87,7 @@ public class TurtleDatabase extends ObservableDatabase<Sql, Cursor, SQLiteDataba
 			@Override
 			public void write(SQLiteDatabase db)
 			{
-				db.execSQL("DELETE FROM " + TABLE_NAME);
+				db.execSQL("DELETE FROM " + Tables.TRACKS.getName());
 				notifyUpdate();
 			}
 		});
@@ -107,25 +95,25 @@ public class TurtleDatabase extends ObservableDatabase<Sql, Cursor, SQLiteDataba
 
 	public boolean isEmpty(Filter<Sql> filter)
 	{
-		return new QuerySqlite<Integer>(new Counter(TABLE_NAME)).execute(this, filter).equals(0);
+		return new QuerySqlite<Integer>(new Counter(Tables.TRACKS.getName())).execute(this, filter).equals(0);
 	}
 
 	@Override
 	public Set<Track> getTracks(Filter<Sql> filter)
 	{
-		return new QuerySqlite<Set<Track>>(new TrackSelector()).execute(this, filter);
+		return new QuerySqlite<Set<Track>>(new TrackQuerySelector()).execute(this, filter);
 	}
 
 	@Override
 	public Set<Album> getAlbums(Filter<Sql> filter)
 	{
-		return new QuerySqlite<Set<Album>>(new AlbumSelector()).execute(this, filter);
+		return new QuerySqlite<Set<Album>>(new AlbumQuerySelector()).execute(this, filter);
 	}
 
 	@Override
 	public Set<Artist> getArtist(Filter<Sql> filter)
 	{
-		return new QuerySqlite<Set<Artist>>(new ArtistSelector()).execute(this, filter);
+		return new QuerySqlite<Set<Artist>>(new ArtistQuerySelector()).execute(this, filter);
 	}
 
 	@Override

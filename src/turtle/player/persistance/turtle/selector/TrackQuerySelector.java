@@ -4,8 +4,9 @@ import android.database.Cursor;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
+import turtle.player.persistance.source.sql.QuerySelectorTable;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
-import turtle.player.persistance.source.sql.SelectorTable;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -24,25 +25,25 @@ import turtle.player.persistance.source.sql.SelectorTable;
  * @author Simon Honegger (Hoene84)
  */
 
-public class TrackSelector extends SelectorTable<Track>
+public class TrackQuerySelector extends QuerySelectorTable<Track>
 {
-	public TrackSelector()
+	public TrackQuerySelector()
 	{
-		super(TurtleDatabase.TABLE_NAME);
+		super(Tables.TRACKS);
 	}
 
 	@Override
 	public Track createPart(Cursor cursor)
 	{
 		return new Track(
-				  cursor.getString(cursor.getColumnIndex(TurtleDatabase.KEY_TITLE)),
-				  Integer.parseInt(cursor.getString(cursor.getColumnIndex(TurtleDatabase.KEY_NUMBER))),
-				  new Artist(cursor.getString(cursor.getColumnIndex(TurtleDatabase.KEY_ARTIST))),
-				  new Album(cursor.getString(cursor.getColumnIndex(TurtleDatabase.KEY_ALBUM))),
-				  cursor.getDouble(cursor.getColumnIndex(TurtleDatabase.KEY_LENGTH)),
-				  cursor.getString(cursor.getColumnIndex(TurtleDatabase.KEY_SRC)),
-				  cursor.getString(cursor.getColumnIndex(TurtleDatabase.KEY_ROOTSRC)),
-				  cursor.getString(cursor.getColumnIndex(TurtleDatabase.KEY_ALBUMART))
+				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.TITLE.getName())),
+				  cursor.getInt(cursor.getColumnIndex(Tables.TRACKS.NUMBER.getName())),
+				  new Artist(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ARTIST.getName()))),
+				  new Album(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ALBUM.getName()))),
+				  cursor.getDouble(cursor.getColumnIndex(Tables.TRACKS.LENGTH.getName())),
+				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.SRC.getName())),
+				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ROOTSRC.getName())),
+				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ALBUMART.getName()))
 		);
 	}
 }

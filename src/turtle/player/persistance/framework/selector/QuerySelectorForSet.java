@@ -1,4 +1,6 @@
-package turtle.player.persistance.framework.query;
+package turtle.player.persistance.framework.selector;
+
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -17,7 +19,13 @@ package turtle.player.persistance.framework.query;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface QueryExecutor<T, I, C>
+/**
+ * @param <Q> eg sql String
+ * @param <I> resulting set contains instance I
+ * @param <C> eg cursor (one shot cursor)
+ * @param <P> eg cursor (set)
+ */
+public interface QuerySelectorForSet<Q, I, C, P> extends QuerySelector<Q, Set<I>, P>
 {
-	I execute (Query<T, I, C> query);
+	I createPart(C queryResult);
 }

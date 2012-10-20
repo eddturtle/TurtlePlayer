@@ -3,7 +3,7 @@ package turtle.player.persistance.framework.query;
 import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterVisitor;
-import turtle.player.persistance.framework.selector.Selector;
+import turtle.player.persistance.framework.selector.QuerySelector;
 
 /**
  * TURTLE PLAYER
@@ -28,5 +28,5 @@ public interface Query<R, I, C> extends FilterVisitor<R>
 
 	I execute(Database<R, C, ?> db, Filter<R> filter);
 
-	Selector<?, I, C> getSelector();
+	QuerySelector<?, I, C> getQuerySelector();
 }

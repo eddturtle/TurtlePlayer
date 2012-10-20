@@ -1,8 +1,7 @@
-package turtle.player.persistance.source.sqlite;
+package turtle.player.persistance.source.sql;
 
-import android.database.Cursor;
-import turtle.player.persistance.framework.selector.QuerySelector;
-import turtle.player.persistance.source.sql.Sql;
+import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.source.sqlite.QuerySelectorForSetSqlite;
 
 /**
  * TURTLE PLAYER
@@ -21,25 +20,18 @@ import turtle.player.persistance.source.sql.Sql;
  * @author Simon Honegger (Hoene84)
  */
 
-public class Counter implements QuerySelector<Sql, Integer, Cursor>
+public abstract class QuerySelectorTable<I> extends QuerySelectorForSetSqlite<I>
 {
-	private final String tableName;
+	private final Table table;
 
-	public Counter(String tableName)
+	protected QuerySelectorTable(Table table)
 	{
-		this.tableName = tableName;
+		this.table = table;
 	}
 
 	@Override
 	public Sql get()
 	{
-		return new Sql("SELECT count(*) FROM " + tableName);
-	}
-
-	@Override
-	public Integer create(Cursor queryResult)
-	{
-		queryResult.moveToFirst();
-		return queryResult.getInt(0);
+		return new Sql("SELECT * FROM " + table.getName());
 	}
 }

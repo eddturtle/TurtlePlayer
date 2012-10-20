@@ -1,8 +1,9 @@
-package turtle.player.persistance.source.sqlite;
+package turtle.player.persistance.turtle.selector;
 
 import android.database.Cursor;
-import turtle.player.persistance.framework.selector.QuerySelector;
-import turtle.player.persistance.source.sql.Sql;
+import turtle.player.model.Album;
+import turtle.player.persistance.source.sql.QuerySelectorDistinct;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -21,25 +22,17 @@ import turtle.player.persistance.source.sql.Sql;
  * @author Simon Honegger (Hoene84)
  */
 
-public class Counter implements QuerySelector<Sql, Integer, Cursor>
+public class AlbumQuerySelector extends QuerySelectorDistinct<Album>
 {
-	private final String tableName;
 
-	public Counter(String tableName)
+	public AlbumQuerySelector()
 	{
-		this.tableName = tableName;
+		super(Tables.TRACKS, Tables.TRACKS.ALBUM);
 	}
 
 	@Override
-	public Sql get()
+	public Album createPart(Cursor cursor)
 	{
-		return new Sql("SELECT count(*) FROM " + tableName);
-	}
-
-	@Override
-	public Integer create(Cursor queryResult)
-	{
-		queryResult.moveToFirst();
-		return queryResult.getInt(0);
+		return new Album(cursor.getString(0));
 	}
 }

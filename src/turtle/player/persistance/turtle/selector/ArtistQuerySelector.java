@@ -1,6 +1,9 @@
-package turtle.player.persistance.source.sql;
+package turtle.player.persistance.turtle.selector;
 
-import turtle.player.persistance.source.sqlite.SelectorForSetSqlite;
+import android.database.Cursor;
+import turtle.player.model.Artist;
+import turtle.player.persistance.source.sql.QuerySelectorDistinct;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -19,21 +22,16 @@ import turtle.player.persistance.source.sqlite.SelectorForSetSqlite;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class SelectorDistinct<I> extends SelectorForSetSqlite<I>
+public class ArtistQuerySelector extends QuerySelectorDistinct<Artist>
 {
-	private final String tableName;
-	private final String columnName;
-
-	protected SelectorDistinct(String tableName,
-										String columnName)
+	public ArtistQuerySelector()
 	{
-		this.tableName = tableName;
-		this.columnName = columnName;
+		super(Tables.TRACKS, Tables.TRACKS.ARTIST);
 	}
 
 	@Override
-	public Sql get()
+	public Artist createPart(Cursor cursor)
 	{
-		return new Sql("SELECT DISTINCT " + columnName + " FROM " + tableName);
+		return new Artist(cursor.getString(0));
 	}
 }

@@ -1,9 +1,4 @@
-package turtle.player.persistance.turtle.selector;
-
-import android.database.Cursor;
-import turtle.player.model.Artist;
-import turtle.player.persistance.turtle.db.TurtleDatabase;
-import turtle.player.persistance.source.sql.SelectorDistinct;
+package turtle.player.persistance.source.relational;
 
 /**
  * TURTLE PLAYER
@@ -22,16 +17,17 @@ import turtle.player.persistance.source.sql.SelectorDistinct;
  * @author Simon Honegger (Hoene84)
  */
 
-public class ArtistSelector extends SelectorDistinct<Artist>
+public class Field
 {
-	public ArtistSelector()
+	final String name;
+
+	public Field(String name)
 	{
-		super(TurtleDatabase.TABLE_NAME, TurtleDatabase.KEY_ARTIST);
+		this.name = name;
 	}
 
-	@Override
-	public Artist createPart(Cursor cursor)
+	public String getName()
 	{
-		return new Artist(cursor.getString(0));
+		return name;
 	}
 }

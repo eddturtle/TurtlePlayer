@@ -1,6 +1,6 @@
-package turtle.player.persistance.source.sql;
+package turtle.player.persistance.source.relational;
 
-import turtle.player.persistance.source.sqlite.SelectorForSetSqlite;
+import android.provider.SyncStateContract;
 
 /**
  * TURTLE PLAYER
@@ -19,18 +19,17 @@ import turtle.player.persistance.source.sqlite.SelectorForSetSqlite;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class SelectorTable<I> extends SelectorForSetSqlite<I>
+public class Table
 {
-	private final String tableName;
+	final String name;
 
-	protected SelectorTable(String tableName)
+	public Table(String name)
 	{
-		this.tableName = tableName;
+		this.name = name;
 	}
 
-	@Override
-	public Sql get()
+	public String getName()
 	{
-		return new Sql("SELECT * FROM " + tableName);
+		return name;
 	}
 }

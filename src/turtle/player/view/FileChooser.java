@@ -27,6 +27,7 @@ import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.framework.filter.FieldFilter;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.source.sql.Sql;
+import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.presentation.InstanceFormatter;
 import turtle.player.util.GenericInstanceComperator;
 import turtle.player.util.InstanceAdapter;
@@ -116,7 +117,7 @@ public class FileChooser implements TurtleDatabase.DbObserver
 			public Track visit(Album album)
 			{
 				currType = Type.Track;
-				filter = new FieldFilter<Sql>(TurtleDatabase.KEY_ALBUM, album.getName());
+				filter = new FieldFilter<Sql>(Tables.TRACKS.ALBUM, album.getName());
 				return null;
 			}
 
@@ -124,7 +125,7 @@ public class FileChooser implements TurtleDatabase.DbObserver
 			public Track visit(Artist artist)
 			{
 				currType = Type.Track;
-				filter = new FieldFilter<Sql>(TurtleDatabase.KEY_ARTIST, artist.getName());
+				filter = new FieldFilter<Sql>(Tables.TRACKS.ARTIST, artist.getName());
 				return null;
 			}
 		});

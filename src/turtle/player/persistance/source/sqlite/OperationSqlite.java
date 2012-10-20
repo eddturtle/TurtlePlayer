@@ -1,12 +1,14 @@
 package turtle.player.persistance.source.sqlite;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.filter.FieldFilter;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterSet;
-import turtle.player.persistance.framework.query.Query;
+import turtle.player.persistance.framework.query.Operation;
 import turtle.player.persistance.framework.selector.QuerySelector;
+import turtle.player.persistance.framework.selector.Selector;
 import turtle.player.persistance.source.sql.Sql;
 
 /**
@@ -26,19 +28,19 @@ import turtle.player.persistance.source.sql.Sql;
  * @author Simon Honegger (Hoene84)
  */
 
-public class QuerySqlite<I> implements Query<Sql, I, Cursor>
+public class OperationSqlite implements Operation<Sql, SQLiteDatabase>
 {
 
 	private final static String FILTER_CONNECTOR = " and ";
 
-	QuerySelector<Sql, I, Cursor> querySelector;
+	Selector<Sql> querySelector;
 
-	public QuerySqlite(QuerySelector<Sql, I, Cursor> querySelector)
+	public OperationSqlite(Selector<Sql> selector)
 	{
 		this.querySelector = querySelector;
 	}
 
-	public QuerySelector<Sql, I, Cursor> getQuerySelector()
+	public Selector<Sql> getSelector()
 	{
 		return querySelector;
 	}
@@ -46,7 +48,7 @@ public class QuerySqlite<I> implements Query<Sql, I, Cursor>
 	@Override
 	public Sql get(Filter<Sql> filter)
 	{
-		Sql sql = getQuerySelector().get();
+		Sql sql = getSelector().get();
 
 		if(filter != null){
 			sql.append(" where ");
@@ -55,21 +57,18 @@ public class QuerySqlite<I> implements Query<Sql, I, Cursor>
 		return sql;
 	}
 
-	@Override
-	public I execute(Database<Sql, Cursor, ?> db, Filter<Sql> filter)
-	{
-		final Object[] returnValue = new Object[1];
 
-		db.read(get(filter), new Database.DbReadOp<Cursor>()
+	@Override
+	public void execute(Database<Sql, ?, SQLiteDatabase> db, final Filter<Sql> filter)
+	{
+		db.write(new Database.DbWriteOp<SQLiteDatabase>()
 		{
 			@Override
-			public void read(Cursor db)
+			public void write(SQLiteDatabase db)
 			{
-				returnValue[0] = getQuerySelector().create(db);
+				db.execSQL(get(filter).getSql());
 			}
 		});
-
-		return (I) returnValue[0];
 	}
 
 	@Override

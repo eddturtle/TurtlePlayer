@@ -1,6 +1,10 @@
-package turtle.player.persistance.framework.selector;
+package turtle.player.persistance.framework.query;
 
-import java.util.Set;
+import turtle.player.persistance.framework.db.Database;
+import turtle.player.persistance.framework.filter.Filter;
+import turtle.player.persistance.framework.filter.FilterVisitor;
+import turtle.player.persistance.framework.selector.QuerySelector;
+import turtle.player.persistance.framework.selector.Selector;
 
 /**
  * TURTLE PLAYER
@@ -19,13 +23,11 @@ import java.util.Set;
  * @author Simon Honegger (Hoene84)
  */
 
-/**
- * @param <Q> eg sql String
- * @param <I> resulting set contains instance I
- * @param <C> eg cursor (one shot cursor)
- * @param <P> eg cursor (set)
- */
-public interface SelectorForSet<Q, I, C, P> extends Selector<Q, Set<I>, P>
+public interface Operation<R, D> extends FilterVisitor<R>
 {
-	I createPart(C queryResult);
+	R get(Filter<R> filter);
+
+	void execute(Database<R, ?, D> db, Filter<R> filter);
+
+	Selector<R> getSelector();
 }

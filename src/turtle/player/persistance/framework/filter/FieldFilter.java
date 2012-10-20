@@ -1,5 +1,7 @@
 package turtle.player.persistance.framework.filter;
 
+import turtle.player.persistance.source.relational.Field;
+
 /**
  * TURTLE PLAYER
  * <p/>
@@ -19,24 +21,24 @@ package turtle.player.persistance.framework.filter;
 
 public class FieldFilter<Q> implements Filter<Q>
 {
-	private final String fieldName;
-	private final String fieldValue;
+	private final Field field;
+	private final String value;
 
-	public FieldFilter(String fieldName,
-							 String fieldValue)
+	public FieldFilter(Field field,
+							 String value)
 	{
-		this.fieldName = fieldName;
-		this.fieldValue = fieldValue;
+		this.field = field;
+		this.value = value;
 	}
 
-	public String getFieldName()
+	public Field getField()
 	{
-		return fieldName;
+		return field;
 	}
 
 	public String getFieldValue()
 	{
-		return fieldValue;
+		return value;
 	}
 
 	@Override
