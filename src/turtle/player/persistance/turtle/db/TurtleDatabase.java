@@ -35,9 +35,9 @@ import turtle.player.persistance.source.sql.Sql;
 import turtle.player.persistance.source.sqlite.Counter;
 import turtle.player.persistance.source.sqlite.QuerySqlite;
 import turtle.player.persistance.turtle.db.structure.Tables;
-import turtle.player.persistance.turtle.selector.*;
-import turtle.player.persistance.turtle.selector.AlbumMapping;
-import turtle.player.persistance.turtle.selector.ArtistMapping;
+import turtle.player.persistance.turtle.mapping.*;
+import turtle.player.persistance.turtle.mapping.AlbumMapping;
+import turtle.player.persistance.turtle.mapping.ArtistMapping;
 
 import java.util.Set;
 
@@ -58,7 +58,7 @@ public class TurtleDatabase extends ObservableDatabase<Sql, Cursor, SQLiteDataba
 
 	public void push(final Track track)
 	{
-		OperationExecutor.execute(this, new InsertOperationSqlLite<Track>(), new TrackInsertOperation(), track);
+		OperationExecutor.execute(this, new InsertOperationSqlLite<Track>(), new TrackToDbMapper(), track);
 	}
 
 	public void clear()

@@ -1,4 +1,4 @@
-package turtle.player.persistance.turtle.selector;
+package turtle.player.persistance.turtle.mapping;
 
 import android.database.Cursor;
 import turtle.player.model.Album;

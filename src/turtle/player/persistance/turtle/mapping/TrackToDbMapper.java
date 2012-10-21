@@ -1,9 +1,8 @@
-package turtle.player.persistance.turtle.selector;
+package turtle.player.persistance.turtle.mapping;
 
 import android.content.ContentValues;
 import turtle.player.model.Track;
-import turtle.player.persistance.source.relational.Table;
-import turtle.player.persistance.source.sql.QueryGeneratorInsert;
+import turtle.player.persistance.source.sql.QueryGeneratorTable;
 import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
@@ -23,9 +22,9 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class TrackInsertOperation extends QueryGeneratorInsert<Track>
+public class TrackToDbMapper extends QueryGeneratorTable<Track>
 {
-	public TrackInsertOperation()
+	public TrackToDbMapper()
 	{
 		super(Tables.TRACKS);
 	}

@@ -1,8 +1,9 @@
-package turtle.player.persistance.source.sql;
+package turtle.player.persistance.turtle.mapping;
 
-import android.content.ContentValues;
-import turtle.player.persistance.framework.selector.Mapping;
-import turtle.player.persistance.source.relational.Table;
+import android.database.Cursor;
+import turtle.player.model.Artist;
+import turtle.player.persistance.source.sql.MappingDistinct;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -21,18 +22,16 @@ import turtle.player.persistance.source.relational.Table;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class QueryGeneratorInsert<I> implements Mapping<Table, ContentValues, I>
+public class ArtistMapping extends MappingDistinct<Artist>
 {
-	final Table table;
-
-	public QueryGeneratorInsert(Table table)
+	public ArtistMapping()
 	{
-		this.table = table;
+		super(Tables.TRACKS, Tables.TRACKS.ARTIST);
 	}
 
 	@Override
-	public Table get()
+	public Artist createPart(Cursor cursor)
 	{
-		return table;
+		return new Artist(cursor.getString(0));
 	}
 }
