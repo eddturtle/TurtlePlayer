@@ -35,7 +35,6 @@ public abstract class OperationExecutor
 		});
 	}
 
-	//public void execute(final Database<?, ?, SQLiteDatabase> db, final Mapping<Table, ContentValues, I> mapping, I instance)
 	public static <I, C, D, Q> void execute(Database<?, ?, D> db, final OperationWrite<D, Mapping<Q, C, I>, I> operation, final Mapping<Q, C, I> mapping, final I instance){
 		db.write(new Database.DbWriteOp<D, I>()
 		{
