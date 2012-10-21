@@ -2,6 +2,7 @@ package turtle.player.persistance.source.sqlite;
 
 import android.database.Cursor;
 import turtle.player.persistance.framework.selector.Mapping;
+import turtle.player.persistance.source.sql.Counter;
 import turtle.player.persistance.source.sql.Sql;
 
 /**
@@ -21,19 +22,11 @@ import turtle.player.persistance.source.sql.Sql;
  * @author Simon Honegger (Hoene84)
  */
 
-public class Counter implements Mapping<Sql, Integer, Cursor>
+public class CounterSqlite extends Counter
 {
-	private final String tableName;
-
-	public Counter(String tableName)
+	public CounterSqlite(String tableName)
 	{
-		this.tableName = tableName;
-	}
-
-	@Override
-	public Sql get()
-	{
-		return new Sql("SELECT count(*) FROM " + tableName);
+		super(tableName);
 	}
 
 	@Override
