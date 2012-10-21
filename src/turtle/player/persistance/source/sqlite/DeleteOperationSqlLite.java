@@ -2,6 +2,7 @@ package turtle.player.persistance.source.sqlite;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import turtle.player.persistance.framework.query.OperationDelete;
 import turtle.player.persistance.framework.query.OperationInsert;
 import turtle.player.persistance.framework.selector.Mapping;
 import turtle.player.persistance.source.relational.Table;
@@ -23,13 +24,12 @@ import turtle.player.persistance.source.relational.Table;
  * @author Simon Honegger (Hoene84)
  */
 
-public class InsertOperationSqlLite<I> implements OperationInsert<SQLiteDatabase, Mapping<Table, ContentValues, I>, I>
+public class DeleteOperationSqlLite implements OperationDelete<SQLiteDatabase, Table>
 {
 	@Override
-	public void insert(final SQLiteDatabase db,
-							 final Mapping<Table, ContentValues, I> mapping,
-							 I instance)
+	public void delete(SQLiteDatabase db,
+							 Table target)
 	{
-		db.insert(mapping.get().getName(), null, mapping.create(instance));
+		db.delete(target.getName(), null, null);
 	}
 }

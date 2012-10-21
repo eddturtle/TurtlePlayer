@@ -1,10 +1,7 @@
-package turtle.player.persistance.source.sqlite;
+package turtle.player.persistance.framework.query;
 
-import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
-import turtle.player.persistance.framework.query.OperationInsert;
+import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.selector.Mapping;
-import turtle.player.persistance.source.relational.Table;
 
 /**
  * TURTLE PLAYER
@@ -23,13 +20,14 @@ import turtle.player.persistance.source.relational.Table;
  * @author Simon Honegger (Hoene84)
  */
 
-public class InsertOperationSqlLite<I> implements OperationInsert<SQLiteDatabase, Mapping<Table, ContentValues, I>, I>
+/**
+ * @param <D> write target eg SQLiteDb
+ * @param <S> Object type that knows how to do the operation
+ * @param <I> Object Type of the write information
+ */
+public interface OperationInsert<D, S extends Mapping<?, ?, ?>, I>
 {
-	@Override
-	public void insert(final SQLiteDatabase db,
-							 final Mapping<Table, ContentValues, I> mapping,
-							 I instance)
-	{
-		db.insert(mapping.get().getName(), null, mapping.create(instance));
-	}
+	void insert(D db,
+					final S mapper,
+					I instance);
 }

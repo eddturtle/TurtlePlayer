@@ -1,6 +1,5 @@
 package turtle.player.persistance.framework.query;
 
-import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.selector.Mapping;
 
 /**
@@ -20,12 +19,7 @@ import turtle.player.persistance.framework.selector.Mapping;
  * @author Simon Honegger (Hoene84)
  */
 
-/**
- * @param <D> write target eg SQLiteDb
- * @param <S> Object type that knows how to do the operation
- * @param <I> Object Type of the write information
- */
-public interface OperationWrite<D, S extends Mapping<?, ?, ?>, I>
+public interface OperationDelete<D, T>
 {
-	void map(D db, final S mapper, I instance);
+	void delete(D db, T target);
 }

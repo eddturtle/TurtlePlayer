@@ -1,8 +1,9 @@
 package turtle.player.persistance.framework.executor;
 
 import turtle.player.persistance.framework.db.Database;
+import turtle.player.persistance.framework.query.OperationDelete;
 import turtle.player.persistance.framework.query.OperationRead;
-import turtle.player.persistance.framework.query.OperationWrite;
+import turtle.player.persistance.framework.query.OperationInsert;
 import turtle.player.persistance.framework.selector.Mapping;
 
 /**
@@ -35,15 +36,27 @@ public abstract class OperationExecutor
 		});
 	}
 
-	public static <I, C, D, Q> void execute(Database<?, ?, D> db, final OperationWrite<D, Mapping<Q, C, I>, I> operation, final Mapping<Q, C, I> mapping, final I instance){
+	public static <I, C, D, Q> void execute(Database<?, ?, D> db, final OperationInsert<D, Mapping<Q, C, I>, I> operation, final Mapping<Q, C, I> mapping, final I instance){
 		db.write(new Database.DbWriteOp<D, I>()
 		{
 			@Override
 			public void write(D target,
 									I instance)
 			{
-				operation.map(target, mapping, instance);
+				operation.insert(target, mapping, instance);
 			}
 		}, instance);
+	}
+
+	public static <D, T> void execute(Database<?, ?, D> db, final OperationDelete<D, T> operation, T target){
+		db.write(new Database.DbWriteOp<D, T>()
+		{
+			@Override
+			public void write(D target,
+									T instance)
+			{
+				operation.delete(target, instance);
+			}
+		}, target);
 	}
 }

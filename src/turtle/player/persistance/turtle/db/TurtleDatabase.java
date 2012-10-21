@@ -25,14 +25,14 @@ import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
 import turtle.player.persistance.framework.executor.OperationExecutor;
-import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.source.sqlite.CounterSqlite;
+import turtle.player.persistance.source.sqlite.DeleteOperationSqlLite;
 import turtle.player.persistance.source.sqlite.InsertOperationSqlLite;
 import turtle.player.persistance.turtle.FileBase;
 import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.db.ObservableDatabase;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.source.sql.Sql;
-import turtle.player.persistance.source.sqlite.Counter;
 import turtle.player.persistance.source.sqlite.QuerySqlite;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.persistance.turtle.mapping.*;
@@ -63,21 +63,12 @@ public class TurtleDatabase extends ObservableDatabase<Sql, Cursor, SQLiteDataba
 
 	public void clear()
 	{
-		write(new DbWriteOp<SQLiteDatabase, Table>()
-		{
-			@Override
-			public void write(SQLiteDatabase target,
-									Table table)
-			{
-				target.execSQL("DELETE FROM " + table.getName());
-				notifyUpdate();
-			}
-		}, Tables.TRACKS);
+		OperationExecutor.execute(this, new DeleteOperationSqlLite(), Tables.TRACKS);
 	}
 
 	public boolean isEmpty(Filter<Sql> filter)
 	{
-		return OperationExecutor.execute(this, new QuerySqlite<Integer>(filter), new Counter(Tables.TRACKS.getName())).equals(0);
+		return OperationExecutor.execute(this, new QuerySqlite<Integer>(filter), new CounterSqlite(Tables.TRACKS.getName())).equals(0);
 	}
 
 	@Override
