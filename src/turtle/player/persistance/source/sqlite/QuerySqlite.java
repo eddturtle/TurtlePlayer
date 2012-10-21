@@ -36,7 +36,7 @@ public class QuerySqlite<I> extends Query<Sql, I, Cursor>
 	}
 
 	@Override
-	protected Sql get(Mapping<Sql, I, Cursor> mapping)
+	public Sql get(Mapping<Sql, I, Cursor> mapping)
 	{
 		Sql sql = mapping.get();
 
@@ -48,16 +48,10 @@ public class QuerySqlite<I> extends Query<Sql, I, Cursor>
 	}
 
 	@Override
-	public I execute(final Database<Sql, Cursor, ?> db, final Mapping<Sql, I, Cursor> mapping)
+	public I map(final Cursor cursor,
+					 final Mapping<Sql, I, Cursor> mapping)
 	{
-		return db.read(get(mapping), new Database.DbReadOp<I, Cursor>()
-		{
-			@Override
-			public I read(Cursor cursor)
-			{
-				return mapping.create(cursor);
-			}
-		});
+		return mapping.create(cursor);
 	}
 
 	@Override

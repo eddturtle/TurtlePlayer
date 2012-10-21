@@ -27,16 +27,10 @@ import turtle.player.persistance.source.relational.Table;
 public class InsertOperationSqlLite<I> implements OperationWrite<SQLiteDatabase, Mapping<Table, ContentValues, I>, I>
 {
 	@Override
-	public void execute(final Database<?, ?, SQLiteDatabase> db, final Mapping<Table, ContentValues, I> mapping, I instance)
+	public void map(final SQLiteDatabase db,
+						 final Mapping<Table, ContentValues, I> mapping,
+						 I instance)
 	{
-		db.write(new Database.DbWriteOp<SQLiteDatabase, I>()
-		{
-			@Override
-			public void write(SQLiteDatabase db,
-									I instance)
-			{
-				db.insert(mapping.get().getName(), null, mapping.create(instance));
-			}
-		}, instance);
+		db.insert(mapping.get().getName(), null, mapping.create(instance));
 	}
 }

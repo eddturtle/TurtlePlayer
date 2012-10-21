@@ -1,5 +1,6 @@
 package turtle.player.persistance.framework.query;
 
+import android.database.Cursor;
 import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.selector.Mapping;
 
@@ -27,6 +28,7 @@ import turtle.player.persistance.framework.selector.Mapping;
  */
 public interface OperationRead<Q, R, I>
 {
-	I execute(Database<Q, R, ?> db,
-					 final Mapping<Q, I, R> mapper);
+	I map(R dbResult, final Mapping<Q, I, R> mapper);
+
+	Q get(Mapping<Q, I, R> mapping);
 }

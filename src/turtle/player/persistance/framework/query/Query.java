@@ -35,6 +35,4 @@ public abstract class Query<Q, I, C> implements FilterVisitor<Q>, OperationRead<
 	{
 		return filter;
 	}
-
-	protected abstract Q get(Mapping<Q, I, C> mapping);
 }

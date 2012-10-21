@@ -24,6 +24,7 @@ import android.database.sqlite.SQLiteDatabase;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
+import turtle.player.persistance.framework.executor.OperationExecutor;
 import turtle.player.persistance.source.relational.Table;
 import turtle.player.persistance.source.sqlite.InsertOperationSqlLite;
 import turtle.player.persistance.turtle.FileBase;
@@ -57,7 +58,7 @@ public class TurtleDatabase extends ObservableDatabase<Sql, Cursor, SQLiteDataba
 
 	public void push(final Track track)
 	{
-		new InsertOperationSqlLite<Track>().execute(this, new TrackInsertOperation(), track);
+		OperationExecutor.execute(this, new InsertOperationSqlLite<Track>(), new TrackInsertOperation(), track);
 	}
 
 	public void clear()
@@ -76,25 +77,25 @@ public class TurtleDatabase extends ObservableDatabase<Sql, Cursor, SQLiteDataba
 
 	public boolean isEmpty(Filter<Sql> filter)
 	{
-		return new QuerySqlite<Integer>(filter).execute(this, new Counter(Tables.TRACKS.getName())).equals(0);
+		return OperationExecutor.execute(this, new QuerySqlite<Integer>(filter), new Counter(Tables.TRACKS.getName())).equals(0);
 	}
 
 	@Override
 	public Set<Track> getTracks(Filter<Sql> filter)
 	{
-		return new QuerySqlite<Set<Track>>(filter).execute(this, new TrackMapping());
+		return OperationExecutor.execute(this, new QuerySqlite<Set<Track>>(filter), new TrackMapping());
 	}
 
 	@Override
 	public Set<Album> getAlbums(Filter<Sql> filter)
 	{
-		return new QuerySqlite<Set<Album>>(filter).execute(this, new AlbumMapping());
+		return OperationExecutor.execute(this, new QuerySqlite<Set<Album>>(filter), new AlbumMapping());
 	}
 
 	@Override
 	public Set<Artist> getArtist(Filter<Sql> filter)
 	{
-		return new QuerySqlite<Set<Artist>>(filter).execute(this, new ArtistMapping());
+		return OperationExecutor.execute(this, new QuerySqlite<Set<Artist>>(filter), new ArtistMapping());
 	}
 
 	@Override

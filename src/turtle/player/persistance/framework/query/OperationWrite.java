@@ -27,7 +27,5 @@ import turtle.player.persistance.framework.selector.Mapping;
  */
 public interface OperationWrite<D, S extends Mapping<?, ?, ?>, I>
 {
-	void execute(Database<?, ?, D> db,
-					 final S mapper,
-					 I instance);
+	void map(D db, final S mapper, I instance);
 }
