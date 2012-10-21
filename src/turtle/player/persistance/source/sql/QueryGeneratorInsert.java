@@ -1,11 +1,13 @@
-package turtle.player.persistance.framework.query;
+package turtle.player.persistance.source.sql;
 
-import android.database.Cursor;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import turtle.player.persistance.framework.db.Database;
-import turtle.player.persistance.framework.filter.Filter;
-import turtle.player.persistance.framework.filter.FilterVisitor;
+import turtle.player.persistance.framework.selector.OperationSelector;
+import turtle.player.persistance.framework.selector.QueryGenerator;
 import turtle.player.persistance.framework.selector.QuerySelector;
-import turtle.player.persistance.source.sql.Sql;
+import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -24,9 +26,18 @@ import turtle.player.persistance.source.sql.Sql;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface Query<R, I, C> extends FilterVisitor<R>
+public abstract class QueryGeneratorInsert<I> implements QuerySelector<Table, ContentValues, I>
 {
-	R get(QuerySelector<R, I, C> querySelector, Filter<R> filter);
+	final Table table;
 
-	I execute(Database<R, C, ?> db, QuerySelector<R, I, C> querySelector, Filter<R> filter);
+	public QueryGeneratorInsert(Table table)
+	{
+		this.table = table;
+	}
+
+	@Override
+	public Table get()
+	{
+		return table;
+	}
 }

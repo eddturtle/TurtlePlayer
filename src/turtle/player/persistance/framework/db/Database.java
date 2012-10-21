@@ -23,20 +23,20 @@ import java.util.List;
 /**
  * @param <C> eg Cursor
  * @param <Q> eg sql as String
- * @param <D> DB for write operations
+ * @param <D> DB object for write operations
  */
 public interface Database<Q, C, D>
 {
-	abstract void read(Q query, DbReadOp<C> readOp);
-	abstract void write(DbWriteOp<D> writeOp);
+	abstract <I> I read(Q query, DbReadOp<I, C> readOp);
+	abstract <I> void write(DbWriteOp<D, I> writer, I instance);
 
-	interface DbReadOp<C>
+	interface DbReadOp<I, C>
 	{
-		public void read(C db);
+		public I read(C db);
 	}
 
-	interface DbWriteOp<D>
+	interface DbWriteOp<D, I>
 	{
-		public void write(D db);
+		public void write(D target, I instance);
 	}
 }

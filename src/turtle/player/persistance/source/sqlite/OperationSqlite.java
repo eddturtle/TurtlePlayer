@@ -1,15 +1,19 @@
 package turtle.player.persistance.source.sqlite;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import turtle.player.persistance.framework.creator.Creator;
 import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.filter.FieldFilter;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterSet;
 import turtle.player.persistance.framework.query.Operation;
+import turtle.player.persistance.framework.selector.QueryGenerator;
 import turtle.player.persistance.framework.selector.QuerySelector;
-import turtle.player.persistance.framework.selector.Selector;
+import turtle.player.persistance.source.relational.Table;
 import turtle.player.persistance.source.sql.Sql;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -28,64 +32,19 @@ import turtle.player.persistance.source.sql.Sql;
  * @author Simon Honegger (Hoene84)
  */
 
-public class OperationSqlite implements Operation<Sql, SQLiteDatabase>
+public class OperationSqlite<I> implements Operation<SQLiteDatabase, QuerySelector<Table, ContentValues, I>, I>
 {
 
-	private final static String FILTER_CONNECTOR = " and ";
-
-	Selector<Sql> querySelector;
-
-	public OperationSqlite(Selector<Sql> selector)
-	{
-		this.querySelector = querySelector;
-	}
-
-	public Selector<Sql> getSelector()
-	{
-		return querySelector;
-	}
-
 	@Override
-	public Sql get(Filter<Sql> filter)
+	public void execute(final Database<?, ?, SQLiteDatabase> db, final QuerySelector<Table, ContentValues, I> querySelector, I instance)
 	{
-		Sql sql = getSelector().get();
-
-		if(filter != null){
-			sql.append(" where ");
-			sql = filter.accept(sql, this);
-		}
-		return sql;
-	}
-
-
-	@Override
-	public void execute(Database<Sql, ?, SQLiteDatabase> db, final Filter<Sql> filter)
-	{
-		db.write(new Database.DbWriteOp<SQLiteDatabase>()
+		db.write(new Database.DbWriteOp<SQLiteDatabase, I>()
 		{
 			@Override
-			public void write(SQLiteDatabase db)
+			public void write(SQLiteDatabase db, I instance)
 			{
-				db.execSQL(get(filter).getSql());
+				db.insert(querySelector.get().getName(), null, querySelector.create(instance));
 			}
-		});
-	}
-
-	@Override
-	public Sql visit(Sql query, FieldFilter fieldFilter)
-	{
-		return query.append(fieldFilter.getField().getName() + " = ?1 ", fieldFilter.getFieldValue());
-	}
-
-	@Override
-	public Sql visit(Sql query, FilterSet<Sql> filterSet)
-	{
-		for(Filter<Sql> filter : filterSet.getFilters()){
-			query.append(filter.accept(query, this));
-			query.append(FILTER_CONNECTOR);
-		}
-
-		query.removeLast(FILTER_CONNECTOR);
-		return query;
+		}, instance);
 	}
 }

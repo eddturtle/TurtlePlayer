@@ -1,4 +1,4 @@
-package turtle.player.persistance.source.relational;
+package turtle.player.persistance.framework.selector;
 
 /**
  * TURTLE PLAYER
@@ -17,19 +17,6 @@ package turtle.player.persistance.source.relational;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class Table
+public class OperationSelector
 {
-	final String name;
-
-	public Table(String name, Field... fields)
-	{
-		this.name = name;
-	}
-
-	public String getName()
-	{
-		return name;
-	}
-
-	public abstract Field[] getFields();
 }

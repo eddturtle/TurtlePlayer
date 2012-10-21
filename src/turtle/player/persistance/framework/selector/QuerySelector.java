@@ -24,7 +24,7 @@ import turtle.player.persistance.framework.creator.Creator;
  * @param <I> resulting instance
  * @param <C> eg cursor
  */
-public interface QuerySelector<Q, I, C> extends Creator<I, C>, Selector<Q>
+public interface QuerySelector<Q, I, C> extends Creator<I, C>, QueryGenerator<Q>
 {
 	Q get();
 	I create(C queryResult);

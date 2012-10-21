@@ -25,10 +25,6 @@ public class Tables
 	public final static Tracks TRACKS = new Tracks();
 
 	public static final class Tracks extends Table{
-		public Tracks()
-		{
-			super("Tracks");
-		}
 
 		public final Field ID = new Field("id");
 		public final Field TITLE = new Field("title");
@@ -39,5 +35,26 @@ public class Tables
 		public final Field SRC = new Field("src");
 		public final Field ROOTSRC = new Field("rootSrc");
 		public final Field ALBUMART = new Field("hasAlbumArt");
+
+		public Tracks()
+		{
+			super("Tracks");
+		}
+
+		@Override
+		public Field[] getFields()
+		{
+			return new Field[]{
+				ID,
+				TITLE,
+				NUMBER,
+				ARTIST,
+				ALBUM,
+				LENGTH,
+				SRC,
+				ROOTSRC,
+				ALBUMART
+			};
+		}
 	}
 }

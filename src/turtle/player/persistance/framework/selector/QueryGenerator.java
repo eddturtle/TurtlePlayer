@@ -17,7 +17,7 @@ package turtle.player.persistance.framework.selector;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface Selector<Q>
+public interface QueryGenerator<Q>
 {
 	Q get();
 }

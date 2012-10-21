@@ -31,22 +31,10 @@ public class QuerySqlite<I> implements Query<Sql, I, Cursor>
 
 	private final static String FILTER_CONNECTOR = " and ";
 
-	QuerySelector<Sql, I, Cursor> querySelector;
-
-	public QuerySqlite(QuerySelector<Sql, I, Cursor> querySelector)
-	{
-		this.querySelector = querySelector;
-	}
-
-	public QuerySelector<Sql, I, Cursor> getQuerySelector()
-	{
-		return querySelector;
-	}
-
 	@Override
-	public Sql get(Filter<Sql> filter)
+	public Sql get(QuerySelector<Sql, I, Cursor> querySelector, Filter<Sql> filter)
 	{
-		Sql sql = getQuerySelector().get();
+		Sql sql = querySelector.get();
 
 		if(filter != null){
 			sql.append(" where ");
@@ -56,20 +44,16 @@ public class QuerySqlite<I> implements Query<Sql, I, Cursor>
 	}
 
 	@Override
-	public I execute(Database<Sql, Cursor, ?> db, Filter<Sql> filter)
+	public I execute(final Database<Sql, Cursor, ?> db, final QuerySelector<Sql, I, Cursor> querySelector, Filter<Sql> filter)
 	{
-		final Object[] returnValue = new Object[1];
-
-		db.read(get(filter), new Database.DbReadOp<Cursor>()
+		return db.read(get(querySelector, filter), new Database.DbReadOp<I, Cursor>()
 		{
 			@Override
-			public void read(Cursor db)
+			public I read(Cursor cursor)
 			{
-				returnValue[0] = getQuerySelector().create(db);
+				return querySelector.create(cursor);
 			}
 		});
-
-		return (I) returnValue[0];
 	}
 
 	@Override

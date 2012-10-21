@@ -25,6 +25,8 @@ import android.database.sqlite.SQLiteDatabase;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
+import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.source.sqlite.OperationSqlite;
 import turtle.player.persistance.turtle.FileBase;
 import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.db.ObservableDatabase;
@@ -35,6 +37,7 @@ import turtle.player.persistance.source.sqlite.QuerySqlite;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.persistance.turtle.selector.AlbumQuerySelector;
 import turtle.player.persistance.turtle.selector.ArtistQuerySelector;
+import turtle.player.persistance.turtle.selector.TrackInsertOperation;
 import turtle.player.persistance.turtle.selector.TrackQuerySelector;
 
 import java.util.Set;
@@ -56,74 +59,54 @@ public class TurtleDatabase extends ObservableDatabase<Sql, Cursor, SQLiteDataba
 
 	public void push(final Track track)
 	{
-
-		write(new DbWriteOp<SQLiteDatabase>()
-		{
-			@Override
-			public void write(SQLiteDatabase db)
-			{
-				ContentValues values = new ContentValues();
-
-				values.put(Tables.TRACKS.TITLE.getName(), track.GetTitle());
-				values.put(Tables.TRACKS.NUMBER.getName(), track.GetNumber());
-				values.put(Tables.TRACKS.ARTIST.getName(), track.GetArtist().getName());
-				values.put(Tables.TRACKS.ALBUM.getName(), track.GetAlbum().getName());
-				values.put(Tables.TRACKS.LENGTH.getName(), track.GetLength());
-				values.put(Tables.TRACKS.SRC.getName(), track.GetSrc());
-				values.put(Tables.TRACKS.ROOTSRC.getName(), track.GetRootSrc());
-				values.put(Tables.TRACKS.ALBUMART.getName(), track.albumArt());
-
-				db.insert(Tables.TRACKS.getName(), null, values);
-
-				notifyUpdate();
-			}
-		});
+		new OperationSqlite<Track>().execute(this, new TrackInsertOperation(), track);
 	}
 
 	public void clear()
 	{
-		write(new DbWriteOp<SQLiteDatabase>()
+		write(new DbWriteOp<SQLiteDatabase, Table>()
 		{
 			@Override
-			public void write(SQLiteDatabase db)
+			public void write(SQLiteDatabase target,
+									Table table)
 			{
-				db.execSQL("DELETE FROM " + Tables.TRACKS.getName());
+				target.execSQL("DELETE FROM " + table.getName());
 				notifyUpdate();
 			}
-		});
+		}, Tables.TRACKS);
 	}
 
 	public boolean isEmpty(Filter<Sql> filter)
 	{
-		return new QuerySqlite<Integer>(new Counter(Tables.TRACKS.getName())).execute(this, filter).equals(0);
+		return new QuerySqlite<Integer>().execute(this, new Counter(Tables.TRACKS.getName()), filter).equals(0);
 	}
 
 	@Override
 	public Set<Track> getTracks(Filter<Sql> filter)
 	{
-		return new QuerySqlite<Set<Track>>(new TrackQuerySelector()).execute(this, filter);
+		return new QuerySqlite<Set<Track>>().execute(this, new TrackQuerySelector(), filter);
 	}
 
 	@Override
 	public Set<Album> getAlbums(Filter<Sql> filter)
 	{
-		return new QuerySqlite<Set<Album>>(new AlbumQuerySelector()).execute(this, filter);
+		return new QuerySqlite<Set<Album>>().execute(this, new AlbumQuerySelector(), filter);
 	}
 
 	@Override
 	public Set<Artist> getArtist(Filter<Sql> filter)
 	{
-		return new QuerySqlite<Set<Artist>>(new ArtistQuerySelector()).execute(this, filter);
+		return new QuerySqlite<Set<Artist>>().execute(this, new ArtistQuerySelector(), filter);
 	}
 
 	@Override
-	public void read(Sql query,
-						  Database.DbReadOp<Cursor> readOp)
+	public <I> I read(Sql query,
+						  Database.DbReadOp<I, Cursor> readOp)
 	{
 		SQLiteDatabase db = turtleDatabaseImpl.getReadableDatabase();
 		try
 		{
-			readOp.read(db.rawQuery(query.getSql(), query.getParams().toArray(new String[query.getParams().size()])));
+			return readOp.read(db.rawQuery(query.getSql(), query.getParams().toArray(new String[query.getParams().size()])));
 		}
 		finally
 		{
@@ -132,12 +115,12 @@ public class TurtleDatabase extends ObservableDatabase<Sql, Cursor, SQLiteDataba
 	}
 
 	@Override
-	public void write(DbWriteOp<SQLiteDatabase> writeOp)
+	public <I> void write(DbWriteOp<SQLiteDatabase, I> writeOp, I instance)
 	{
-		SQLiteDatabase db = turtleDatabaseImpl.getReadableDatabase();
+		SQLiteDatabase db = turtleDatabaseImpl.getWritableDatabase();
 		try
 		{
-			writeOp.write(db);
+			writeOp.write(db, instance);
 		}
 		finally
 		{

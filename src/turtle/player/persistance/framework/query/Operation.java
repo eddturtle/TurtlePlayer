@@ -1,10 +1,13 @@
 package turtle.player.persistance.framework.query;
 
+import android.content.ContentValues;
+import turtle.player.persistance.framework.creator.Creator;
 import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterVisitor;
+import turtle.player.persistance.framework.selector.QueryGenerator;
 import turtle.player.persistance.framework.selector.QuerySelector;
-import turtle.player.persistance.framework.selector.Selector;
+import turtle.player.persistance.source.relational.Table;
 
 /**
  * TURTLE PLAYER
@@ -23,11 +26,13 @@ import turtle.player.persistance.framework.selector.Selector;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface Operation<R, D> extends FilterVisitor<R>
+/**
+ * @param <D> write target eg SQLiteDb
+ * @param <T> write target selection (eg Table)
+ * @param <I> intance type to write
+ * @param <D> DB object type to write
+ */
+public interface Operation<D, S extends QuerySelector<?, ?, I> , I>
 {
-	R get(Filter<R> filter);
-
-	void execute(Database<R, ?, D> db, Filter<R> filter);
-
-	Selector<R> getSelector();
+	void execute(Database<?, ?, D> db, final S querySelector, I instance);
 }
