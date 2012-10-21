@@ -1,13 +1,7 @@
 package turtle.player.persistance.framework.query;
 
-import android.content.ContentValues;
-import turtle.player.persistance.framework.creator.Creator;
 import turtle.player.persistance.framework.db.Database;
-import turtle.player.persistance.framework.filter.Filter;
-import turtle.player.persistance.framework.filter.FilterVisitor;
-import turtle.player.persistance.framework.selector.QueryGenerator;
-import turtle.player.persistance.framework.selector.QuerySelector;
-import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.framework.selector.Mapping;
 
 /**
  * TURTLE PLAYER
@@ -28,11 +22,12 @@ import turtle.player.persistance.source.relational.Table;
 
 /**
  * @param <D> write target eg SQLiteDb
- * @param <T> write target selection (eg Table)
- * @param <I> intance type to write
- * @param <D> DB object type to write
+ * @param <S> Object type that knows how to do the operation
+ * @param <I> Object Type of the write information
  */
-public interface Operation<D, S extends QuerySelector<?, ?, I> , I>
+public interface OperationWrite<D, S extends Mapping<?, ?, ?>, I>
 {
-	void execute(Database<?, ?, D> db, final S querySelector, I instance);
+	void execute(Database<?, ?, D> db,
+					 final S mapper,
+					 I instance);
 }

@@ -1,7 +1,6 @@
-package turtle.player.persistance.source.sql;
+package turtle.player.persistance.framework.selector;
 
-import turtle.player.persistance.source.relational.Table;
-import turtle.player.persistance.source.sqlite.QuerySelectorForSetSqlite;
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -20,18 +19,13 @@ import turtle.player.persistance.source.sqlite.QuerySelectorForSetSqlite;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class QuerySelectorTable<I> extends QuerySelectorForSetSqlite<I>
+/**
+ * @param <Q> eg sql String
+ * @param <I> resulting set contains instance I
+ * @param <C> eg cursor (one shot cursor)
+ * @param <P> eg cursor (set)
+ */
+public interface MappingForSet<Q, I, C, P> extends Mapping<Q, Set<I>, P>
 {
-	private final Table table;
-
-	protected QuerySelectorTable(Table table)
-	{
-		this.table = table;
-	}
-
-	@Override
-	public Sql get()
-	{
-		return new Sql("SELECT * FROM " + table.getName());
-	}
+	I createPart(C queryResult);
 }

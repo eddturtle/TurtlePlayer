@@ -1,11 +1,9 @@
 package turtle.player.persistance.framework.query;
 
-import android.database.Cursor;
 import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterVisitor;
-import turtle.player.persistance.framework.selector.QuerySelector;
-import turtle.player.persistance.source.sql.Sql;
+import turtle.player.persistance.framework.selector.Mapping;
 
 /**
  * TURTLE PLAYER
@@ -24,9 +22,19 @@ import turtle.player.persistance.source.sql.Sql;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface Query<R, I, C> extends FilterVisitor<R>
+public abstract class Query<Q, I, C> implements FilterVisitor<Q>, OperationRead<Q, C, I>
 {
-	R get(QuerySelector<R, I, C> querySelector, Filter<R> filter);
+	private final Filter<Q> filter;
 
-	I execute(Database<R, C, ?> db, QuerySelector<R, I, C> querySelector, Filter<R> filter);
+	public Query(Filter<Q> filter)
+	{
+		this.filter = filter;
+	}
+
+	public Filter<Q> getFilter()
+	{
+		return filter;
+	}
+
+	protected abstract Q get(Mapping<Q, I, C> mapping);
 }

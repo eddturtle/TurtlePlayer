@@ -1,8 +1,8 @@
 package turtle.player.persistance.turtle.selector;
 
 import android.database.Cursor;
-import turtle.player.model.Album;
-import turtle.player.persistance.source.sql.QuerySelectorDistinct;
+import turtle.player.model.Artist;
+import turtle.player.persistance.source.sql.MappingDistinct;
 import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
@@ -22,17 +22,16 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class AlbumQuerySelector extends QuerySelectorDistinct<Album>
+public class ArtistMapping extends MappingDistinct<Artist>
 {
-
-	public AlbumQuerySelector()
+	public ArtistMapping()
 	{
-		super(Tables.TRACKS, Tables.TRACKS.ALBUM);
+		super(Tables.TRACKS, Tables.TRACKS.ARTIST);
 	}
 
 	@Override
-	public Album createPart(Cursor cursor)
+	public Artist createPart(Cursor cursor)
 	{
-		return new Album(cursor.getString(0));
+		return new Artist(cursor.getString(0));
 	}
 }

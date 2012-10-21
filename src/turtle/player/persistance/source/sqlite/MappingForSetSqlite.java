@@ -1,5 +1,10 @@
-package turtle.player.persistance.framework.selector;
+package turtle.player.persistance.source.sqlite;
 
+import android.database.Cursor;
+import turtle.player.persistance.framework.selector.MappingForSet;
+import turtle.player.persistance.source.sql.Sql;
+
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -20,12 +25,24 @@ import java.util.Set;
  */
 
 /**
- * @param <Q> eg sql String
  * @param <I> resulting set contains instance I
- * @param <C> eg cursor (one shot cursor)
- * @param <P> eg cursor (set)
  */
-public interface QuerySelectorForSet<Q, I, C, P> extends QuerySelector<Q, Set<I>, P>
+public abstract class MappingForSetSqlite<I> implements MappingForSet<Sql, I, Cursor, Cursor>
 {
-	I createPart(C queryResult);
+	@Override
+	public Set<I> create(Cursor cursor)
+	{
+		Set<I> result = new HashSet<I>();
+
+		if (cursor.moveToFirst())
+		{
+			do
+			{
+				result.add(createPart(cursor));
+
+			} while (cursor.moveToNext());
+		}
+
+		return result;
+	}
 }

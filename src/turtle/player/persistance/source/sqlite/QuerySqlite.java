@@ -6,7 +6,7 @@ import turtle.player.persistance.framework.filter.FieldFilter;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterSet;
 import turtle.player.persistance.framework.query.Query;
-import turtle.player.persistance.framework.selector.QuerySelector;
+import turtle.player.persistance.framework.selector.Mapping;
 import turtle.player.persistance.source.sql.Sql;
 
 /**
@@ -26,32 +26,36 @@ import turtle.player.persistance.source.sql.Sql;
  * @author Simon Honegger (Hoene84)
  */
 
-public class QuerySqlite<I> implements Query<Sql, I, Cursor>
+public class QuerySqlite<I> extends Query<Sql, I, Cursor>
 {
-
 	private final static String FILTER_CONNECTOR = " and ";
 
-	@Override
-	public Sql get(QuerySelector<Sql, I, Cursor> querySelector, Filter<Sql> filter)
+	public QuerySqlite(Filter<Sql> filter)
 	{
-		Sql sql = querySelector.get();
+		super(filter);
+	}
 
-		if(filter != null){
+	@Override
+	protected Sql get(Mapping<Sql, I, Cursor> mapping)
+	{
+		Sql sql = mapping.get();
+
+		if(getFilter() != null){
 			sql.append(" where ");
-			sql = filter.accept(sql, this);
+			sql = getFilter().accept(sql, this);
 		}
 		return sql;
 	}
 
 	@Override
-	public I execute(final Database<Sql, Cursor, ?> db, final QuerySelector<Sql, I, Cursor> querySelector, Filter<Sql> filter)
+	public I execute(final Database<Sql, Cursor, ?> db, final Mapping<Sql, I, Cursor> mapping)
 	{
-		return db.read(get(querySelector, filter), new Database.DbReadOp<I, Cursor>()
+		return db.read(get(mapping), new Database.DbReadOp<I, Cursor>()
 		{
 			@Override
 			public I read(Cursor cursor)
 			{
-				return querySelector.create(cursor);
+				return mapping.create(cursor);
 			}
 		});
 	}

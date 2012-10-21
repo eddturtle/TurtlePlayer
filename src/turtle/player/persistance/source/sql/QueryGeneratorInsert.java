@@ -1,13 +1,8 @@
 package turtle.player.persistance.source.sql;
 
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
-import turtle.player.persistance.framework.db.Database;
-import turtle.player.persistance.framework.selector.OperationSelector;
-import turtle.player.persistance.framework.selector.QueryGenerator;
-import turtle.player.persistance.framework.selector.QuerySelector;
+import turtle.player.persistance.framework.selector.Mapping;
 import turtle.player.persistance.source.relational.Table;
-import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -26,7 +21,7 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class QueryGeneratorInsert<I> implements QuerySelector<Table, ContentValues, I>
+public abstract class QueryGeneratorInsert<I> implements Mapping<Table, ContentValues, I>
 {
 	final Table table;
 

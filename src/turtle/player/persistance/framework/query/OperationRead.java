@@ -1,11 +1,7 @@
-package turtle.player.persistance.source.sqlite;
+package turtle.player.persistance.framework.query;
 
-import android.database.Cursor;
-import turtle.player.persistance.framework.selector.QuerySelectorForSet;
-import turtle.player.persistance.source.sql.Sql;
-
-import java.util.HashSet;
-import java.util.Set;
+import turtle.player.persistance.framework.db.Database;
+import turtle.player.persistance.framework.selector.Mapping;
 
 /**
  * TURTLE PLAYER
@@ -25,24 +21,12 @@ import java.util.Set;
  */
 
 /**
- * @param <I> resulting set contains instance I
+ * @param <D> write target eg SQLiteDb
+ * @param <S> Object type that knows how to do the operation
+ * @param <I> Object Type of the write information
  */
-public abstract class QuerySelectorForSetSqlite<I> implements QuerySelectorForSet<Sql, I, Cursor, Cursor>
+public interface OperationRead<Q, R, I>
 {
-	@Override
-	public Set<I> create(Cursor cursor)
-	{
-		Set<I> result = new HashSet<I>();
-
-		if (cursor.moveToFirst())
-		{
-			do
-			{
-				result.add(createPart(cursor));
-
-			} while (cursor.moveToNext());
-		}
-
-		return result;
-	}
+	I execute(Database<Q, R, ?> db,
+					 final Mapping<Q, I, R> mapper);
 }

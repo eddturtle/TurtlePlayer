@@ -4,8 +4,7 @@ import android.database.Cursor;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
-import turtle.player.persistance.source.sql.QuerySelectorTable;
-import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.persistance.source.sql.MappingTable;
 import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
@@ -25,9 +24,9 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class TrackQuerySelector extends QuerySelectorTable<Track>
+public class TrackMapping extends MappingTable<Track>
 {
-	public TrackQuerySelector()
+	public TrackMapping()
 	{
 		super(Tables.TRACKS);
 	}

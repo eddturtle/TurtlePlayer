@@ -1,8 +1,9 @@
-package turtle.player.persistance.source.sql;
+package turtle.player.persistance.turtle.selector;
 
-import turtle.player.persistance.source.relational.Field;
-import turtle.player.persistance.source.relational.Table;
-import turtle.player.persistance.source.sqlite.QuerySelectorForSetSqlite;
+import android.database.Cursor;
+import turtle.player.model.Album;
+import turtle.player.persistance.source.sql.MappingDistinct;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -21,21 +22,17 @@ import turtle.player.persistance.source.sqlite.QuerySelectorForSetSqlite;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class QuerySelectorDistinct<I> extends QuerySelectorForSetSqlite<I>
+public class AlbumMapping extends MappingDistinct<Album>
 {
-	private final Table table;
-	private final Field field;
 
-	protected QuerySelectorDistinct(Table table,
-											  Field field)
+	public AlbumMapping()
 	{
-		this.table = table;
-		this.field = field;
+		super(Tables.TRACKS, Tables.TRACKS.ALBUM);
 	}
 
 	@Override
-	public Sql get()
+	public Album createPart(Cursor cursor)
 	{
-		return new Sql("SELECT DISTINCT " + field.getName() + " FROM " + table.getName());
+		return new Album(cursor.getString(0));
 	}
 }

@@ -1,8 +1,8 @@
-package turtle.player.persistance.source.sqlite;
+package turtle.player.persistance.source.sql;
 
-import android.database.Cursor;
-import turtle.player.persistance.framework.selector.Mapping;
-import turtle.player.persistance.source.sql.Sql;
+import turtle.player.persistance.source.relational.Field;
+import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.source.sqlite.MappingForSetSqlite;
 
 /**
  * TURTLE PLAYER
@@ -21,25 +21,21 @@ import turtle.player.persistance.source.sql.Sql;
  * @author Simon Honegger (Hoene84)
  */
 
-public class Counter implements Mapping<Sql, Integer, Cursor>
+public abstract class MappingDistinct<I> extends MappingForSetSqlite<I>
 {
-	private final String tableName;
+	private final Table table;
+	private final Field field;
 
-	public Counter(String tableName)
+	protected MappingDistinct(Table table,
+									  Field field)
 	{
-		this.tableName = tableName;
+		this.table = table;
+		this.field = field;
 	}
 
 	@Override
 	public Sql get()
 	{
-		return new Sql("SELECT count(*) FROM " + tableName);
-	}
-
-	@Override
-	public Integer create(Cursor queryResult)
-	{
-		queryResult.moveToFirst();
-		return queryResult.getInt(0);
+		return new Sql("SELECT DISTINCT " + field.getName() + " FROM " + table.getName());
 	}
 }

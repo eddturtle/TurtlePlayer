@@ -1,19 +1,11 @@
 package turtle.player.persistance.source.sqlite;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import turtle.player.persistance.framework.creator.Creator;
 import turtle.player.persistance.framework.db.Database;
-import turtle.player.persistance.framework.filter.FieldFilter;
-import turtle.player.persistance.framework.filter.Filter;
-import turtle.player.persistance.framework.filter.FilterSet;
-import turtle.player.persistance.framework.query.Operation;
-import turtle.player.persistance.framework.selector.QueryGenerator;
-import turtle.player.persistance.framework.selector.QuerySelector;
+import turtle.player.persistance.framework.query.OperationWrite;
+import turtle.player.persistance.framework.selector.Mapping;
 import turtle.player.persistance.source.relational.Table;
-import turtle.player.persistance.source.sql.Sql;
-import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -32,18 +24,18 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class OperationSqlite<I> implements Operation<SQLiteDatabase, QuerySelector<Table, ContentValues, I>, I>
+public class InsertOperationSqlLite<I> implements OperationWrite<SQLiteDatabase, Mapping<Table, ContentValues, I>, I>
 {
-
 	@Override
-	public void execute(final Database<?, ?, SQLiteDatabase> db, final QuerySelector<Table, ContentValues, I> querySelector, I instance)
+	public void execute(final Database<?, ?, SQLiteDatabase> db, final Mapping<Table, ContentValues, I> mapping, I instance)
 	{
 		db.write(new Database.DbWriteOp<SQLiteDatabase, I>()
 		{
 			@Override
-			public void write(SQLiteDatabase db, I instance)
+			public void write(SQLiteDatabase db,
+									I instance)
 			{
-				db.insert(querySelector.get().getName(), null, querySelector.create(instance));
+				db.insert(mapping.get().getName(), null, mapping.create(instance));
 			}
 		}, instance);
 	}

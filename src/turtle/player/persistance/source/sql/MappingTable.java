@@ -1,9 +1,7 @@
-package turtle.player.persistance.turtle.selector;
+package turtle.player.persistance.source.sql;
 
-import android.database.Cursor;
-import turtle.player.model.Artist;
-import turtle.player.persistance.source.sql.QuerySelectorDistinct;
-import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.source.sqlite.MappingForSetSqlite;
 
 /**
  * TURTLE PLAYER
@@ -22,16 +20,18 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class ArtistQuerySelector extends QuerySelectorDistinct<Artist>
+public abstract class MappingTable<I> extends MappingForSetSqlite<I>
 {
-	public ArtistQuerySelector()
+	private final Table table;
+
+	protected MappingTable(Table table)
 	{
-		super(Tables.TRACKS, Tables.TRACKS.ARTIST);
+		this.table = table;
 	}
 
 	@Override
-	public Artist createPart(Cursor cursor)
+	public Sql get()
 	{
-		return new Artist(cursor.getString(0));
+		return new Sql("SELECT * FROM " + table.getName());
 	}
 }
