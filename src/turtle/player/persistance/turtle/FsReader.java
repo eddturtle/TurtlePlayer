@@ -190,7 +190,6 @@ public class FsReader
 				  "/root/",
 		};
 
-		@Override
 		public boolean accept(File file)
 		{
 			for (String ignoredDir : IGNORED_DIRS)

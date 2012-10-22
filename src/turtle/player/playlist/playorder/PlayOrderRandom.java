@@ -22,13 +22,11 @@ public class PlayOrderRandom implements PlayOrderStrategy
         return this;
     }
 
-    @Override
     public void disconnect()
     {
         //empty
     }
 
-    @Override
     public Track getNext(Track currTrack) {
 
         List<Track> candidates = new ArrayList<Track>(playlist.getCurrTracks());
@@ -58,7 +56,6 @@ public class PlayOrderRandom implements PlayOrderStrategy
         return nextTrack;
     }
 
-    @Override
     public Track getPrevious(Track currTrack)
     {
         while(history.size() > 0){
