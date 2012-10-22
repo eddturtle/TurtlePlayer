@@ -28,7 +28,8 @@ public class Select implements Sql
 {
 	private String sql;
 	private WhereClause whereClause;
-	private WhereClause orderClause;
+	private OrderClause orderClause;
+	private Limit limit;
 
 	public enum SelectMethod{
 		NORMAL,
@@ -72,7 +73,8 @@ public class Select implements Sql
 	{
 		return sql
 				  + (whereClause != null ? " WHERE " + whereClause.toSql() : "")
-				  + (orderClause != null ? " ORDER BY "  + orderClause.toSql() : "");
+				  + (orderClause != null ? " ORDER BY "  + orderClause.toSql() : "")
+				  + (limit != null ? limit.toSql() : "");
 	}
 
 	public List<Object> getParams()
@@ -82,23 +84,17 @@ public class Select implements Sql
 		return params;
 	}
 
-	public WhereClause getWhereClause()
-	{
-		return whereClause;
-	}
-
 	public void setWhereClause(WhereClause whereClause)
 	{
 		this.whereClause = whereClause;
 	}
 
-	public WhereClause getOrderClause()
-	{
-		return orderClause;
-	}
-
-	public void setOrderClause(WhereClause orderClause)
+	public void setOrderClause(OrderClause orderClause)
 	{
 		this.orderClause = orderClause;
+	}
+
+	public void setLimit(Limit limit){
+		this.limit = limit;
 	}
 }
