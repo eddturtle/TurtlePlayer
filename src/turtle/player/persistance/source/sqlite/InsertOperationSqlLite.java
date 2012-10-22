@@ -3,7 +3,7 @@ package turtle.player.persistance.source.sqlite;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import turtle.player.persistance.framework.query.OperationInsert;
-import turtle.player.persistance.framework.selector.Mapping;
+import turtle.player.persistance.framework.mapping.Mapping;
 import turtle.player.persistance.source.relational.Table;
 
 /**

@@ -1,10 +1,7 @@
 package turtle.player.persistance.source.sqlite;
 
-import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import turtle.player.persistance.framework.query.OperationDelete;
-import turtle.player.persistance.framework.query.OperationInsert;
-import turtle.player.persistance.framework.selector.Mapping;
 import turtle.player.persistance.source.relational.Table;
 
 /**
@@ -26,7 +23,6 @@ import turtle.player.persistance.source.relational.Table;
 
 public class DeleteOperationSqlLite implements OperationDelete<SQLiteDatabase, Table>
 {
-	@Override
 	public void delete(SQLiteDatabase db,
 							 Table target)
 	{

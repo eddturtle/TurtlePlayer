@@ -23,11 +23,11 @@ import android.content.Context;
 import android.util.Log;
 import turtle.player.Stats;
 import turtle.player.model.Track;
+import turtle.player.persistance.source.sql.query.WhereClause;
 import turtle.player.persistance.turtle.FsReader;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterSet;
-import turtle.player.persistance.source.sql.Sql;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
@@ -55,7 +55,7 @@ public class Playlist
 
 	private PlayOrderStrategy playOrderStrategy;
 	private TurtleDatabase db;
-	private Set<Filter<Sql>> filters = new HashSet<Filter<Sql>>();
+	private Set<Filter<WhereClause>> filters = new HashSet<Filter<WhereClause>>();
 
 	private Track currTrack = null;
 
@@ -72,7 +72,6 @@ public class Playlist
 	{
 		preferences.addObserver(new PreferencesObserver()
 		{
-			@Override
 			public void changed(Key key)
 			{
 				if (key.equals(Keys.SHUFFLE))
@@ -95,9 +94,9 @@ public class Playlist
 				  PlayOrderStrategy.SORTED.connect(preferences, this);
 	}
 
-	public Filter<Sql> getFilter()
+	public Filter<WhereClause> getFilter()
 	{
-		return filters.isEmpty() ? null : new FilterSet<Sql>(filters);
+		return filters.isEmpty() ? null : new FilterSet<WhereClause>(filters);
 	}
 
 	public Track getNext()
@@ -227,55 +226,46 @@ public class Playlist
 
 	public static class PlaylistObserverAdapter implements PlaylistObserver
 	{
-		@Override
 		public void trackAdded(Track track)
 		{
 			//do nothing
 		}
 
-		@Override
 		public void cleaned()
 		{
 			//do nothing
 		}
 
-		@Override
 		public void startRescan(File mediaPath)
 		{
 			//do nothing
 		}
 
-		@Override
 		public void endRescan()
 		{
 			//do nothing
 		}
 
-		@Override
 		public void startUpdatePlaylist()
 		{
 			//do nothing
 		}
 
-		@Override
 		public void endUpdatePlaylist()
 		{
 			//do nothing
 		}
 
-		@Override
 		public void trackAddedToPlaylist(Track track)
 		{
 			//do nothing
 		}
 
-		@Override
 		public void playlistSetted(Set<Track> tracks)
 		{
 			//do nothing
 		}
 
-		@Override
 		public void playlistCleaned()
 		{
 			//do nothing

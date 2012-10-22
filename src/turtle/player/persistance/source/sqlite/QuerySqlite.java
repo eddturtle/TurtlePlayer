@@ -1,13 +1,12 @@
 package turtle.player.persistance.source.sqlite;
 
 import android.database.Cursor;
-import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.filter.FieldFilter;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterSet;
 import turtle.player.persistance.framework.query.Query;
-import turtle.player.persistance.framework.selector.Mapping;
-import turtle.player.persistance.source.sql.Sql;
+import turtle.player.persistance.framework.mapping.Mapping;
+import turtle.player.persistance.source.sql.query.*;
 
 /**
  * TURTLE PLAYER
@@ -26,49 +25,50 @@ import turtle.player.persistance.source.sql.Sql;
  * @author Simon Honegger (Hoene84)
  */
 
-public class QuerySqlite<I> extends Query<Sql, I, Cursor>
+public class QuerySqlite<I> extends Query<Select, WhereClause,  I, Cursor>
 {
 	private final static String FILTER_CONNECTOR = " and ";
 
-	public QuerySqlite(Filter<Sql> filter)
+	public QuerySqlite(Filter<WhereClause> filter)
 	{
 		super(filter);
 	}
 
-	@Override
-	public Sql get(Mapping<Sql, I, Cursor> mapping)
+	public Select get(Mapping<Select, I, Cursor> mapping)
 	{
-		Sql sql = mapping.get();
+		Select sql = mapping.get();
 
 		if(getFilter() != null){
-			sql.append(" where ");
-			sql = getFilter().accept(sql, this);
+			sql.setWhereClause(getFilter().accept(this));
 		}
 		return sql;
 	}
 
-	@Override
 	public I map(final Cursor cursor,
-					 final Mapping<Sql, I, Cursor> mapping)
+					 final Mapping<Select, I, Cursor> mapping)
 	{
 		return mapping.create(cursor);
 	}
 
-	@Override
-	public Sql visit(Sql query, FieldFilter fieldFilter)
+	public WhereClause visit(FieldFilter fieldFilter)
 	{
-		return query.append(fieldFilter.getField().getName() + " = ?1 ", fieldFilter.getFieldValue());
+		return new WhereClause(
+				  new WhereClauseField(fieldFilter.getField(), fieldFilter.getFieldValue(), Operator.EQUALS));
 	}
 
-	@Override
-	public Sql visit(Sql query, FilterSet<Sql> filterSet)
+	public WhereClause visit(FilterSet<WhereClause> filterSet)
 	{
-		for(Filter<Sql> filter : filterSet.getFilters()){
-			query.append(filter.accept(query, this));
-			query.append(FILTER_CONNECTOR);
+		WhereClause whereClause = null;
+		for(Filter<WhereClause> filter : filterSet.getFilters()){
+			if(whereClause == null)
+			{
+				whereClause = filter.accept(this);
+			}
+			else
+			{
+				whereClause.apply(BoolOperator.AND, filter.accept(this));
+			}
 		}
-
-		query.removeLast(FILTER_CONNECTOR);
-		return query;
+		return whereClause;
 	}
 }

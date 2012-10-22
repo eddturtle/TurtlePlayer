@@ -1,6 +1,6 @@
-package turtle.player.persistance.framework.query;
+package turtle.player.persistance.framework.selector;
 
-import turtle.player.persistance.framework.mapping.Mapping;
+import java.util.Map;
 
 /**
  * TURTLE PLAYER
@@ -19,14 +19,27 @@ import turtle.player.persistance.framework.mapping.Mapping;
  * @author Simon Honegger (Hoene84)
  */
 
-/**
- * @param <D> write target eg SQLiteDb
- * @param <S> Object type that knows how to do the operation
- * @param <I> Object Type of the write information
- */
-public interface OperationInsert<D, S extends Mapping<?, ?, ?>, I>
+public class OrderSelector implements Selector
 {
-	void insert(D db,
-					final S mapper,
-					I instance);
+	public enum Order
+	{
+		ASC,
+		DESC;
+	}
+	private final Map<String, Order> orders;
+
+	public OrderSelector(Map<String, Order> orders)
+	{
+		this.orders = orders;
+	}
+
+	public Map<String, Order> getOrders()
+	{
+		return orders;
+	}
+
+	public Object accept(SelectorVisitor visitor)
+	{
+		return visitor.visit(this);
+	}
 }

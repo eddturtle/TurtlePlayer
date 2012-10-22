@@ -1,9 +1,7 @@
 package turtle.player.persistance.framework.query;
 
-import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterVisitor;
-import turtle.player.persistance.framework.selector.Mapping;
 
 /**
  * TURTLE PLAYER
@@ -22,16 +20,16 @@ import turtle.player.persistance.framework.selector.Mapping;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class Query<Q, I, C> implements FilterVisitor<Q>, OperationRead<Q, C, I>
+public abstract class Query<Q, W, I, C> implements FilterVisitor<W>, OperationRead<Q, C, I>
 {
-	private final Filter<Q> filter;
+	private final Filter<W> filter;
 
-	public Query(Filter<Q> filter)
+	public Query(Filter<W> filter)
 	{
 		this.filter = filter;
 	}
 
-	public Filter<Q> getFilter()
+	public Filter<W> getFilter()
 	{
 		return filter;
 	}

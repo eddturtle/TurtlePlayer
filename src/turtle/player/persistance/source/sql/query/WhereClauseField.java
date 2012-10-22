@@ -1,6 +1,10 @@
-package turtle.player.persistance.framework.query;
+package turtle.player.persistance.source.sql.query;
 
-import turtle.player.persistance.framework.mapping.Mapping;
+import android.webkit.ValueCallback;
+import turtle.player.persistance.source.relational.Field;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * TURTLE PLAYER
@@ -19,14 +23,29 @@ import turtle.player.persistance.framework.mapping.Mapping;
  * @author Simon Honegger (Hoene84)
  */
 
-/**
- * @param <D> write target eg SQLiteDb
- * @param <S> Object type that knows how to do the operation
- * @param <I> Object Type of the write information
- */
-public interface OperationInsert<D, S extends Mapping<?, ?, ?>, I>
+public class WhereClauseField implements WhereClausePart
 {
-	void insert(D db,
-					final S mapper,
-					I instance);
+
+	final Field field;
+	final Object value;
+	final Operator op;
+
+	public WhereClauseField(Field field,
+									Object value,
+									Operator op)
+	{
+		this.field = field;
+		this.value = value;
+		this.op = op;
+	}
+
+	public String toSql()
+	{
+		return " " + field.getName() + op + " ? ";
+	}
+
+	public List<Object> getParams()
+	{
+		return Arrays.asList(value);
+	}
 }

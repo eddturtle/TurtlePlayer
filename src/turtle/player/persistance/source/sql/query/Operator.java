@@ -1,4 +1,4 @@
-package turtle.player.persistance.framework.selector;
+package turtle.player.persistance.source.sql.query;
 
 /**
  * TURTLE PLAYER
@@ -17,7 +17,22 @@ package turtle.player.persistance.framework.selector;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface QueryGenerator<Q>
+public enum Operator
 {
-	Q get();
+	EQUALS(" = "),
+	SMALLER(" < "),
+	BIGGER(" > ");
+
+	String string;
+
+	private Operator(String op)
+	{
+		this.string = op;
+	}
+
+	@Override
+	public String toString()
+	{
+		return string;
+	}
 }

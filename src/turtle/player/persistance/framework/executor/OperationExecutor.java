@@ -4,7 +4,7 @@ import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.query.OperationDelete;
 import turtle.player.persistance.framework.query.OperationRead;
 import turtle.player.persistance.framework.query.OperationInsert;
-import turtle.player.persistance.framework.selector.Mapping;
+import turtle.player.persistance.framework.mapping.Mapping;
 
 /**
  * TURTLE PLAYER
@@ -27,8 +27,6 @@ public abstract class OperationExecutor
 {
 	public static <I, Q, C> I execute(Database<Q, C, ?> db, final OperationRead<Q, C, I> operation, final Mapping<Q, I, C> mapping){
 		return db.read(operation.get(mapping), new Database.DbReadOp<I, C>(){
-
-			@Override
 			public I read(C c)
 			{
 				return operation.map(c, mapping);
@@ -39,7 +37,6 @@ public abstract class OperationExecutor
 	public static <I, C, D, Q> void execute(Database<?, ?, D> db, final OperationInsert<D, Mapping<Q, C, I>, I> operation, final Mapping<Q, C, I> mapping, final I instance){
 		db.write(new Database.DbWriteOp<D, I>()
 		{
-			@Override
 			public void write(D target,
 									I instance)
 			{
@@ -51,7 +48,6 @@ public abstract class OperationExecutor
 	public static <D, T> void execute(Database<?, ?, D> db, final OperationDelete<D, T> operation, T target){
 		db.write(new Database.DbWriteOp<D, T>()
 		{
-			@Override
 			public void write(D target,
 									T instance)
 			{

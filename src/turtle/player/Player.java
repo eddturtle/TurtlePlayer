@@ -343,7 +343,6 @@ public class Player extends ListActivity
 
 		shuffleCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
 		{
-			@Override
 			public void onCheckedChanged(CompoundButton buttonView,
 												  boolean isChecked)
 			{
@@ -361,7 +360,6 @@ public class Player extends ListActivity
 
 		repeatCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
 		{
-			@Override
 			public void onCheckedChanged(CompoundButton buttonView,
 												  boolean isChecked)
 			{
@@ -402,7 +400,6 @@ public class Player extends ListActivity
 			{
 				runOnUiThread(new Runnable()
 				{
-					@Override
 					public void run()
 					{
 						rescanProgressBar.setVisibility(View.VISIBLE);
@@ -438,7 +435,6 @@ public class Player extends ListActivity
 				//start sync anim
 				runOnUiThread(new Runnable()
 				{
-					@Override
 					public void run()
 					{
 						rescanProgressBar.setIndeterminate(false);
@@ -453,7 +449,6 @@ public class Player extends ListActivity
 			{
 				runOnUiThread(new Runnable()
 				{
-					@Override
 					public void run()
 					{
 						rescanProgressBar.setProgress(rescanProgressBar.getProgress() + 1);
@@ -467,7 +462,6 @@ public class Player extends ListActivity
 				//start sync anim
 				runOnUiThread(new Runnable()
 				{
-					@Override
 					public void run()
 					{
 						rescanProgressBar.setIndeterminate(true);
@@ -481,7 +475,6 @@ public class Player extends ListActivity
 				//stop sync anim
 				runOnUiThread(new Runnable()
 				{
-					@Override
 					public void run()
 					{
 						rescanProgressBar.setVisibility(View.GONE);
@@ -500,7 +493,6 @@ public class Player extends ListActivity
 
 		tp.playlist.preferences.addObserver(new PreferencesObserver()
 		{
-			@Override
 			public void changed(Key key)
 			{
 				if (key.equals(Keys.REPEAT))
@@ -508,7 +500,6 @@ public class Player extends ListActivity
 					//Update UI states
 					runOnUiThread(new Runnable()
 					{
-						@Override
 						public void run()
 						{
 							boolean repeat = tp.playlist.preferences.GetRepeat();
@@ -517,12 +508,12 @@ public class Player extends ListActivity
 							repeatCheckBox.setChecked(repeat);
 						}
 					});
-				} else if (key.equals(Keys.SHUFFLE))
+				}
+				else if (key.equals(Keys.SHUFFLE))
 				{
 					//Update UI states
 					runOnUiThread(new Runnable()
 					{
-						@Override
 						public void run()
 						{
 							boolean shuffle = tp.playlist.preferences.GetShuffle();
@@ -778,7 +769,6 @@ public class Player extends ListActivity
 
 		progressBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
 		{
-			@Override
 			public void onStopTrackingTouch(SeekBar seekBar)
 			{
 				handler.removeCallbacks(progressBarRunnable);
@@ -786,13 +776,11 @@ public class Player extends ListActivity
 				UpdateProgressBar();
 			}
 
-			@Override
 			public void onStartTrackingTouch(SeekBar seekBar)
 			{
 				handler.removeCallbacks(progressBarRunnable);
 			}
 
-			@Override
 			public void onProgressChanged(SeekBar seekBar,
 													int progress,
 													boolean fromUser)

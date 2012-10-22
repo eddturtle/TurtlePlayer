@@ -1,7 +1,7 @@
 package turtle.player.persistance.source.sql;
 
 import android.content.ContentValues;
-import turtle.player.persistance.framework.selector.Mapping;
+import turtle.player.persistance.framework.mapping.Mapping;
 import turtle.player.persistance.source.relational.Table;
 
 /**
@@ -31,7 +31,6 @@ public abstract class QueryGeneratorTable
 		this.table = table;
 	}
 
-	@Override
 	public Table get()
 	{
 		return table;

@@ -41,9 +41,8 @@ public class FieldFilter<Q> implements Filter<Q>
 		return value;
 	}
 
-	@Override
-	public Q accept(Q query, FilterVisitor<Q> visitor)
+	public Q accept(FilterVisitor<Q> visitor)
 	{
-		return visitor.visit(query, this);
+		return visitor.visit(this);
 	}
 }

@@ -1,6 +1,4 @@
-package turtle.player.persistance.framework.query;
-
-import turtle.player.persistance.framework.mapping.Mapping;
+package turtle.player.persistance.framework.selector;
 
 /**
  * TURTLE PLAYER
@@ -20,13 +18,9 @@ import turtle.player.persistance.framework.mapping.Mapping;
  */
 
 /**
- * @param <D> write target eg SQLiteDb
- * @param <S> Object type that knows how to do the operation
- * @param <I> Object Type of the write information
+ * @param <Q> eg sql as String
  */
-public interface OperationInsert<D, S extends Mapping<?, ?, ?>, I>
+public interface Selector<Q>
 {
-	void insert(D db,
-					final S mapper,
-					I instance);
+	Q accept(SelectorVisitor<Q> visitor);
 }

@@ -22,5 +22,5 @@ package turtle.player.persistance.framework.filter;
  */
 public interface Filter<Q>
 {
-	Q accept(Q query, FilterVisitor<Q> visitor);
+	Q accept(FilterVisitor<Q> visitor);
 }

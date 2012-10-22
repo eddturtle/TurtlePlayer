@@ -1,6 +1,6 @@
-package turtle.player.persistance.framework.selector;
+package turtle.player.persistance.source.sql.query;
 
-import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.persistance.source.relational.Field;
 
 /**
  * TURTLE PLAYER
@@ -17,16 +17,25 @@ import turtle.player.persistance.framework.creator.Creator;
  * More Information @ www.turtle-player.co.uk
  *
  * @author Simon Honegger (Hoene84)
- *
- * Knows how to create I's from C's  which are dependent from Q
- * Eg: Knows How to create an Instance I from Query result Cursor C from Sql Q
- *
- * @param <Q> eg sql String
- * @param <I> resulting instance
- * @param <C> eg cursor
  */
-public interface Mapping<Q, I, C> extends Creator<I, C>, QueryGenerator<Q>
+
+public class FieldsPart implements SqlFragment
 {
-	Q get();
-	I create(C queryResult);
+	final Field[] fields;
+
+	public FieldsPart(Field[] fields)
+	{
+		this.fields = fields;
+	}
+
+	public String toSql()
+	{
+		String[] fieldNames = new String[fields.length];
+		int i = 0;
+		for(Field field : fields)
+		{
+			fieldNames[i++] = field.getName();
+		}
+		return Helper.getSeparatedList(", ", fieldNames);
+	}
 }

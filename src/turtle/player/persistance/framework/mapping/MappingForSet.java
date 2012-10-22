@@ -1,6 +1,6 @@
-package turtle.player.persistance.framework.query;
+package turtle.player.persistance.framework.mapping;
 
-import turtle.player.persistance.framework.mapping.Mapping;
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -20,13 +20,12 @@ import turtle.player.persistance.framework.mapping.Mapping;
  */
 
 /**
- * @param <D> write target eg SQLiteDb
- * @param <S> Object type that knows how to do the operation
- * @param <I> Object Type of the write information
+ * @param <Q> eg sql String
+ * @param <I> resulting set contains instance I
+ * @param <C> eg cursor (one shot cursor)
+ * @param <P> eg cursor (set)
  */
-public interface OperationInsert<D, S extends Mapping<?, ?, ?>, I>
+public interface MappingForSet<Q, I, C, P> extends Mapping<Q, Set<I>, P>
 {
-	void insert(D db,
-					final S mapper,
-					I instance);
+	I createPart(C queryResult);
 }

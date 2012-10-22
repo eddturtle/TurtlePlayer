@@ -1,6 +1,9 @@
-package turtle.player.persistance.framework.query;
+package turtle.player.persistance.source.sql.query;
 
-import turtle.player.persistance.framework.mapping.Mapping;
+import turtle.player.persistance.source.relational.Field;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * TURTLE PLAYER
@@ -19,14 +22,20 @@ import turtle.player.persistance.framework.mapping.Mapping;
  * @author Simon Honegger (Hoene84)
  */
 
-/**
- * @param <D> write target eg SQLiteDb
- * @param <S> Object type that knows how to do the operation
- * @param <I> Object Type of the write information
- */
-public interface OperationInsert<D, S extends Mapping<?, ?, ?>, I>
+public class OrderClausePart implements SqlFragment
 {
-	void insert(D db,
-					final S mapper,
-					I instance);
+	final Field field;
+	final Order order;
+
+	public OrderClausePart(Field field,
+								  Order order)
+	{
+		this.field = field;
+		this.order = order;
+	}
+
+	public String toSql()
+	{
+		return " " + field.getName() + order.toSql() + " ";
+	}
 }

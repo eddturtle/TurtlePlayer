@@ -1,6 +1,6 @@
-package turtle.player.persistance.framework.query;
+package turtle.player.persistance.source.sql.query;
 
-import turtle.player.persistance.framework.mapping.Mapping;
+import turtle.player.persistance.source.relational.Field;
 
 /**
  * TURTLE PLAYER
@@ -17,16 +17,11 @@ import turtle.player.persistance.framework.mapping.Mapping;
  * More Information @ www.turtle-player.co.uk
  *
  * @author Simon Honegger (Hoene84)
+ *
+ * Marker Interface for a complete, executable Sql
  */
 
-/**
- * @param <D> write target eg SQLiteDb
- * @param <S> Object type that knows how to do the operation
- * @param <I> Object Type of the write information
- */
-public interface OperationInsert<D, S extends Mapping<?, ?, ?>, I>
+public interface Sql extends SqlPart
 {
-	void insert(D db,
-					final S mapper,
-					I instance);
+	public static final Field FIELD_PSEUDO_STAR = new Field("*");
 }

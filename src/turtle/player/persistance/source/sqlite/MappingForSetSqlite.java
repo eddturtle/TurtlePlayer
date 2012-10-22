@@ -1,8 +1,9 @@
 package turtle.player.persistance.source.sqlite;
 
 import android.database.Cursor;
-import turtle.player.persistance.framework.selector.MappingForSet;
-import turtle.player.persistance.source.sql.Sql;
+import turtle.player.persistance.framework.mapping.MappingForSet;
+import turtle.player.persistance.source.sql.query.Select;
+import turtle.player.persistance.source.sql.query.Sql;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,9 +28,8 @@ import java.util.Set;
 /**
  * @param <I> resulting set contains instance I
  */
-public abstract class MappingForSetSqlite<I> implements MappingForSet<Sql, I, Cursor, Cursor>
+public abstract class MappingForSetSqlite<I> implements MappingForSet<Select, I, Cursor, Cursor>
 {
-	@Override
 	public Set<I> create(Cursor cursor)
 	{
 		Set<I> result = new HashSet<I>();

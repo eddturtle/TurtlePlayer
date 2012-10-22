@@ -1,6 +1,6 @@
-package turtle.player.persistance.framework.query;
+package turtle.player.persistance.source.sql.query;
 
-import turtle.player.persistance.framework.mapping.Mapping;
+import java.util.List;
 
 /**
  * TURTLE PLAYER
@@ -19,14 +19,7 @@ import turtle.player.persistance.framework.mapping.Mapping;
  * @author Simon Honegger (Hoene84)
  */
 
-/**
- * @param <D> write target eg SQLiteDb
- * @param <S> Object type that knows how to do the operation
- * @param <I> Object Type of the write information
- */
-public interface OperationInsert<D, S extends Mapping<?, ?, ?>, I>
+public interface SqlPart extends SqlFragment
 {
-	void insert(D db,
-					final S mapper,
-					I instance);
+	List<Object> getParams();
 }

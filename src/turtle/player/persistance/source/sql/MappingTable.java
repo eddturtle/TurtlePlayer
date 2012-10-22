@@ -1,6 +1,8 @@
 package turtle.player.persistance.source.sql;
 
 import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.source.sql.query.Select;
+import turtle.player.persistance.source.sql.query.Sql;
 import turtle.player.persistance.source.sqlite.MappingForSetSqlite;
 
 /**
@@ -29,9 +31,8 @@ public abstract class MappingTable<I> extends MappingForSetSqlite<I>
 		this.table = table;
 	}
 
-	@Override
-	public Sql get()
+	public Select get()
 	{
-		return new Sql("SELECT * FROM " + table.getName());
+		return new Select(table);
 	}
 }

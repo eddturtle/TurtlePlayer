@@ -2,6 +2,8 @@ package turtle.player.persistance.source.sql;
 
 import turtle.player.persistance.source.relational.Field;
 import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.source.sql.query.Select;
+import turtle.player.persistance.source.sql.query.Sql;
 import turtle.player.persistance.source.sqlite.MappingForSetSqlite;
 
 /**
@@ -33,9 +35,8 @@ public abstract class MappingDistinct<I> extends MappingForSetSqlite<I>
 		this.field = field;
 	}
 
-	@Override
-	public Sql get()
+	public Select get()
 	{
-		return new Sql("SELECT DISTINCT " + field.getName() + " FROM " + table.getName());
+		return new Select(table, field);
 	}
 }

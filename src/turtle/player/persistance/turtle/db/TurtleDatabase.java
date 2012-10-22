@@ -25,6 +25,8 @@ import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
 import turtle.player.persistance.framework.executor.OperationExecutor;
+import turtle.player.persistance.source.sql.query.Select;
+import turtle.player.persistance.source.sql.query.WhereClause;
 import turtle.player.persistance.source.sqlite.CounterSqlite;
 import turtle.player.persistance.source.sqlite.DeleteOperationSqlLite;
 import turtle.player.persistance.source.sqlite.InsertOperationSqlLite;
@@ -32,20 +34,22 @@ import turtle.player.persistance.turtle.FileBase;
 import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.db.ObservableDatabase;
 import turtle.player.persistance.framework.filter.Filter;
-import turtle.player.persistance.source.sql.Sql;
+import turtle.player.persistance.source.sql.query.Sql;
 import turtle.player.persistance.source.sqlite.QuerySqlite;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.persistance.turtle.mapping.*;
 import turtle.player.persistance.turtle.mapping.AlbumMapping;
 import turtle.player.persistance.turtle.mapping.ArtistMapping;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 // Import - Android Content
 // Import - Android Database
 
 
-public class TurtleDatabase extends ObservableDatabase<Sql, Cursor, SQLiteDatabase> implements FileBase<Sql>
+public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDatabase> implements FileBase<WhereClause>
 {
 
 	final TurtleDatabaseImpl turtleDatabaseImpl;
@@ -66,37 +70,40 @@ public class TurtleDatabase extends ObservableDatabase<Sql, Cursor, SQLiteDataba
 		OperationExecutor.execute(this, new DeleteOperationSqlLite(), Tables.TRACKS);
 	}
 
-	public boolean isEmpty(Filter<Sql> filter)
+	public boolean isEmpty(Filter<WhereClause> filter)
 	{
-		return OperationExecutor.execute(this, new QuerySqlite<Integer>(filter), new CounterSqlite(Tables.TRACKS.getName())).equals(0);
+		return OperationExecutor.execute(this, new QuerySqlite<Integer>(filter), new CounterSqlite(Tables.TRACKS)).equals(0);
 	}
 
-	@Override
-	public Set<Track> getTracks(Filter<Sql> filter)
+	public Set<Track> getTracks(Filter<WhereClause> filter)
 	{
 		return OperationExecutor.execute(this, new QuerySqlite<Set<Track>>(filter), new TrackMapping());
 	}
 
-	@Override
-	public Set<Album> getAlbums(Filter<Sql> filter)
+	public Set<Album> getAlbums(Filter<WhereClause> filter)
 	{
 		return OperationExecutor.execute(this, new QuerySqlite<Set<Album>>(filter), new AlbumMapping());
 	}
 
-	@Override
-	public Set<Artist> getArtist(Filter<Sql> filter)
+	public Set<Artist> getArtist(Filter<WhereClause> filter)
 	{
 		return OperationExecutor.execute(this, new QuerySqlite<Set<Artist>>(filter), new ArtistMapping());
 	}
 
-	@Override
-	public <I> I read(Sql query,
+	public <I> I read(Select query,
 						  Database.DbReadOp<I, Cursor> readOp)
 	{
 		SQLiteDatabase db = turtleDatabaseImpl.getReadableDatabase();
 		try
 		{
-			return readOp.read(db.rawQuery(query.getSql(), query.getParams().toArray(new String[query.getParams().size()])));
+			String[] params = new String[query.getParams().size()];
+			int i = 0;
+
+			for(Object param : query.getParams())
+			{
+				params[i++] = param.toString();
+			}
+			return readOp.read(db.rawQuery(query.toSql(), params));
 		}
 		finally
 		{
@@ -104,7 +111,6 @@ public class TurtleDatabase extends ObservableDatabase<Sql, Cursor, SQLiteDataba
 		}
 	}
 
-	@Override
 	public <I> void write(DbWriteOp<SQLiteDatabase, I> writeOp, I instance)
 	{
 		SQLiteDatabase db = turtleDatabaseImpl.getWritableDatabase();

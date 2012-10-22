@@ -1,6 +1,6 @@
-package turtle.player.persistance.framework.query;
+package turtle.player.persistance.framework.mapping;
 
-import turtle.player.persistance.framework.mapping.Mapping;
+import turtle.player.persistance.framework.creator.Creator;
 
 /**
  * TURTLE PLAYER
@@ -17,16 +17,16 @@ import turtle.player.persistance.framework.mapping.Mapping;
  * More Information @ www.turtle-player.co.uk
  *
  * @author Simon Honegger (Hoene84)
+ *
+ * Knows how to create I's from C's  which are dependent from Q
+ * Eg: Knows How to create an Instance I from Query result Cursor C from Sql Q
+ *
+ * @param <Q> eg sql String
+ * @param <I> resulting instance
+ * @param <C> eg cursor
  */
-
-/**
- * @param <D> write target eg SQLiteDb
- * @param <S> Object type that knows how to do the operation
- * @param <I> Object Type of the write information
- */
-public interface OperationInsert<D, S extends Mapping<?, ?, ?>, I>
+public interface Mapping<Q, I, C> extends Creator<I, C>, QueryGenerator<Q>
 {
-	void insert(D db,
-					final S mapper,
-					I instance);
+	Q get();
+	I create(C queryResult);
 }

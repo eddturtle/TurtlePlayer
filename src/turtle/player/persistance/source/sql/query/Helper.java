@@ -1,6 +1,4 @@
-package turtle.player.persistance.framework.selector;
-
-import java.util.Set;
+package turtle.player.persistance.source.sql.query;
 
 /**
  * TURTLE PLAYER
@@ -19,13 +17,22 @@ import java.util.Set;
  * @author Simon Honegger (Hoene84)
  */
 
-/**
- * @param <Q> eg sql String
- * @param <I> resulting set contains instance I
- * @param <C> eg cursor (one shot cursor)
- * @param <P> eg cursor (set)
- */
-public interface MappingForSet<Q, I, C, P> extends Mapping<Q, Set<I>, P>
+public abstract class Helper
 {
-	I createPart(C queryResult);
+	public static String getSeparatedList(String separator, String... values){
+
+		String result = "";
+
+		for(String value : values)
+		{
+			result += value + separator;
+		}
+		return removeLast(result, separator);
+	}
+
+	public static String removeLast(String s, String pattern){
+		return s.endsWith(pattern) ?
+				  s.substring(0, s.length() - pattern.length()) :
+				  s; //cut off last pattern
+	}
 }

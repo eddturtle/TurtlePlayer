@@ -1,4 +1,4 @@
-package turtle.player.persistance.source.sql;
+package turtle.player.persistance.source.sql.query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,45 +20,20 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
-public class Sql
+public class OrderClause implements SqlFragment
 {
 	private String sql;
-	private List<String> params = new ArrayList<String>();
 
-	public Sql(String sql)
+	public OrderClause(OrderClausePart... parts)
 	{
-		this.sql = sql;
-	}
-
-	public Sql append(String partialSql, String... params){
-		sql += partialSql;
-		for(String param : params)
+		sql = " ORDER BY ";
+		for(OrderClausePart part : parts)
 		{
-			this.params.add(param);
-		}
-		return this;
-	}
-
-	public void append(Sql sql){
-		this.sql += sql.getSql();
-		for(String param : sql.getParams())
-		{
-			this.params.add(param);
+			sql += part.toSql();
 		}
 	}
 
-	public String getSql(){
+	public String toSql(){
 		return sql;
-	}
-
-	public List<String> getParams()
-	{
-		return params;
-	}
-
-	public void removeLast(String pattern){
-		sql = sql.endsWith(pattern) ?
-				  sql.substring(0, sql.length() - pattern.length()) :
-				  sql; //cut off last pattern
 	}
 }

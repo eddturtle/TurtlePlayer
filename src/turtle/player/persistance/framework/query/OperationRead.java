@@ -1,8 +1,6 @@
 package turtle.player.persistance.framework.query;
 
-import android.database.Cursor;
-import turtle.player.persistance.framework.db.Database;
-import turtle.player.persistance.framework.selector.Mapping;
+import turtle.player.persistance.framework.mapping.Mapping;
 
 /**
  * TURTLE PLAYER

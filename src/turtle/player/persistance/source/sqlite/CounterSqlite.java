@@ -1,9 +1,8 @@
 package turtle.player.persistance.source.sqlite;
 
 import android.database.Cursor;
-import turtle.player.persistance.framework.selector.Mapping;
+import turtle.player.persistance.source.relational.Table;
 import turtle.player.persistance.source.sql.Counter;
-import turtle.player.persistance.source.sql.Sql;
 
 /**
  * TURTLE PLAYER
@@ -24,12 +23,11 @@ import turtle.player.persistance.source.sql.Sql;
 
 public class CounterSqlite extends Counter
 {
-	public CounterSqlite(String tableName)
+	public CounterSqlite(Table table)
 	{
-		super(tableName);
+		super(table);
 	}
 
-	@Override
 	public Integer create(Cursor queryResult)
 	{
 		queryResult.moveToFirst();

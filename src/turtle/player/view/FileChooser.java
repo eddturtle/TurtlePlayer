@@ -23,10 +23,10 @@ import android.view.View;
 import android.widget.ImageView;
 import turtle.player.R;
 import turtle.player.model.*;
+import turtle.player.persistance.source.sql.query.WhereClause;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.framework.filter.FieldFilter;
 import turtle.player.persistance.framework.filter.Filter;
-import turtle.player.persistance.source.sql.Sql;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.presentation.InstanceFormatter;
 import turtle.player.util.GenericInstanceComperator;
@@ -68,7 +68,7 @@ public class FileChooser implements TurtleDatabase.DbObserver
 	private TurtleDatabase database;
 	private ListActivity listActivity;
 
-	private Filter<Sql> filter = null;
+	private Filter<WhereClause> filter = null;
 
 	public FileChooser(Mode currMode,
 							 TurtleDatabase db,
@@ -90,7 +90,6 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		{
 			getButton(currMode).setOnClickListener(new View.OnClickListener()
 			{
-				@Override
 				public void onClick(View v)
 				{
 					change(currMode);
@@ -107,25 +106,22 @@ public class FileChooser implements TurtleDatabase.DbObserver
 	{
 		Track selectedTrack = instance.accept(new InstanceVisitor<Track>()
 		{
-			@Override
 			public Track visit(Track track)
 			{
 				return track;
 			}
 
-			@Override
 			public Track visit(Album album)
 			{
 				currType = Type.Track;
-				filter = new FieldFilter<Sql>(Tables.TRACKS.ALBUM, album.getName());
+				filter = new FieldFilter<WhereClause>(Tables.TRACKS.ALBUM, album.getName());
 				return null;
 			}
 
-			@Override
 			public Track visit(Artist artist)
 			{
 				currType = Type.Track;
-				filter = new FieldFilter<Sql>(Tables.TRACKS.ARTIST, artist.getName());
+				filter = new FieldFilter<WhereClause>(Tables.TRACKS.ARTIST, artist.getName());
 				return null;
 			}
 		});
@@ -141,7 +137,6 @@ public class FileChooser implements TurtleDatabase.DbObserver
 			final ImageView button = getButton(aMode);
 			button.post(new Runnable()
 			{
-				@Override
 				public void run()
 				{
 					button.setImageResource(aMode.equals(currMode) ? aMode.drawableActive : aMode.drawable);
@@ -189,7 +184,6 @@ public class FileChooser implements TurtleDatabase.DbObserver
 
 		listActivity.getListView().post(new Runnable()
 		{
-			@Override
 			public void run()
 			{
 				listActivity.setListAdapter(
@@ -204,7 +198,6 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		});
 	}
 
-	@Override
 	public void updated()
 	{
 		update();

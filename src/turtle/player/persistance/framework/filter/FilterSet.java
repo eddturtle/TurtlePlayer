@@ -37,11 +37,9 @@ public class FilterSet<Q> implements Filter<Q>
 		filters.addAll(filters);
 	}
 
-	@Override
-	public Q accept(Q query,
-						 FilterVisitor<Q> visitor)
+	public Q accept(FilterVisitor<Q> visitor)
 	{
-		return visitor.visit(query, this);
+		return visitor.visit(this);
 	}
 
 	/**

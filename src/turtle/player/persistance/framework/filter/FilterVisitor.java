@@ -1,5 +1,7 @@
 package turtle.player.persistance.framework.filter;
 
+import turtle.player.persistance.source.sql.query.WhereClause;
+
 /**
  * TURTLE PLAYER
  * <p/>
@@ -19,7 +21,7 @@ package turtle.player.persistance.framework.filter;
 
 public interface FilterVisitor<Q>
 {
-	public Q visit(Q query, FieldFilter fieldFilter);
+	public Q visit(FieldFilter fieldFilter);
 
-	public Q visit(Q query, FilterSet<Q> fieldFilter);
+	public Q visit(FilterSet<Q> fieldFilter);
 }

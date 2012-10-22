@@ -1,7 +1,10 @@
 package turtle.player.persistance.source.sql;
 
 import android.database.Cursor;
-import turtle.player.persistance.framework.selector.Mapping;
+import turtle.player.persistance.framework.mapping.Mapping;
+import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.source.sql.query.Select;
+import turtle.player.persistance.source.sql.query.Sql;
 
 /**
  * TURTLE PLAYER
@@ -20,18 +23,17 @@ import turtle.player.persistance.framework.selector.Mapping;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class Counter implements Mapping<Sql, Integer, Cursor>
+public abstract class Counter implements Mapping<Select, Integer, Cursor>
 {
-	private final String tableName;
+	private final Table table;
 
-	public Counter(String tableName)
+	public Counter(Table table)
 	{
-		this.tableName = tableName;
+		this.table = table;
 	}
 
-	@Override
-	public Sql get()
+	public Select get()
 	{
-		return new Sql("SELECT count(*) FROM " + tableName);
+		return new Select(table, Select.SelectMethod.COUNT, Sql.FIELD_PSEUDO_STAR);
 	}
 }

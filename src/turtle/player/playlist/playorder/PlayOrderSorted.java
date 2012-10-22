@@ -37,7 +37,6 @@ public class PlayOrderSorted extends Playlist.PlaylistObserverAdapter implements
         sortedTracks = new ArrayList<Track>();
     }
 
-    @Override
     public Track getNext(Track currTrack)
     {
         if(sortedTracks.size() == 0)
@@ -74,7 +73,6 @@ public class PlayOrderSorted extends Playlist.PlaylistObserverAdapter implements
         return nextTrack;
     }
 
-    @Override
     public Track getPrevious(Track currTrack)
     {
         if(sortedTracks.size() == 0)

@@ -1,7 +1,5 @@
 package turtle.player.persistance.framework.query;
 
-import turtle.player.persistance.framework.selector.Mapping;
-
 /**
  * TURTLE PLAYER
  * <p/>
