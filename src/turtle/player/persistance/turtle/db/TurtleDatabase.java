@@ -57,7 +57,7 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 
 	public void push(final Track track)
 	{
-		OperationExecutor.execute(this, new InsertOperationSqlLite<Track>(), new TrackToDbMapper(), track);
+		OperationExecutor.execute(this, new InsertOperationSqlLite<Track>(new TrackToDbMapper()), track);
 	}
 
 	public void clear()

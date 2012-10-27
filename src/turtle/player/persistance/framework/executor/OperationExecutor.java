@@ -34,13 +34,13 @@ public abstract class OperationExecutor
 		});
 	}
 
-	public static <I, C, D, Q> void execute(Database<?, ?, D> db, final OperationInsert<D, Mapping<Q, C, I>, I> operation, final Mapping<Q, C, I> mapping, final I instance){
+	public static <I, C, D, Q> void execute(Database<?, ?, D> db, final OperationInsert<D, I> operation, final I instance){
 		db.write(new Database.DbWriteOp<D, I>()
 		{
 			public void write(D target,
 									I instance)
 			{
-				operation.insert(target, mapping, instance);
+				operation.insert(target, instance);
 			}
 		}, instance);
 	}
