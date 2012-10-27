@@ -4,7 +4,7 @@ import android.database.Cursor;
 import turtle.player.persistance.framework.creator.Creator;
 import turtle.player.persistance.framework.mapping.Mapping;
 import turtle.player.persistance.source.relational.Table;
-import turtle.player.persistance.source.sql.query.OrderClausePartRandom;
+import turtle.player.persistance.source.sql.query.OrderClauseRandom;
 import turtle.player.persistance.source.sql.query.Select;
 
 /**
@@ -39,7 +39,7 @@ public class Random<I> implements Mapping<Select, I, Cursor>
 	public Select get()
 	{
 		Select select = new Select(table);
-		select.setOrderClause(new OrderClausePartRandom());
+		select.setOrderClause(new OrderClauseRandom());
 		return select;
 	}
 

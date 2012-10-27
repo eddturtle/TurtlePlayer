@@ -36,6 +36,6 @@ public class OrderClausePart implements SqlFragment
 
 	public String toSql()
 	{
-		return " " + field.getName() + order.toSql() + " ";
+		return " " + field.getName() + " " + order.toSql() + " ";
 	}
 }

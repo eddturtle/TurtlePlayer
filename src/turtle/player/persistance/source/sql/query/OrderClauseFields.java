@@ -1,6 +1,7 @@
 package turtle.player.persistance.source.sql.query;
 
-import turtle.player.persistance.source.relational.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TURTLE PLAYER
@@ -19,16 +20,16 @@ import turtle.player.persistance.source.relational.Field;
  * @author Simon Honegger (Hoene84)
  */
 
-public class OrderClausePartRandom extends OrderClause
+public class OrderClauseFields implements OrderClause
 {
-	public OrderClausePartRandom()
+	private String sql;
+
+	public OrderClauseFields(OrderClausePart... parts)
 	{
-		super(null, null);
+        sql = Helper.getSeparatedList(" , ", parts);
 	}
 
-	@Override
-	public String toSql()
-	{
-		return " RANDOM() ";
+	public String toSql(){
+		return sql;
 	}
 }

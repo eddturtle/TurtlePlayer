@@ -17,10 +17,10 @@ package turtle.player.persistance.source.sql.query;
  * @author Simon Honegger (Hoene84)
  */
 
-/**
- * Marker Interface
- */
-public interface OrderClause extends SqlFragment
+public class OrderClauseRandom implements OrderClause
 {
-
+	public String toSql()
+	{
+		return " RANDOM() ";
+	}
 }

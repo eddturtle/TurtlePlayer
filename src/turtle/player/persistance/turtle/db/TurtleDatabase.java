@@ -115,7 +115,9 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 			{
 				params[i++] = param.toString();
 			}
-			return readOp.read(db.rawQuery(query.toSql(), params));
+            Cursor cursor = db.rawQuery(query.toSql(), params);
+            cursor.moveToFirst();
+			return readOp.read(cursor);
 		}
 		finally
 		{

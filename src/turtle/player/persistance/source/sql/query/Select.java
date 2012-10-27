@@ -4,7 +4,6 @@ import turtle.player.persistance.source.relational.Field;
 import turtle.player.persistance.source.relational.Table;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
