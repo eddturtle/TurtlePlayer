@@ -27,6 +27,6 @@ public class AlbumCreator implements Creator<Album, Cursor>
 {
     public Album create(Cursor source)
     {
-        return new Album(source.getString(0));
+        return new Album(source.getString(source.getColumnIndex(Tables.TRACKS.ALBUM.getName())));
     }
 }

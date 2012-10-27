@@ -28,6 +28,6 @@ public class ArtistCreator implements Creator<Artist, Cursor>
 
     public Artist create(Cursor source)
     {
-        return new Artist(source.getString(0));
+        return new Artist(source.getString(source.getColumnIndex(Tables.TRACKS.ARTIST.getName())));
     }
 }
