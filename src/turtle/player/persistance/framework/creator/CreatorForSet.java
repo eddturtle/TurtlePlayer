@@ -1,11 +1,7 @@
-package turtle.player.persistance.source.sqlite;
-
-import android.database.Cursor;
-import turtle.player.persistance.framework.mapping.MappingForSet;
-import turtle.player.persistance.source.sql.query.Select;
-import turtle.player.persistance.source.sql.query.Sql;
+package turtle.player.persistance.framework.creator;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -26,23 +22,31 @@ import java.util.Set;
  */
 
 /**
- * @param <I> resulting set contains instance I
+ * @param <I>
+ * @param <S> Source
  */
-public abstract class MappingForSetSqlite<I> implements MappingForSet<Select, I, Cursor, Cursor>
+public abstract class CreatorForSet<I, S, M> implements Creator<Set<I>, M>
 {
-	public Set<I> create(Cursor cursor)
-	{
-		Set<I> result = new HashSet<I>();
+    private Creator<I, S> creator;
 
-		if (cursor.moveToFirst())
-		{
-			do
-			{
-				result.add(createPart(cursor));
+    protected CreatorForSet(Creator<I, S> creator)
+    {
+        this.creator = creator;
+    }
 
-			} while (cursor.moveToNext());
-		}
+    public Set<I> create(M queryResult)
+    {
+        Set<I> result = new HashSet<I>();
 
-		return result;
-	}
+        while(hasNext(queryResult))
+        {
+            result.add(creator.create(next(queryResult)));
+        }
+
+        return result;
+    }
+
+    public abstract boolean hasNext(M queryResult);
+
+    public abstract S next(M queryResult);
 }

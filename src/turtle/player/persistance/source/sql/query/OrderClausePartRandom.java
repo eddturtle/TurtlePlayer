@@ -1,6 +1,6 @@
-package turtle.player.persistance.framework.mapping;
+package turtle.player.persistance.source.sql.query;
 
-import java.util.Set;
+import turtle.player.persistance.source.relational.Field;
 
 /**
  * TURTLE PLAYER
@@ -19,13 +19,16 @@ import java.util.Set;
  * @author Simon Honegger (Hoene84)
  */
 
-/**
- * @param <Q> eg sql String
- * @param <I> resulting set contains instance I
- * @param <C> eg cursor (one shot cursor)
- * @param <P> eg cursor (set)
- */
-public interface MappingForSet<Q, I, C, P> extends Mapping<Q, Set<I>, P>
+public class OrderClausePartRandom extends OrderClause
 {
-	I createPart(C queryResult);
+	public OrderClausePartRandom()
+	{
+		super(null, null);
+	}
+
+	@Override
+	public String toSql()
+	{
+		return " RANDOM() ";
+	}
 }

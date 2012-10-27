@@ -1,24 +1,27 @@
 package turtle.player.playlist.playorder;
 
 import turtle.player.model.Track;
+import turtle.player.persistance.framework.executor.OperationExecutor;
+import turtle.player.persistance.source.sql.Random;
+import turtle.player.persistance.source.sqlite.QuerySqlite;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.mapping.TrackCreator;
 import turtle.player.playlist.Playlist;
 import turtle.player.preferences.Preferences;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 public class PlayOrderRandom implements PlayOrderStrategy
 {
 
-    final LimitedStack<Track> history = new LimitedStack<Track>(1000);
-
     private Preferences preferences;
     private Playlist playlist;
+	private TurtleDatabase db;
 
-    public PlayOrderStrategy connect(Preferences preferences, Playlist playlist){
+    public PlayOrderStrategy connect(Preferences preferences, Playlist playlist, TurtleDatabase db){
         this.preferences = preferences;
         this.playlist = playlist;
+		 this.db = db;
+
         return this;
     }
 
@@ -28,43 +31,11 @@ public class PlayOrderRandom implements PlayOrderStrategy
     }
 
     public Track getNext(Track currTrack) {
-
-        List<Track> candidates = new ArrayList<Track>(playlist.getCurrTracks());
-        List<Track> notPlayedCandidates = new ArrayList<Track>(playlist.getCurrTracks());
-
-        notPlayedCandidates.removeAll(history);
-
-        final Track nextTrack;
-
-        if(!notPlayedCandidates.isEmpty())
-        {
-            nextTrack = notPlayedCandidates.get((int)((Math.random() * notPlayedCandidates.size())));
-        }
-        else
-        {
-            if(preferences.GetRepeat())
-            {
-                nextTrack = new ArrayList<Track>(candidates).get((int) ((Math.random() * candidates.size())));
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        history.add(currTrack);
-        return nextTrack;
+		 return OperationExecutor.execute(db, new QuerySqlite<Track>(playlist.getFilter()), new Random<Track>(Tables.TRACKS, new TrackCreator()));
     }
 
     public Track getPrevious(Track currTrack)
     {
-        while(history.size() > 0){
-            Track candidate = history.pop();
-            if(playlist.getCurrTracks().contains(candidate))
-            {
-                return candidate;
-            }
-        }
-        return null;
+		 return OperationExecutor.execute(db, new QuerySqlite<Track>(playlist.getFilter()), new Random<Track>(Tables.TRACKS, new TrackCreator()));
     }
 }

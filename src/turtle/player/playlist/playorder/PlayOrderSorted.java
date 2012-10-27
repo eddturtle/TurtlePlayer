@@ -1,6 +1,7 @@
 package turtle.player.playlist.playorder;
 
 import turtle.player.model.Track;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.playlist.Playlist;
 import turtle.player.preferences.Preferences;
 
@@ -20,7 +21,7 @@ public class PlayOrderSorted extends Playlist.PlaylistObserverAdapter implements
         this.order = order;
     }
 
-    public PlayOrderStrategy connect(Preferences preferences, Playlist playlist){
+    public PlayOrderStrategy connect(Preferences preferences, Playlist playlist, TurtleDatabase db){
 
         this.playlist = playlist;
         playlist.addObserver(this);

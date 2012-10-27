@@ -90,8 +90,8 @@ public class Playlist
 			playOrderStrategy.disconnect();
 		}
 		playOrderStrategy = preferences.GetShuffle() ?
-				  PlayOrderStrategy.RANDOM.connect(preferences, this) :
-				  PlayOrderStrategy.SORTED.connect(preferences, this);
+				  PlayOrderStrategy.RANDOM.connect(preferences, this, db) :
+				  PlayOrderStrategy.SORTED.connect(preferences, this, db);
 	}
 
 	public Filter<WhereClause> getFilter()
@@ -119,6 +119,10 @@ public class Playlist
 		PerformanceMeasure.stop(durations.PREV.name());
 
 		return track;
+	}
+
+	public int countAvailableTracks(){
+		return db.countAvailableTracks(getFilter());
 	}
 
 	public void UpdateList()

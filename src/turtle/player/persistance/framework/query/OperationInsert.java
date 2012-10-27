@@ -26,7 +26,5 @@ import turtle.player.persistance.framework.mapping.Mapping;
  */
 public interface OperationInsert<D, S extends Mapping<?, ?, ?>, I>
 {
-	void insert(D db,
-					final S mapper,
-					I instance);
+	void insert(D db, final S mapper, I instance);
 }

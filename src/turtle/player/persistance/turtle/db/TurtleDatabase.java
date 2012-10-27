@@ -25,24 +25,19 @@ import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
 import turtle.player.persistance.framework.executor.OperationExecutor;
+import turtle.player.persistance.source.sql.MappingTable;
 import turtle.player.persistance.source.sql.query.Select;
 import turtle.player.persistance.source.sql.query.WhereClause;
-import turtle.player.persistance.source.sqlite.CounterSqlite;
-import turtle.player.persistance.source.sqlite.DeleteOperationSqlLite;
-import turtle.player.persistance.source.sqlite.InsertOperationSqlLite;
+import turtle.player.persistance.source.sqlite.*;
 import turtle.player.persistance.turtle.FileBase;
 import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.db.ObservableDatabase;
 import turtle.player.persistance.framework.filter.Filter;
-import turtle.player.persistance.source.sql.query.Sql;
-import turtle.player.persistance.source.sqlite.QuerySqlite;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.persistance.turtle.mapping.*;
-import turtle.player.persistance.turtle.mapping.AlbumMapping;
-import turtle.player.persistance.turtle.mapping.ArtistMapping;
+import turtle.player.persistance.turtle.mapping.AlbumCreator;
+import turtle.player.persistance.turtle.mapping.ArtistCreator;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 // Import - Android Content
@@ -75,19 +70,36 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 		return OperationExecutor.execute(this, new QuerySqlite<Integer>(filter), new CounterSqlite(Tables.TRACKS)).equals(0);
 	}
 
+	public int countAvailableTracks(Filter<WhereClause> filter)
+	{
+		return OperationExecutor.execute(this, new QuerySqlite<Integer>(filter), new CounterSqlite(Tables.TRACKS));
+	}
+
 	public Set<Track> getTracks(Filter<WhereClause> filter)
 	{
-		return OperationExecutor.execute(this, new QuerySqlite<Set<Track>>(filter), new TrackMapping());
+		return OperationExecutor.execute(
+                this,
+                new QuerySqlite<Set<Track>>(filter),
+                new MappingTable<Track>(Tables.TRACKS, new CreatorForSetSqlite<Track>(new TrackCreator()))
+        );
 	}
 
 	public Set<Album> getAlbums(Filter<WhereClause> filter)
 	{
-		return OperationExecutor.execute(this, new QuerySqlite<Set<Album>>(filter), new AlbumMapping());
+        return OperationExecutor.execute(
+                this,
+                new QuerySqlite<Set<Album>>(filter),
+                new MappingTable<Album>(Tables.TRACKS, new CreatorForSetSqlite<Album>(new AlbumCreator()))
+        );
 	}
 
 	public Set<Artist> getArtist(Filter<WhereClause> filter)
 	{
-		return OperationExecutor.execute(this, new QuerySqlite<Set<Artist>>(filter), new ArtistMapping());
+        return OperationExecutor.execute(
+                this,
+                new QuerySqlite<Set<Artist>>(filter),
+                new MappingTable<Artist>(Tables.TRACKS, new CreatorForSetSqlite<Artist>(new ArtistCreator()))
+        );
 	}
 
 	public <I> I read(Select query,

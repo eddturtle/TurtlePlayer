@@ -1,10 +1,11 @@
 package turtle.player.persistance.source.sql;
 
-import com.mysema.query.sql.dml.Mapper;
-import turtle.player.persistance.source.relational.Field;
+import android.database.Cursor;
+import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.persistance.framework.mapping.Mapping;
 import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.source.sql.query.OrderClausePartRandom;
 import turtle.player.persistance.source.sql.query.Select;
-import turtle.player.persistance.source.sqlite.CreatorForSetSqlite;
 
 /**
  * TURTLE PLAYER
@@ -23,20 +24,27 @@ import turtle.player.persistance.source.sqlite.CreatorForSetSqlite;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class MappingDistinct<I> implements Mapper<I>
+public class Random<I> implements Mapping<Select, I, Cursor>
 {
 	private final Table table;
-	private final Field field;
+	private final Creator<I, Cursor> creator;
 
-	protected MappingDistinct(Table table,
-									  Field field)
+	public Random(Table table,
+					  Creator<I, Cursor> creator)
 	{
 		this.table = table;
-		this.field = field;
+		this.creator = creator;
 	}
 
 	public Select get()
 	{
-		return new Select(table, field);
+		Select select = new Select(table);
+		select.setOrderClause(new OrderClausePartRandom());
+		return select;
+	}
+
+	public I create(Cursor queryResult)
+	{
+		return creator.create(queryResult);
 	}
 }

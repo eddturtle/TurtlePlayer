@@ -4,6 +4,7 @@ import android.database.Cursor;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
+import turtle.player.persistance.framework.creator.Creator;
 import turtle.player.persistance.source.sql.MappingTable;
 import turtle.player.persistance.turtle.db.structure.Tables;
 
@@ -24,15 +25,9 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class TrackMapping extends MappingTable<Track>
+public class TrackCreator implements Creator<Track, Cursor>
 {
-	public TrackMapping()
-	{
-		super(Tables.TRACKS);
-	}
-
-	@Override
-	public Track createPart(Cursor cursor)
+	public Track create(Cursor cursor)
 	{
 		return new Track(
 				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.TITLE.getName())),

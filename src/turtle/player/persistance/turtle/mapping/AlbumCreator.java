@@ -1,7 +1,8 @@
 package turtle.player.persistance.turtle.mapping;
 
 import android.database.Cursor;
-import turtle.player.model.Artist;
+import turtle.player.model.Album;
+import turtle.player.persistance.framework.creator.Creator;
 import turtle.player.persistance.source.sql.MappingDistinct;
 import turtle.player.persistance.turtle.db.structure.Tables;
 
@@ -22,16 +23,10 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class ArtistMapping extends MappingDistinct<Artist>
+public class AlbumCreator implements Creator<Album, Cursor>
 {
-	public ArtistMapping()
-	{
-		super(Tables.TRACKS, Tables.TRACKS.ARTIST);
-	}
-
-	@Override
-	public Artist createPart(Cursor cursor)
-	{
-		return new Artist(cursor.getString(0));
-	}
+    public Album create(Cursor source)
+    {
+        return new Album(source.getString(0));
+    }
 }

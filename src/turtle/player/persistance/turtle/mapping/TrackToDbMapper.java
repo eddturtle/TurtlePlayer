@@ -29,7 +29,6 @@ public class TrackToDbMapper extends QueryGeneratorTable<Track>
 		super(Tables.TRACKS);
 	}
 
-	@Override
 	public ContentValues create(Track track)
 	{
 		final ContentValues values = new ContentValues();

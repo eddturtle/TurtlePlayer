@@ -1,6 +1,7 @@
 package turtle.player.playlist.playorder;
 
 import turtle.player.model.Track;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.playlist.Playlist;
 import turtle.player.preferences.Preferences;
 import turtle.player.util.GenericInstanceComperator;
@@ -26,7 +27,7 @@ public interface PlayOrderStrategy {
     /**
      * Has to be called before adding this strategy. Allows the implementation to initialize.
      */
-    public PlayOrderStrategy connect(Preferences preferences, Playlist playlist);
+    public PlayOrderStrategy connect(Preferences preferences, Playlist playlist, TurtleDatabase db);
 
     /**
      * Has to be called after removing this strategy. Allows the implementation to cleanup.

@@ -25,7 +25,6 @@ import turtle.player.persistance.source.relational.Table;
 
 public class InsertOperationSqlLite<I> implements OperationInsert<SQLiteDatabase, Mapping<Table, ContentValues, I>, I>
 {
-	@Override
 	public void insert(final SQLiteDatabase db,
 							 final Mapping<Table, ContentValues, I> mapping,
 							 I instance)
