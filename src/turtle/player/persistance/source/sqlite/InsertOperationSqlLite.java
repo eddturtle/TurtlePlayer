@@ -23,11 +23,16 @@ import turtle.player.persistance.source.relational.Table;
  * @author Simon Honegger (Hoene84)
  */
 
-public class InsertOperationSqlLite<I> implements OperationInsert<SQLiteDatabase, Mapping<Table, ContentValues, I>, I>
+public class InsertOperationSqlLite<I> implements OperationInsert<SQLiteDatabase, I>
 {
-	public void insert(final SQLiteDatabase db,
-							 final Mapping<Table, ContentValues, I> mapping,
-							 I instance)
+    private final Mapping<Table, ContentValues, I> mapping;
+
+    public InsertOperationSqlLite(Mapping<Table, ContentValues, I> mapping)
+    {
+        this.mapping = mapping;
+    }
+
+    public void insert(final SQLiteDatabase db, I instance)
 	{
 		db.insert(mapping.get().getName(), null, mapping.create(instance));
 	}

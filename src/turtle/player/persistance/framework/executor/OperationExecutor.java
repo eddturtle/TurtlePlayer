@@ -25,11 +25,11 @@ import turtle.player.persistance.framework.mapping.Mapping;
 
 public abstract class OperationExecutor
 {
-	public static <I, Q, C> I execute(Database<Q, C, ?> db, final OperationRead<Q, C, I> operation, final Mapping<Q, I, C> mapping){
-		return db.read(operation.get(mapping), new Database.DbReadOp<I, C>(){
+	public static <I, Q, C> I execute(Database<Q, C, ?> db, final OperationRead<Q, C, I> operation){
+		return db.read(operation.get(), new Database.DbReadOp<I, C>(){
 			public I read(C c)
 			{
-				return operation.map(c, mapping);
+				return operation.map(c);
 			}
 		});
 	}

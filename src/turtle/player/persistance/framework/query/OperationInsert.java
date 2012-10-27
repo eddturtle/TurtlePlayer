@@ -24,7 +24,7 @@ import turtle.player.persistance.framework.mapping.Mapping;
  * @param <S> Object type that knows how to do the operation
  * @param <I> Object Type of the write information
  */
-public interface OperationInsert<D, S extends Mapping<?, ?, ?>, I>
+public interface OperationInsert<D, I>
 {
-	void insert(D db, final S mapper, I instance);
+	void insert(D db, I instance);
 }

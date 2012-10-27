@@ -26,7 +26,7 @@ import turtle.player.persistance.framework.mapping.Mapping;
  */
 public interface OperationRead<Q, R, I>
 {
-	I map(R dbResult, final Mapping<Q, I, R> mapper);
+	I map(R dbResult);
 
-	Q get(Mapping<Q, I, R> mapping);
+	Q get();
 }

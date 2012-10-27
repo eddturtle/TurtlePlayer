@@ -62,25 +62,25 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 
 	public void clear()
 	{
-		OperationExecutor.execute(this, new DeleteOperationSqlLite(), Tables.TRACKS);
+		OperationExecutor.execute(this, new DeleteTableContentSqlLite(), Tables.TRACKS);
 	}
 
 	public boolean isEmpty(Filter<WhereClause> filter)
 	{
-		return OperationExecutor.execute(this, new QuerySqlite<Integer>(filter), new CounterSqlite(Tables.TRACKS)).equals(0);
+		return OperationExecutor.execute(this, new QuerySqlite<Integer>(filter, new CounterSqlite(Tables.TRACKS))).equals(0);
 	}
 
 	public int countAvailableTracks(Filter<WhereClause> filter)
 	{
-		return OperationExecutor.execute(this, new QuerySqlite<Integer>(filter), new CounterSqlite(Tables.TRACKS));
+		return OperationExecutor.execute(this, new QuerySqlite<Integer>(filter, new CounterSqlite(Tables.TRACKS)));
 	}
 
 	public Set<Track> getTracks(Filter<WhereClause> filter)
 	{
 		return OperationExecutor.execute(
                 this,
-                new QuerySqlite<Set<Track>>(filter),
-                new MappingTable<Track>(Tables.TRACKS, new CreatorForSetSqlite<Track>(new TrackCreator()))
+                new QuerySqlite<Set<Track>>(filter,
+                        new MappingTable<Track>(Tables.TRACKS, new CreatorForSetSqlite<Track>(new TrackCreator())))
         );
 	}
 
@@ -88,8 +88,8 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 	{
         return OperationExecutor.execute(
                 this,
-                new QuerySqlite<Set<Album>>(filter),
-                new MappingTable<Album>(Tables.TRACKS, new CreatorForSetSqlite<Album>(new AlbumCreator()))
+                new QuerySqlite<Set<Album>>(filter,
+                        new MappingTable<Album>(Tables.TRACKS, new CreatorForSetSqlite<Album>(new AlbumCreator())))
         );
 	}
 
@@ -97,8 +97,8 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 	{
         return OperationExecutor.execute(
                 this,
-                new QuerySqlite<Set<Artist>>(filter),
-                new MappingTable<Artist>(Tables.TRACKS, new CreatorForSetSqlite<Artist>(new ArtistCreator()))
+                new QuerySqlite<Set<Artist>>(filter, new MappingTable<Artist>(Tables.TRACKS, new CreatorForSetSqlite<Artist>(new ArtistCreator()))
+                )
         );
 	}
 

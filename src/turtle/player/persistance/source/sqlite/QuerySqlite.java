@@ -27,14 +27,16 @@ import turtle.player.persistance.source.sql.query.*;
 
 public class QuerySqlite<I> extends Query<Select, WhereClause,  I, Cursor>
 {
-	private final static String FILTER_CONNECTOR = " and ";
+    private final Mapping<Select, I, Cursor> mapping;
 
-	public QuerySqlite(Filter<WhereClause> filter)
+	public QuerySqlite(Filter<WhereClause> filter, Mapping<Select, I, Cursor> mapping)
 	{
 		super(filter);
+
+        this.mapping = mapping;
 	}
 
-	public Select get(Mapping<Select, I, Cursor> mapping)
+	public Select get()
 	{
 		Select sql = mapping.get();
 
@@ -44,8 +46,7 @@ public class QuerySqlite<I> extends Query<Select, WhereClause,  I, Cursor>
 		return sql;
 	}
 
-	public I map(final Cursor cursor,
-					 final Mapping<Select, I, Cursor> mapping)
+	public I map(final Cursor cursor)
 	{
 		return mapping.create(cursor);
 	}

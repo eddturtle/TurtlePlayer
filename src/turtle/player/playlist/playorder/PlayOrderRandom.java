@@ -31,11 +31,11 @@ public class PlayOrderRandom implements PlayOrderStrategy
     }
 
     public Track getNext(Track currTrack) {
-		 return OperationExecutor.execute(db, new QuerySqlite<Track>(playlist.getFilter()), new Random<Track>(Tables.TRACKS, new TrackCreator()));
+		 return OperationExecutor.execute(db, new QuerySqlite<Track>(playlist.getFilter(), new Random<Track>(Tables.TRACKS, new TrackCreator())));
     }
 
     public Track getPrevious(Track currTrack)
     {
-		 return OperationExecutor.execute(db, new QuerySqlite<Track>(playlist.getFilter()), new Random<Track>(Tables.TRACKS, new TrackCreator()));
+		 return OperationExecutor.execute(db, new QuerySqlite<Track>(playlist.getFilter(), new Random<Track>(Tables.TRACKS, new TrackCreator())));
     }
 }
