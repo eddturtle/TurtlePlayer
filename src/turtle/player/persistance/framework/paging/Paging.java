@@ -1,9 +1,7 @@
-package turtle.player.persistance.source.sql.query;
+package turtle.player.persistance.framework.paging;
 
-import turtle.player.persistance.source.relational.Field;
-import turtle.player.persistance.source.relational.FieldPersistable;
-
-import java.util.List;
+import turtle.player.persistance.framework.filter.*;
+import turtle.player.persistance.framework.sort.*;
 
 /**
  * TURTLE PLAYER
@@ -22,23 +20,20 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FieldsPart implements SqlFragment
+public abstract class Paging
 {
-	final List<Field> fields;
 
-	public FieldsPart(List<Field> fields)
+	public static <I, W, Q> Filter<W> getFilter(Filter<W> oldFilters,
+										I instance,
+										Order<Q> order)
 	{
-		this.fields = fields;
-	}
-
-	public String toSql()
-	{
-		String[] fieldNames = new String[fields.size()];
-		int i = 0;
-		for(Field field : fields)
+		if(instance != null)
 		{
-			fieldNames[i++] = field.getName();
+			return new FilterSet<W>(order.accept(new PagingFilterBuilder<I, W, Q>(instance)), oldFilters);
 		}
-		return Helper.getSeparatedList(", ", fieldNames);
+		else
+		{
+			return oldFilters;
+		}
 	}
 }

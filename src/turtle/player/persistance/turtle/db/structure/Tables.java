@@ -1,7 +1,13 @@
 package turtle.player.persistance.turtle.db.structure;
 
+import turtle.player.model.Artist;
+import turtle.player.model.Track;
 import turtle.player.persistance.source.relational.Field;
+import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.source.relational.Table;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TURTLE PLAYER
@@ -24,17 +30,76 @@ public class Tables
 {
 	public final static Tracks TRACKS = new Tracks();
 
-	public static final class Tracks extends Table{
+	public static final class Tracks extends Table<Track>
+	{
 
 		public final Field ID = new Field("id");
-		public final Field TITLE = new Field("title");
-		public final Field NUMBER = new Field("number");
-		public final Field ARTIST = new Field("artist");
-		public final Field ALBUM = new Field("album");
-		public final Field LENGTH = new Field("length");
-		public final Field SRC = new Field("src");
-		public final Field ROOTSRC = new Field("rootSrc");
-		public final Field ALBUMART = new Field("hasAlbumArt");
+
+		public final FieldPersistable<Track, String> TITLE = new FieldPersistable<Track, String>("title")
+		{
+			public String get(Track instance)
+			{
+				return instance.GetTitle();
+			}
+		};
+
+		public final FieldPersistable<Track, Integer> NUMBER = new FieldPersistable<Track, Integer>("number")
+		{
+			public Integer get(Track instance)
+			{
+				return instance.GetNumber();
+			}
+		};
+
+		public final FieldPersistable<Track, String> ARTIST = new FieldPersistable<Track, String>("artist")
+		{
+
+			public String get(Track instance)
+			{
+				return instance.GetArtist().getName();
+			}
+		};
+
+		public final FieldPersistable<Track, String> ALBUM = new FieldPersistable<Track, String>("album")
+		{
+			public String get(Track instance)
+			{
+				return instance.GetAlbum().getName();
+			}
+		};
+
+		public final FieldPersistable<Track, Double> LENGTH = new FieldPersistable<Track, Double>("length")
+		{
+			public Double get(Track instance)
+			{
+				return instance.GetLength();
+			}
+		};
+
+		public final FieldPersistable<Track, String> SRC = new FieldPersistable<Track, String>("src")
+		{
+			public String get(Track instance)
+			{
+				return instance.GetSrc();
+			}
+		};
+
+		public final FieldPersistable<Track, String> ROOTSRC = new FieldPersistable<Track, String>("rootSrc")
+		{
+
+			public String get(Track instance)
+			{
+				return instance.GetRootSrc();
+			}
+		};
+
+		public final FieldPersistable<Track, String> ALBUMART = new FieldPersistable<Track, String>("hasAlbumArt")
+		{
+			public String get(Track instance)
+			{
+				return instance.albumArt();
+			}
+		};
 
 		public Tracks()
 		{
@@ -42,19 +107,19 @@ public class Tables
 		}
 
 		@Override
-		public Field[] getFields()
+		public List<FieldPersistable<Track, ?>> getFields()
 		{
-			return new Field[]{
-				ID,
-				TITLE,
-				NUMBER,
-				ARTIST,
-				ALBUM,
-				LENGTH,
-				SRC,
-				ROOTSRC,
-				ALBUMART
-			};
+			List<FieldPersistable<Track, ?>> persistableFields = new ArrayList<FieldPersistable<Track, ?>>();
+			persistableFields.add(TITLE);
+			persistableFields.add(NUMBER);
+			persistableFields.add(ARTIST);
+			persistableFields.add(ALBUM);
+			persistableFields.add(LENGTH);
+			persistableFields.add(SRC);
+			persistableFields.add(ROOTSRC);
+			persistableFields.add(ALBUMART);
+			return persistableFields;
 		}
+
 	}
 }

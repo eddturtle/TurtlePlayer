@@ -1,10 +1,5 @@
 package turtle.player.persistance.source.sql.query;
 
-import turtle.player.persistance.source.relational.Field;
-import turtle.player.persistance.source.relational.FieldPersistable;
-
-import java.util.List;
-
 /**
  * TURTLE PLAYER
  * <p/>
@@ -22,23 +17,21 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FieldsPart implements SqlFragment
+public enum SqlOrder
 {
-	final List<Field> fields;
+	ASC(" ASC "),
+	DESC(" DESC ");
 
-	public FieldsPart(List<Field> fields)
+	final String sql;
+
+	private SqlOrder(String sql)
 	{
-		this.fields = fields;
+		this.sql = sql;
 	}
+
 
 	public String toSql()
 	{
-		String[] fieldNames = new String[fields.size()];
-		int i = 0;
-		for(Field field : fields)
-		{
-			fieldNames[i++] = field.getName();
-		}
-		return Helper.getSeparatedList(", ", fieldNames);
+		return sql;
 	}
 }

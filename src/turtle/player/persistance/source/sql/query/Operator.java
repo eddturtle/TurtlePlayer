@@ -19,9 +19,12 @@ package turtle.player.persistance.source.sql.query;
 
 public enum Operator
 {
-	EQUALS(" = "),
-	SMALLER(" < "),
-	BIGGER(" > ");
+	GT(" > "),
+	LT(" < "),
+	GE(" >= "),
+	LE(" <= "),
+	EQ(" = "),
+	LIKE(" LIKE ");
 
 	String string;
 

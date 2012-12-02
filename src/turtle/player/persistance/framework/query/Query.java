@@ -2,6 +2,8 @@ package turtle.player.persistance.framework.query;
 
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterVisitor;
+import turtle.player.persistance.framework.sort.Order;
+import turtle.player.persistance.framework.sort.OrderVisitor;
 
 /**
  * TURTLE PLAYER
@@ -20,17 +22,48 @@ import turtle.player.persistance.framework.filter.FilterVisitor;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class Query<Q, W, I, C> implements FilterVisitor<W>, OperationRead<Q, C, I>
+public abstract class Query<Q, W, O, I, C> implements FilterVisitor<W>, OperationRead<Q, C, I>, OrderVisitor<I, O, O>
 {
 	private final Filter<W> filter;
+	private final Order<O> order;
 
-	public Query(Filter<W> filter)
+    protected Query()
+    {
+        this.filter = null;
+        order = null;
+    }
+
+    protected Query(Filter<W> filter)
+    {
+        this.filter = filter;
+        order = null;
+    }
+
+    protected Query(Order<O> order)
+    {
+        this.order = order;
+        this.filter = null;
+    }
+
+    public Query(Filter<W> filter, Order<O> order)
 	{
 		this.filter = filter;
+		this.order = order;
 	}
 
+    /**
+     * @return can be null
+     */
 	public Filter<W> getFilter()
 	{
 		return filter;
 	}
+
+    /**
+     * @return can be null
+     */
+    public Order<O> getOrder()
+    {
+        return order;
+    }
 }

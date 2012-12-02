@@ -3,7 +3,7 @@ package turtle.player.persistance.source.sql.query;
 /**
  * TURTLE PLAYER
  * <p/>
- * Licensed under MIT & GPL
+ * Licensed under MIT & GPLS
  * <p/>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
@@ -23,4 +23,9 @@ public class OrderClauseRandom implements OrderClause
 	{
 		return " RANDOM() ";
 	}
+
+    public OrderClause apply(OrderClause orderClause)
+    {
+        throw new RuntimeException("random order cant be chained");
+    }
 }

@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.ImageView;
 import turtle.player.R;
 import turtle.player.model.*;
+import turtle.player.persistance.framework.filter.Operator;
 import turtle.player.persistance.source.sql.query.WhereClause;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.framework.filter.FieldFilter;
@@ -114,14 +115,14 @@ public class FileChooser implements TurtleDatabase.DbObserver
 			public Track visit(Album album)
 			{
 				currType = Type.Track;
-				filter = new FieldFilter<WhereClause>(Tables.TRACKS.ALBUM, album.getName());
+				filter = new FieldFilter<WhereClause>(Tables.TRACKS.ALBUM, Operator.EQ, album.getName());
 				return null;
 			}
 
 			public Track visit(Artist artist)
 			{
 				currType = Type.Track;
-				filter = new FieldFilter<WhereClause>(Tables.TRACKS.ARTIST, artist.getName());
+				filter = new FieldFilter<WhereClause>(Tables.TRACKS.ARTIST, Operator.EQ, artist.getName());
 				return null;
 			}
 		});

@@ -4,6 +4,7 @@ import turtle.player.persistance.source.relational.Field;
 import turtle.player.persistance.source.relational.Table;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -58,11 +59,11 @@ public class Select implements Sql
 		switch (selectMethod)
 		{
 			case NORMAL:
-				return new FieldsPart(fields).toSql();
+				return new FieldsPart(Arrays.asList(fields)).toSql();
 			case COUNT:
-				return " COUNT(" + new FieldsPart(fields).toSql() + ")";
+				return " COUNT(" + new FieldsPart(Arrays.asList(fields)).toSql() + ")";
 			case DISTINCT:
-				return " DISTINCT " + new FieldsPart(fields).toSql() + " ";
+				return " DISTINCT " + new FieldsPart(Arrays.asList(fields)).toSql() + " ";
 			default:
 				throw new RuntimeException("Implement SelectMethod " + selectMethod.name());
 		}

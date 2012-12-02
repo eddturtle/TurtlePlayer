@@ -29,7 +29,17 @@ public class OrderClauseFields implements OrderClause
         sql = Helper.getSeparatedList(" , ", parts);
 	}
 
+    private OrderClauseFields(OrderClause orderClause, OrderClause orderClause2)
+    {
+        sql = orderClause.toSql() + " , " + orderClause2.toSql();
+    }
+
 	public String toSql(){
 		return sql;
 	}
+
+    public OrderClause apply(OrderClause orderClause)
+    {
+        return new OrderClauseFields(this, orderClause);
+    }
 }

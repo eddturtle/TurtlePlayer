@@ -22,12 +22,15 @@ import turtle.player.persistance.source.relational.Field;
 public class FieldFilter<Q> implements Filter<Q>
 {
 	private final Field field;
+	private final Operator operator;
 	private final String value;
 
 	public FieldFilter(Field field,
+							 Operator operator,
 							 String value)
 	{
 		this.field = field;
+		this.operator = operator;
 		this.value = value;
 	}
 
@@ -41,8 +44,19 @@ public class FieldFilter<Q> implements Filter<Q>
 		return value;
 	}
 
+	public Operator getOperator()
+	{
+		return operator;
+	}
+
 	public Q accept(FilterVisitor<Q> visitor)
 	{
 		return visitor.visit(this);
+	}
+
+	@Override
+	public String toString()
+	{
+		return getField().getName() + " " + operator.name() + " " + value;
 	}
 }

@@ -2,7 +2,9 @@ package turtle.player.playlist.playorder;
 
 import turtle.player.model.Track;
 import turtle.player.persistance.framework.executor.OperationExecutor;
-import turtle.player.persistance.source.sql.Random;
+import turtle.player.persistance.framework.sort.RandomOrder;
+import turtle.player.persistance.source.sql.First;
+import turtle.player.persistance.source.sql.query.OrderClause;
 import turtle.player.persistance.source.sqlite.QuerySqlite;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.turtle.db.structure.Tables;
@@ -13,29 +15,31 @@ import turtle.player.preferences.Preferences;
 public class PlayOrderRandom implements PlayOrderStrategy
 {
 
-    private Preferences preferences;
-    private Playlist playlist;
+	private Playlist playlist;
 	private TurtleDatabase db;
 
-    public PlayOrderStrategy connect(Preferences preferences, Playlist playlist, TurtleDatabase db){
-        this.preferences = preferences;
-        this.playlist = playlist;
-		 this.db = db;
+	public PlayOrderRandom(TurtleDatabase db,
+								  Playlist playlist)
+	{
+		this.playlist = playlist;
+		this.db = db;
+	}
 
-        return this;
-    }
+	public Track getNext(Track currTrack)
+	{
+		return OperationExecutor.execute(db,
+				  new QuerySqlite<Track>(
+							 playlist.getFilter(),
+							 new RandomOrder<OrderClause>(),
+							 new First<Track>(Tables.TRACKS, new TrackCreator())));
+	}
 
-    public void disconnect()
-    {
-        //empty
-    }
-
-    public Track getNext(Track currTrack) {
-		 return OperationExecutor.execute(db, new QuerySqlite<Track>(playlist.getFilter(), new Random<Track>(Tables.TRACKS, new TrackCreator())));
-    }
-
-    public Track getPrevious(Track currTrack)
-    {
-		 return OperationExecutor.execute(db, new QuerySqlite<Track>(playlist.getFilter(), new Random<Track>(Tables.TRACKS, new TrackCreator())));
-    }
+	public Track getPrevious(Track currTrack)
+	{
+		return OperationExecutor.execute(db,
+				  new QuerySqlite<Track>(
+							 playlist.getFilter(),
+							 new RandomOrder<OrderClause>(),
+							 new First<Track>(Tables.TRACKS, new TrackCreator())));
+	}
 }

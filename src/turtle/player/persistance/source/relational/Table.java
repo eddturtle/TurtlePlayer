@@ -1,5 +1,7 @@
 package turtle.player.persistance.source.relational;
 
+import java.util.List;
+
 /**
  * TURTLE PLAYER
  * <p/>
@@ -17,11 +19,11 @@ package turtle.player.persistance.source.relational;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class Table
+public abstract class Table<I>
 {
 	final String name;
 
-	public Table(String name, Field... fields)
+	public Table(String name, FieldPersistable<I, ?>... fields)
 	{
 		this.name = name;
 	}
@@ -31,5 +33,5 @@ public abstract class Table
 		return name;
 	}
 
-	public abstract Field[] getFields();
+	public abstract List<FieldPersistable<I, ?>> getFields();
 }

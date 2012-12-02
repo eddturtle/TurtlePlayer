@@ -24,7 +24,6 @@ import java.io.FilenameFilter;
 
 public abstract class AccessableFileFilter implements FilenameFilter
 {
-	@Override
 	public boolean accept(File dir,
 								 String filename)
 	{

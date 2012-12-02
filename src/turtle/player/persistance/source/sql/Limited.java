@@ -1,8 +1,10 @@
 package turtle.player.persistance.source.sql;
 
-import com.mysema.query.sql.dml.Mapper;
-import turtle.player.persistance.source.relational.FieldPersistable;
+import android.database.Cursor;
+import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.persistance.framework.mapping.Mapping;
 import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.source.sql.query.Limit;
 import turtle.player.persistance.source.sql.query.Select;
 
 /**
@@ -22,20 +24,27 @@ import turtle.player.persistance.source.sql.query.Select;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class MappingDistinct<I> implements Mapper<I>
+public class Limited<I> implements Mapping<Select, I, Cursor>
 {
 	private final Table table;
-	private final FieldPersistable field;
+	private final Creator<I, Cursor> creator;
 
-	protected MappingDistinct(Table table,
-									  FieldPersistable field)
+	public Limited(Table table,
+						Creator<I, Cursor> creator)
 	{
 		this.table = table;
-		this.field = field;
+		this.creator = creator;
 	}
 
 	public Select get()
 	{
-		return new Select(table, field);
+		Select select = new Select(table);
+		select.setLimit(new Limit(1));
+		return select;
+	}
+
+	public I create(Cursor queryResult)
+	{
+		return creator.create(queryResult);
 	}
 }

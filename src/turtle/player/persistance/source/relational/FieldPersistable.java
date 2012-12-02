@@ -1,4 +1,6 @@
-package turtle.player.persistance.source.sql.query;
+package turtle.player.persistance.source.relational;
+
+import turtle.player.persistance.framework.sort.OrderVisitor;
 
 /**
  * TURTLE PLAYER
@@ -17,21 +19,13 @@ package turtle.player.persistance.source.sql.query;
  * @author Simon Honegger (Hoene84)
  */
 
-public enum Order
+public abstract class FieldPersistable<I, O> extends Field
 {
-	ASC(" DESC "),
-	DESC(" ASC");
-
-	final String sql;
-
-	private Order(String sql)
+	public FieldPersistable(String name)
 	{
-		this.sql = sql;
+		super(name);
 	}
 
+	public abstract O get(I instance);
 
-	public String toSql()
-	{
-		return sql;
-	}
 }

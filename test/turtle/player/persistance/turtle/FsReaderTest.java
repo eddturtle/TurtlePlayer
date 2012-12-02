@@ -20,7 +20,6 @@
 package turtle.player.persistance.turtle;
 
 import org.junit.Test;
-import turtle.player.persistance.turtle.FsReader;
 
 import static junit.framework.Assert.assertEquals;
 

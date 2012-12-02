@@ -28,6 +28,8 @@ import turtle.player.persistance.turtle.FsReader;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterSet;
+import turtle.player.playlist.playorder.PlayOrderRandom;
+import turtle.player.playlist.playorder.PlayOrderSorted;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
@@ -61,7 +63,6 @@ public class Playlist
 
 	public Playlist(Context mainContext, TurtleDatabase db)
 	{
-
 		// Location, Repeat, Shuffle (Remember Trailing / on Location)
 		preferences = new Preferences(mainContext);
 		this.db = db;
@@ -85,13 +86,9 @@ public class Playlist
 
 	private void setPlayOrderStrategyAccordingPreferences()
 	{
-		if (playOrderStrategy != null)
-		{
-			playOrderStrategy.disconnect();
-		}
 		playOrderStrategy = preferences.GetShuffle() ?
-				  PlayOrderStrategy.RANDOM.connect(preferences, this, db) :
-				  PlayOrderStrategy.SORTED.connect(preferences, this, db);
+				  new PlayOrderRandom(db, this):
+				  new PlayOrderSorted(db, this);
 	}
 
 	public Filter<WhereClause> getFilter()

@@ -1,6 +1,7 @@
 package turtle.player.persistance.source.sql.query;
 
 import turtle.player.persistance.source.relational.Field;
+import turtle.player.persistance.source.relational.FieldPersistable;
 
 /**
  * TURTLE PLAYER

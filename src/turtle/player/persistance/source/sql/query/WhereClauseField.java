@@ -1,7 +1,7 @@
 package turtle.player.persistance.source.sql.query;
 
-import android.webkit.ValueCallback;
 import turtle.player.persistance.source.relational.Field;
+import turtle.player.persistance.source.relational.FieldPersistable;
 
 import java.util.Arrays;
 import java.util.List;

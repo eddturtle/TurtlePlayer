@@ -1,9 +1,9 @@
-package turtle.player.persistance.source.sql.query;
+package turtle.player.persistance.framework.sort;
 
 import turtle.player.persistance.source.relational.Field;
 import turtle.player.persistance.source.relational.FieldPersistable;
 
-import java.util.List;
+import java.util.Arrays;
 
 /**
  * TURTLE PLAYER
@@ -22,23 +22,36 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FieldsPart implements SqlFragment
+public class FieldOrder<I, T, Q> implements Order<Q>
 {
-	final List<Field> fields;
+	private final FieldPersistable<I, T> field;
+	private final SortOrder order;
 
-	public FieldsPart(List<Field> fields)
+	public FieldOrder(FieldPersistable<I, T> field,
+                      SortOrder order)
 	{
-		this.fields = fields;
+		this.field = field;
+		this.order = order;
 	}
 
-	public String toSql()
+	public FieldPersistable<I, T> getField()
 	{
-		String[] fieldNames = new String[fields.size()];
-		int i = 0;
-		for(Field field : fields)
-		{
-			fieldNames[i++] = field.getName();
-		}
-		return Helper.getSeparatedList(", ", fieldNames);
+		return field;
+	}
+
+    public SortOrder getOrder()
+    {
+        return order;
+    }
+
+	public <R, I> R accept(OrderVisitor<I, R, Q> visitor)
+	{
+		return visitor.visit((FieldOrder<I,T,Q>) this);
+	}
+
+	@Override
+	public String toString()
+	{
+		return getField().getName() + " " + order;
 	}
 }

@@ -5,7 +5,6 @@ import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
 import turtle.player.persistance.framework.creator.Creator;
-import turtle.player.persistance.source.sql.MappingTable;
 import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**

@@ -1,5 +1,7 @@
 package turtle.player.persistance.framework.filter;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,15 +28,14 @@ public class FilterSet<Q> implements Filter<Q>
 
 	public FilterSet(Filter<Q>... filter)
 	{
-		for(Filter<Q> currFilter : filter)
-		{
-			filters.add(currFilter);
-		}
+		Collections.addAll(filters, filter);
+		filters.remove(null);
 	}
 
 	public FilterSet(Set<Filter<Q>> filters)
 	{
 		filters.addAll(filters);
+		filters.remove(null);
 	}
 
 	public Q accept(FilterVisitor<Q> visitor)
@@ -48,5 +49,11 @@ public class FilterSet<Q> implements Filter<Q>
 	public Set<Filter<Q>> getFilters()
 	{
 		return filters;
+	}
+
+	@Override
+	public String toString()
+	{
+		return Arrays.deepToString(filters.toArray());
 	}
 }

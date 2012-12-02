@@ -19,15 +19,15 @@ package turtle.player.persistance.source.sql.query;
 
 public class Limit implements SqlFragment
 {
-	final int i;
+	final int limit;
 
-	public Limit(int i)
+	public Limit(int limit)
 	{
-		this.i = i;
+		this.limit = limit;
 	}
 
 	public String toSql()
 	{
-		return " LIMIT " + i + " ";
+		return " LIMIT " + limit + " ";
 	}
 }

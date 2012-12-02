@@ -21,6 +21,7 @@ package turtle.player.persistance.turtle.db;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
@@ -38,6 +39,7 @@ import turtle.player.persistance.turtle.mapping.*;
 import turtle.player.persistance.turtle.mapping.AlbumCreator;
 import turtle.player.persistance.turtle.mapping.ArtistCreator;
 
+import java.util.Arrays;
 import java.util.Set;
 
 // Import - Android Content
@@ -120,8 +122,15 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 			{
 				params[i++] = param.toString();
 			}
-            Cursor cursor = db.rawQuery(query.toSql(), params);
-            cursor.moveToFirst();
+			Log.v(TurtleDatabase.class.getName(),
+					  "Running Query: " + query.toSql() + " with params " + Arrays.deepToString(params));
+
+			Cursor cursor = db.rawQuery(query.toSql(), params);
+
+			Log.v(TurtleDatabase.class.getName(),
+					  "Resulting in " + cursor.getCount() + " Resulting Rows");
+
+			cursor.moveToFirst();
 			return readOp.read(cursor);
 		}
 		finally

@@ -20,7 +20,7 @@ package turtle.player.persistance.source.sql.query;
 /**
  * Marker Interface
  */
-public interface OrderClause extends SqlFragment
+public interface OrderClause extends SqlFragment, OrderClausePart
 {
-
+    OrderClause apply(OrderClause orderClause);
 }

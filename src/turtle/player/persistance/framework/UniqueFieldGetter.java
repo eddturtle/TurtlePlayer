@@ -1,9 +1,6 @@
-package turtle.player.persistance.source.sql.query;
+package turtle.player.persistance.framework;
 
 import turtle.player.persistance.source.relational.Field;
-import turtle.player.persistance.source.relational.FieldPersistable;
-
-import java.util.List;
 
 /**
  * TURTLE PLAYER
@@ -22,23 +19,7 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FieldsPart implements SqlFragment
+public interface UniqueFieldGetter<I>
 {
-	final List<Field> fields;
-
-	public FieldsPart(List<Field> fields)
-	{
-		this.fields = fields;
-	}
-
-	public String toSql()
-	{
-		String[] fieldNames = new String[fields.size()];
-		int i = 0;
-		for(Field field : fields)
-		{
-			fieldNames[i++] = field.getName();
-		}
-		return Helper.getSeparatedList(", ", fieldNames);
-	}
+	Field getUniqueFields();
 }

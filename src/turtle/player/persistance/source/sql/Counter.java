@@ -1,6 +1,7 @@
 package turtle.player.persistance.source.sql;
 
 import android.database.Cursor;
+import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.mapping.Mapping;
 import turtle.player.persistance.source.relational.Table;
 import turtle.player.persistance.source.sql.query.Select;

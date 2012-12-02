@@ -1,10 +1,5 @@
 package turtle.player.persistance.source.sql.query;
 
-import turtle.player.persistance.source.relational.Field;
-
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * TURTLE PLAYER
  * <p/>
@@ -22,20 +17,6 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
-public class OrderClausePart implements SqlFragment
+public interface OrderClausePart extends SqlFragment
 {
-	final Field field;
-	final Order order;
-
-	public OrderClausePart(Field field,
-								  Order order)
-	{
-		this.field = field;
-		this.order = order;
-	}
-
-	public String toSql()
-	{
-		return " " + field.getName() + " " + order.toSql() + " ";
-	}
 }

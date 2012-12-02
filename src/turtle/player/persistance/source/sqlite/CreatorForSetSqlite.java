@@ -37,7 +37,7 @@ public class CreatorForSetSqlite<I> extends CreatorForSet<I, Cursor, Cursor>
     @Override
     public boolean hasNext(Cursor queryResult)
     {
-        return !queryResult.isLast();
+        return !queryResult.isLast() && !queryResult.isAfterLast();
     }
 
     @Override

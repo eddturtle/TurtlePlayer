@@ -1,12 +1,10 @@
 package turtle.player.persistance.source.sql;
 
 import android.database.Cursor;
-import turtle.player.persistance.framework.creator.Creator;
 import turtle.player.persistance.framework.mapping.Mapping;
 import turtle.player.persistance.source.relational.Table;
-import turtle.player.persistance.source.sql.query.Limit;
-import turtle.player.persistance.source.sql.query.OrderClauseRandom;
 import turtle.player.persistance.source.sql.query.Select;
+import turtle.player.persistance.source.sql.query.Sql;
 
 /**
  * TURTLE PLAYER
@@ -25,28 +23,17 @@ import turtle.player.persistance.source.sql.query.Select;
  * @author Simon Honegger (Hoene84)
  */
 
-public class Random<I> implements Mapping<Select, I, Cursor>
+public abstract class IndexResolver<I> implements Mapping<Select, Integer, Cursor>
 {
-	private final Table table;
-	private final Creator<I, Cursor> creator;
+	private final Table<I> table;
 
-	public Random(Table table,
-					  Creator<I, Cursor> creator)
+	public IndexResolver(Table table, I instance)
 	{
 		this.table = table;
-		this.creator = creator;
 	}
 
 	public Select get()
 	{
-		Select select = new Select(table);
-		select.setOrderClause(new OrderClauseRandom());
-        select.setLimit(new Limit(1));
-		return select;
-	}
-
-	public I create(Cursor queryResult)
-	{
-		return creator.create(queryResult);
+		return new Select(table, Select.SelectMethod.COUNT, Sql.FIELD_PSEUDO_STAR);
 	}
 }

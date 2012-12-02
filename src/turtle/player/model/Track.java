@@ -24,15 +24,15 @@ import java.util.*;
 public class Track implements Instance
 {
 
-	private String title;
-	private int number;
+	private final String title;
+	private final int number;
 	//private String number;
-	private Artist artist;
-	private Album album;
-	private double length;
-	private String src;
-	private String rootSrc;
-	private String albumArt;
+	private final Artist artist;
+	private final Album album;
+	private final double length;
+	private final String src;
+	private final String rootSrc;
+	private final String albumArt;
 
 	public Track(String title,
 					 int number,
@@ -96,13 +96,11 @@ public class Track implements Instance
 	/**
 	 * Track has no childs normally
 	 */
-	@Override
 	public Set<? extends Instance> getChilds(Set<Track> tracks)
 	{
 		return new HashSet<Instance>();
 	}
 
-	@Override
 	public <R> R accept(InstanceVisitor<R> visitor)
 	{
 		return visitor.visit(this);

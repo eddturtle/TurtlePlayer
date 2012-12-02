@@ -6,6 +6,10 @@ import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterSet;
 import turtle.player.persistance.framework.query.Query;
 import turtle.player.persistance.framework.mapping.Mapping;
+import turtle.player.persistance.framework.sort.FieldOrder;
+import turtle.player.persistance.framework.sort.Order;
+import turtle.player.persistance.framework.sort.OrderSet;
+import turtle.player.persistance.framework.sort.RandomOrder;
 import turtle.player.persistance.source.sql.query.*;
 
 /**
@@ -25,15 +29,32 @@ import turtle.player.persistance.source.sql.query.*;
  * @author Simon Honegger (Hoene84)
  */
 
-public class QuerySqlite<I> extends Query<Select, WhereClause,  I, Cursor>
+public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, Cursor>
 {
-    private final Mapping<Select, I, Cursor> mapping;
+	 private final Mapping<Select, I, Cursor> mapping;
 
-	public QuerySqlite(Filter<WhereClause> filter, Mapping<Select, I, Cursor> mapping)
+	 public QuerySqlite(Mapping<Select, I, Cursor> mapping)
+	 {
+		  this.mapping = mapping;
+	 }
+
+	 public QuerySqlite(Filter<WhereClause> filter, Mapping<Select, I, Cursor> mapping)
+	 {
+		  super(filter);
+		  this.mapping = mapping;
+	 }
+
+	 public QuerySqlite(Order<OrderClause> order, Mapping<Select, I, Cursor> mapping)
+	 {
+		  super(order);
+		  this.mapping = mapping;
+	 }
+
+	 public QuerySqlite(Filter<WhereClause> filter, Order<OrderClause> order, Mapping<Select, I, Cursor> mapping)
 	{
-		super(filter);
+		super(filter, order);
 
-        this.mapping = mapping;
+		  this.mapping = mapping;
 	}
 
 	public Select get()
@@ -43,6 +64,11 @@ public class QuerySqlite<I> extends Query<Select, WhereClause,  I, Cursor>
 		if(getFilter() != null){
 			sql.setWhereClause(getFilter().accept(this));
 		}
+
+	  if(getOrder() != null){
+			sql.setOrderClause(getOrder().accept(this));
+	  }
+
 		return sql;
 	}
 
@@ -53,11 +79,40 @@ public class QuerySqlite<I> extends Query<Select, WhereClause,  I, Cursor>
 
 	public WhereClause visit(FieldFilter fieldFilter)
 	{
-		return new WhereClause(
-				  new WhereClauseField(fieldFilter.getField(), fieldFilter.getFieldValue(), Operator.EQUALS));
+		final Operator operator;
+
+		switch (fieldFilter.getOperator()){
+			case EQ:
+				operator = Operator.EQ;
+				break;
+			case GE:
+				operator = Operator.GE;
+				break;
+			case GT:
+				operator = Operator.GT;
+				break;
+			case LE:
+				operator = Operator.LE;
+				break;
+			case LIKE:
+				operator = Operator.LIKE;
+				break;
+			case LT:
+				operator = Operator.LT;
+				break;
+			default:
+				throw new IllegalArgumentException();
+		}
+
+		return new WhereClause(new WhereClauseField(fieldFilter.getField(), fieldFilter.getFieldValue(), operator));
 	}
 
-	public WhereClause visit(FilterSet<WhereClause> filterSet)
+	 public OrderClause visit(RandomOrder<OrderClause> orderFilter)
+	 {
+		  return new OrderClauseRandom();
+	 }
+
+	 public WhereClause visit(FilterSet<WhereClause> filterSet)
 	{
 		WhereClause whereClause = null;
 		for(Filter<WhereClause> filter : filterSet.getFilters()){
@@ -67,9 +122,31 @@ public class QuerySqlite<I> extends Query<Select, WhereClause,  I, Cursor>
 			}
 			else
 			{
-				whereClause.apply(BoolOperator.AND, filter.accept(this));
+				whereClause = whereClause.apply(BoolOperator.AND, filter.accept(this));
 			}
 		}
 		return whereClause;
 	}
+
+
+	 public OrderClause visit(FieldOrder fieldOrder)
+	 {
+		  return new OrderClauseFields(new OrderClausePartField(fieldOrder.getField(), fieldOrder.getOrder()));
+	 }
+
+	 public OrderClause visit(OrderSet<OrderClause> clauseSet)
+	 {
+		  OrderClause orderClause = null;
+		  for(Order<OrderClause> order : clauseSet.getOrders()){
+				if(orderClause == null)
+				{
+					orderClause = order.accept(this);
+				}
+				else
+				{
+					 orderClause = orderClause.apply(order.accept(this));
+				}
+		  }
+		  return orderClause;
+	 }
 }

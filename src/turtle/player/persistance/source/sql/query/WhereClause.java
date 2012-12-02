@@ -1,6 +1,7 @@
 package turtle.player.persistance.source.sql.query;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,6 +21,9 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
+/**
+ * Immutable
+ */
 public class WhereClause implements WhereClausePart
 {
 	private List<Object> params = new ArrayList<Object>();
@@ -39,6 +43,10 @@ public class WhereClause implements WhereClausePart
 
 	public WhereClause apply(BoolOperator op, WhereClausePart part){
 
+		if(part ==  null)
+		{
+			return this;
+		}
 		List<Object> newParams = new ArrayList<Object>(params);
 		newParams.addAll(part.getParams());
 
@@ -52,6 +60,6 @@ public class WhereClause implements WhereClausePart
 
 	public List<Object> getParams()
 	{
-		return params;
+		return Collections.unmodifiableList(params);
 	}
 }

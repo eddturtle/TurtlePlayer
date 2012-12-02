@@ -21,7 +21,7 @@ import turtle.player.persistance.source.sql.query.WhereClause;
 
 public interface FilterVisitor<Q>
 {
-	public Q visit(FieldFilter fieldFilter);
+	public Q visit(FieldFilter<Q> fieldFilter);
 
 	public Q visit(FilterSet<Q> fieldFilter);
 }
