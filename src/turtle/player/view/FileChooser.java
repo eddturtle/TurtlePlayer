@@ -20,14 +20,16 @@ package turtle.player.view;
 
 import android.app.ListActivity;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import turtle.player.R;
 import turtle.player.model.*;
+import turtle.player.persistance.framework.filter.FieldFilter;
+import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.Operator;
 import turtle.player.persistance.source.sql.query.WhereClause;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
-import turtle.player.persistance.framework.filter.FieldFilter;
-import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.presentation.InstanceFormatter;
 import turtle.player.util.GenericInstanceComperator;
@@ -165,38 +167,55 @@ public class FileChooser implements TurtleDatabase.DbObserver
 
 	public void update()
 	{
-
-		final Set<? extends Instance> instances;
-
-		switch (currType)
-		{
-			case Album:
-				instances = database.getAlbums(filter);
-				break;
-			case Artist:
-				instances = database.getArtist(filter);
-				break;
-			case Track:
-				instances = database.getTracks(filter);
-				break;
-			default:
-				throw new RuntimeException(currType.name() + " not expexted here");
-		}
-
-		listActivity.getListView().post(new Runnable()
+		new Thread(new Runnable()
 		{
 			public void run()
 			{
-				listActivity.setListAdapter(
-						  new InstanceAdapter(
-									 listActivity.getApplicationContext(),
-									 instances,
-									 InstanceFormatter.LIST,
-									 new GenericInstanceComperator()
-						  )
+				//clear list
+				listActivity.runOnUiThread(new Runnable()
+				{
+					public void run()
+					{
+						//set List
+						listActivity.setListAdapter(new ArrayAdapter<Instance>(listActivity.getApplicationContext(), 0));
+					}
+
+				});
+
+				final Set<? extends Instance> instances;
+
+				switch (currType)
+				{
+					case Album:
+						instances = database.getAlbums(filter);
+						break;
+					case Artist:
+						instances = database.getArtist(filter);
+						break;
+					case Track:
+						instances = database.getTracks(filter);
+						break;
+					default:
+						throw new RuntimeException(currType.name() + " not expexted here");
+				}
+				final ListAdapter listAdapter = new InstanceAdapter(
+						  listActivity.getApplicationContext(),
+						  instances,
+						  InstanceFormatter.LIST,
+						  new GenericInstanceComperator()
 				);
+
+				listActivity.runOnUiThread(new Runnable()
+				{
+					public void run()
+					{
+						//set List
+						listActivity.setListAdapter(listAdapter);
+					}
+
+				});
 			}
-		});
+		}).start();
 	}
 
 	public void updated()

@@ -21,6 +21,7 @@ package turtle.player.persistance.turtle.db;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
@@ -49,12 +50,12 @@ import java.util.Set;
 public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDatabase> implements FileBase<WhereClause>
 {
 
-	final TurtleDatabaseImpl turtleDatabaseImpl;
-
+	final SQLiteDatabase db;
 
 	public TurtleDatabase(Context context)
 	{
-		turtleDatabaseImpl = new TurtleDatabaseImpl(context, this, Tables.TRACKS);
+		SQLiteOpenHelper turtleDatabaseImpl = new TurtleDatabaseImpl(context, Tables.TRACKS);
+		db = turtleDatabaseImpl.getWritableDatabase();
 	}
 
 	public void push(final Track track)
@@ -112,7 +113,7 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 	public <I> I read(Select query,
 						  Database.DbReadOp<I, Cursor> readOp)
 	{
-		SQLiteDatabase db = turtleDatabaseImpl.getReadableDatabase();
+		Cursor cursor = null;
 		try
 		{
 			String[] params = new String[query.getParams().size()];
@@ -125,7 +126,7 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 			Log.v(TurtleDatabase.class.getName(),
 					  "Running Query: " + query.toSql() + " with params " + Arrays.deepToString(params));
 
-			Cursor cursor = db.rawQuery(query.toSql(), params);
+			cursor = db.rawQuery(query.toSql(), params);
 
 			Log.v(TurtleDatabase.class.getName(),
 					  "Resulting in " + cursor.getCount() + " Resulting Rows");
@@ -135,21 +136,22 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 		}
 		finally
 		{
-			db.close();
+			if(cursor != null)
+			{
+				cursor.close();
+			}
 		}
 	}
 
 	public <I> void write(DbWriteOp<SQLiteDatabase, I> writeOp, I instance)
 	{
-		SQLiteDatabase db = turtleDatabaseImpl.getWritableDatabase();
 		try
 		{
 			writeOp.write(db, instance);
 		}
 		finally
 		{
-			db.close();
-            notifyUpdate();
+			notifyUpdate();
 		}
 	}
 

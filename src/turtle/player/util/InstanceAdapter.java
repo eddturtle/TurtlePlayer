@@ -32,6 +32,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Set;
 
+/**
+ * Should be created outside the UI Thread, the initial sorting in the constructor can take a long time
+ * for big lists.
+ */
 public class InstanceAdapter extends ArrayAdapter<Instance>
 {
 	final InstanceFormatter formatter;

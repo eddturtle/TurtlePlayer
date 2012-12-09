@@ -32,7 +32,7 @@ public class TurtleDatabaseImpl extends SQLiteOpenHelper
 
 	private final Table[] tables;
 
-	public TurtleDatabaseImpl(Context context, Database db, Table... tables)
+	public TurtleDatabaseImpl(Context context, Table... tables)
 	{
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
