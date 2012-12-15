@@ -21,12 +21,14 @@ package turtle.player;
 
 import android.app.Application;
 import android.media.MediaPlayer;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.playlist.Playlist;
 
 public class TurtlePlayer extends Application
 {
 	public MediaPlayer mp = new MediaPlayer();
 	public Playlist playlist;
+	public TurtleDatabase db;
 	public boolean isPaused = true;
 	public boolean isInitialised = false;
 

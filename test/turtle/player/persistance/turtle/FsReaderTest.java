@@ -17,10 +17,9 @@
  */
 
 
-package turtle.player.persistance;
+package turtle.player.persistance.turtle;
 
 import org.junit.Test;
-import turtle.player.playlist.Playlist;
 
 import static junit.framework.Assert.assertEquals;
 

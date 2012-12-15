@@ -72,7 +72,6 @@ public class DirChooser extends Activity
 	{
 		dirList.setOnItemClickListener(new AdapterView.OnItemClickListener()
 		{
-			@Override
 			public void onItemClick(AdapterView<?> parent,
 											View view,
 											int position,

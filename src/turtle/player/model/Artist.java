@@ -36,7 +36,6 @@ public class Artist implements Instance
 		return name;
 	}
 
-	@Override
 	public Set<Track> getChilds(Set<Track> tracks)
 	{
 		Set<Track> trackOfArtist = new HashSet<Track>();
@@ -50,7 +49,6 @@ public class Artist implements Instance
 		return trackOfArtist;
 	}
 
-	@Override
 	public <R> R accept(InstanceVisitor<R> visitor)
 	{
 		return visitor.visit(this);

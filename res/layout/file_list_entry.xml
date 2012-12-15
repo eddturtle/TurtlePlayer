@@ -12,14 +12,6 @@
         android:layout_marginRight="10px" >
 </ImageView>
 
-<TextView
-        android:id="@+id/label"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:text="[file or folder name]"
-        android:gravity="center_vertical"
-        android:textSize="18sp">
-</TextView>
+<include layout="@layout/list_entry_label" />
 
 </LinearLayout>

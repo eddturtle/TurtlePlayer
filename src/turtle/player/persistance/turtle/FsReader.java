@@ -17,7 +17,7 @@
  */
 
 
-package turtle.player.persistance;
+package turtle.player.persistance.turtle;
 
 import android.media.MediaMetadataRetriever;
 import android.util.Log;
@@ -25,6 +25,7 @@ import turtle.player.common.filefilter.FileFilters;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.preferences.Preferences;
 import turtle.player.util.Shorty;
 
@@ -37,7 +38,7 @@ public class FsReader
 	public static final int MAX_DIR_SCAN_DEPTH = 50;
 
 
-	public static void scanDir(Database db,
+	public static void scanDir(TurtleDatabase db,
 										File rootNode)
 	{
 		MediaMetadataRetriever metaDataReader = new MediaMetadataRetriever();
@@ -49,7 +50,7 @@ public class FsReader
 	 * @param rootNode
 	 * @param depth    number of parent allready visited
 	 */
-	private static void scanDir(Database db,
+	private static void scanDir(TurtleDatabase db,
 										 MediaMetadataRetriever metaDataReader,
 										 File rootNode,
 										 int depth,
@@ -189,7 +190,6 @@ public class FsReader
 				  "/root/",
 		};
 
-		@Override
 		public boolean accept(File file)
 		{
 			for (String ignoredDir : IGNORED_DIRS)

@@ -1,120 +1,90 @@
+/*
+ *
+ * TURTLE PLAYER
+ *
+ * Licensed under MIT & GPL
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+ * OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Created by Edd Turtle (www.eddturtle.co.uk)
+ * More Information @ www.turtle-player.co.uk
+ *
+ */
+
 package turtle.player.playlist.playorder;
 
+import android.database.Cursor;
+import android.util.Log;
 import turtle.player.model.Track;
+import turtle.player.persistance.framework.executor.OperationExecutor;
+import turtle.player.persistance.framework.mapping.Mapping;
+import turtle.player.persistance.framework.paging.Paging;
+import turtle.player.persistance.framework.sort.Order;
+import turtle.player.persistance.framework.sort.OrderSet;
+import turtle.player.persistance.framework.sort.SortOrder;
+import turtle.player.persistance.source.sql.First;
+import turtle.player.persistance.source.sql.MappingTable;
+import turtle.player.persistance.source.sql.query.OrderClause;
+import turtle.player.persistance.source.sql.query.Select;
+import turtle.player.persistance.source.sql.query.WhereClause;
+import turtle.player.persistance.source.sqlite.QuerySqlite;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.mapping.TrackCreator;
 import turtle.player.playlist.Playlist;
-import turtle.player.preferences.Preferences;
 
-import java.util.*;
+import java.util.Arrays;
 
-public class PlayOrderSorted extends Playlist.PlaylistObserverAdapter implements PlayOrderStrategy
+public class PlayOrderSorted implements PlayOrderStrategy
 {
 
-    final private Comparator<? super Track> order;
+	private Playlist playlist;
+	private TurtleDatabase db;
 
-    private List<Track> sortedTracks = new ArrayList<Track>();
-    Preferences preferences;
-    Playlist playlist;
+	public PlayOrderSorted(final TurtleDatabase db,
+								  final Playlist playlist)
+	{
+		this.playlist = playlist;
+		this.db = db;
+	}
 
-    PlayOrderSorted(Comparator<? super Track> order)
-    {
-        this.order = order;
-    }
+	public Track getNext(Track currTrack)
+	{
+		return get(currTrack, new DefaultOrder<OrderClause>(SortOrder.ASC));
+	}
 
-    public PlayOrderStrategy connect(Preferences preferences, Playlist playlist){
+	public Track getPrevious(Track currTrack)
+	{
+		return get(currTrack, new DefaultOrder<OrderClause>(SortOrder.DESC));
+	}
 
-        this.playlist = playlist;
-        playlist.addObserver(this);
-
-        playlistSetted(playlist.getCurrTracks());
-
-        this.preferences = preferences;
-
-        return this;
-    }
-
-    public void disconnect(){
-        playlist.removeObserver(this);
-        sortedTracks = new ArrayList<Track>();
-    }
-
-    @Override
-    public Track getNext(Track currTrack)
-    {
-        if(sortedTracks.size() == 0)
-        {
-            return null;
-        }
-
-        Track nextTrack;
-
-        int indexOfCurrent = sortedTracks.indexOf(currTrack);
-
-        //current not in list, so return first one
-        if(indexOfCurrent < 0){
-            return sortedTracks.get(0);
-        }
-
-        int indexOfNext = indexOfCurrent + 1;
-
-        if(indexOfNext >= sortedTracks.size())
-        {
-            if(preferences.GetRepeat())
-            {
-                nextTrack = sortedTracks.get(indexOfNext % sortedTracks.size());
-            }
-            else
-            {
-                return null;
-            }
-        }
-        else
-        {
-            nextTrack = sortedTracks.get(indexOfNext);
-        }
-        return nextTrack;
-    }
-
-    @Override
-    public Track getPrevious(Track currTrack)
-    {
-        if(sortedTracks.size() == 0)
-        {
-            return null;
-        }
-
-        int indexOfCurrent = sortedTracks.indexOf(currTrack);
-        if(indexOfCurrent <= 0){
-            return null;
-        }
-        return sortedTracks.get(indexOfCurrent - 1);
-    }
-
-    @Override
-    public void trackAddedToPlaylist(Track track)
-    {
-        //copy of: http://www.exampledepot.com/egs/java.util/coll_InsertInList.html
-
-        // Search for the non-existent item
-        int index = Collections.binarySearch(sortedTracks, track, order);
-
-        // Add the non-existent item to the list
-        if (index < 0) {
-            sortedTracks.add(-index-1, track);
-        }
-    }
-
-    @Override
-    public void playlistSetted(Set<Track> tracks)
-    {
-        sortedTracks = new ArrayList<Track>(tracks);
-        Collections.sort(sortedTracks, order);
-    }
-
-    @Override
-    public void playlistCleaned()
-    {
-        playlistSetted(new HashSet<Track>());
-    }
-
-
+	private Track get(Track currTrack, OrderSet<OrderClause> order)
+	{
+		OrderSet<OrderClause> currOrder = order;
+		while(!currOrder.isEmpty())
+		{
+			Log.v(PlayOrderSorted.class.getName(),
+					  "Generate Paging Filters from: " + order);
+			Log.v(PlayOrderSorted.class.getName(),
+					  "resulting in Paging Filters : " + Paging.getFilter(playlist.getFilter(), currTrack, currOrder));
+			Track nextTrack = OperationExecutor.execute(
+				  db,
+				  new QuerySqlite<Track>(
+							 Paging.getFilter(playlist.getFilter(), currTrack, currOrder),
+							 order,
+							 new First<Track>(Tables.TRACKS, new TrackCreator())
+				  )
+			);
+			if(nextTrack != null){
+				return nextTrack;
+			}
+			currOrder = currOrder.removeLast();
+		}
+		return null;
+	}
 }

@@ -26,7 +26,6 @@ import turtle.player.util.Shorty;
 
 public class ListInstanceFormatter extends InstanceFormatter
 {
-    @Override
     public String visit(Track track)
     {
         int number = track.GetNumber();
@@ -63,13 +62,11 @@ public class ListInstanceFormatter extends InstanceFormatter
 
     }
 
-    @Override
     public String visit(Album album)
     {
         return album.getName();
     }
 
-    @Override
     public String visit(Artist artist)
     {
         return artist.getName();

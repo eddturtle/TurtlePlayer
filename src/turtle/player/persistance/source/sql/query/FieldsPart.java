@@ -1,53 +1,44 @@
+package turtle.player.persistance.source.sql.query;
+
+import turtle.player.persistance.source.relational.Field;
+import turtle.player.persistance.source.relational.FieldPersistable;
+
+import java.util.List;
+
 /**
- *
  * TURTLE PLAYER
- *
+ * <p/>
  * Licensed under MIT & GPL
- *
+ * <p/>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
  * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
  * OR OTHER DEALINGS IN THE SOFTWARE.
- *
+ * <p/>
  * More Information @ www.turtle-player.co.uk
  *
  * @author Simon Honegger (Hoene84)
  */
 
-package turtle.player.playlist.filter;
-
-import turtle.player.playlist.Playlist;
-import turtle.player.model.*;
-
-public class ChildsFilter implements PlaylistFilter
+public class FieldsPart implements SqlFragment
 {
+	final List<Field> fields;
 
-	final Instance instance;
-	final Playlist playlist;
-
-	public ChildsFilter(Instance instance,
-							  Playlist playlist)
+	public FieldsPart(List<Field> fields)
 	{
-		this.instance = instance;
-		this.playlist = playlist;
+		this.fields = fields;
 	}
 
-	@Override
-	public boolean accept(final Track candidate)
+	public String toSql()
 	{
-		if (instance == null)
+		String[] fieldNames = new String[fields.size()];
+		int i = 0;
+		for(Field field : fields)
 		{
-			return true;
+			fieldNames[i++] = field.getName();
 		}
-
-		return instance.getChilds(playlist.getTracks(PlaylistFilter.ALL)).contains(candidate);
-	}
-
-	@Override
-	public int getForce()
-	{
-		return 2;
+		return Helper.getSeparatedList(", ", fieldNames);
 	}
 }
