@@ -4,7 +4,10 @@ import turtle.player.persistance.framework.filter.FieldFilter;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterSet;
 import turtle.player.persistance.framework.filter.Operator;
-import turtle.player.persistance.framework.sort.*;
+import turtle.player.persistance.framework.sort.FieldOrder;
+import turtle.player.persistance.framework.sort.OrderSet;
+import turtle.player.persistance.framework.sort.OrderVisitor;
+import turtle.player.persistance.framework.sort.RandomOrder;
 import turtle.player.persistance.source.relational.FieldPersistable;
 
 /**

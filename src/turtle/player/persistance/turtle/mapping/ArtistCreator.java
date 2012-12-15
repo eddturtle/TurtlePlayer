@@ -3,7 +3,6 @@ package turtle.player.persistance.turtle.mapping;
 import android.database.Cursor;
 import turtle.player.model.Artist;
 import turtle.player.persistance.framework.creator.Creator;
-import turtle.player.persistance.source.sql.MappingDistinct;
 import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**

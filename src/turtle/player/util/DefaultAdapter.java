@@ -36,27 +36,13 @@ import java.util.Set;
  * Should be created outside the UI Thread, the initial sorting in the constructor can take a long time
  * for big lists.
  */
-public class InstanceAdapter extends ArrayAdapter<Instance>
+public abstract class DefaultAdapter<T> extends ArrayAdapter<T>
 {
-	final InstanceFormatter formatter;
-
-	/**
-	 * @param context
-	 * @param instances
-	 * @param formatter
-	 * @param comparator if null, {@link FormattedInstanceComparator} is used
-	 */
-	public InstanceAdapter(
+	public DefaultAdapter(
 			  Context context,
-			  Set<? extends Instance> instances,
-			  InstanceFormatter formatter,
-			  Comparator<Instance> comparator)
+			  T[] objects)
 	{
-		super(context, R.layout.file_list_entry,
-				  getSortedInstances(instances, comparator == null ?
-							 new FormattedInstanceComparator(formatter) : comparator));
-
-		this.formatter = formatter;
+		super(context, R.layout.file_list_entry, objects);
 	}
 
 	@Override
@@ -68,19 +54,13 @@ public class InstanceAdapter extends ArrayAdapter<Instance>
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View rowView = inflater.inflate(R.layout.file_list_entry, parent, false);
 
-		Instance currInstance = getItem(position);
+		T currObject = getItem(position);
 
 		TextView textView = (TextView) rowView.findViewById(R.id.label);
-		textView.setText(currInstance.accept(formatter));
+		textView.setText(format(currObject));
 
 		return rowView;
 	}
 
-	private static Instance[] getSortedInstances(Set<? extends Instance> instances,
-																Comparator<Instance> comparator)
-	{
-		Instance[] sortedInstances = instances.toArray(new Instance[instances.size()]);
-		Arrays.sort(sortedInstances, comparator);
-		return sortedInstances;
-	}
+	protected abstract String format(T object);
 }

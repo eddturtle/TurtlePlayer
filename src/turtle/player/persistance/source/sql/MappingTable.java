@@ -1,13 +1,12 @@
 package turtle.player.persistance.source.sql;
 
 import android.database.Cursor;
-import turtle.player.persistance.framework.creator.Creator;
-import turtle.player.persistance.framework.creator.CreatorForSet;
+import turtle.player.persistance.framework.creator.CreatorForList;
 import turtle.player.persistance.framework.mapping.Mapping;
 import turtle.player.persistance.source.relational.Table;
 import turtle.player.persistance.source.sql.query.Select;
-import turtle.player.persistance.source.sqlite.CreatorForSetSqlite;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -27,12 +26,12 @@ import java.util.Set;
  * @author Simon Honegger (Hoene84)
  */
 
-public class MappingTable<I> implements Mapping<Select, Set<I>, Cursor>
+public class MappingTable<I> implements Mapping<Select, List<I>, Cursor>
 {
 	private final Table table;
-    private final CreatorForSet<I, Cursor, Cursor> creator;
+    private final CreatorForList<I, Cursor, Cursor> creator;
 
-	public MappingTable(Table table, CreatorForSet<I, Cursor, Cursor> creator)
+	public MappingTable(Table table, CreatorForList<I, Cursor, Cursor> creator)
 	{
 		this.table = table;
         this.creator = creator;
@@ -43,7 +42,7 @@ public class MappingTable<I> implements Mapping<Select, Set<I>, Cursor>
 		return new Select(table);
 	}
 
-    public Set<I> create(Cursor queryResult)
+    public List<I> create(Cursor queryResult)
     {
         return creator.create(queryResult);
     }

@@ -46,7 +46,7 @@ public class First<I> implements Mapping<Select, I, Cursor>
 
 	public I create(Cursor queryResult)
 	{
-		if(!queryResult.isAfterLast()){
+		if(queryResult.moveToFirst()){
 			return creator.create(queryResult);
 		}
 		else

@@ -170,7 +170,7 @@ public class Playlist
 		}).start();
 	}
 
-	public Set<Track> getCurrTracks()
+	public Collection<Track> getCurrTracks()
 	{
 		return db.getTracks(getFilter());
 	}

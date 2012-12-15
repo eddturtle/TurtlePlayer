@@ -1,9 +1,13 @@
 package turtle.player.persistance.source.sql;
 
-import com.mysema.query.sql.dml.Mapper;
-import turtle.player.persistance.source.relational.FieldPersistable;
+import android.database.Cursor;
+import turtle.player.persistance.framework.creator.CreatorForList;
+import turtle.player.persistance.framework.mapping.Mapping;
+import turtle.player.persistance.source.relational.Field;
 import turtle.player.persistance.source.relational.Table;
 import turtle.player.persistance.source.sql.query.Select;
+
+import java.util.List;
 
 /**
  * TURTLE PLAYER
@@ -22,20 +26,28 @@ import turtle.player.persistance.source.sql.query.Select;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class MappingDistinct<I> implements Mapper<I>
+public class MappingDistinct<I> implements Mapping<Select, List<I>, Cursor>
 {
 	private final Table table;
-	private final FieldPersistable field;
+	private final Field field;
+	private final CreatorForList<I, Cursor, Cursor> creator;
 
-	protected MappingDistinct(Table table,
-									  FieldPersistable field)
+	public MappingDistinct(Table table,
+								  Field field,
+								  CreatorForList<I, Cursor, Cursor> creator)
 	{
 		this.table = table;
 		this.field = field;
+      this.creator = creator;
 	}
 
 	public Select get()
 	{
-		return new Select(table, field);
+		return new Select(table, Select.SelectMethod.DISTINCT, field);
 	}
+
+    public List<I> create(Cursor queryResult)
+    {
+        return creator.create(queryResult);
+    }
 }

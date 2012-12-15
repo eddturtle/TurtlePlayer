@@ -27,15 +27,14 @@ import turtle.player.R;
 import turtle.player.model.*;
 import turtle.player.persistance.framework.filter.FieldFilter;
 import turtle.player.persistance.framework.filter.Filter;
+import turtle.player.persistance.framework.filter.FilterSet;
 import turtle.player.persistance.framework.filter.Operator;
 import turtle.player.persistance.source.sql.query.WhereClause;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.turtle.db.structure.Tables;
-import turtle.player.presentation.InstanceFormatter;
-import turtle.player.util.GenericInstanceComperator;
-import turtle.player.util.InstanceAdapter;
+import turtle.player.util.DefaultAdapter;
 
-import java.util.Set;
+import java.util.List;
 
 public class FileChooser implements TurtleDatabase.DbObserver
 {
@@ -59,15 +58,7 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		private int buttonId;
 	}
 
-	public enum Type
-	{
-		Album,
-		Artist,
-		Track,
-	}
-
 	private Mode currMode;
-	private Type currType;
 	private TurtleDatabase database;
 	private ListActivity listActivity;
 
@@ -102,34 +93,43 @@ public class FileChooser implements TurtleDatabase.DbObserver
 	}
 
 	/**
-	 * @param instance
+	 * @param selection
 	 * @return null if no track was selected, track if trak was selected
 	 */
-	public Track choose(Instance instance)
+	public Track choose(String selection)
 	{
-		Track selectedTrack = instance.accept(new InstanceVisitor<Track>()
+
+		switch (currMode)
 		{
-			public Track visit(Track track)
-			{
-				return track;
-			}
-
-			public Track visit(Album album)
-			{
-				currType = Type.Track;
-				filter = new FieldFilter<WhereClause>(Tables.TRACKS.ALBUM, Operator.EQ, album.getName());
+			case Album:
+				filter = new FilterSet<WhereClause>(
+						  filter,
+						  new FieldFilter<WhereClause>(Tables.TRACKS.ALBUM, Operator.EQ, selection)
+				);
+				currMode = Mode.Track;
+				update();
 				return null;
-			}
 
-			public Track visit(Artist artist)
-			{
-				currType = Type.Track;
-				filter = new FieldFilter<WhereClause>(Tables.TRACKS.ARTIST, Operator.EQ, artist.getName());
+			case Artist:
+				filter = new FilterSet<WhereClause>(
+						  filter,
+						  new FieldFilter<WhereClause>(Tables.TRACKS.ARTIST, Operator.EQ, selection)
+				);
+				currMode = Mode.Album;
+				update();
 				return null;
-			}
-		});
-		update();
-		return selectedTrack;
+
+			case Track:
+				return database.getTracks(
+						  new FilterSet<WhereClause>(
+									 filter,
+									 new FieldFilter<WhereClause>(Tables.TRACKS.TITLE, Operator.EQ, selection)
+						  )
+				).iterator().next();
+			
+			default:
+				throw new RuntimeException(currMode.name() + " not expexted here");
+		}
 	}
 
 	public void change(Mode mode)
@@ -146,21 +146,6 @@ public class FileChooser implements TurtleDatabase.DbObserver
 				}
 			});
 		}
-
-		switch (currMode)
-		{
-			case Album:
-				currType = Type.Album;
-				break;
-			case Artist:
-				currType = Type.Artist;
-				break;
-			case Track:
-				currType = Type.Track;
-				break;
-			default:
-				throw new RuntimeException(currMode.name() + " not expexted here");
-		}
 		filter = null;
 		update();
 	}
@@ -171,39 +156,33 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		{
 			public void run()
 			{
-				//clear list
-				listActivity.runOnUiThread(new Runnable()
-				{
-					public void run()
-					{
-						//set List
-						listActivity.setListAdapter(new ArrayAdapter<Instance>(listActivity.getApplicationContext(), 0));
-					}
 
-				});
+				final List<String> list;
 
-				final Set<? extends Instance> instances;
-
-				switch (currType)
+				switch (currMode)
 				{
 					case Album:
-						instances = database.getAlbums(filter);
+						list = database.getAlbumList(filter);
 						break;
 					case Artist:
-						instances = database.getArtist(filter);
+						list = database.getArtistList(filter);
 						break;
 					case Track:
-						instances = database.getTracks(filter);
+						list = database.getTrackList(filter);
 						break;
 					default:
-						throw new RuntimeException(currType.name() + " not expexted here");
+						throw new RuntimeException(currMode.name() + " not expexted here");
 				}
-				final ListAdapter listAdapter = new InstanceAdapter(
+				final ListAdapter listAdapter = new DefaultAdapter<String>(
 						  listActivity.getApplicationContext(),
-						  instances,
-						  InstanceFormatter.LIST,
-						  new GenericInstanceComperator()
-				);
+						  list.toArray(new String[list.size()])
+				){
+					@Override
+					protected String format(String object)
+					{
+						return object;
+					}
+				};
 
 				listActivity.runOnUiThread(new Runnable()
 				{

@@ -1,8 +1,8 @@
-package turtle.player.persistance.framework.creator;
+package turtle.player.persistance.source.sqlite;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import android.database.Cursor;
+import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.persistance.framework.creator.CreatorForList;
 
 /**
  * TURTLE PLAYER
@@ -22,31 +22,25 @@ import java.util.Set;
  */
 
 /**
- * @param <I>
- * @param <S> Source
+ * @param <I> resulting set contains instance I
  */
-public abstract class CreatorForSet<I, S, M> implements Creator<Set<I>, M>
+public class CreatorForListSqlite<I> extends CreatorForList<I, Cursor, Cursor>
 {
-    private Creator<I, S> creator;
-
-    protected CreatorForSet(Creator<I, S> creator)
+    public CreatorForListSqlite(Creator<I, Cursor> creator)
     {
-        this.creator = creator;
+        super(creator);
     }
 
-    public Set<I> create(M queryResult)
+    @Override
+    public boolean hasNext(Cursor queryResult)
     {
-        Set<I> result = new HashSet<I>();
-
-        while(hasNext(queryResult))
-        {
-            result.add(creator.create(next(queryResult)));
-        }
-
-        return result;
+        return !queryResult.isLast() && !queryResult.isAfterLast();
     }
 
-    public abstract boolean hasNext(M queryResult);
-
-    public abstract S next(M queryResult);
+    @Override
+    public Cursor next(Cursor queryResult)
+    {
+        queryResult.moveToNext();
+        return queryResult;
+    }
 }

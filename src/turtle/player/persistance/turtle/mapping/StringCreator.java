@@ -1,11 +1,9 @@
-package turtle.player.persistance.source.sqlite;
+package turtle.player.persistance.turtle.mapping;
 
 import android.database.Cursor;
+import turtle.player.model.Album;
 import turtle.player.persistance.framework.creator.Creator;
-import turtle.player.persistance.framework.creator.CreatorForSet;
-
-import java.util.HashSet;
-import java.util.Set;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -25,25 +23,24 @@ import java.util.Set;
  */
 
 /**
- * @param <I> resulting set contains instance I
+ * Creates a String based on a table entry, fields separated by the given separator
  */
-public class CreatorForSetSqlite<I> extends CreatorForSet<I, Cursor, Cursor>
+public class StringCreator implements Creator<String, Cursor>
 {
-    public CreatorForSetSqlite(Creator<I, Cursor> creator)
-    {
-        super(creator);
-    }
+	final String separator;
 
-    @Override
-    public boolean hasNext(Cursor queryResult)
-    {
-        return !queryResult.isLast() && !queryResult.isAfterLast();
-    }
+	public StringCreator(String separator)
+	{
+		this.separator = separator;
+	}
 
-    @Override
-    public Cursor next(Cursor queryResult)
-    {
-        queryResult.moveToNext();
-        return queryResult;
-    }
+	public String create(Cursor source)
+	{
+		String string = "";
+
+		for(int i = 0; i < source.getColumnCount(); i++){
+			string += source.getString(i) + separator;
+		}
+		return string.length() > 0 ? string.substring(0, string.length() - separator.length()) : "";
+	}
 }

@@ -1,9 +1,6 @@
-package turtle.player.persistance.turtle.mapping;
+package turtle.player.persistance.framework.creator;
 
-import android.database.Cursor;
-import turtle.player.model.Album;
-import turtle.player.persistance.framework.creator.Creator;
-import turtle.player.persistance.turtle.db.structure.Tables;
+import java.util.*;
 
 /**
  * TURTLE PLAYER
@@ -22,10 +19,32 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class AlbumCreator implements Creator<Album, Cursor>
+/**
+ * @param <I>
+ * @param <S> Source
+ */
+public abstract class CreatorForList<I, S, M> implements Creator<List<I>, M>
 {
-    public Album create(Cursor source)
+    private Creator<I, S> creator;
+
+    protected CreatorForList(Creator<I, S> creator)
     {
-        return new Album(source.getString(source.getColumnIndex(Tables.TRACKS.ALBUM.getName())));
+        this.creator = creator;
     }
+
+    public List<I> create(M queryResult)
+    {
+        List<I> result = new ArrayList<I>();
+
+        while(hasNext(queryResult))
+        {
+            result.add(creator.create(next(queryResult)));
+        }
+
+        return result;
+    }
+
+    public abstract boolean hasNext(M queryResult);
+
+    public abstract S next(M queryResult);
 }

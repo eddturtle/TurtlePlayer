@@ -5,13 +5,6 @@
               android:padding="10dp"
               android:singleLine="true">
 
-<ImageView
-        android:id="@+id/icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="10px" >
-</ImageView>
-
-<include layout="@layout/list_entry_label" />
+    <include layout="@layout/list_entry_label" />
 
 </LinearLayout>
