@@ -194,7 +194,9 @@ public class FsReader
 		{
 			for (String ignoredDir : IGNORED_DIRS)
 			{
-				file.toString().startsWith(ignoredDir);
+				if(file.toString().startsWith(ignoredDir)){
+					return false;
+				}
 			}
 
 			return file.canRead() && file.isDirectory();

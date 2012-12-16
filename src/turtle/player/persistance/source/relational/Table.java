@@ -23,7 +23,7 @@ public abstract class Table<I>
 {
 	final String name;
 
-	public Table(String name, FieldPersistable<I, ?>... fields)
+	public Table(String name)
 	{
 		this.name = name;
 	}
@@ -33,5 +33,5 @@ public abstract class Table<I>
 		return name;
 	}
 
-	public abstract List<FieldPersistable<I, ?>> getFields();
+	public abstract List<? extends Field> getFields();
 }

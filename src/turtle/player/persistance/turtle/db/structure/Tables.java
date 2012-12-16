@@ -107,18 +107,18 @@ public class Tables
 		}
 
 		@Override
-		public List<FieldPersistable<Track, ?>> getFields()
+		public List<Field> getFields()
 		{
-			List<FieldPersistable<Track, ?>> persistableFields = new ArrayList<FieldPersistable<Track, ?>>();
-			persistableFields.add(TITLE);
-			persistableFields.add(NUMBER);
-			persistableFields.add(ARTIST);
-			persistableFields.add(ALBUM);
-			persistableFields.add(LENGTH);
-			persistableFields.add(SRC);
-			persistableFields.add(ROOTSRC);
-			persistableFields.add(ALBUMART);
-			return persistableFields;
+			List<Field> fields = new ArrayList<Field>();
+			fields.add(TITLE);
+			fields.add(NUMBER);
+			fields.add(ARTIST);
+			fields.add(ALBUM);
+			fields.add(LENGTH);
+			fields.add(SRC);
+			fields.add(ROOTSRC);
+			fields.add(ALBUMART);
+			return fields;
 		}
 
 	}

@@ -30,7 +30,6 @@ public class OverAllFormatter extends InstanceFormatter
     public String visit(Track track)
     {
         String artist = track.GetArtist().getName();
-        String album = track.GetAlbum().getName();
         int number = track.GetNumber();
         String title = track.GetTitle();
 
