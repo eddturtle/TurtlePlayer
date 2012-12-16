@@ -42,7 +42,7 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		Artist(R.id.artistButton, R.drawable.artist48, R.drawable.artist48_active),
 		Track(R.id.trackButton, R.drawable.track48, R.drawable.track48_active);
 
-		Mode(int buttonId,
+		private Mode(int buttonId,
 			  int drawable,
 			  int drawableActive)
 		{
