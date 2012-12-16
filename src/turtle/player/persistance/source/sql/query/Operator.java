@@ -26,7 +26,7 @@ public enum Operator
 	EQ(" = "),
 	LIKE(" LIKE ");
 
-	String string;
+	final String string;
 
 	private Operator(String op)
 	{

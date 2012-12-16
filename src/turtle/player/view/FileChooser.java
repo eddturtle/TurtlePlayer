@@ -51,14 +51,14 @@ public class FileChooser implements TurtleDatabase.DbObserver
 			this.buttonId = buttonId;
 		}
 
-		private int drawable;
-		private int drawableActive;
-		private int buttonId;
+		private final int drawable;
+		private final int drawableActive;
+		private final int buttonId;
 	}
 
 	private Mode currMode;
-	private TurtleDatabase database;
-	private ListActivity listActivity;
+	private final TurtleDatabase database;
+	private final ListActivity listActivity;
 	final DefaultAdapter<String> listAdapter;
 
 	private Filter filter = null;

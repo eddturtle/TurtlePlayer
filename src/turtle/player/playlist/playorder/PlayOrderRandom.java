@@ -15,8 +15,8 @@ import turtle.player.preferences.Preferences;
 public class PlayOrderRandom implements PlayOrderStrategy
 {
 
-	private Playlist playlist;
-	private TurtleDatabase db;
+	private final Playlist playlist;
+	private final TurtleDatabase db;
 
 	public PlayOrderRandom(TurtleDatabase db,
 								  Playlist playlist)

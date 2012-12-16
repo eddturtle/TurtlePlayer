@@ -19,7 +19,7 @@ package turtle.player.persistance.source.relational;
 
 public class Field
 {
-	final String name;
+	private final String name;
 
 	public Field(String name)
 	{

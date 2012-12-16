@@ -24,7 +24,7 @@ public class OrderSelector implements Selector
 	public enum Order
 	{
 		ASC,
-		DESC;
+		DESC
 	}
 	private final Map<String, Order> orders;
 

@@ -43,8 +43,8 @@ import java.util.Arrays;
 public class PlayOrderSorted implements PlayOrderStrategy
 {
 
-	private Playlist playlist;
-	private TurtleDatabase db;
+	private final Playlist playlist;
+	private final TurtleDatabase db;
 
 	public PlayOrderSorted(final TurtleDatabase db,
 								  final Playlist playlist)

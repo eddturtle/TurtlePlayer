@@ -30,8 +30,6 @@ import java.util.List;
 public class Preferences
 {
 
-	// Not in ClassDiagram
-
 	public static final String TAG = "TurtlePlayer";
 
 	final Context context;
@@ -75,11 +73,6 @@ public class Preferences
 		notify(Keys.SHUFFLE);
 	}
 
-	public String GetTag()
-	{
-		return TAG;
-	}
-
 	public Context getContext()
 	{
 		return context;
@@ -106,7 +99,7 @@ public class Preferences
 
 	//Observable -------------------------------------------------
 
-	List<PreferencesObserver> observers = new ArrayList<PreferencesObserver>();
+	final List<PreferencesObserver> observers = new ArrayList<PreferencesObserver>();
 
 	private void notify(Key key)
 	{

@@ -27,7 +27,7 @@ public abstract class ObservableDatabase<Q,C,D> implements Database<Q,C,D>
 
 	//--------------------------------------------- Observable
 
-	private List<DbObserver> observers = new ArrayList<DbObserver>();
+	private final List<DbObserver> observers = new ArrayList<DbObserver>();
 
 	public void notifyUpdate(Instance instance){
 		for(DbObserver observer : observers){

@@ -26,7 +26,7 @@ import turtle.player.playlist.Playlist;
 
 public class TurtlePlayer extends Application
 {
-	public MediaPlayer mp = new MediaPlayer();
+	public final MediaPlayer mp = new MediaPlayer();
 	public Playlist playlist;
 	public TurtleDatabase db;
 	public boolean isPaused = true;

@@ -46,7 +46,8 @@ public class OrderSet implements Order
 		return visitor.visit(this);
 	}
 
-	public OrderSet removeLast(){
+	public OrderSet removeLast()
+	{
 		if(orders.size() > 1)
 		{
 			return new OrderSet(orders.subList(0, orders.size()-1));
@@ -57,7 +58,8 @@ public class OrderSet implements Order
 		}
 	}
 
-	public boolean isEmpty(){
+	public boolean isEmpty()
+	{
 		return orders.isEmpty();
 	}
 

@@ -54,12 +54,12 @@ public class Playlist
 	}
 
 	// Not in ClassDiagram
-	public Preferences preferences;
-	public Stats stats = new Stats();
+	public final Preferences preferences;
+	public final Stats stats = new Stats();
 
 	private PlayOrderStrategy playOrderStrategy;
-	private TurtleDatabase db;
-	private Set<Filter> filters = new HashSet<Filter>();
+	private final TurtleDatabase db;
+	private final Set<Filter> filters = new HashSet<Filter>();
 
 	private Track currTrack = null;
 
@@ -171,7 +171,7 @@ public class Playlist
 
 						} catch (NullPointerException e)
 						{
-							Log.v(preferences.GetTag(), e.getMessage());
+							Log.v(Preferences.TAG, e.getMessage());
 						} finally
 						{
 							for (PlaylistObserver observer : observers)
@@ -223,7 +223,7 @@ public class Playlist
 
 	//------------------------------------------------------ 	Observable
 
-	List<PlaylistObserver> observers = new ArrayList<PlaylistObserver>();
+	final List<PlaylistObserver> observers = new ArrayList<PlaylistObserver>();
 
 	public interface PlaylistObserver
 	{

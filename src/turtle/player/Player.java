@@ -42,6 +42,7 @@ import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.playlist.Playlist;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
+import turtle.player.preferences.Preferences;
 import turtle.player.preferences.PreferencesObserver;
 import turtle.player.presentation.InstanceFormatter;
 import turtle.player.view.FileChooser;
@@ -54,8 +55,8 @@ import java.io.InputStreamReader;
 public class Player extends ListActivity
 {
 
-	public static String DIR_CHOOSER_ACTION = "turtle.player.DIR_CHOOSER";
-	public static int DIR_CHOOSER_REQUEST = 0;
+	public static final String DIR_CHOOSER_ACTION = "turtle.player.DIR_CHOOSER";
+	public static final int DIR_CHOOSER_REQUEST = 0;
 
 	// ========================================= //
 	// 	Attributes
@@ -92,7 +93,7 @@ public class Player extends ListActivity
 	private TextView duration;
 
 	// Progress Bar Attributes
-	private Handler handler = new Handler();
+	private final Handler handler = new Handler();
 	private Runnable progressBarRunnable;
 	private SeekBar progressBar;
 
@@ -298,9 +299,9 @@ public class Player extends ListActivity
 			{
 				if (!tp.playlist.IsEmpty())
 				{
-					if (tp.isInitialised == true)
+					if (tp.isInitialised)
 					{
-						if (tp.isPaused == true)
+						if (tp.isPaused)
 						{
 							UnPause();
 						} else
@@ -697,7 +698,7 @@ public class Player extends ListActivity
 				});
 			} catch (IOException e)
 			{
-				Log.v(tp.playlist.preferences.GetTag(), e.getMessage());
+				Log.v(Preferences.TAG, e.getMessage());
 			}
 		}
 	}
@@ -794,9 +795,8 @@ public class Player extends ListActivity
 	{
 		String duration;
 
-		int milliseconds = time;
-		int seconds = (int) (milliseconds / 1000) % 60;
-		int minutes = (int) ((milliseconds / (1000 * 60)) % 60);
+		int seconds = (int) (time / 1000) % 60;
+		int minutes = (int) ((time / (1000 * 60)) % 60);
 
 		if (seconds < 10)
 		{
@@ -841,7 +841,7 @@ public class Player extends ListActivity
 
 	public void TogglePlayButton()
 	{
-		if (tp.isPaused == true)
+		if (tp.isPaused)
 		{
 			playButton.setImageDrawable(getResources().getDrawable(R.drawable.play64));
 		} else

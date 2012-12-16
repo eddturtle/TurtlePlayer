@@ -18,11 +18,14 @@
 
 package turtle.player.preferences;
 
+import android.os.Environment;
+
 public abstract class Keys
 {
 
 	public final static Key<Boolean> SHUFFLE = new Key<Boolean>("firstTime", false);
 	public final static Key<Boolean> REPEAT = new Key<Boolean>("firstTime", false);
-	public final static Key<String> MEDIA_DIR = new Key<String>("mediaDir", "/sdcard/Music/");
+	public final static Key<String> MEDIA_DIR = new Key<String>("mediaDir",
+			  Environment.getExternalStorageDirectory().getPath());
 
 }

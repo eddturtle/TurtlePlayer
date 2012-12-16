@@ -22,7 +22,7 @@ public enum BoolOperator implements SqlFragment
 	AND(" and "),
 	OR(" and ");
 
-	final String sql;
+	private final String sql;
 
 	private BoolOperator(String sql)
 	{

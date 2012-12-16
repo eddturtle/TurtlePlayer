@@ -62,9 +62,8 @@ public class Album implements Instance
 
 		Album album = (Album) o;
 
-		if (!name.equals(album.name)) return false;
+		return name.equals(album.name);
 
-		return true;
 	}
 
 	@Override

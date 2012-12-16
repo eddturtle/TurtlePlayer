@@ -36,9 +36,9 @@ import java.util.List;
  */
 public abstract class DefaultAdapter<T extends Comparable<? super T>> extends ArrayAdapter<T>
 {
-	final List<T> objects;
-	final Activity activity;
-	final boolean allowsDuplicates;
+	private final List<T> objects;
+	private final Activity activity;
+	private final boolean allowsDuplicates;
 
 	/**
 	 * @param context needed by super

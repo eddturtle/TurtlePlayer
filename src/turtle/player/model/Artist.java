@@ -62,9 +62,8 @@ public class Artist implements Instance
 
 		Artist artist = (Artist) o;
 
-		if (!name.equals(artist.name)) return false;
+		return name.equals(artist.name);
 
-		return true;
 	}
 
 	@Override

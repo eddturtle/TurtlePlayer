@@ -14,7 +14,7 @@
     </ListView>
 
     <RelativeLayout
-        android:id="@+id/relativeLayout1"
+        android:id="@+id/relativeLayoutPlaylist"
         android:layout_width="match_parent"
         android:layout_height="64dp"
         android:background="@drawable/header_bg100" >

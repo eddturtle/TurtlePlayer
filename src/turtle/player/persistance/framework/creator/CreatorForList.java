@@ -25,7 +25,7 @@ import java.util.*;
  */
 public abstract class CreatorForList<I, S, M> implements Creator<List<I>, M>
 {
-    private Creator<I, S> creator;
+    private final Creator<I, S> creator;
 
     protected CreatorForList(Creator<I, S> creator)
     {
@@ -44,7 +44,7 @@ public abstract class CreatorForList<I, S, M> implements Creator<List<I>, M>
         return result;
     }
 
-    public abstract boolean hasNext(M queryResult);
+    protected abstract boolean hasNext(M queryResult);
 
-    public abstract S next(M queryResult);
+    protected abstract S next(M queryResult);
 }

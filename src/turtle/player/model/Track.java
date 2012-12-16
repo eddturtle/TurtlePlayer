@@ -114,9 +114,8 @@ public class Track implements Instance
 
 		Track track = (Track) o;
 
-		if (!src.equals(track.src)) return false;
+		return src.equals(track.src);
 
-		return true;
 	}
 
 	@Override

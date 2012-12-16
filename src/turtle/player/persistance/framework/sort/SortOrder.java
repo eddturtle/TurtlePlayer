@@ -20,5 +20,5 @@ package turtle.player.persistance.framework.sort;
 public enum SortOrder
 {
     ASC,
-    DESC;
+    DESC
 }

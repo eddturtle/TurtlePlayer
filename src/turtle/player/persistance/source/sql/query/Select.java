@@ -26,7 +26,7 @@ import java.util.List;
 
 public class Select implements Sql
 {
-	private String sql;
+	private final String sql;
 	private WhereClause whereClause;
 	private OrderClause orderClause;
 	private Limit limit;

@@ -22,7 +22,7 @@ import java.util.List;
 
 public class OrderClauseFields implements OrderClause
 {
-	private String sql;
+	private final String sql;
 
 	public OrderClauseFields(OrderClausePart... parts)
 	{

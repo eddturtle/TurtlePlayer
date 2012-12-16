@@ -24,7 +24,7 @@ import java.util.List;
 
 public class FieldsPart implements SqlFragment
 {
-	final List<Field> fields;
+	private final List<Field> fields;
 
 	public FieldsPart(List<Field> fields)
 	{

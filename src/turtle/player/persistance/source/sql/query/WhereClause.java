@@ -27,7 +27,7 @@ import java.util.List;
 public class WhereClause implements WhereClausePart
 {
 	private List<Object> params = new ArrayList<Object>();
-	private String sql;
+	private final String sql;
 
 	public WhereClause(WhereClauseField part)
 	{
