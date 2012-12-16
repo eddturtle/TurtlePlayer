@@ -80,6 +80,7 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 	public WhereClause visit(FieldFilter fieldFilter)
 	{
 		final Operator operator;
+		String fieldValue = fieldFilter.getFieldValue();
 
 		switch (fieldFilter.getOperator()){
 			case EQ:
@@ -96,6 +97,7 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 				break;
 			case LIKE:
 				operator = Operator.LIKE;
+				fieldValue = "%" + fieldValue + "%";
 				break;
 			case LT:
 				operator = Operator.LT;
@@ -104,7 +106,7 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 				throw new IllegalArgumentException();
 		}
 
-		return new WhereClause(new WhereClauseField(fieldFilter.getField(), fieldFilter.getFieldValue(), operator));
+		return new WhereClause(new WhereClauseField(fieldFilter.getField(), fieldValue, operator));
 	}
 
 	 public OrderClause visit(RandomOrder orderFilter)

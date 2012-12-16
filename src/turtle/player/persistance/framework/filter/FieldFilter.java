@@ -1,6 +1,7 @@
 package turtle.player.persistance.framework.filter;
 
 import turtle.player.persistance.source.relational.Field;
+import turtle.player.persistance.source.relational.FieldPersistable;
 
 /**
  * TURTLE PLAYER
@@ -19,13 +20,13 @@ import turtle.player.persistance.source.relational.Field;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FieldFilter implements Filter
+public class FieldFilter<I, T> implements Filter
 {
-	private final Field field;
+	private final FieldPersistable<I, T> field;
 	private final Operator operator;
 	private final String value;
 
-	public FieldFilter(Field field,
+	public FieldFilter(FieldPersistable<I, T> field,
 							 Operator operator,
 							 String value)
 	{
@@ -34,7 +35,7 @@ public class FieldFilter implements Filter
 		this.value = value;
 	}
 
-	public Field getField()
+	public FieldPersistable<I, T> getField()
 	{
 		return field;
 	}
@@ -49,9 +50,9 @@ public class FieldFilter implements Filter
 		return operator;
 	}
 
-	public <Q> Q accept(FilterVisitor<Q> visitor)
+	public <R, I> R accept(FilterVisitor<I, R> visitor)
 	{
-		return visitor.visit(this);
+		return visitor.visit((FieldFilter<I, T>)this);
 	}
 
 	@Override

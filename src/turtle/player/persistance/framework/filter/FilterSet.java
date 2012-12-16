@@ -38,7 +38,7 @@ public class FilterSet implements Filter
 		filters.remove(null);
 	}
 
-	public <Q> Q accept(FilterVisitor<Q> visitor)
+	public <R, I> R accept(FilterVisitor<I, R> visitor)
 	{
 		return visitor.visit(this);
 	}

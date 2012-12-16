@@ -22,7 +22,7 @@ import turtle.player.persistance.framework.sort.OrderVisitor;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class Query<Q, W, O, I, C> implements FilterVisitor<W>, OperationRead<Q, C, I>, OrderVisitor<I, O>
+public abstract class Query<Q, W, O, I, C> implements FilterVisitor<I, W>, OperationRead<Q, C, I>, OrderVisitor<I, O>
 {
 	private final Filter filter;
 	private final Order order;

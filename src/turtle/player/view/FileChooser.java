@@ -22,11 +22,13 @@ import android.app.ListActivity;
 import android.view.View;
 import android.widget.ImageView;
 import turtle.player.R;
+import turtle.player.common.MatchFilterVisitor;
 import turtle.player.model.*;
 import turtle.player.persistance.framework.filter.FieldFilter;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterSet;
 import turtle.player.persistance.framework.filter.Operator;
+import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.source.sql.query.WhereClause;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.turtle.db.structure.Tables;
@@ -187,76 +189,45 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		}).start();
 	}
 
-	public void updated(Instance instance)
+	public void updated(final Instance instance)
 	{
-		final String toAdd;
+
+		final FieldPersistable<Track, ?> field;
 		switch (currMode)
 		{
 			case Album:
-				toAdd = instance.accept(new InstanceVisitor<String>()
-				{
-					public String visit(Track track)
-					{
-						return track.GetAlbum().getName();
-					}
-
-					public String visit(Album album)
-					{
-						throw new UnsupportedOperationException();
-					}
-
-					public String visit(Artist artist)
-					{
-						throw new UnsupportedOperationException();
-					}
-				});
+				field = Tables.TRACKS.ALBUM;
 				break;
 			case Artist:
-				toAdd = instance.accept(new InstanceVisitor<String>()
-				{
-					public String visit(Track track)
-					{
-						return track.GetArtist().getName();
-					}
-
-					public String visit(Album album)
-					{
-						throw new UnsupportedOperationException();
-					}
-
-					public String visit(Artist artist)
-					{
-						throw new UnsupportedOperationException();
-					}
-				});
+				field = Tables.TRACKS.ARTIST;
 				break;
 			case Track:
-				toAdd = instance.accept(new InstanceVisitor<String>()
-				{
-					public String visit(Track track)
-					{
-						return track.GetTitle();
-					}
-
-					public String visit(Album album)
-					{
-						throw new UnsupportedOperationException();
-					}
-
-					public String visit(Artist artist)
-					{
-						throw new UnsupportedOperationException();
-					}
-				});
+				field = Tables.TRACKS.TITLE;
 				break;
 			default:
 				throw new RuntimeException(currMode.name() + " not expexted here");
 		}
 
-		//TODO: filter
+		if(filter == null || filter.accept(new MatchFilterVisitor<Object>(instance)))
+		{
+			listAdapter.add(instance.accept(new InstanceVisitor<String>()
+			{
+				public String visit(Track track)
+				{
+					return field.getAsString(track);
+				}
 
-		listAdapter.add(toAdd);
+				public String visit(Album album)
+				{
+					throw new UnsupportedOperationException();
+				}
 
+				public String visit(Artist artist)
+				{
+					throw new UnsupportedOperationException();
+				}
+			}));
+		}
 	}
 
 	public void cleared()
