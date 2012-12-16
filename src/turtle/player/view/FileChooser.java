@@ -61,7 +61,7 @@ public class FileChooser implements TurtleDatabase.DbObserver
 	private ListActivity listActivity;
 	final DefaultAdapter<String> listAdapter;
 
-	private Filter<WhereClause> filter = null;
+	private Filter filter = null;
 
 	public FileChooser(Mode currMode,
 							 TurtleDatabase db,
@@ -115,18 +115,18 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		switch (currMode)
 		{
 			case Album:
-				filter = new FilterSet<WhereClause>(
+				filter = new FilterSet(
 						  filter,
-						  new FieldFilter<WhereClause>(Tables.TRACKS.ALBUM, Operator.EQ, selection)
+						  new FieldFilter(Tables.TRACKS.ALBUM, Operator.EQ, selection)
 				);
 				currMode = Mode.Track;
 				update();
 				return null;
 
 			case Artist:
-				filter = new FilterSet<WhereClause>(
+				filter = new FilterSet(
 						  filter,
-						  new FieldFilter<WhereClause>(Tables.TRACKS.ARTIST, Operator.EQ, selection)
+						  new FieldFilter(Tables.TRACKS.ARTIST, Operator.EQ, selection)
 				);
 				currMode = Mode.Album;
 				update();
@@ -134,9 +134,9 @@ public class FileChooser implements TurtleDatabase.DbObserver
 
 			case Track:
 				return database.getTracks(
-						  new FilterSet<WhereClause>(
+						  new FilterSet(
 									 filter,
-									 new FieldFilter<WhereClause>(Tables.TRACKS.TITLE, Operator.EQ, selection)
+									 new FieldFilter(Tables.TRACKS.TITLE, Operator.EQ, selection)
 						  )
 				).iterator().next();
 			

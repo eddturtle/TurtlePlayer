@@ -51,7 +51,7 @@ import java.util.List;
 // Import - Android Database
 
 
-public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDatabase> implements FileBase<WhereClause>
+public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDatabase> implements FileBase
 {
 
 	final SQLiteDatabase db;
@@ -78,21 +78,21 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 
 	//Read------------------------------------
 
-	public boolean isEmpty(Filter<WhereClause> filter)
+	public boolean isEmpty(Filter filter)
 	{
 		return OperationExecutor.execute(
 				  this,
 				  new QuerySqlite<Integer>(filter, new CounterSqlite(Tables.TRACKS))).equals(0);
 	}
 
-	public int countAvailableTracks(Filter<WhereClause> filter)
+	public int countAvailableTracks(Filter filter)
 	{
 		return OperationExecutor.execute(
 				  this,
 				  new QuerySqlite<Integer>(filter, new CounterSqlite(Tables.TRACKS)));
 	}
 
-	public Collection<Track> getTracks(Filter<WhereClause> filter)
+	public Collection<Track> getTracks(Filter filter)
 	{
 		return OperationExecutor.execute(
 				  this,
@@ -101,7 +101,7 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 		);
 	}
 
-	public Collection<Album> getAlbums(Filter<WhereClause> filter)
+	public Collection<Album> getAlbums(Filter filter)
 	{
 		return OperationExecutor.execute(
 				  this,
@@ -110,7 +110,7 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 		);
 	}
 
-	public Collection<Artist> getArtist(Filter<WhereClause> filter)
+	public Collection<Artist> getArtist(Filter filter)
 	{
 		return OperationExecutor.execute(
 				  this,
@@ -120,29 +120,29 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 		);
 	}
 
-	public List<String> getTrackList(Filter<WhereClause> filter)
+	public List<String> getTrackList(Filter filter)
 	{
 		return getList(filter, Tables.TRACKS.TITLE);
 	}
 
-	public List<String> getArtistList(Filter<WhereClause> filter)
+	public List<String> getArtistList(Filter filter)
 	{
 		return getList(filter, Tables.TRACKS.ARTIST);
 	}
 
-	public List<String> getAlbumList(Filter<WhereClause> filter)
+	public List<String> getAlbumList(Filter filter)
 	{
 		return getList(filter, Tables.TRACKS.ALBUM);
 	}
 
-	private <I,T> List<String> getList(Filter<WhereClause> filter,
+	private <I,T> List<String> getList(Filter filter,
 										  FieldPersistable<I, T> field)
 	{
 		return OperationExecutor.execute(
 				  this,
 				  new QuerySqlite<List<String>>(
 							 filter,
-							 new FieldOrder<I,T, OrderClause>(field, SortOrder.ASC),
+							 new FieldOrder<I,T>(field, SortOrder.ASC),
 							 new MappingDistinct<String>(Tables.TRACKS, field, new CreatorForListSqlite<String>(new StringCreator("")))
 				  )
 		);

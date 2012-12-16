@@ -19,9 +19,12 @@ import turtle.player.persistance.source.sql.query.WhereClause;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface FilterVisitor<Q>
+/**
+ * @param <R> What the Visitor Produces (can be {@link Void} if nothing gets produced)
+ */
+public interface FilterVisitor<R>
 {
-	public Q visit(FieldFilter<Q> fieldFilter);
+	public R visit(FieldFilter fieldFilter);
 
-	public Q visit(FilterSet<Q> fieldFilter);
+	public R visit(FilterSet fieldFilter);
 }

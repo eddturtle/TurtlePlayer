@@ -22,23 +22,23 @@ import java.util.Set;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FilterSet<Q> implements Filter<Q>
+public class FilterSet implements Filter
 {
-	private final Set<Filter<Q>> filters = new HashSet<Filter<Q>>();
+	private final Set<Filter> filters = new HashSet<Filter>();
 
-	public FilterSet(Filter<Q>... filter)
+	public FilterSet(Filter... filter)
 	{
 		Collections.addAll(filters, filter);
 		filters.remove(null);
 	}
 
-	public FilterSet(Set<Filter<Q>> filters)
+	public FilterSet(Set<Filter> filters)
 	{
 		filters.addAll(filters);
 		filters.remove(null);
 	}
 
-	public Q accept(FilterVisitor<Q> visitor)
+	public <Q> Q accept(FilterVisitor<Q> visitor)
 	{
 		return visitor.visit(this);
 	}
@@ -46,7 +46,7 @@ public class FilterSet<Q> implements Filter<Q>
 	/**
 	 * @return never null, Set can be empty
 	 */
-	public Set<Filter<Q>> getFilters()
+	public Set<Filter> getFilters()
 	{
 		return filters;
 	}

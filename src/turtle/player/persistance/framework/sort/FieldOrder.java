@@ -22,7 +22,7 @@ import java.util.Arrays;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FieldOrder<I, T, Q> implements Order<Q>
+public class FieldOrder<I, T> implements Order
 {
 	private final FieldPersistable<I, T> field;
 	private final SortOrder order;
@@ -44,9 +44,9 @@ public class FieldOrder<I, T, Q> implements Order<Q>
         return order;
     }
 
-	public <R, I> R accept(OrderVisitor<I, R, Q> visitor)
+	public <R, I> R accept(OrderVisitor<I, R> visitor)
 	{
-		return visitor.visit((FieldOrder<I,T,Q>) this);
+		return visitor.visit((FieldOrder<I,T>) this);
 	}
 
 	@Override

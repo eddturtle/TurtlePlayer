@@ -59,7 +59,7 @@ public class Playlist
 
 	private PlayOrderStrategy playOrderStrategy;
 	private TurtleDatabase db;
-	private Set<Filter<WhereClause>> filters = new HashSet<Filter<WhereClause>>();
+	private Set<Filter> filters = new HashSet<Filter>();
 
 	private Track currTrack = null;
 
@@ -93,9 +93,9 @@ public class Playlist
 				  new PlayOrderSorted(db, this);
 	}
 
-	public Filter<WhereClause> getFilter()
+	public Filter getFilter()
 	{
-		return filters.isEmpty() ? null : new FilterSet<WhereClause>(filters);
+		return filters.isEmpty() ? null : new FilterSet(filters);
 	}
 
 	public Track getNext()

@@ -17,10 +17,7 @@ package turtle.player.persistance.framework.filter;
  * @author Simon Honegger (Hoene84)
  */
 
-/**
- * @param <Q> eg sql as String
- */
-public interface Filter<Q>
+public interface Filter
 {
-	Q accept(FilterVisitor<Q> visitor);
+	<Q> Q accept(FilterVisitor<Q> visitor);
 }

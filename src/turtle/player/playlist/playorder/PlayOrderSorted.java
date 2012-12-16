@@ -55,17 +55,17 @@ public class PlayOrderSorted implements PlayOrderStrategy
 
 	public Track getNext(Track currTrack)
 	{
-		return get(currTrack, new DefaultOrder<OrderClause>(SortOrder.ASC));
+		return get(currTrack, new DefaultOrder(SortOrder.ASC));
 	}
 
 	public Track getPrevious(Track currTrack)
 	{
-		return get(currTrack, new DefaultOrder<OrderClause>(SortOrder.DESC));
+		return get(currTrack, new DefaultOrder(SortOrder.DESC));
 	}
 
-	private Track get(Track currTrack, OrderSet<OrderClause> order)
+	private Track get(Track currTrack, OrderSet order)
 	{
-		OrderSet<OrderClause> currOrder = order;
+		OrderSet currOrder = order;
 		while(!currOrder.isEmpty())
 		{
 			Log.v(PlayOrderSorted.class.getName(),

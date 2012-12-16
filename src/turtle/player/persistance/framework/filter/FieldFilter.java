@@ -19,7 +19,7 @@ import turtle.player.persistance.source.relational.Field;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FieldFilter<Q> implements Filter<Q>
+public class FieldFilter implements Filter
 {
 	private final Field field;
 	private final Operator operator;
@@ -49,7 +49,7 @@ public class FieldFilter<Q> implements Filter<Q>
 		return operator;
 	}
 
-	public Q accept(FilterVisitor<Q> visitor)
+	public <Q> Q accept(FilterVisitor<Q> visitor)
 	{
 		return visitor.visit(this);
 	}

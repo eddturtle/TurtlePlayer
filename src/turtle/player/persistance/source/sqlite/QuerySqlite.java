@@ -38,19 +38,19 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 		  this.mapping = mapping;
 	 }
 
-	 public QuerySqlite(Filter<WhereClause> filter, Mapping<Select, I, Cursor> mapping)
+	 public QuerySqlite(Filter filter, Mapping<Select, I, Cursor> mapping)
 	 {
 		  super(filter);
 		  this.mapping = mapping;
 	 }
 
-	 public QuerySqlite(Order<OrderClause> order, Mapping<Select, I, Cursor> mapping)
+	 public QuerySqlite(Order order, Mapping<Select, I, Cursor> mapping)
 	 {
 		  super(order);
 		  this.mapping = mapping;
 	 }
 
-	 public QuerySqlite(Filter<WhereClause> filter, Order<OrderClause> order, Mapping<Select, I, Cursor> mapping)
+	 public QuerySqlite(Filter filter, Order order, Mapping<Select, I, Cursor> mapping)
 	{
 		super(filter, order);
 
@@ -107,15 +107,15 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 		return new WhereClause(new WhereClauseField(fieldFilter.getField(), fieldFilter.getFieldValue(), operator));
 	}
 
-	 public OrderClause visit(RandomOrder<OrderClause> orderFilter)
+	 public OrderClause visit(RandomOrder orderFilter)
 	 {
 		  return new OrderClauseRandom();
 	 }
 
-	 public WhereClause visit(FilterSet<WhereClause> filterSet)
+	 public WhereClause visit(FilterSet filterSet)
 	{
 		WhereClause whereClause = null;
-		for(Filter<WhereClause> filter : filterSet.getFilters()){
+		for(Filter filter : filterSet.getFilters()){
 			if(whereClause == null)
 			{
 				whereClause = filter.accept(this);
@@ -134,10 +134,10 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 		  return new OrderClauseFields(new OrderClausePartField(fieldOrder.getField(), fieldOrder.getOrder()));
 	 }
 
-	 public OrderClause visit(OrderSet<OrderClause> clauseSet)
+	 public OrderClause visit(OrderSet clauseSet)
 	 {
 		  OrderClause orderClause = null;
-		  for(Order<OrderClause> order : clauseSet.getOrders()){
+		  for(Order order : clauseSet.getOrders()){
 				if(orderClause == null)
 				{
 					orderClause = order.accept(this);

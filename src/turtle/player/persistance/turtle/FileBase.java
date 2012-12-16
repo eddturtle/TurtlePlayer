@@ -26,11 +26,11 @@ import java.util.Set;
 /**
  * @param <Q> eg sql as String
  */
-public interface FileBase<Q>
+public interface FileBase
 {
-	Collection<Track> getTracks(Filter<Q> filter);
+	Collection<Track> getTracks(Filter filter);
 
-	Collection<Album> getAlbums(Filter<Q> filter);
+	Collection<Album> getAlbums(Filter filter);
 
-	Collection<Artist> getArtist(Filter<Q> filter);
+	Collection<Artist> getArtist(Filter filter);
 }

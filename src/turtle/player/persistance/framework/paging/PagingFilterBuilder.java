@@ -27,7 +27,7 @@ import turtle.player.persistance.source.relational.FieldPersistable;
  * @author Simon Honegger (Hoene84)
  */
 
-public class PagingFilterBuilder<I, W, Q> implements OrderVisitor<I, Filter<W>, Q>
+public class PagingFilterBuilder<I> implements OrderVisitor<I, Filter>
 {
 	final I instance;
 
@@ -36,7 +36,7 @@ public class PagingFilterBuilder<I, W, Q> implements OrderVisitor<I, Filter<W>, 
 		this.instance = instance;
 	}
 
-	public <Q, T> Filter<W> visit(FieldOrder<I, T, Q> fieldOrder)
+	public <T> Filter visit(FieldOrder<I, T> fieldOrder)
 	{
 		FieldPersistable<I, ?> field = fieldOrder.getField();
 
@@ -52,45 +52,45 @@ public class PagingFilterBuilder<I, W, Q> implements OrderVisitor<I, Filter<W>, 
 		   default:
 				throw new IllegalArgumentException();
 		}
-		return new FieldFilter<W>(field, op, field.get(instance).toString());
+		return new FieldFilter(field, op, field.get(instance).toString());
 	}
 
-	public Filter<W> visit(RandomOrder<Q> orderFilter)
+	public Filter visit(RandomOrder orderFilter)
 	{
 		return null;
 	}
 
-	public Filter<W> visit(OrderSet<Q> orderFilter)
+	public Filter visit(OrderSet orderFilter)
 	{
 		if(!orderFilter.isEmpty()){
-			Filter<W> filterSet = new FilterSet<W>();
+			Filter filterSet = new FilterSet();
 			for( int i = 0; i < orderFilter.getOrders().size() -1; i++)
 			{
-				final Filter<W> finalFilterSet = filterSet;
-				filterSet = orderFilter.getOrders().get(i).accept(new OrderVisitor<I, Filter<W>, Q>()
+				final Filter finalFilterSet = filterSet;
+				filterSet = orderFilter.getOrders().get(i).accept(new OrderVisitor<I, Filter>()
 				{
-					public Filter<W> visit(RandomOrder<Q> orderFilter)
+					public Filter visit(RandomOrder orderFilter)
 					{
 						// :-)
 						return null;
 					}
 
-					public <Q, T> Filter<W> visit(FieldOrder<I, T, Q> fieldOrder)
+					public <T> Filter visit(FieldOrder<I, T> fieldOrder)
 					{
 						FieldPersistable<I, T> field = fieldOrder.getField();
-						return new FilterSet<W>(
+						return new FilterSet(
 								  finalFilterSet,
-								  new FieldFilter<W>(fieldOrder.getField(), Operator.EQ, field.get(instance).toString()));
+								  new FieldFilter(fieldOrder.getField(), Operator.EQ, field.get(instance).toString()));
 					}
 
-					public Filter<W> visit(OrderSet<Q> orderFilter)
+					public Filter visit(OrderSet orderFilter)
 					{
 						return this.visit(orderFilter);
 					}
 				});
 			}
 
-			return new FilterSet<W>(filterSet, orderFilter.getOrders().get(orderFilter.getOrders().size()-1).accept(this));
+			return new FilterSet(filterSet, orderFilter.getOrders().get(orderFilter.getOrders().size()-1).accept(this));
 		}
 		else
 		{
