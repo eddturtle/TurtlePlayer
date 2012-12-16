@@ -26,11 +26,12 @@ import android.util.Log;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
+import turtle.player.persistance.framework.db.Database;
+import turtle.player.persistance.framework.db.ObservableDatabase;
 import turtle.player.persistance.framework.executor.OperationExecutor;
+import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.sort.FieldOrder;
-import turtle.player.persistance.framework.sort.Order;
 import turtle.player.persistance.framework.sort.SortOrder;
-import turtle.player.persistance.source.relational.Field;
 import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.source.sql.MappingDistinct;
 import turtle.player.persistance.source.sql.MappingTable;
@@ -39,18 +40,12 @@ import turtle.player.persistance.source.sql.query.Select;
 import turtle.player.persistance.source.sql.query.WhereClause;
 import turtle.player.persistance.source.sqlite.*;
 import turtle.player.persistance.turtle.FileBase;
-import turtle.player.persistance.framework.db.Database;
-import turtle.player.persistance.framework.db.ObservableDatabase;
-import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.persistance.turtle.mapping.*;
-import turtle.player.persistance.turtle.mapping.AlbumCreator;
-import turtle.player.persistance.turtle.mapping.ArtistCreator;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 // Import - Android Content
 // Import - Android Database
@@ -67,15 +62,21 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 		db = turtleDatabaseImpl.getWritableDatabase();
 	}
 
+	//Write------------------------------------
+
 	public void push(final Track track)
 	{
 		OperationExecutor.execute(this, new InsertOperationSqlLite<Track>(new TrackToDbMapper()), track);
+		notifyUpdate(track);
 	}
 
 	public void clear()
 	{
 		OperationExecutor.execute(this, new DeleteTableContentSqlLite(), Tables.TRACKS);
+		notifyCleared();
 	}
+
+	//Read------------------------------------
 
 	public boolean isEmpty(Filter<WhereClause> filter)
 	{
@@ -182,13 +183,7 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 	public <I> void write(DbWriteOp<SQLiteDatabase, I> writeOp,
 								 I instance)
 	{
-		try
-		{
-			writeOp.write(db, instance);
-		} finally
-		{
-			notifyUpdate();
-		}
+		writeOp.write(db, instance);
 	}
 
 }

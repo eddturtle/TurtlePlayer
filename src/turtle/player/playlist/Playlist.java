@@ -22,7 +22,9 @@ package turtle.player.playlist;
 import android.content.Context;
 import android.util.Log;
 import turtle.player.Stats;
+import turtle.player.model.Instance;
 import turtle.player.model.Track;
+import turtle.player.persistance.framework.db.ObservableDatabase;
 import turtle.player.persistance.source.sql.query.WhereClause;
 import turtle.player.persistance.turtle.FsReader;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
@@ -146,7 +148,26 @@ public class Playlist
 								observer.startRescan(mediaPath);
 							}
 
+							ObservableDatabase.DbObserver dbObserver = new ObservableDatabase.DbObserver()
+							{
+								public void updated(Instance instance)
+								{
+									for (PlaylistObserver observer : observers)
+									{
+										observer.trackAdded();
+									}
+
+								}
+
+								public void cleared()
+								{
+									//do nothing
+								}
+							};
+
+							db.addObserver(dbObserver);
 							FsReader.scanDir(db, mediaPath);
+							db.removeObserver(dbObserver);
 
 						} catch (NullPointerException e)
 						{
@@ -206,9 +227,7 @@ public class Playlist
 
 	public interface PlaylistObserver
 	{
-		void trackAdded(Track track);
-
-		void cleaned();
+		void trackAdded();
 
 		void startRescan(File mediaPath);
 
@@ -218,59 +237,6 @@ public class Playlist
 
 		void endUpdatePlaylist();
 
-		void trackAddedToPlaylist(Track track);
-
-		void playlistSetted(Set<Track> tracks);
-
-		void playlistCleaned();
-	}
-
-	public static class PlaylistObserverAdapter implements PlaylistObserver
-	{
-		public void trackAdded(Track track)
-		{
-			//do nothing
-		}
-
-		public void cleaned()
-		{
-			//do nothing
-		}
-
-		public void startRescan(File mediaPath)
-		{
-			//do nothing
-		}
-
-		public void endRescan()
-		{
-			//do nothing
-		}
-
-		public void startUpdatePlaylist()
-		{
-			//do nothing
-		}
-
-		public void endUpdatePlaylist()
-		{
-			//do nothing
-		}
-
-		public void trackAddedToPlaylist(Track track)
-		{
-			//do nothing
-		}
-
-		public void playlistSetted(Set<Track> tracks)
-		{
-			//do nothing
-		}
-
-		public void playlistCleaned()
-		{
-			//do nothing
-		}
 	}
 
 	public void addObserver(PlaylistObserver observer)

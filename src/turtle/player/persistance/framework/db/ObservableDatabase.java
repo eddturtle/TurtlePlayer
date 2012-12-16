@@ -1,6 +1,6 @@
 package turtle.player.persistance.framework.db;
 
-import turtle.player.persistance.framework.db.Database;
+import turtle.player.model.Instance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,15 +29,22 @@ public abstract class ObservableDatabase<Q,C,D> implements Database<Q,C,D>
 
 	private List<DbObserver> observers = new ArrayList<DbObserver>();
 
-	public void notifyUpdate(){
+	public void notifyUpdate(Instance instance){
 		for(DbObserver observer : observers){
-			observer.updated();
+			observer.updated(instance);
+		}
+	}
+
+	public void notifyCleared(){
+		for(DbObserver observer : observers){
+			observer.cleared();
 		}
 	}
 
 	public interface DbObserver
 	{
-		void updated();
+		void updated(Instance instance);
+		void cleared();
 	}
 
 	public void addObserver(DbObserver observer)

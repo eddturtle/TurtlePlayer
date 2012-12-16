@@ -392,10 +392,8 @@ public class Player extends ListActivity
 	{
 
 		//Rescan Progress Bar
-		tp.playlist.addObserver(new Playlist.PlaylistObserverAdapter()
+		tp.playlist.addObserver(new Playlist.PlaylistObserver()
 		{
-
-			@Override
 			public void startUpdatePlaylist()
 			{
 				runOnUiThread(new Runnable()
@@ -409,7 +407,6 @@ public class Player extends ListActivity
 				});
 			}
 
-			@Override
 			public void startRescan(File mediaPath)
 			{
 
@@ -444,8 +441,7 @@ public class Player extends ListActivity
 				});
 			}
 
-			@Override
-			public void trackAdded(Track track)
+			public void trackAdded()
 			{
 				runOnUiThread(new Runnable()
 				{
@@ -456,7 +452,6 @@ public class Player extends ListActivity
 				});
 			}
 
-			@Override
 			public void endRescan()
 			{
 				//start sync anim
@@ -469,7 +464,6 @@ public class Player extends ListActivity
 				});
 			}
 
-			@Override
 			public void endUpdatePlaylist()
 			{
 				//stop sync anim

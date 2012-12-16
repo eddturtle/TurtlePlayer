@@ -18,6 +18,7 @@
 
 package turtle.player.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,27 +26,82 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import turtle.player.R;
-import turtle.player.model.Instance;
-import turtle.player.presentation.InstanceFormatter;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Set;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Should be created outside the UI Thread, the initial sorting in the constructor can take a long time
  * for big lists.
  */
-public abstract class DefaultAdapter<T> extends ArrayAdapter<T>
+public abstract class DefaultAdapter<T extends Comparable<? super T>> extends ArrayAdapter<T>
 {
+	final List<T> objects;
+	final Activity activity;
+	final boolean allowsDuplicates;
+
+	/**
+	 * @param context needed by super
+	 * @param objects has to be prepared according allowsDuplicates and has to be sorted (if needed)
+	 * @param startingActivity to join UI Thread
+	 * @param allowsDuplicates remove duplicates by adding items
+	 */
 	public DefaultAdapter(
 			  Context context,
-			  T[] objects)
+			  List<T> objects,
+			  Activity startingActivity,
+			  boolean allowsDuplicates)
 	{
 		super(context, R.layout.file_list_entry, objects);
+		this.activity = startingActivity;
+		this.objects = objects;
+		this.allowsDuplicates = allowsDuplicates;
 	}
 
-	@Override
+	public void add(final T object)
+	{
+		if(allowsDuplicates || !objects.contains(object)){
+			activity.runOnUiThread(new Runnable()
+			{
+				public void run()
+				{
+					objects.add(object);
+					Collections.sort(objects);
+					notifyDataSetChanged();
+				}
+			});
+		}
+	}
+
+	/**
+	 * @param object objects has to be prepared according allowsDuplicates and has to be sorted (if needed)
+	 */
+	public void replace(final List<T> object)
+	{
+		activity.runOnUiThread(new Runnable()
+		{
+			public void run()
+			{
+				objects.clear();
+				objects.addAll(object);
+				notifyDataSetChanged();
+			}
+		});
+	}
+
+	public void clear()
+	{
+		activity.runOnUiThread(new Runnable()
+		{
+			public void run()
+			{
+				objects.clear();
+				notifyDataSetChanged();
+			}
+		});
+	}
+
+@Override
 	public View getView(int position,
 							  View convertView,
 							  ViewGroup parent)

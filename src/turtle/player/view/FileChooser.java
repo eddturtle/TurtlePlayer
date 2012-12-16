@@ -20,9 +20,7 @@ package turtle.player.view;
 
 import android.app.ListActivity;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import turtle.player.R;
 import turtle.player.model.*;
 import turtle.player.persistance.framework.filter.FieldFilter;
@@ -34,7 +32,7 @@ import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.util.DefaultAdapter;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class FileChooser implements TurtleDatabase.DbObserver
 {
@@ -61,6 +59,7 @@ public class FileChooser implements TurtleDatabase.DbObserver
 	private Mode currMode;
 	private TurtleDatabase database;
 	private ListActivity listActivity;
+	final DefaultAdapter<String> listAdapter;
 
 	private Filter<WhereClause> filter = null;
 
@@ -71,6 +70,20 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		this.currMode = currMode;
 		this.database = db;
 		this.listActivity = listActivity;
+		listAdapter = new DefaultAdapter<String>(
+				  listActivity.getApplicationContext(),
+				  new ArrayList<String>(),
+				  listActivity,
+				  false
+		){
+			@Override
+			protected String format(String object)
+			{
+				return object;
+			}
+		};
+
+		listActivity.setListAdapter(listAdapter);
 
 		change(currMode);
 
@@ -156,50 +169,99 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		{
 			public void run()
 			{
-
-				final List<String> list;
-
 				switch (currMode)
 				{
 					case Album:
-						list = database.getAlbumList(filter);
+						listAdapter.replace(database.getAlbumList(filter));
 						break;
 					case Artist:
-						list = database.getArtistList(filter);
+						listAdapter.replace(database.getArtistList(filter));
 						break;
 					case Track:
-						list = database.getTrackList(filter);
+						listAdapter.replace(database.getTrackList(filter));
 						break;
 					default:
 						throw new RuntimeException(currMode.name() + " not expexted here");
 				}
-				final ListAdapter listAdapter = new DefaultAdapter<String>(
-						  listActivity.getApplicationContext(),
-						  list.toArray(new String[list.size()])
-				){
-					@Override
-					protected String format(String object)
-					{
-						return object;
-					}
-				};
-
-				listActivity.runOnUiThread(new Runnable()
-				{
-					public void run()
-					{
-						//set List
-						listActivity.setListAdapter(listAdapter);
-					}
-
-				});
 			}
 		}).start();
 	}
 
-	public void updated()
+	public void updated(Instance instance)
 	{
-		update();
+		final String toAdd;
+		switch (currMode)
+		{
+			case Album:
+				toAdd = instance.accept(new InstanceVisitor<String>()
+				{
+					public String visit(Track track)
+					{
+						return track.GetAlbum().getName();
+					}
+
+					public String visit(Album album)
+					{
+						throw new UnsupportedOperationException();
+					}
+
+					public String visit(Artist artist)
+					{
+						throw new UnsupportedOperationException();
+					}
+				});
+				break;
+			case Artist:
+				toAdd = instance.accept(new InstanceVisitor<String>()
+				{
+					public String visit(Track track)
+					{
+						return track.GetArtist().getName();
+					}
+
+					public String visit(Album album)
+					{
+						throw new UnsupportedOperationException();
+					}
+
+					public String visit(Artist artist)
+					{
+						throw new UnsupportedOperationException();
+					}
+				});
+				break;
+			case Track:
+				toAdd = instance.accept(new InstanceVisitor<String>()
+				{
+					public String visit(Track track)
+					{
+						return track.GetTitle();
+					}
+
+					public String visit(Album album)
+					{
+						throw new UnsupportedOperationException();
+					}
+
+					public String visit(Artist artist)
+					{
+						throw new UnsupportedOperationException();
+					}
+				});
+				break;
+			default:
+				throw new RuntimeException(currMode.name() + " not expexted here");
+		}
+
+		//TODO: filter
+
+		listAdapter.add(toAdd);
+
+	}
+
+	public void cleared()
+	{
+		listAdapter.clear();
 	}
 
 	private ImageView getButton(Mode mode)
