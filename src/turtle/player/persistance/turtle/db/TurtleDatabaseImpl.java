@@ -39,15 +39,15 @@ public class TurtleDatabaseImpl extends SQLiteOpenHelper
 	public void onCreate(SQLiteDatabase db)
 	{
 		String CREATE_TABLE = "CREATE TABLE " + Tables.TRACKS.getName() + " ("
-				  + Tables.TRACKS.ID + " INTEGER PRIMARY KEY, "
-				  + Tables.TRACKS.TITLE + " TEXT, "
-				  + Tables.TRACKS.NUMBER + " INTEGER, "
-				  + Tables.TRACKS.ARTIST + " TEXT, "
-				  + Tables.TRACKS.ALBUM + " TEXT, "
-				  + Tables.TRACKS.LENGTH + " REAL, "
-				  + Tables.TRACKS.SRC + " TEXT, "
-				  + Tables.TRACKS.ROOTSRC + " TEXT, "
-				  + Tables.TRACKS.ALBUMART + " TEXT);";
+				  + Tables.TRACKS.ID.getName() + " INTEGER PRIMARY KEY, "
+				  + Tables.TRACKS.TITLE.getName() + " TEXT, "
+				  + Tables.TRACKS.NUMBER.getName() + " INTEGER, "
+				  + Tables.TRACKS.ARTIST.getName() + " TEXT, "
+				  + Tables.TRACKS.ALBUM.getName() + " TEXT, "
+				  + Tables.TRACKS.LENGTH.getName() + " REAL, "
+				  + Tables.TRACKS.SRC.getName() + " TEXT, "
+				  + Tables.TRACKS.ROOTSRC.getName() + " TEXT, "
+				  + Tables.TRACKS.ALBUMART.getName() + " TEXT);";
 		db.execSQL(CREATE_TABLE);
 	}
 

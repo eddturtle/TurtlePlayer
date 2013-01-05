@@ -20,8 +20,9 @@ import java.util.*;
  */
 
 /**
- * @param <I>
- * @param <S> Source
+ * @param <I> Instance type
+ * @param <S> Source type of row
+ * @param <M> Source type of table
  */
 public abstract class CreatorForList<I, S, M> implements Creator<List<I>, M>
 {

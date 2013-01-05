@@ -1,159 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relativeLayoutNow"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
-    <RelativeLayout
-        android:id="@+id/relativeLayout1"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:background="@drawable/header_bg100" >
 
-        <ImageView
-            android:id="@+id/playButton"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:contentDescription="@string/play"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:src="@drawable/play64" />
+        <RelativeLayout
+                android:id="@+id/relativeLayout_albumArt"
+                android:layout_width="fill_parent"
+                android:layout_height="0px"
+                android:layout_weight="1">
+            <include
+                    android:id="@+id/albumArt"
+                    layout="@layout/album_art"/>
 
-        <ImageView
-            android:id="@+id/backButton"
-            android:layout_width="68dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:contentDescription="@string/back"
-            android:paddingLeft="18dp"
-            android:paddingRight="12dp"
-            android:src="@drawable/back48" />
+            <include
+                    android:id="@+id/albumArtRight"
+                    layout="@layout/album_art" />
 
-        <ImageView
-            android:id="@+id/nextButton"
-            android:layout_width="68dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:contentDescription="@string/next"
-            android:paddingLeft="12dp"
-            android:paddingRight="18dp"
-            android:src="@drawable/next48" />
+            <include
+                    android:id="@+id/albumArtLeft"
+                    layout="@layout/album_art" />
 
-        <ImageView
-            android:id="@+id/repeatButton"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentTop="true"
-            android:layout_toRightOf="@+id/playButton"
-            android:contentDescription="@string/back"
-            android:paddingLeft="14dp"
-            android:paddingRight="14dp"
-            android:src="@drawable/repeat48" />
+            <TextView
+                    android:id="@+id/trackDuration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginRight="15dp"
+                    android:text="@string/duration"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:visibility="visible" />
 
-        <ImageView
-            android:id="@+id/shuffleButton"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/playButton"
-            android:contentDescription="@string/back"
-            android:paddingLeft="14dp"
-            android:paddingRight="14dp"
-            android:src="@drawable/shuffle48" />
+        </RelativeLayout>
 
-    </RelativeLayout>
+        <RelativeLayout
+                android:id="@+id/relativeLayout_now_buttons"
+                android:layout_width="fill_parent"
+                android:layout_height="84dp"
+                android:layout_marginTop="-5dp">
 
-    <ImageView
-        android:id="@+id/albumArt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/progressBar"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginBottom="-7dp"
-        android:contentDescription="@string/album_art"
-        android:scaleType="centerCrop"
-        android:src="@drawable/blank_album_art"
-        android:visibility="visible" />
+            <RelativeLayout
+                android:background="@drawable/header_bg100"
+                android:layout_width="fill_parent"
+                android:layout_height="60dp"
+                android:layout_alignParentBottom="true">
 
-    <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="wrap_content"
-        android:layout_height="98dp"
-        android:layout_above="@+id/relativeLayout1"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/trans_bg"
-        android:orientation="vertical"
-        android:paddingBottom="0dp"
-        android:paddingTop="10dp" >
+                <ImageView
+                        android:id="@+id/playButton"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_centerHorizontal="true"
+                        android:contentDescription="@string/play"
+                        android:paddingLeft="20dp"
+                        android:paddingRight="20dp"
+                        android:src="@drawable/play64" />
 
-        <TextView
-            android:id="@+id/trackTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:shadowColor="#000"
-            android:shadowDx="0"
-            android:shadowDy="0"
-            android:shadowRadius="5"
-            android:singleLine="true"
-            android:text="@string/track"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:visibility="visible" />
+                <ImageView
+                        android:id="@+id/backButton"
+                        android:layout_width="68dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentTop="true"
+                        android:contentDescription="@string/back"
+                        android:paddingLeft="18dp"
+                        android:paddingRight="12dp"
+                        android:src="@drawable/back48" />
 
-        <TextView
-            android:id="@+id/trackArtist"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="15dp"
-            android:shadowColor="#000"
-            android:shadowDx="0"
-            android:shadowDy="0"
-            android:shadowRadius="5"
-            android:text="@string/artist"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:visibility="visible" />
+                <ImageView
+                        android:id="@+id/nextButton"
+                        android:layout_width="68dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentTop="true"
+                        android:contentDescription="@string/next"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="18dp"
+                        android:src="@drawable/next48" />
 
-    </LinearLayout>
+                <ImageView
+                        android:id="@+id/repeatButton"
+                        android:layout_width="50dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_toRightOf="@+id/playButton"
+                        android:contentDescription="@string/back"
+                        android:paddingLeft="14dp"
+                        android:paddingRight="14dp"
+                        android:src="@drawable/repeat48" />
 
-    <SeekBar
-        android:id="@+id/progressBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/relativeLayout1"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="-6dp"
-        android:progressDrawable="@drawable/progress_bar_full" />
+                <ImageView
+                        android:id="@+id/shuffleButton"
+                        android:layout_width="50dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_toLeftOf="@+id/playButton"
+                        android:contentDescription="@string/back"
+                        android:paddingLeft="14dp"
+                        android:paddingRight="14dp"
+                        android:src="@drawable/shuffle48" />
 
-    <TextView
-        android:id="@+id/trackDuration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/progressBar"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="10dp"
-        android:layout_marginRight="15dp"
-        android:shadowColor="#000"
-        android:shadowDx="0"
-        android:shadowDy="0"
-        android:shadowRadius="5"
-        android:text="@string/duration"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:visibility="visible" />
+            </RelativeLayout>
+            <SeekBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:progressDrawable="@drawable/progress_bar_full"
+                    android:visibility="visible"
+                    android:layout_alignParentTop="true"/>
+        </RelativeLayout>
 
-</RelativeLayout>
+</LinearLayout>

@@ -20,8 +20,6 @@ package turtle.player;
 
 import android.app.ListActivity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
@@ -29,6 +27,8 @@ import android.os.Handler;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
@@ -36,15 +36,15 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import turtle.player.common.filefilter.FileFilters;
 import turtle.player.dirchooser.DirChooserConstants;
-import turtle.player.model.Instance;
 import turtle.player.model.Track;
+import turtle.player.model.TrackBundle;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.playlist.Playlist;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
 import turtle.player.preferences.Preferences;
 import turtle.player.preferences.PreferencesObserver;
-import turtle.player.presentation.InstanceFormatter;
+import turtle.player.view.AlbumArt;
 import turtle.player.view.FileChooser;
 
 import java.io.BufferedReader;
@@ -81,6 +81,11 @@ public class Player extends ListActivity
 	private ImageView nextButton;
 	private ImageView shuffleButton;
 	private ImageView repeatButton;
+
+	//AlbumArt
+	AlbumArt albumArt;
+	AlbumArt albumArtLeft;
+	AlbumArt albumArtRight;
 
 	// Settings Slide
 	CheckBox shuffleCheckBox;
@@ -176,6 +181,8 @@ public class Player extends ListActivity
 
 		SetupObservers();
 		SetupButtons();
+		SetupAlbumArtViews();
+		setupTouchControl();
 		SetupButtonListeners();
 		SetupSlides();
 		SetupList();
@@ -198,7 +205,16 @@ public class Player extends ListActivity
 		fileChooser = new FileChooser(FileChooser.Mode.Track, tp.db, this);
 	}
 
+	// ========================================= //Pla
+	// 	Setup Buttons - Part of Init()
+	// ========================================= //
 
+	private void SetupAlbumArtViews()
+	{
+		albumArt = new AlbumArt(this, AlbumArt.Type.CENTER);
+		albumArtLeft = new AlbumArt(this, AlbumArt.Type.LEFT);
+		albumArtRight = new AlbumArt(this, AlbumArt.Type.RIGHT);
+	}
 	// ========================================= //Pla
 	// 	Setup Buttons - Part of Init()
 	// ========================================= //
@@ -236,6 +252,96 @@ public class Player extends ListActivity
 		chooseMediaDir = (ImageView) findViewById(R.id.chooseMediaDir);
 		mediaDir.setText(tp.playlist.preferences.GetMediaPath().toString());
 
+	}
+
+	// ========================================= //
+	// 	Setup Button Listener Functions - Part of Init()
+	// ========================================= //
+
+
+
+	private void setupTouchControl()
+	{
+		GestureDetector.OnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener(){
+			@Override
+			public boolean onScroll(MotionEvent e1,
+											MotionEvent e2,
+											float distanceX,
+											float distanceY)
+			{
+				albumArt.getAlbumArtView().scrollBy((int)(distanceX*1.5), 0);
+				albumArtLeft.getAlbumArtView().scrollBy((int)(distanceX*1.5), 0);
+				albumArtRight.getAlbumArtView().scrollBy((int)(distanceX*1.5), 0);
+				return true;
+			}
+
+			@Override
+			public boolean onDoubleTap(MotionEvent e)
+			{
+				return true;
+			}
+
+
+			@Override
+			public boolean onFling(MotionEvent e1,
+										  MotionEvent e2,
+										  float velocityX,
+										  float velocityY)
+			{
+				if(velocityX < 0)
+				{
+					if(e1.getX() > e2.getX())
+					{
+						Play(tp.playlist.getNext());
+					}
+					else
+					{
+						return false;
+					}
+				}
+				else
+				{
+					if(e1.getX() < e2.getX())
+					{
+						Play(tp.playlist.getPrevious());
+					}
+					else
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+
+		};
+
+		final GestureDetector gestureDetector = new GestureDetector(this, gestureListener);
+		albumArt.getAlbumArtView().setOnTouchListener(new View.OnTouchListener()
+		{
+			public boolean onTouch(View v,
+										  MotionEvent event)
+			{
+				boolean consumed = gestureDetector.onTouchEvent(event);
+				if (MotionEvent.ACTION_UP == event.getAction())
+				{
+					if(!consumed)
+					{
+						if(albumArt.getAlbumArtView().getScrollX() > albumArt.getAlbumArtView().getWidth()/2){
+							Play(tp.playlist.getNext());
+						}
+						else if(-albumArt.getAlbumArtView().getScrollX() > albumArt.getAlbumArtView().getWidth()/2)
+						{
+							Play(tp.playlist.getPrevious());
+						}
+					}
+					albumArt.setInitialPositions();
+					albumArtLeft.setInitialPositions();
+					albumArtRight.setInitialPositions();
+				}
+
+				return true;
+			}
+		});
 	}
 
 	// ========================================= //
@@ -325,10 +431,10 @@ public class Player extends ListActivity
 			{
 				if (!tp.playlist.IsEmpty())
 				{
-					Track t = tp.playlist.getNext();
-					if (t != null)
+					TrackBundle trackBundle = tp.playlist.getNext();
+					if (trackBundle.getTrack() != null)
 					{
-						Play(t);
+						Play(trackBundle);
 					}
 				}
 			}
@@ -649,7 +755,7 @@ public class Player extends ListActivity
 		Track trackSelected = fileChooser.choose((String) l.getItemAtPosition(position));
 		if (trackSelected != null)
 		{
-			Play(trackSelected);
+			Play(tp.playlist.enrich(trackSelected));
 			SwitchToNowPlayingSlide();
 		}
 	}
@@ -665,14 +771,14 @@ public class Player extends ListActivity
 		settings.setImageDrawable(getResources().getDrawable(R.drawable.settings48));
 	}
 
-	private void Play(Track t)
+	private void Play(TrackBundle t)
 	{
-		if (t != null)
+		if (t.getTrack() != null)
 		{
 			try
 			{
 				tp.mp.reset();
-				tp.mp.setDataSource(t.GetSrc());
+				tp.mp.setDataSource(t.getTrack().GetSrc());
 
 				tp.playlist.setCurrTrack(t);
 
@@ -708,38 +814,19 @@ public class Player extends ListActivity
 	// 	Update Progress Bar
 	// ========================================= //
 
-	private void UpdateScreenInfo(Track t)
+	private void UpdateScreenInfo(TrackBundle trackBundle)
 	{
-		TextView title = (TextView) findViewById(R.id.trackTitle);
-		TextView artist = (TextView) findViewById(R.id.trackArtist);
 
-		title.setVisibility(View.VISIBLE);
-		artist.setVisibility(View.VISIBLE);
-		duration.setVisibility(View.VISIBLE);
-
-		title.setText(t.accept(InstanceFormatter.SHORT_WITH_NUMBER));
-		artist.setText(t.GetAlbum().accept(InstanceFormatter.SHORT));
+		albumArt.setTrack(trackBundle.getTrack());
+		albumArtRight.setTrack(trackBundle.getTrackAfter());
+		albumArtLeft.setTrack(trackBundle.getTrackBefore());
 
 		if (tp.isInitialised)
 		{
 			duration.setText(ConvertToMinutes(tp.mp.getCurrentPosition()) + " / " + ConvertToMinutes(tp.mp.getDuration()));
 		} else
 		{
-			title.setText("Welcome to");
-			artist.setText("Turtle Player");
 			duration.setText("0:00");
-		}
-
-		ImageView iv = (ImageView) findViewById(R.id.albumArt);
-
-
-		if (t.albumArt() != null)
-		{
-			Bitmap bmp = BitmapFactory.decodeFile(t.albumArt());
-			iv.setImageBitmap(bmp);
-		} else
-		{
-			iv.setImageDrawable(getResources().getDrawable(R.drawable.blank_album_art));
 		}
 	}
 

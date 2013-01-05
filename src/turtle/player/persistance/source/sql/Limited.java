@@ -2,10 +2,11 @@ package turtle.player.persistance.source.sql;
 
 import android.database.Cursor;
 import turtle.player.persistance.framework.creator.Creator;
-import turtle.player.persistance.framework.mapping.Mapping;
 import turtle.player.persistance.source.relational.Table;
 import turtle.player.persistance.source.sql.query.Limit;
 import turtle.player.persistance.source.sql.query.Select;
+
+import java.util.List;
 
 /**
  * TURTLE PLAYER
@@ -24,27 +25,27 @@ import turtle.player.persistance.source.sql.query.Select;
  * @author Simon Honegger (Hoene84)
  */
 
-public class Limited<I> implements Mapping<Select, I, Cursor>
+public class Limited<I> extends First<List<I>>
 {
-	private final Table table;
-	private final Creator<I, Cursor> creator;
+	private final int limit;
 
 	public Limited(Table table,
-						Creator<I, Cursor> creator)
+						Creator<List<I>, Cursor> creator,
+						int limit)
 	{
-		this.table = table;
-		this.creator = creator;
+		super(table, creator);
+		this.limit = limit;
 	}
 
 	public Select get()
 	{
-		Select select = new Select(table);
-		select.setLimit(new Limit(1));
+		Select select = super.get();
+		select.setLimit(new Limit(limit));
 		return select;
 	}
 
-	public I create(Cursor queryResult)
+	public List<I> create(Cursor queryResult)
 	{
-		return creator.create(queryResult);
+		return super.create(queryResult);
 	}
 }

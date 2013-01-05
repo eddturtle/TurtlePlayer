@@ -24,8 +24,8 @@ import android.util.Log;
 import turtle.player.Stats;
 import turtle.player.model.Instance;
 import turtle.player.model.Track;
+import turtle.player.model.TrackBundle;
 import turtle.player.persistance.framework.db.ObservableDatabase;
-import turtle.player.persistance.source.sql.query.WhereClause;
 import turtle.player.persistance.turtle.FsReader;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.framework.filter.Filter;
@@ -61,7 +61,7 @@ public class Playlist
 	private final TurtleDatabase db;
 	private final Set<Filter> filters = new HashSet<Filter>();
 
-	private Track currTrack = null;
+	private TrackBundle currTrack = new TrackBundle();
 
 	public Playlist(Context mainContext, TurtleDatabase db)
 	{
@@ -98,26 +98,50 @@ public class Playlist
 		return filters.isEmpty() ? null : new FilterSet(filters);
 	}
 
-	public Track getNext()
+	/**@
+	 * param track
+	 * @return adds additional information to track
+	 */
+	public TrackBundle enrich(Track track){
+		return new TrackBundle(
+				  track,
+				  playOrderStrategy.getNext(track),
+				  playOrderStrategy.getPrevious(track)
+		);
+	}
+
+
+	public TrackBundle getNext()
 	{
 		PerformanceMeasure.start(durations.NEXT.name());
+		List<Track> nextCandidates = playOrderStrategy.getNext(getCurrTrack().getTrack(), 2);
 
-		Track track = playOrderStrategy.getNext(getCurrTrack());
+		TrackBundle trackBundle = new TrackBundle(
+				  nextCandidates.size() > 0 ? nextCandidates.get(0) : null,
+				  nextCandidates.size() > 1 ? nextCandidates.get(1) : null,
+				  getCurrTrack().getTrack()
+		);
 
 		PerformanceMeasure.stop(durations.NEXT.name());
 
-		return track;
+		return trackBundle;
 	}
 
-	public Track getPrevious()
+	public TrackBundle getPrevious()
 	{
 		PerformanceMeasure.start(durations.PREV.name());
 
-		Track track = playOrderStrategy.getPrevious(getCurrTrack());
+		List<Track> previousCandidates = playOrderStrategy.getPrevious(getCurrTrack().getTrack(), 2);
+
+		TrackBundle trackBundle = new TrackBundle(
+				  previousCandidates.size() > 0 ? previousCandidates.get(0) : null,
+				  getCurrTrack().getTrack(),
+				  previousCandidates.size() > 1 ? previousCandidates.get(1) : null
+		);
 
 		PerformanceMeasure.stop(durations.PREV.name());
 
-		return track;
+		return trackBundle;
 	}
 
 	public int countAvailableTracks(){
@@ -196,12 +220,12 @@ public class Playlist
 		return db.getTracks(getFilter());
 	}
 
-	public Track getCurrTrack()
+	public TrackBundle getCurrTrack()
 	{
 		return currTrack;
 	}
 
-	public void setCurrTrack(Track currTrack)
+	public void setCurrTrack(TrackBundle currTrack)
 	{
 		this.currTrack = currTrack;
 	}

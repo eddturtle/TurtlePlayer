@@ -1,20 +1,30 @@
 package turtle.player.playlist.playorder;
 
 import turtle.player.model.Track;
-import turtle.player.persistance.turtle.db.TurtleDatabase;
-import turtle.player.playlist.Playlist;
-import turtle.player.preferences.Preferences;
+import turtle.player.model.TrackBundle;
+
+import java.util.List;
 
 public interface PlayOrderStrategy {
 
-    /*
-     * @return null if strategy has no next song for this config and tracklist
-     */
-    Track getNext(Track currTrack);
+	/**
+	 * @return empty list if strategy has no next song for this config and tracklist
+	 */
+	 List<Track> getNext(Track currTrack, int n);
 
     /**
-     * @return null if strategy has no previous song for this config and tracklist
+     * @return empty list if strategy has no previous song for this config and tracklist
      */
-    Track getPrevious(Track currTrack);
+	 List<Track> getPrevious(Track currTrack, int n);
+
+	/*
+     * @return null if strategy has no next song for this config and tracklist
+     */
+	Track getNext(Track currTrack);
+
+	/**
+	 * @return null if strategy has no previous song for this config and tracklist
+	 */
+	Track getPrevious(Track currTrack);
 
 }
