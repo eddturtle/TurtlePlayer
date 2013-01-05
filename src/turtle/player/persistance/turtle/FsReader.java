@@ -94,6 +94,7 @@ public class FsReader
 				if (Shorty.isVoid(album))
 				{
 					album = "Unknown";
+					number = 0; //tracknumbers with no album results in strange sorting
 				}
 
 				Track t = new Track(
@@ -158,7 +159,7 @@ public class FsReader
 
 	static int parseTrackNumber(String trackNumber)
 	{
-		//strips all chars beginning at first non digit
+		//strips all chars beginning at first non digit (e.g. 5/10)
 		String strippedTrackNumber = trackNumber.replaceAll("\\D.*", "");
 
 		if (strippedTrackNumber.length() > 0)
