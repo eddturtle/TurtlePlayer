@@ -8,8 +8,18 @@ import android.view.View;
 import android.widget.ImageView;
 import turtle.player.R;
 import turtle.player.model.Track;
+import turtle.player.persistance.framework.filter.FieldFilter;
+import turtle.player.persistance.framework.filter.Filter;
+import turtle.player.persistance.framework.filter.FilterSet;
+import turtle.player.persistance.framework.filter.FilterVisitor;
 import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.playlist.Playlist;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -37,11 +47,47 @@ public abstract class TouchHandler implements View.OnTouchListener
 		TRACK
 	}
 
+	private enum BowMenuEntry
+	{
+		LEFT(R.id.bowmenu_left, R.drawable.menubow_left_290_active, R.drawable.menubow_left_290, Tables.TRACKS.ALBUM),
+		RIGHT(R.id.bowmenu_right, R.drawable.menubow_right_290_active, R.drawable.menubow_right_290, Tables.TRACKS.ARTIST),
+		BOTTOM(R.id.bowmenu_bottom, R.drawable.menubow_bottom_290_active, R.drawable.menubow_bottom_290, Tables.TRACKS.ROOTSRC),
+		TOP(R.id.bowmenu_top, R.drawable.menubow_top_290_active, R.drawable.menubow_top_290, Tables.TRACKS.LENGTH);
+
+		final int layoutId;
+		final int layoutOnPic;
+		final int layoutOffPic;
+		final FieldPersistable<Track, ?> field;
+
+		private BowMenuEntry(int layoutId,
+									int layoutOnPic,
+									int layoutOffPic,
+									FieldPersistable<Track, ?> field)
+		{
+			this.layoutId = layoutId;
+			this.layoutOnPic = layoutOnPic;
+			this.layoutOffPic = layoutOffPic;
+			this.field = field;
+		}
+
+		public int getLayoutId()
+		{
+			return layoutId;
+		}
+
+		public FieldPersistable<Track, ?> getField()
+		{
+			return field;
+		}
+
+		public int getLayoutPic(boolean active)
+		{
+			return active ? layoutOnPic : layoutOffPic;
+		}
+	}
+
 	//Filter
-	private final ImageView bowMenuTop;
-	private final ImageView bowMenuLeft;
-	private final ImageView bowMenuRight;
-	private final ImageView bowMenuBottom;
+	private final Map<BowMenuEntry, ImageView> bowMenuEntries = new HashMap<BowMenuEntry, ImageView>();
 	private final ImageView pointer;
 
 	private final View[] scrollingViews;
@@ -54,13 +100,15 @@ public abstract class TouchHandler implements View.OnTouchListener
 	private Mode currMode = Mode.TRACK;
 
 
-	protected TouchHandler(Activity activity, View... scrollingViews)
+	protected TouchHandler(Activity activity, Playlist playlist, View... scrollingViews)
 	{
+		playlist.addObserver(new PlaylistObserver());
+
 		pointer = (ImageView) activity.findViewById(R.id.pointer);
-		bowMenuTop = (ImageView) activity.findViewById(R.id.bowmenu_top);
-		bowMenuLeft = (ImageView) activity.findViewById(R.id.bowmenu_left);
-		bowMenuBottom = (ImageView) activity.findViewById(R.id.bowmenu_bottom);
-		bowMenuRight = (ImageView) activity.findViewById(R.id.bowmenu_right);
+
+		for(BowMenuEntry bowMenuEntry : BowMenuEntry.values()){
+			bowMenuEntries.put(bowMenuEntry, (ImageView) activity.findViewById(bowMenuEntry.getLayoutId()));
+		}
 
 		initalScrollingOfScrollingViews = new Point[scrollingViews.length];
 		this.scrollingViews = scrollingViews;
@@ -129,10 +177,10 @@ public abstract class TouchHandler implements View.OnTouchListener
 		public void run()
 		{
 			pointer.setVisibility(View.VISIBLE);
-			bowMenuTop.setVisibility(View.VISIBLE);
-			bowMenuLeft.setVisibility(View.VISIBLE);
-			bowMenuBottom.setVisibility(View.VISIBLE);
-			bowMenuRight.setVisibility(View.VISIBLE);
+
+			for(View view : bowMenuEntries.values()){
+				view.setVisibility(View.VISIBLE);
+			}
 
 			currMode = Mode.MENU;
 		}
@@ -163,10 +211,9 @@ public abstract class TouchHandler implements View.OnTouchListener
 					switch (currMode)
 					{
 						case MENU:
-							if(isPointInsideOf(bowMenuTop, event.getRawX(), event.getRawY())) filterSelected(Tables.TRACKS.LENGTH); //TODO
-							if(isPointInsideOf(bowMenuLeft, event.getRawX(), event.getRawY())) filterSelected(Tables.TRACKS.ALBUM);
-							if(isPointInsideOf(bowMenuRight, event.getRawX(), event.getRawY())) filterSelected(Tables.TRACKS.ARTIST);
-							if(isPointInsideOf(bowMenuBottom, event.getRawX(), event.getRawY())) filterSelected(Tables.TRACKS.ROOTSRC);
+							for(Map.Entry<BowMenuEntry, ImageView> entry : bowMenuEntries.entrySet()){
+								if(isPointInsideOf(entry.getValue(), event.getRawX(), event.getRawY())) filterSelected(entry.getKey().getField());
+							}
 							break;
 
 						case TRACK:
@@ -186,10 +233,9 @@ public abstract class TouchHandler implements View.OnTouchListener
 				resetScrollingViews();
 				pointer.scrollTo(0,0);
 				pointer.setVisibility(View.INVISIBLE);
-				bowMenuTop.setVisibility(View.INVISIBLE);
-				bowMenuLeft.setVisibility(View.INVISIBLE);
-				bowMenuBottom.setVisibility(View.INVISIBLE);
-				bowMenuRight.setVisibility(View.INVISIBLE);
+				for(View view : bowMenuEntries.values()){
+					view.setVisibility(View.INVISIBLE);
+				}
 
 				pointer.removeCallbacks(pointerShower);
 				currMode = Mode.TRACK;
@@ -234,6 +280,43 @@ public abstract class TouchHandler implements View.OnTouchListener
 			{
 				initalScrollingOfScrollingViews[i] = new Point(scrollingViews[i].getScrollX(), scrollingViews[i].getScrollY());
 			}
+		}
+	}
+
+	class PlaylistObserver extends Playlist.PlaylistFilterChangeObserver{
+		public void filterAdded(Filter filter)
+		{
+			filterChanged(filter, true);
+		}
+
+		public void filterRemoved(Filter filter)
+		{
+			filterChanged(filter, false);
+		}
+
+		private void filterChanged(Filter filter, final boolean activated){
+			filter.accept(new FilterVisitor<Object, Void>()
+			{
+				public <T> Void visit(FieldFilter<Object, T> fieldFilter)
+				{
+					for(BowMenuEntry entry : BowMenuEntry.values())
+					{
+						if(entry.getField().equals(fieldFilter.getField()))
+						{
+							bowMenuEntries.get(entry).setImageResource(entry.getLayoutPic(activated));
+						}
+					}
+					return null;
+				}
+
+				public Void visit(FilterSet filterSet)
+				{
+					for(Filter filter : filterSet.getFilters()){
+						filter.accept(this);
+					}
+					return null;
+				}
+			});
 		}
 	}
 

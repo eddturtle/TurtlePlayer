@@ -97,11 +97,19 @@ public class Playlist
 	public <O> Filter addFilter(FieldPersistable<Track, O> field, Track track){
 		Filter filter = new FieldFilter<Track, O>(field, Operator.EQ, field.getAsString(track));
 		filters.add(filter);
+		for (PlaylistObserver observer : observers)
+		{
+			observer.filterAdded(filter);
+		}
 		return filter;
 	}
 
 	public void removeFilter(Filter filter){
 		filters.remove(filter);
+		for (PlaylistObserver observer : observers)
+		{
+			observer.filterRemoved(filter);
+		}
 	}
 
 	public Filter getFilter()
@@ -262,6 +270,29 @@ public class Playlist
 
 		void endUpdatePlaylist();
 
+		void filterAdded(Filter filter);
+
+		void filterRemoved(Filter filter);
+
+	}
+
+	public static abstract class PlaylistFilterChangeObserver implements PlaylistObserver
+	{
+		public void trackAdded(){/*doNothing*/}
+
+		public void startRescan(File mediaPath){/*doNothing*/}
+
+		public void endRescan(){/*doNothing*/}
+
+		public void startUpdatePlaylist(){/*doNothing*/}
+
+		public void endUpdatePlaylist(){/*doNothing*/}
+	}
+
+	public static abstract class PlaylistTrackChangeObserver implements PlaylistObserver{
+		public void filterAdded(Filter filter){/*doNothing*/}
+
+		public void filterRemoved(Filter filter){/*doNothing*/}
 	}
 
 	public void addObserver(PlaylistObserver observer)

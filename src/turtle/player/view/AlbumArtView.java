@@ -81,6 +81,7 @@ public class AlbumArtView
 
 		albumArt.getAlbumArtView().setOnTouchListener(new TouchHandler(
 				  activity,
+				  playlist,
 				  albumArt.getAlbumArtView(),
 				  albumArtLeft.getAlbumArtView(),
 				  albumArtRight.getAlbumArtView()

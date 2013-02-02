@@ -35,6 +35,8 @@ import turtle.player.controller.PhoneStateHandler;
 import turtle.player.dirchooser.DirChooserConstants;
 import turtle.player.model.Track;
 import turtle.player.model.TrackBundle;
+import turtle.player.persistance.framework.filter.*;
+import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.playlist.Playlist;
 import turtle.player.preferences.Key;
@@ -327,7 +329,7 @@ public class Player extends ListActivity
 	{
 
 		//Rescan Progress Bar
-		tp.playlist.addObserver(new Playlist.PlaylistObserver()
+		tp.playlist.addObserver(new Playlist.PlaylistTrackChangeObserver()
 		{
 			public void startUpdatePlaylist()
 			{
