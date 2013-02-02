@@ -26,6 +26,9 @@ import turtle.player.model.Instance;
 import turtle.player.model.Track;
 import turtle.player.model.TrackBundle;
 import turtle.player.persistance.framework.db.ObservableDatabase;
+import turtle.player.persistance.framework.filter.FieldFilter;
+import turtle.player.persistance.framework.filter.Operator;
+import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.turtle.FsReader;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.framework.filter.Filter;
@@ -61,8 +64,6 @@ public class Playlist
 	private final TurtleDatabase db;
 	private final Set<Filter> filters = new HashSet<Filter>();
 
-	private TrackBundle currTrack = new TrackBundle();
-
 	public Playlist(Context mainContext, TurtleDatabase db)
 	{
 		// Location, Repeat, Shuffle (Remember Trailing / on Location)
@@ -93,9 +94,19 @@ public class Playlist
 				  new PlayOrderSorted(db, this);
 	}
 
+	public <O> Filter addFilter(FieldPersistable<Track, O> field, Track track){
+		Filter filter = new FieldFilter<Track, O>(field, Operator.EQ, field.getAsString(track));
+		filters.add(filter);
+		return filter;
+	}
+
+	public void removeFilter(Filter filter){
+		filters.remove(filter);
+	}
+
 	public Filter getFilter()
 	{
-		return filters.isEmpty() ? null : new FilterSet(filters);
+		return filters.isEmpty() ? new FilterSet() : new FilterSet(filters);
 	}
 
 	/**@

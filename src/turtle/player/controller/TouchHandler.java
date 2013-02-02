@@ -7,6 +7,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import turtle.player.R;
+import turtle.player.model.Track;
+import turtle.player.persistance.source.relational.FieldPersistable;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -59,29 +62,11 @@ public abstract class TouchHandler implements View.OnTouchListener
 		bowMenuBottom = (ImageView) activity.findViewById(R.id.bowmenu_bottom);
 		bowMenuRight = (ImageView) activity.findViewById(R.id.bowmenu_right);
 
-		addBowMenuListener(bowMenuTop, ChoosableFilter.ALBUM);
-		addBowMenuListener(bowMenuLeft, ChoosableFilter.ARTIST);
-		addBowMenuListener(bowMenuRight, ChoosableFilter.GENRE);
-		addBowMenuListener(bowMenuBottom, ChoosableFilter.DIR);
-
 		initalScrollingOfScrollingViews = new Point[scrollingViews.length];
 		this.scrollingViews = scrollingViews;
 
 		gestureDetector = new GestureDetector(activity, gestureListener);
 		gestureDetector.setIsLongpressEnabled(false);
-	}
-
-	private void addBowMenuListener(View menuBow, final ChoosableFilter choosableFilter){
-		menuBow.setOnTouchListener(new View.OnTouchListener()
-		{
-			public boolean onTouch(View v, MotionEvent event)
-			{
-				if (MotionEvent.ACTION_UP == event.getAction()){
-					filterSelected(choosableFilter);
-				}
-				return true;
-			}
-		});
 	}
 
 	GestureDetector.OnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener(){
@@ -178,10 +163,10 @@ public abstract class TouchHandler implements View.OnTouchListener
 					switch (currMode)
 					{
 						case MENU:
-							if(isPointInsideOf(bowMenuTop, event.getRawX(), event.getRawY())) filterSelected(ChoosableFilter.GENRE);
-							if(isPointInsideOf(bowMenuLeft, event.getRawX(), event.getRawY())) filterSelected(ChoosableFilter.ALBUM);
-							if(isPointInsideOf(bowMenuRight, event.getRawX(), event.getRawY())) filterSelected(ChoosableFilter.ARTIST);
-							if(isPointInsideOf(bowMenuBottom, event.getRawX(), event.getRawY())) filterSelected(ChoosableFilter.DIR);
+							if(isPointInsideOf(bowMenuTop, event.getRawX(), event.getRawY())) filterSelected(Tables.TRACKS.LENGTH); //TODO
+							if(isPointInsideOf(bowMenuLeft, event.getRawX(), event.getRawY())) filterSelected(Tables.TRACKS.ALBUM);
+							if(isPointInsideOf(bowMenuRight, event.getRawX(), event.getRawY())) filterSelected(Tables.TRACKS.ARTIST);
+							if(isPointInsideOf(bowMenuBottom, event.getRawX(), event.getRawY())) filterSelected(Tables.TRACKS.ROOTSRC);
 							break;
 
 						case TRACK:
@@ -255,5 +240,5 @@ public abstract class TouchHandler implements View.OnTouchListener
 
 	protected abstract void nextGestureRecognized();
 	protected abstract void previousGestureRecognized();
-	protected abstract void filterSelected(ChoosableFilter choosableFilter);
+	protected abstract void filterSelected(FieldPersistable<Track, ?> field);
 }

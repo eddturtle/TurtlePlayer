@@ -1,18 +1,19 @@
 package turtle.player.view;
 
 import android.app.Activity;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 import turtle.player.R;
-import turtle.player.controller.*;
 import turtle.player.controller.TouchHandler;
 import turtle.player.model.Track;
 import turtle.player.model.TrackBundle;
+import turtle.player.persistance.framework.filter.Filter;
+import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.player.Player;
 import turtle.player.playlist.Playlist;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * TURTLE PLAYER
@@ -36,6 +37,8 @@ public class AlbumArtView
 
 	private final View albumArtViewGroup;
 
+	private final Map<FieldPersistable<Track, ?>, Filter> settedFilters =
+			  new HashMap<FieldPersistable<Track, ?>, Filter>();
 
 	//AlbumArt
 	private final AlbumArt albumArt;
@@ -96,10 +99,25 @@ public class AlbumArtView
 				player.play(playlist.getPrevious(player.getCurrTrack()).getTrack());
 			}
 
+
 			@Override
-			protected void filterSelected(ChoosableFilter choosableFilter)
+			protected void filterSelected(FieldPersistable<Track, ?> field)
 			{
-				Toast.makeText(activity.getApplicationContext(), choosableFilter.name(), Toast.LENGTH_SHORT).show();
+				Filter previousFilter = settedFilters.get(field);
+				String msg = field.getName();
+				if(previousFilter == null)
+				{
+					settedFilters.put(field, playlist.addFilter(field, player.getCurrTrack()));
+					msg += " " + activity.getString(R.string.added);
+				}
+				else
+				{
+					playlist.removeFilter(previousFilter);
+					settedFilters.remove(field);
+					msg += " " + activity.getString(R.string.removed);
+				}
+
+				Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
 			}
 		});
 	}

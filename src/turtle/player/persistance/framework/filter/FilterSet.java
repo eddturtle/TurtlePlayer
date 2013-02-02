@@ -24,18 +24,16 @@ import java.util.Set;
 
 public class FilterSet implements Filter
 {
-	private final Set<Filter> filters = new HashSet<Filter>();
+	private final Set<Filter> filters;
 
 	public FilterSet(Filter... filter)
 	{
-		Collections.addAll(filters, filter);
-		filters.remove(null);
+		this.filters = new HashSet<Filter>(Arrays.asList(filter));
 	}
 
 	public FilterSet(Set<Filter> filters)
 	{
-		filters.addAll(filters);
-		filters.remove(null);
+		this.filters = new HashSet<Filter>(filters);
 	}
 
 	public <R, I> R accept(FilterVisitor<I, R> visitor)

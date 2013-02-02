@@ -45,4 +45,7 @@
     <!-- Img descriptions -->
     <string name="pointer">Pointer</string>
 
+    <!--Toast-->
+    <string name="added">added</string>
+    <string name="removed">removed</string>
 </resources>
