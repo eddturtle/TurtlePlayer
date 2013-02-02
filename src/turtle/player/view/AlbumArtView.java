@@ -5,6 +5,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 import turtle.player.R;
 import turtle.player.controller.*;
 import turtle.player.controller.TouchHandler;
@@ -96,9 +97,9 @@ public class AlbumArtView
 			}
 
 			@Override
-			protected void filterSelected()
+			protected void filterSelected(ChoosableFilter choosableFilter)
 			{
-				//To change body of implemented methods use File | Settings | File Templates.
+				Toast.makeText(activity.getApplicationContext(), choosableFilter.name(), Toast.LENGTH_SHORT).show();
 			}
 		});
 	}

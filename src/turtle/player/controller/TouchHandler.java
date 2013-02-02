@@ -59,11 +59,29 @@ public abstract class TouchHandler implements View.OnTouchListener
 		bowMenuBottom = (ImageView) activity.findViewById(R.id.bowmenu_bottom);
 		bowMenuRight = (ImageView) activity.findViewById(R.id.bowmenu_right);
 
+		addBowMenuListener(bowMenuTop, ChoosableFilter.ALBUM);
+		addBowMenuListener(bowMenuLeft, ChoosableFilter.ARTIST);
+		addBowMenuListener(bowMenuRight, ChoosableFilter.GENRE);
+		addBowMenuListener(bowMenuBottom, ChoosableFilter.DIR);
+
 		initalScrollingOfScrollingViews = new Point[scrollingViews.length];
 		this.scrollingViews = scrollingViews;
 
 		gestureDetector = new GestureDetector(activity, gestureListener);
 		gestureDetector.setIsLongpressEnabled(false);
+	}
+
+	private void addBowMenuListener(View menuBow, final ChoosableFilter choosableFilter){
+		menuBow.setOnTouchListener(new View.OnTouchListener()
+		{
+			public boolean onTouch(View v, MotionEvent event)
+			{
+				if (MotionEvent.ACTION_UP == event.getAction()){
+					filterSelected(choosableFilter);
+				}
+				return true;
+			}
+		});
 	}
 
 	GestureDetector.OnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener(){
@@ -93,29 +111,30 @@ public abstract class TouchHandler implements View.OnTouchListener
 									  float velocityX,
 									  float velocityY)
 		{
-			if(velocityX < 0)
+			switch (currMode)
 			{
-				if(e1.getX() > e2.getX())
-				{
-					nextGestureRecognized();
-				}
-				else
-				{
-					return false;
-				}
+				case MENU:
+					break;
+				case TRACK:
+					if(velocityX < 0)
+					{
+						if(e1.getX() > e2.getX())
+						{
+							nextGestureRecognized();
+							return true;
+						}
+					}
+					else
+					{
+						if(e1.getX() < e2.getX())
+						{
+							previousGestureRecognized();
+							return true;
+						}
+					}
+					break;
 			}
-			else
-			{
-				if(e1.getX() < e2.getX())
-				{
-					previousGestureRecognized();
-				}
-				else
-				{
-					return false;
-				}
-			}
-			return true;
+			return false;
 		}
 	};
 
@@ -137,7 +156,9 @@ public abstract class TouchHandler implements View.OnTouchListener
 	public boolean onTouch(View v,
 								  MotionEvent event)
 	{
-		boolean consumed = gestureDetector.onTouchEvent(event);
+		boolean wasConsumed = gestureDetector.onTouchEvent(event);
+		boolean consumed = false;
+
 		if(MotionEvent.ACTION_DOWN == event.getAction())
 		{
 			pointer.getLocationOnScreen(pointerLocationOnScreen);
@@ -146,19 +167,34 @@ public abstract class TouchHandler implements View.OnTouchListener
 					  -((int)event.getY() - pointerLocationOnScreen[0] - pointer.getHeight()/2)
 			);
 			pointer.postDelayed(pointerShower, 500);
+			consumed = true;
 		}
 		else{
 
 			if (MotionEvent.ACTION_UP == event.getAction())
 			{
-				if(!consumed)
+				if(!wasConsumed)
 				{
-					if(scrollingViews[0].getScrollX() > scrollingViews[0].getWidth()/2){
-						nextGestureRecognized();
-					}
-					else if(-scrollingViews[0].getScrollX() > scrollingViews[0].getWidth()/2)
+					switch (currMode)
 					{
-						previousGestureRecognized();
+						case MENU:
+							if(isPointInsideOf(bowMenuTop, event.getRawX(), event.getRawY())) filterSelected(ChoosableFilter.GENRE);
+							if(isPointInsideOf(bowMenuLeft, event.getRawX(), event.getRawY())) filterSelected(ChoosableFilter.ALBUM);
+							if(isPointInsideOf(bowMenuRight, event.getRawX(), event.getRawY())) filterSelected(ChoosableFilter.ARTIST);
+							if(isPointInsideOf(bowMenuBottom, event.getRawX(), event.getRawY())) filterSelected(ChoosableFilter.DIR);
+							break;
+
+						case TRACK:
+							if(scrollingViews[0].getScrollX() > scrollingViews[0].getWidth()*2/3){
+								nextGestureRecognized();
+								consumed = true;
+							}
+							else if(-scrollingViews[0].getScrollX() > scrollingViews[0].getWidth()*2/3)
+							{
+								previousGestureRecognized();
+								consumed = true;
+							}
+							break;
 					}
 				}
 
@@ -174,10 +210,26 @@ public abstract class TouchHandler implements View.OnTouchListener
 				currMode = Mode.TRACK;
 			}
 		}
-		return true;
+		return consumed;
+	}
+
+	private boolean isPointInsideOf(View view, float x, float y){
+		int location[] = new int[2];
+		view.getLocationOnScreen(location);
+		int viewX = location[0];
+		int viewY = location[1];
+
+		//point is inside view bounds
+		if(( x > viewX && x < (viewX + view.getWidth())) &&
+				  ( y > viewY && y < (viewY + view.getHeight()))){
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private void resetScrollingViews(){
+		saveInitalPositions();
 		for(int i = 0; i < scrollingViews.length; i++){
 			scrollingViews[i].scrollTo(initalScrollingOfScrollingViews[i].x, initalScrollingOfScrollingViews[i].y);
 		}
@@ -199,7 +251,9 @@ public abstract class TouchHandler implements View.OnTouchListener
 			}
 		}
 	}
+
+
 	protected abstract void nextGestureRecognized();
 	protected abstract void previousGestureRecognized();
-	protected abstract void filterSelected();
+	protected abstract void filterSelected(ChoosableFilter choosableFilter);
 }
