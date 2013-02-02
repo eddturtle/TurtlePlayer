@@ -124,11 +124,10 @@
 
             <ImageView
                     android:id="@+id/pointer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
                     android:src="@drawable/pointer120"
+                    android:scaleType="center"
                     android:contentDescription="@string/pointer"
                     android:visibility="invisible"/>
         </RelativeLayout>

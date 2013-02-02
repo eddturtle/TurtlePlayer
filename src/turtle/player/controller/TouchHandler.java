@@ -26,6 +26,13 @@ import turtle.player.R;
 
 public abstract class TouchHandler implements View.OnTouchListener
 {
+
+	private enum Mode
+	{
+		MENU,
+		TRACK
+	}
+
 	//Filter
 	private final ImageView bowMenuTop;
 	private final ImageView bowMenuLeft;
@@ -36,6 +43,10 @@ public abstract class TouchHandler implements View.OnTouchListener
 	private final View scrollingView;
 
 	private final GestureDetector gestureDetector;
+
+	private final int[] pointerLocationOnScreen = new int[2];
+
+	private Mode currMode = Mode.TRACK;
 
 
 	protected TouchHandler(Activity activity, View scrollingView)
@@ -59,9 +70,17 @@ public abstract class TouchHandler implements View.OnTouchListener
 										float distanceX,
 										float distanceY)
 		{
-			scrollingView.scrollBy((int)(distanceX*1.5), 0);
-			pointer.scrollBy((int) distanceX, (int) distanceY);
-			pointer.invalidate();
+			switch (currMode)
+			{
+				case MENU:
+					break;
+				case TRACK:
+					scrollingView.scrollBy((int)(distanceX*1.5), 0);
+					pointer.removeCallbacks(pointerShower);
+					break;
+			}
+
+			pointer.scrollBy((int)distanceX, (int)distanceY);
 			return true;
 		}
 
@@ -107,6 +126,8 @@ public abstract class TouchHandler implements View.OnTouchListener
 			bowMenuLeft.setVisibility(View.VISIBLE);
 			bowMenuBottom.setVisibility(View.VISIBLE);
 			bowMenuRight.setVisibility(View.VISIBLE);
+
+			currMode = Mode.MENU;
 		}
 	};
 
@@ -116,6 +137,11 @@ public abstract class TouchHandler implements View.OnTouchListener
 		boolean consumed = gestureDetector.onTouchEvent(event);
 		if(MotionEvent.ACTION_DOWN == event.getAction())
 		{
+			pointer.getLocationOnScreen(pointerLocationOnScreen);
+			pointer.scrollTo(
+					  -((int)event.getX() - pointerLocationOnScreen[0] - pointer.getWidth()/2),
+					  -((int)event.getY() - pointerLocationOnScreen[0] - pointer.getHeight()/2)
+			);
 			pointer.postDelayed(pointerShower, 500);
 		}
 		else{
@@ -142,6 +168,7 @@ public abstract class TouchHandler implements View.OnTouchListener
 				bowMenuRight.setVisibility(View.INVISIBLE);
 
 				pointer.removeCallbacks(pointerShower);
+				currMode = Mode.TRACK;
 			}
 		}
 		return true;
