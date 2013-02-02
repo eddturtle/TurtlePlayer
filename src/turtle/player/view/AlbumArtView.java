@@ -47,6 +47,7 @@ public class AlbumArtView
 	{
 		albumArtViewGroup = activity.findViewById(R.id.relativeLayout_albumArt);
 
+
 		albumArt = new AlbumArt(albumArtViewGroup, AlbumArt.Type.CENTER);
 		albumArtLeft = new AlbumArt(albumArtViewGroup, AlbumArt.Type.LEFT);
 		albumArtRight = new AlbumArt(albumArtViewGroup, AlbumArt.Type.RIGHT);
@@ -74,7 +75,13 @@ public class AlbumArtView
 
 
 
-		albumArtViewGroup.setOnTouchListener(new TouchHandler(activity, albumArtViewGroup)
+		albumArt.getAlbumArtView().setOnTouchListener(new TouchHandler(
+				  activity,
+				  albumArt.getAlbumArtView(),
+				  albumArtLeft.getAlbumArtView(),
+				  albumArtRight.getAlbumArtView()
+		)
+
 		{
 			@Override
 			protected void nextGestureRecognized()

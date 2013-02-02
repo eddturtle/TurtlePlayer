@@ -1,6 +1,7 @@
 package turtle.player.controller;
 
 import android.app.Activity;
+import android.graphics.Point;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -40,7 +41,8 @@ public abstract class TouchHandler implements View.OnTouchListener
 	private final ImageView bowMenuBottom;
 	private final ImageView pointer;
 
-	private final View scrollingView;
+	private final View[] scrollingViews;
+	private final Point[] initalScrollingOfScrollingViews;
 
 	private final GestureDetector gestureDetector;
 
@@ -49,7 +51,7 @@ public abstract class TouchHandler implements View.OnTouchListener
 	private Mode currMode = Mode.TRACK;
 
 
-	protected TouchHandler(Activity activity, View scrollingView)
+	protected TouchHandler(Activity activity, View... scrollingViews)
 	{
 		pointer = (ImageView) activity.findViewById(R.id.pointer);
 		bowMenuTop = (ImageView) activity.findViewById(R.id.bowmenu_top);
@@ -57,7 +59,8 @@ public abstract class TouchHandler implements View.OnTouchListener
 		bowMenuBottom = (ImageView) activity.findViewById(R.id.bowmenu_bottom);
 		bowMenuRight = (ImageView) activity.findViewById(R.id.bowmenu_right);
 
-		this.scrollingView = scrollingView;
+		initalScrollingOfScrollingViews = new Point[scrollingViews.length];
+		this.scrollingViews = scrollingViews;
 
 		gestureDetector = new GestureDetector(activity, gestureListener);
 		gestureDetector.setIsLongpressEnabled(false);
@@ -75,7 +78,7 @@ public abstract class TouchHandler implements View.OnTouchListener
 				case MENU:
 					break;
 				case TRACK:
-					scrollingView.scrollBy((int)(distanceX*1.5), 0);
+					scrollScrollingViewsBy((int)(distanceX*1.5), 0);
 					pointer.removeCallbacks(pointerShower);
 					break;
 			}
@@ -150,16 +153,16 @@ public abstract class TouchHandler implements View.OnTouchListener
 			{
 				if(!consumed)
 				{
-					if(scrollingView.getScrollX() > scrollingView.getWidth()/2){
+					if(scrollingViews[0].getScrollX() > scrollingViews[0].getWidth()/2){
 						nextGestureRecognized();
 					}
-					else if(-scrollingView.getScrollX() > scrollingView.getWidth()/2)
+					else if(-scrollingViews[0].getScrollX() > scrollingViews[0].getWidth()/2)
 					{
 						previousGestureRecognized();
 					}
 				}
 
-				scrollingView.scrollTo(0,0);
+				resetScrollingViews();
 				pointer.scrollTo(0,0);
 				pointer.setVisibility(View.INVISIBLE);
 				bowMenuTop.setVisibility(View.INVISIBLE);
@@ -174,6 +177,28 @@ public abstract class TouchHandler implements View.OnTouchListener
 		return true;
 	}
 
+	private void resetScrollingViews(){
+		for(int i = 0; i < scrollingViews.length; i++){
+			scrollingViews[i].scrollTo(initalScrollingOfScrollingViews[i].x, initalScrollingOfScrollingViews[i].y);
+		}
+	}
+
+	private void scrollScrollingViewsBy(int x, int y){
+		saveInitalPositions();
+		for(View scrollingView : scrollingViews){
+			scrollingView.scrollBy(x, y);
+		}
+	}
+
+	private void saveInitalPositions(){
+		if(initalScrollingOfScrollingViews[0] == null)
+		{
+			for(int i = 0; i < scrollingViews.length; i++)
+			{
+				initalScrollingOfScrollingViews[i] = new Point(scrollingViews[i].getScrollX(), scrollingViews[i].getScrollY());
+			}
+		}
+	}
 	protected abstract void nextGestureRecognized();
 	protected abstract void previousGestureRecognized();
 	protected abstract void filterSelected();
