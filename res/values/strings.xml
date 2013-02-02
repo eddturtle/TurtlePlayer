@@ -14,9 +14,13 @@
     <!-- Now Playing -->
     <string name="check_button">Check for MP3s</string>
     <string name="album_art">Album Art</string>
-    
+
+
     <string name="trackInitialValue">Track Name</string>
+    <string name="rootSrcInitialValue">Dir Name</string>
     <string name="artistInitialValue">Artist</string>
+    <string name="albumInitialValue">Album</string>
+    <string name="lengthInitialValue">Length</string>
     <string name="durationInitialValue">0.00</string>
     <string name="currPositionInitialValue">0.00</string>
     <string name="trackPostionSeparator"> / </string>

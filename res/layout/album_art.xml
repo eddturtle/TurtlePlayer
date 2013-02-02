@@ -41,7 +41,7 @@
                 android:shadowDy="0"
                 android:shadowRadius="5"
                 android:singleLine="true"
-                android:text="@string/trackInitialValue"
+                android:text="@string/rootSrcInitialValue"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:visibility="visible" />
 
