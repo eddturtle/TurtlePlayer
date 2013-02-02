@@ -15,9 +15,12 @@
     <string name="check_button">Check for MP3s</string>
     <string name="album_art">Album Art</string>
     
-    <string name="track">Track Name</string>
-    <string name="artist">Artist</string>
-    <string name="duration">0.00</string>
+    <string name="trackInitialValue">Track Name</string>
+    <string name="artistInitialValue">Artist</string>
+    <string name="durationInitialValue">0.00</string>
+    <string name="currPositionInitialValue">0.00</string>
+    <string name="trackPostionSeparator"> / </string>
+
     
     <!-- Now Playing Footer -->
     <string name="play">Play</string>
@@ -38,5 +41,8 @@
     <string name="dirchooser_label">Dir Chooser</string>
     <string name="delete">Delete</string>
     <string name="save">Save</string>
+
+    <!-- Img descriptions -->
+    <string name="pointer">Pointer</string>
 
 </resources>

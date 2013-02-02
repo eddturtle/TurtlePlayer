@@ -111,15 +111,15 @@ public class Playlist
 	}
 
 
-	public TrackBundle getNext()
+	public TrackBundle getNext(Track ofTrack)
 	{
 		PerformanceMeasure.start(durations.NEXT.name());
-		List<Track> nextCandidates = playOrderStrategy.getNext(getCurrTrack().getTrack(), 2);
+		List<Track> nextCandidates = playOrderStrategy.getNext(ofTrack, 2);
 
 		TrackBundle trackBundle = new TrackBundle(
 				  nextCandidates.size() > 0 ? nextCandidates.get(0) : null,
 				  nextCandidates.size() > 1 ? nextCandidates.get(1) : null,
-				  getCurrTrack().getTrack()
+				  ofTrack
 		);
 
 		PerformanceMeasure.stop(durations.NEXT.name());
@@ -127,15 +127,15 @@ public class Playlist
 		return trackBundle;
 	}
 
-	public TrackBundle getPrevious()
+	public TrackBundle getPrevious(Track ofTrack)
 	{
 		PerformanceMeasure.start(durations.PREV.name());
 
-		List<Track> previousCandidates = playOrderStrategy.getPrevious(getCurrTrack().getTrack(), 2);
+		List<Track> previousCandidates = playOrderStrategy.getPrevious(ofTrack, 2);
 
 		TrackBundle trackBundle = new TrackBundle(
 				  previousCandidates.size() > 0 ? previousCandidates.get(0) : null,
-				  getCurrTrack().getTrack(),
+				  ofTrack,
 				  previousCandidates.size() > 1 ? previousCandidates.get(1) : null
 		);
 
@@ -218,16 +218,6 @@ public class Playlist
 	public Collection<Track> getCurrTracks()
 	{
 		return db.getTracks(getFilter());
-	}
-
-	public TrackBundle getCurrTrack()
-	{
-		return currTrack;
-	}
-
-	public void setCurrTrack(TrackBundle currTrack)
-	{
-		this.currTrack = currTrack;
 	}
 
 	public int Length()

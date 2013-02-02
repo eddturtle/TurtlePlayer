@@ -41,7 +41,7 @@
                 android:shadowDy="0"
                 android:shadowRadius="5"
                 android:singleLine="true"
-                android:text="@string/track"
+                android:text="@string/trackInitialValue"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:visibility="visible" />
 
@@ -55,7 +55,7 @@
                 android:shadowDx="0"
                 android:shadowDy="0"
                 android:shadowRadius="5"
-                android:text="@string/artist"
+                android:text="@string/artistInitialValue"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:visibility="visible" />
 

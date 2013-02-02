@@ -65,10 +65,10 @@ public class AlbumArt
 	private final TextView title;
 	private final TextView artist;
 
-	public AlbumArt(Activity activity, Type type)
+	public AlbumArt(View albumArtViewGroup, Type type)
 	{
 
-		albumArtView = activity.findViewById(type.getRId());
+		albumArtView = albumArtViewGroup.findViewById(type.getRId());
 		//activity.findViewById(type.getRId())
 		this.type = type;
 
@@ -116,7 +116,7 @@ public class AlbumArt
 		}
 	}
 
-	public void setInitialPositions()
+	private void setInitialPositions()
 	{
 		albumArtView.scrollTo((int)(type.getHorizontalShift() * albumArtView.getWidth()), 0);
 	}
