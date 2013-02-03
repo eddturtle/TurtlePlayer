@@ -68,6 +68,14 @@ public class Tables
 			}
 		};
 
+		public final FieldPersistable<Track, String> GENRE = new FieldPersistable<Track, String>("genre")
+		{
+			public String get(Track instance)
+			{
+				return instance.GetGenre().getName();
+			}
+		};
+
 		public final FieldPersistable<Track, Double> LENGTH = new FieldPersistable<Track, Double>("length")
 		{
 			public Double get(Track instance)
@@ -104,21 +112,6 @@ public class Tables
 		public Tracks()
 		{
 			super("Tracks");
-		}
-
-		@Override
-		public List<Field> getFields()
-		{
-			List<Field> fields = new ArrayList<Field>();
-			fields.add(TITLE);
-			fields.add(NUMBER);
-			fields.add(ARTIST);
-			fields.add(ALBUM);
-			fields.add(LENGTH);
-			fields.add(SRC);
-			fields.add(ROOTSRC);
-			fields.add(ALBUMART);
-			return fields;
 		}
 
 	}

@@ -3,6 +3,7 @@ package turtle.player.persistance.turtle.mapping;
 import android.database.Cursor;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
+import turtle.player.model.Genre;
 import turtle.player.model.Track;
 import turtle.player.persistance.framework.creator.Creator;
 import turtle.player.persistance.turtle.db.structure.Tables;
@@ -33,6 +34,7 @@ public class TrackCreator implements Creator<Track, Cursor>
 				  cursor.getInt(cursor.getColumnIndex(Tables.TRACKS.NUMBER.getName())),
 				  new Artist(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ARTIST.getName()))),
 				  new Album(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ALBUM.getName()))),
+				  new Genre(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.GENRE.getName()))),
 				  cursor.getDouble(cursor.getColumnIndex(Tables.TRACKS.LENGTH.getName())),
 				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.SRC.getName())),
 				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ROOTSRC.getName())),

@@ -24,6 +24,7 @@ import android.util.Log;
 import turtle.player.common.filefilter.FileFilters;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
+import turtle.player.model.Genre;
 import turtle.player.model.Track;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.preferences.Preferences;
@@ -80,20 +81,14 @@ public class FsReader
 				double length = parseDuration(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_DURATION));
 				String artist = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ARTIST);
 				String album = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ALBUM);
+				String genre = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_GENRE);
 
 				if (Shorty.isVoid(title))
 				{
 					title = "Unknown";
 				}
-
-				if (Shorty.isVoid(artist))
-				{
-					artist = "Unknown";
-				}
-
 				if (Shorty.isVoid(album))
 				{
-					album = "Unknown";
 					number = 0; //tracknumbers with no album results in strange sorting
 				}
 
@@ -102,6 +97,7 @@ public class FsReader
 						  number,
 						  new Artist(artist),
 						  new Album(album),
+						  new Genre(genre),
 						  length,
 						  rootNode + "/" + mp3,
 						  rootNode + "/",

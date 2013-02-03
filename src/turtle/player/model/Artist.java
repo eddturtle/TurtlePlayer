@@ -18,35 +18,26 @@
 
 package turtle.player.model;
 
+import turtle.player.util.Shorty;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class Artist implements Instance
 {
+	private static final String EMPTY_REPLACMENT= "Unknown";
+
 	private final String name;
 
 	public Artist(String name)
 	{
-		this.name = name;
+		this.name = Shorty.isVoid(name) ? EMPTY_REPLACMENT : name;
 	}
 
 	public String getName()
 	{
 		return name;
-	}
-
-	public Set<Track> getChilds(Set<Track> tracks)
-	{
-		Set<Track> trackOfArtist = new HashSet<Track>();
-		for (Track track : tracks)
-		{
-			if (this.equals(track.GetArtist()))
-			{
-				trackOfArtist.add(track);
-			}
-		}
-		return trackOfArtist;
 	}
 
 	public <R> R accept(InstanceVisitor<R> visitor)

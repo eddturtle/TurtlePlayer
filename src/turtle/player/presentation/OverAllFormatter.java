@@ -20,6 +20,7 @@ package turtle.player.presentation;
 
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
+import turtle.player.model.Genre;
 import turtle.player.model.Track;
 import turtle.player.util.Shorty;
 
@@ -68,7 +69,12 @@ public class OverAllFormatter extends InstanceFormatter
         return album.getName();
     }
 
-    public String visit(Artist artist)
+	public String visit(Genre genre)
+	{
+		return genre.getName();
+	}
+
+	public String visit(Artist artist)
     {
         return artist.getName();
     }

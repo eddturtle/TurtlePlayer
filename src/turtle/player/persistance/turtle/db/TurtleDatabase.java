@@ -58,7 +58,14 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 
 	public TurtleDatabase(Context context)
 	{
-		SQLiteOpenHelper turtleDatabaseImpl = new TurtleDatabaseImpl(context);
+		SQLiteOpenHelper turtleDatabaseImpl = new TurtleDatabaseImpl(context)
+		{
+			@Override
+			public void dbResetted()
+			{
+				notifyCleared();
+			}
+		};
 		db = turtleDatabaseImpl.getWritableDatabase();
 	}
 

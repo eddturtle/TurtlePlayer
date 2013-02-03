@@ -29,6 +29,7 @@ public class Track implements Instance
 	//private String number;
 	private final Artist artist;
 	private final Album album;
+	private final Genre genre;
 	private final double length;
 	private final String src;
 	private final String rootSrc;
@@ -38,6 +39,7 @@ public class Track implements Instance
 					 int number,
 					 Artist artist,
 					 Album album,
+					 Genre genre,
 					 double length,
 					 String src,
 					 String rootSrc,
@@ -47,6 +49,7 @@ public class Track implements Instance
 		this.number = number;
 		this.artist = artist;
 		this.album = album;
+		this.genre = genre;
 		this.length = length;
 		this.src = src;
 		this.rootSrc = rootSrc;
@@ -73,6 +76,11 @@ public class Track implements Instance
 		return album;
 	}
 
+	public Genre GetGenre()
+	{
+		return genre;
+	}
+
 	public double GetLength()
 	{
 		return length;
@@ -91,14 +99,6 @@ public class Track implements Instance
 	public String albumArt()
 	{
 		return albumArt;
-	}
-
-	/**
-	 * Track has no childs normally
-	 */
-	public Set<? extends Instance> getChilds(Set<Track> tracks)
-	{
-		return new HashSet<Instance>();
 	}
 
 	public <R> R accept(InstanceVisitor<R> visitor)

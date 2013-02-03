@@ -6,6 +6,7 @@ import turtle.player.persistance.source.relational.Table;
 import turtle.player.persistance.source.sql.query.Limit;
 import turtle.player.persistance.source.sql.query.Select;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,6 +47,7 @@ public class Limited<I> extends First<List<I>>
 
 	public List<I> create(Cursor queryResult)
 	{
-		return super.create(queryResult);
+		List<I> result = super.create(queryResult);
+		return result == null ? new ArrayList<I>() : result;
 	}
 }

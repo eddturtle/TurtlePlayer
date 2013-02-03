@@ -24,5 +24,7 @@ public interface InstanceVisitor<R>
 
 	R visit(Album album);
 
+	R visit(Genre genre);
+
 	R visit(Artist artist);
 }

@@ -53,7 +53,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 	{
 		LEFT(R.id.bowmenu_left, R.drawable.menubow_left_290_active, R.drawable.menubow_left_290, R.id.track_instant_filter_left, Tables.TRACKS.ALBUM),
 		RIGHT(R.id.bowmenu_right, R.drawable.menubow_right_290_active, R.drawable.menubow_right_290, R.id.track_instant_filter_right, Tables.TRACKS.ARTIST),
-		BOTTOM(R.id.bowmenu_bottom, R.drawable.menubow_bottom_290_active, R.drawable.menubow_bottom_290, R.id.track_instant_filter_bottom, Tables.TRACKS.LENGTH), //TODO: genre should be here
+		BOTTOM(R.id.bowmenu_bottom, R.drawable.menubow_bottom_290_active, R.drawable.menubow_bottom_290, R.id.track_instant_filter_bottom, Tables.TRACKS.GENRE),
 		TOP(R.id.bowmenu_top, R.drawable.menubow_top_290_active, R.drawable.menubow_top_290, R.id.track_instant_filter_top, Tables.TRACKS.ROOTSRC);
 
 		final int layoutId;

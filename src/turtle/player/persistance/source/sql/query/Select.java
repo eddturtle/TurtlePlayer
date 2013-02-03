@@ -39,7 +39,7 @@ public class Select implements Sql
 
 	public Select(Table table)
 	{
-		this.sql = "SELECT " + new FieldsPart(table.getFields()).toSql() + " FROM " + table.getName();
+		this.sql = "SELECT * FROM " + table.getName();
 	}
 
 	public Select(Table table, Field... fields)

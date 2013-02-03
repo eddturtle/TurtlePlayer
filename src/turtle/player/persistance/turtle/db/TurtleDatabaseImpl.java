@@ -24,10 +24,10 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class TurtleDatabaseImpl extends SQLiteOpenHelper
+public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 {
 
-	public static final int DATABASE_VERSION = 2;
+	public static final int DATABASE_VERSION = 3;
 	public static final String DATABASE_NAME = "TurtlePlayer";
 
 	public TurtleDatabaseImpl(Context context)
@@ -44,6 +44,7 @@ public class TurtleDatabaseImpl extends SQLiteOpenHelper
 				  + Tables.TRACKS.NUMBER.getName() + " INTEGER, "
 				  + Tables.TRACKS.ARTIST.getName() + " TEXT, "
 				  + Tables.TRACKS.ALBUM.getName() + " TEXT, "
+				  + Tables.TRACKS.GENRE.getName() + " TEXT, "
 				  + Tables.TRACKS.LENGTH.getName() + " REAL, "
 				  + Tables.TRACKS.SRC.getName() + " TEXT, "
 				  + Tables.TRACKS.ROOTSRC.getName() + " TEXT, "
@@ -57,5 +58,8 @@ public class TurtleDatabaseImpl extends SQLiteOpenHelper
 								 int newVersion)
 	{db.execSQL("DROP TABLE IF EXISTS " + Tables.TRACKS.getName());
 		onCreate(db);
+		dbResetted();
 	}
+
+	public abstract void dbResetted();
 }

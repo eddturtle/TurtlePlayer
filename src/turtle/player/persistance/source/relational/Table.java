@@ -32,6 +32,4 @@ public abstract class Table<I>
 	{
 		return name;
 	}
-
-	public abstract List<? extends Field> getFields();
 }

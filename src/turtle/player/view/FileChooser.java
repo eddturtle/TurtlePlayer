@@ -222,6 +222,11 @@ public class FileChooser implements TurtleDatabase.DbObserver
 					throw new UnsupportedOperationException();
 				}
 
+				public String visit(Genre genre)
+				{
+					throw new UnsupportedOperationException();
+				}
+
 				public String visit(Artist artist)
 				{
 					throw new UnsupportedOperationException();

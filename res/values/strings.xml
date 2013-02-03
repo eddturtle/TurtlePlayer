@@ -51,4 +51,5 @@
     <!--Toast-->
     <string name="added">added</string>
     <string name="removed">removed</string>
+    <string name="toastRescan">Database rescan started</string>
 </resources>

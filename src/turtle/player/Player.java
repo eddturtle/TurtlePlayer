@@ -33,10 +33,9 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import turtle.player.common.filefilter.FileFilters;
 import turtle.player.controller.PhoneStateHandler;
 import turtle.player.dirchooser.DirChooserConstants;
+import turtle.player.model.Instance;
 import turtle.player.model.Track;
-import turtle.player.model.TrackBundle;
-import turtle.player.persistance.framework.filter.*;
-import turtle.player.persistance.framework.filter.Filter;
+import turtle.player.persistance.framework.db.ObservableDatabase;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.playlist.Playlist;
 import turtle.player.preferences.Key;
@@ -515,6 +514,20 @@ public class Player extends ListActivity
 				tp.player.play(tp.playlist.getNext(tp.player.getCurrTrack()).getTrack());
 			}
 		});
+
+		tp.db.addObserver(new ObservableDatabase.DbObserver()
+		{
+			public void updated(Instance instance)
+			{
+				//doNothing
+			}
+
+			public void cleared()
+			{
+				Toast.makeText(getApplicationContext(), getString(R.string.toastRescan), Toast.LENGTH_LONG).show();
+				tp.playlist.UpdateList();
+			}
+		});
 	}
 
 
@@ -643,7 +656,6 @@ public class Player extends ListActivity
 	protected void rescan()
 	{
 		tp.playlist.DatabaseClear();
-		tp.playlist.UpdateList();
 	}
 
 
