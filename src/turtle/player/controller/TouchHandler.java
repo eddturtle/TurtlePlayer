@@ -49,24 +49,27 @@ public abstract class TouchHandler implements View.OnTouchListener
 
 	private enum BowMenuEntry
 	{
-		LEFT(R.id.bowmenu_left, R.drawable.menubow_left_290_active, R.drawable.menubow_left_290, Tables.TRACKS.ALBUM),
-		RIGHT(R.id.bowmenu_right, R.drawable.menubow_right_290_active, R.drawable.menubow_right_290, Tables.TRACKS.ARTIST),
-		BOTTOM(R.id.bowmenu_bottom, R.drawable.menubow_bottom_290_active, R.drawable.menubow_bottom_290, Tables.TRACKS.ROOTSRC),
-		TOP(R.id.bowmenu_top, R.drawable.menubow_top_290_active, R.drawable.menubow_top_290, Tables.TRACKS.LENGTH);
+		LEFT(R.id.bowmenu_left, R.drawable.menubow_left_290_active, R.drawable.menubow_left_290, R.id.track_instant_filter_left, Tables.TRACKS.ALBUM),
+		RIGHT(R.id.bowmenu_right, R.drawable.menubow_right_290_active, R.drawable.menubow_right_290, R.id.track_instant_filter_right, Tables.TRACKS.ARTIST),
+		BOTTOM(R.id.bowmenu_bottom, R.drawable.menubow_bottom_290_active, R.drawable.menubow_bottom_290, R.id.track_instant_filter_bottom, Tables.TRACKS.ROOTSRC),
+		TOP(R.id.bowmenu_top, R.drawable.menubow_top_290_active, R.drawable.menubow_top_290, R.id.track_instant_filter_top, Tables.TRACKS.LENGTH);
 
 		final int layoutId;
-		final int layoutOnPic;
-		final int layoutOffPic;
+		final int layoutIdOnPic;
+		final int layoutIdOffPic;
+		final int layoutIdText;
 		final FieldPersistable<Track, ?> field;
 
 		private BowMenuEntry(int layoutId,
-									int layoutOnPic,
-									int layoutOffPic,
+									int layoutOnIdPic,
+									int layoutOffIdPic,
+									int layoutIdText,
 									FieldPersistable<Track, ?> field)
 		{
 			this.layoutId = layoutId;
-			this.layoutOnPic = layoutOnPic;
-			this.layoutOffPic = layoutOffPic;
+			this.layoutIdOnPic = layoutOnIdPic;
+			this.layoutIdOffPic = layoutOffIdPic;
+			this.layoutIdText = layoutIdText;
 			this.field = field;
 		}
 
@@ -82,12 +85,18 @@ public abstract class TouchHandler implements View.OnTouchListener
 
 		public int getLayoutPic(boolean active)
 		{
-			return active ? layoutOnPic : layoutOffPic;
+			return active ? layoutIdOnPic : layoutIdOffPic;
+		}
+
+		public int getLayoutIdText()
+		{
+			return layoutIdText;
 		}
 	}
 
 	//Filter
 	private final Map<BowMenuEntry, ImageView> bowMenuEntries = new HashMap<BowMenuEntry, ImageView>();
+	private final Set<View> bowMenuViews = new HashSet<View>();
 	private final ImageView pointer;
 
 	private final View[] scrollingViews;
@@ -107,7 +116,11 @@ public abstract class TouchHandler implements View.OnTouchListener
 		pointer = (ImageView) activity.findViewById(R.id.pointer);
 
 		for(BowMenuEntry bowMenuEntry : BowMenuEntry.values()){
-			bowMenuEntries.put(bowMenuEntry, (ImageView) activity.findViewById(bowMenuEntry.getLayoutId()));
+			ImageView view = (ImageView) activity.findViewById(bowMenuEntry.getLayoutId());
+
+			bowMenuEntries.put(bowMenuEntry, view);
+			bowMenuViews.add(view);
+			bowMenuViews.add(activity.findViewById(bowMenuEntry.getLayoutIdText()));
 		}
 
 		initalScrollingOfScrollingViews = new Point[scrollingViews.length];
@@ -178,7 +191,7 @@ public abstract class TouchHandler implements View.OnTouchListener
 		{
 			pointer.setVisibility(View.VISIBLE);
 
-			for(View view : bowMenuEntries.values()){
+			for(View view : bowMenuViews){
 				view.setVisibility(View.VISIBLE);
 			}
 
@@ -212,7 +225,9 @@ public abstract class TouchHandler implements View.OnTouchListener
 					{
 						case MENU:
 							for(Map.Entry<BowMenuEntry, ImageView> entry : bowMenuEntries.entrySet()){
-								if(isPointInsideOf(entry.getValue(), event.getRawX(), event.getRawY())) filterSelected(entry.getKey().getField());
+								if(isPointInsideOf(entry.getValue(), event.getRawX(), event.getRawY())){
+									filterSelected(entry.getKey().getField());
+								}
 							}
 							break;
 
@@ -233,7 +248,7 @@ public abstract class TouchHandler implements View.OnTouchListener
 				resetScrollingViews();
 				pointer.scrollTo(0,0);
 				pointer.setVisibility(View.INVISIBLE);
-				for(View view : bowMenuEntries.values()){
+				for(View view : bowMenuViews){
 					view.setVisibility(View.INVISIBLE);
 				}
 

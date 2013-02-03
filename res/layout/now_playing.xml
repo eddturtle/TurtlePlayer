@@ -78,7 +78,9 @@
                     android:layout_centerHorizontal="true"
                     android:text="@string/lengthInitialValue"
                     android:paddingTop="5dp"
-                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:visibility="invisible"
+                    />
 
 
             <ImageView
@@ -90,7 +92,7 @@
                     android:contentDescription="@string/pointer"
                     android:visibility="invisible"/>
 
-            <TextView
+            <turtle.player.view.VerticalTextView
                     android:id="@+id/track_instant_filter_left"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -99,6 +101,7 @@
                     android:text="@string/albumInitialValue"
                     android:paddingTop="5dp"
                     android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:visibility="invisible"
                     />
 
             <ImageView
@@ -111,15 +114,17 @@
                     android:contentDescription="@string/pointer"
                     android:visibility="invisible"/>
 
-            <TextView
+            <turtle.player.view.VerticalTextView
                     android:id="@+id/track_instant_filter_right"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_alignParentRight="true"
                     android:text="@string/artistInitialValue"
+                    android:gravity="bottom"
                     android:paddingTop="5dp"
                     android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:visibility="invisible"
                     />
 
             <ImageView
@@ -142,6 +147,7 @@
                     android:text="@string/trackInitialValue"
                     android:paddingTop="5dp"
                     android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:visibility="invisible"
                     />
 
             <ImageView
