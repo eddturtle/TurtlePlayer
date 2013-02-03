@@ -78,16 +78,12 @@ public class AlbumArtView
 		});
 
 
-
-		albumArt.getAlbumArtView().setOnTouchListener(new TouchHandler(
+		TouchHandler touchHandler = new TouchHandler(
 				  activity,
-				  playlist,
 				  albumArt.getAlbumArtView(),
 				  albumArtLeft.getAlbumArtView(),
 				  albumArtRight.getAlbumArtView()
-		)
-
-		{
+		){
 			@Override
 			protected void nextGestureRecognized()
 			{
@@ -120,6 +116,10 @@ public class AlbumArtView
 
 				Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
 			}
-		});
+		};
+
+		albumArt.getAlbumArtView().setOnTouchListener(touchHandler);
+		playlist.addObserver(touchHandler);
+		player.addObserver(touchHandler);
 	}
 }

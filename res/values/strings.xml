@@ -16,11 +16,11 @@
     <string name="album_art">Album Art</string>
 
 
-    <string name="trackInitialValue">Track Name</string>
-    <string name="rootSrcInitialValue">Dir Name</string>
+    <string name="trackInitialValue">Track</string>
+    <string name="rootSrcInitialValue">Folder</string>
+    <string name="genreInitialValue">Genre</string>
     <string name="artistInitialValue">Artist</string>
     <string name="albumInitialValue">Album</string>
-    <string name="lengthInitialValue">Length</string>
     <string name="durationInitialValue">0.00</string>
     <string name="currPositionInitialValue">0.00</string>
     <string name="trackPostionSeparator"> / </string>
@@ -39,7 +39,6 @@
     
     <string name="library">Library</string>
     <string name="sync_library">Sync Library</string>
-    <string name="media_path">Root/Current_Folder</string>
     <string name="edit_dir">Edit Dir</string>
 
     <string name="dirchooser_label">Dir Chooser</string>

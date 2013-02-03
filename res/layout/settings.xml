@@ -55,7 +55,7 @@
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:textSize="18sp"
-                android:text="@string/media_path"
+                android:text="Path/To/Replace"
                 android:gravity="center_vertical"
                 android:singleLine="true"
                 android:ellipsize="start"/>
