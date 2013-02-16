@@ -137,6 +137,12 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 		return getList(filter, Tables.TRACKS.ARTIST);
 	}
 
+	public List<String> getGenreList(Filter filter)
+	{
+		return getList(filter, Tables.TRACKS.GENRE);
+	}
+
+
 	public List<String> getAlbumList(Filter filter)
 	{
 		return getList(filter, Tables.TRACKS.ALBUM);

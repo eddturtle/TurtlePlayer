@@ -8,53 +8,52 @@
         android:id="@+id/android:list"
         android:layout_width="fill_parent"
         android:layout_height="0dip"
-        android:layout_weight="0.64"
-        android:drawSelectorOnTop="false"
-        android:paddingBottom="0sp" >
+        android:layout_weight="0.64">
     </ListView>
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/relativeLayoutPlaylist"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:background="@drawable/header_bg100" >
+        android:background="@drawable/header_bg100"
+        android:gravity="center">
 
         <ImageView
+            android:padding="5px"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
             android:id="@+id/trackButton"
-            android:layout_width="90dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:contentDescription="@string/back"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:src="@drawable/track48" />
+
+        <ImageView
+            android:padding="5px"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:id="@+id/genreButton"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
             android:src="@drawable/track48" />
         
         <ImageView
+            android:padding="5px"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
             android:id="@+id/artistButton"
-            android:layout_width="90dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:contentDescription="@string/play"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
             android:src="@drawable/artist48" />
 
         <ImageView
+             android:padding="5px"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
             android:id="@+id/albumButton"
-            android:layout_width="90dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:contentDescription="@string/next"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
             android:src="@drawable/album48" />
-    </RelativeLayout>
+    </LinearLayout>
     
 
 </LinearLayout>

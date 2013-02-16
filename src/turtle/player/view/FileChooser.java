@@ -34,6 +34,8 @@ import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.util.DefaultAdapter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class FileChooser implements TurtleDatabase.DbObserver
 {
@@ -41,7 +43,8 @@ public class FileChooser implements TurtleDatabase.DbObserver
 	{
 		Album(R.id.albumButton, R.drawable.album48, R.drawable.album48_active),
 		Artist(R.id.artistButton, R.drawable.artist48, R.drawable.artist48_active),
-		Track(R.id.trackButton, R.drawable.track48, R.drawable.track48_active);
+		Track(R.id.trackButton, R.drawable.track48, R.drawable.track48_active),
+		Genre(R.id.genreButton, R.drawable.track48, R.drawable.track48_active);
 
 		private Mode(int buttonId,
 			  int drawable,
@@ -62,7 +65,7 @@ public class FileChooser implements TurtleDatabase.DbObserver
 	private final ListActivity listActivity;
 	final DefaultAdapter<String> listAdapter;
 
-	private Filter filter = null;
+	private Set<Filter> filters = new HashSet<Filter>();
 
 	public FileChooser(Mode currMode,
 							 TurtleDatabase db,
@@ -106,6 +109,11 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		}
 	}
 
+	private Filter getFilter()
+	{
+		return new FilterSet(filters);
+	}
+
 	/**
 	 * @param selection
 	 * @return null if no track was selected, track if trak was selected
@@ -116,34 +124,35 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		switch (currMode)
 		{
 			case Album:
-				filter = new FilterSet(
-						  filter,
-						  new FieldFilter(Tables.TRACKS.ALBUM, Operator.EQ, selection)
-				);
+				filters.add(new FieldFilter(Tables.TRACKS.ALBUM, Operator.EQ, selection));
 				currMode = Mode.Track;
 				update();
 				return null;
 
 			case Artist:
-				filter = new FilterSet(
-						  filter,
-						  new FieldFilter(Tables.TRACKS.ARTIST, Operator.EQ, selection)
-				);
+				filters.add(new FieldFilter(Tables.TRACKS.ARTIST, Operator.EQ, selection));
 				currMode = Mode.Album;
 				update();
 				return null;
 
 			case Track:
-				return database.getTracks(
-						  new FilterSet(
-									 filter,
-									 new FieldFilter(Tables.TRACKS.TITLE, Operator.EQ, selection)
-						  )
-				).iterator().next();
+				filters.add(new FieldFilter(Tables.TRACKS.TITLE, Operator.EQ, selection));
+				return chooseFirst();
+
+			case Genre:
+				filters.add(new FieldFilter(Tables.TRACKS.GENRE, Operator.EQ, selection));
+				currMode = Mode.Artist;
+				update();
+				return null;
 			
 			default:
 				throw new RuntimeException(currMode.name() + " not expexted here");
 		}
+	}
+
+	public Track chooseFirst()
+	{
+		return database.getTracks(getFilter()).iterator().next();
 	}
 
 	public void change(Mode mode)
@@ -160,7 +169,7 @@ public class FileChooser implements TurtleDatabase.DbObserver
 				}
 			});
 		}
-		filter = null;
+		filters.clear();
 		update();
 	}
 
@@ -173,13 +182,16 @@ public class FileChooser implements TurtleDatabase.DbObserver
 				switch (currMode)
 				{
 					case Album:
-						listAdapter.replace(database.getAlbumList(filter));
+						listAdapter.replace(database.getAlbumList(getFilter()));
 						break;
 					case Artist:
-						listAdapter.replace(database.getArtistList(filter));
+						listAdapter.replace(database.getArtistList(getFilter()));
+						break;
+					case Genre:
+						listAdapter.replace(database.getGenreList(getFilter()));
 						break;
 					case Track:
-						listAdapter.replace(database.getTrackList(filter));
+						listAdapter.replace(database.getTrackList(getFilter()));
 						break;
 					default:
 						throw new RuntimeException(currMode.name() + " not expexted here");
@@ -200,6 +212,9 @@ public class FileChooser implements TurtleDatabase.DbObserver
 			case Artist:
 				field = Tables.TRACKS.ARTIST;
 				break;
+			case Genre:
+				field = Tables.TRACKS.GENRE;
+				break;
 			case Track:
 				field = Tables.TRACKS.TITLE;
 				break;
@@ -207,7 +222,7 @@ public class FileChooser implements TurtleDatabase.DbObserver
 				throw new RuntimeException(currMode.name() + " not expexted here");
 		}
 
-		if(filter == null || filter.accept(new MatchFilterVisitor<Object>(instance)))
+		if(getFilter().accept(new MatchFilterVisitor<Object>(instance)))
 		{
 			listAdapter.add(instance.accept(new InstanceVisitor<String>()
 			{
