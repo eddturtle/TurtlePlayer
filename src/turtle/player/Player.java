@@ -608,7 +608,7 @@ public class Player extends ListActivity
 											 int position,
 											 long id)
 	{
-		Track trackSelected = fileChooser.choose((String) l.getItemAtPosition(position));
+		Track trackSelected = fileChooser.choose((Instance) l.getItemAtPosition(position));
 		if (trackSelected != null)
 		{
 			tp.player.play(trackSelected);

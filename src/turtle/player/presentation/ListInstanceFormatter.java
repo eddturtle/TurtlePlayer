@@ -21,7 +21,7 @@ package turtle.player.presentation;
 import turtle.player.model.*;
 import turtle.player.util.Shorty;
 
-public class ListInstanceFormatter extends InstanceFormatter
+class ListInstanceFormatter extends InstanceFormatter
 {
     public String visit(Track track)
     {
@@ -58,6 +58,11 @@ public class ListInstanceFormatter extends InstanceFormatter
         }
 
     }
+
+	public String visit(TrackDigest track)
+	{
+		return track.getName();
+	}
 
     public String visit(Album album)
     {

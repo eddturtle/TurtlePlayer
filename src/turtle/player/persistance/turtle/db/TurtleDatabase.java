@@ -23,9 +23,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import turtle.player.model.Album;
-import turtle.player.model.Artist;
-import turtle.player.model.Track;
+import turtle.player.model.*;
 import turtle.player.persistance.framework.creator.Creator;
 import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.db.ObservableDatabase;
@@ -129,35 +127,41 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 		);
 	}
 
-	public List<String> getTrackList(Filter filter)
+	public List<TrackDigest> getTrackList(Filter filter)
 	{
-		return getList(filter, Tables.TRACKS.TITLE);
+		return getList(filter, Tables.TRACKS.TITLE, new Creator<TrackDigest, Cursor>(){
+			public TrackDigest create(Cursor source)
+			{
+				return new TrackDigest(source.getString(source.getColumnIndex(Tables.TRACKS.TITLE.getName())));
+			}
+		});
 	}
 
-	public List<String> getArtistList(Filter filter)
+	public List<Artist> getArtistList(Filter filter)
 	{
-		return getList(filter, Tables.TRACKS.ARTIST);
+		return getList(filter, Tables.TRACKS.ARTIST, new ArtistCreator());
 	}
 
-	public List<String> getGenreList(Filter filter)
+	public List<Genre> getGenreList(Filter filter)
 	{
-		return getList(filter, Tables.TRACKS.GENRE);
+		return getList(filter, Tables.TRACKS.GENRE,  new GenreCreator());
 	}
 
-	public List<String> getAlbumList(Filter filter)
+	public List<Album> getAlbumList(Filter filter)
 	{
-		return getList(filter, Tables.TRACKS.ALBUM);
+		return getList(filter, Tables.TRACKS.ALBUM, new AlbumCreator());
 	}
 
-	private <I,T> List<String> getList(Filter filter,
-										  FieldPersistable<I, T> field)
+	private <I,T, Z> List<I> getList(Filter filter,
+										  FieldPersistable<Z, T> field,
+										  Creator<I, Cursor> creator)
 	{
 		return OperationExecutor.execute(
 				  this,
-				  new QuerySqlite<List<String>>(
+				  new QuerySqlite<List<I>>(
 							 filter,
-							 new FieldOrder<I,T>(field, SortOrder.ASC),
-							 new MappingDistinct<String>(Tables.TRACKS, field, new CreatorForListSqlite<String>(new StringCreator("")))
+							 new FieldOrder<Z,T>(field, SortOrder.ASC),
+							 new MappingDistinct<I>(Tables.TRACKS, field, new CreatorForListSqlite<I>(creator))
 				  )
 		);
 	}

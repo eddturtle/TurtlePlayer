@@ -26,36 +26,43 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import turtle.player.R;
+import turtle.player.model.Instance;
+import turtle.player.presentation.InstanceFormatter;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
  * Should be created outside the UI Thread, the initial sorting in the constructor can take a long time
  * for big lists.
  */
-public abstract class DefaultAdapter<T extends Comparable<? super T>> extends ArrayAdapter<T>
+public class DefaultAdapter<T extends Instance> extends ArrayAdapter<T>
 {
 	private final List<T> objects;
 	private final Activity activity;
 	private final boolean allowsDuplicates;
+	private final InstanceFormatter formatter;
 
 	/**
 	 * @param context needed by super
 	 * @param objects has to be prepared according allowsDuplicates and has to be sorted (if needed)
 	 * @param startingActivity to join UI Thread
 	 * @param allowsDuplicates remove duplicates by adding items
+	 * @param formatter
 	 */
 	public DefaultAdapter(
 			  Context context,
 			  List<T> objects,
 			  Activity startingActivity,
-			  boolean allowsDuplicates)
+			  boolean allowsDuplicates,
+			  InstanceFormatter formatter)
 	{
 		super(context, R.layout.file_list_entry, objects);
 		this.activity = startingActivity;
 		this.objects = objects;
 		this.allowsDuplicates = allowsDuplicates;
+		this.formatter = formatter;
 	}
 
 	public void add(final T object)
@@ -66,7 +73,7 @@ public abstract class DefaultAdapter<T extends Comparable<? super T>> extends Ar
 				public void run()
 				{
 					objects.add(object);
-					Collections.sort(objects);
+					Collections.sort(objects, new FormattedInstanceComparator(formatter));
 					notifyDataSetChanged();
 				}
 			});
@@ -76,7 +83,7 @@ public abstract class DefaultAdapter<T extends Comparable<? super T>> extends Ar
 	/**
 	 * @param object objects has to be prepared according allowsDuplicates and has to be sorted (if needed)
 	 */
-	public void replace(final List<T> object)
+	public void replace(final List<? extends T> object)
 	{
 		activity.runOnUiThread(new Runnable()
 		{
@@ -113,10 +120,8 @@ public abstract class DefaultAdapter<T extends Comparable<? super T>> extends Ar
 		T currObject = getItem(position);
 
 		TextView textView = (TextView) rowView.findViewById(R.id.label);
-		textView.setText(format(currObject));
+		textView.setText(currObject.accept(formatter));
 
 		return rowView;
 	}
-
-	protected abstract String format(T object);
 }

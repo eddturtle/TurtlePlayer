@@ -28,16 +28,21 @@ public class Artist implements Instance
 {
 	private static final String EMPTY_REPLACMENT= "Unknown";
 
-	private final String name;
+	private final String id;
 
-	public Artist(String name)
+	public Artist(String id)
 	{
-		this.name = Shorty.isVoid(name) ? EMPTY_REPLACMENT : name;
+		this.id = id;
+	}
+
+	public String getId()
+	{
+		return id;
 	}
 
 	public String getName()
 	{
-		return name;
+		return Shorty.isVoid(id) ? EMPTY_REPLACMENT : id;
 	}
 
 	public <R> R accept(InstanceVisitor<R> visitor)
@@ -53,13 +58,13 @@ public class Artist implements Instance
 
 		Artist artist = (Artist) o;
 
-		return name.equals(artist.name);
+		return id.equals(artist.id);
 
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return name.hashCode();
+		return id.hashCode();
 	}
 }

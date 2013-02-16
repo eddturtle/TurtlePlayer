@@ -33,7 +33,6 @@ public class FormattedInstanceComparator implements Comparator<Instance>
 		this.listInstanceFormatter = listInstanceFormatter;
 	}
 
-	@Override
 	public int compare(Instance lhs,
 							 Instance rhs)
 	{

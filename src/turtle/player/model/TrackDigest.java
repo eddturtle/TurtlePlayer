@@ -18,39 +18,20 @@
 
 package turtle.player.model;
 
-import android.content.Context;
-import turtle.player.R;
-import turtle.player.TurtlePlayer;
-import turtle.player.util.AndroidUtils;
-import turtle.player.util.Shorty;
-import turtle.player.util.TurtleUtil;
 
-import java.text.Collator;
-import java.util.HashSet;
-import java.util.Set;
-
-public class Genre implements Instance
+public class TrackDigest implements Instance
 {
-	private final String id;
 
-	public Genre(String id)
-	{
-		this.id = id;
-	}
+	private final String name;
 
-	public String getId()
+	public TrackDigest(String name)
 	{
-		return id;
+		this.name = name;
 	}
 
 	public String getName()
 	{
-		return TurtleUtil.translateGenreId(id);
-	}
-
-	public <R> R accept(InstanceVisitor<R> visitor)
-	{
-		return visitor.visit(this);
+		return name;
 	}
 
 	@Override
@@ -59,15 +40,21 @@ public class Genre implements Instance
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		Genre genre = (Genre) o;
+		TrackDigest that = (TrackDigest) o;
 
-		return id.equals(genre.id);
+		if (name != null ? !name.equals(that.name) : that.name != null) return false;
 
+		return true;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return id.hashCode();
+		return name != null ? name.hashCode() : 0;
+	}
+
+	public <R> R accept(InstanceVisitor<R> visitor)
+	{
+		return visitor.visit(this);
 	}
 }

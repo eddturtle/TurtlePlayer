@@ -18,13 +18,10 @@
 
 package turtle.player.presentation;
 
-import turtle.player.model.Album;
-import turtle.player.model.Artist;
-import turtle.player.model.Genre;
-import turtle.player.model.Track;
+import turtle.player.model.*;
 import turtle.player.util.Shorty;
 
-public class OverAllFormatter extends InstanceFormatter
+class OverAllFormatter extends InstanceFormatter
 {
     private final static String DELIMITER = " - ";
 
@@ -64,7 +61,12 @@ public class OverAllFormatter extends InstanceFormatter
 
     }
 
-    public String visit(Album album)
+	public String visit(TrackDigest track)
+	{
+		return track.getName();
+	}
+
+	public String visit(Album album)
     {
         return album.getName();
     }

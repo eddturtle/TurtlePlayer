@@ -28,11 +28,10 @@ import turtle.player.persistance.framework.filter.FieldFilter;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterSet;
 import turtle.player.persistance.framework.filter.Operator;
-import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.presentation.InstanceFormatter;
 import turtle.player.util.DefaultAdapter;
-import turtle.player.util.TurtleUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -64,7 +63,7 @@ public class FileChooser implements TurtleDatabase.DbObserver
 	private Mode currMode;
 	private final TurtleDatabase database;
 	private final ListActivity listActivity;
-	final DefaultAdapter<String> listAdapter;
+	final DefaultAdapter<Instance> listAdapter;
 
 	private Set<Filter> filters = new HashSet<Filter>();
 
@@ -75,25 +74,12 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		this.currMode = currMode;
 		this.database = db;
 		this.listActivity = listActivity;
-		listAdapter = new DefaultAdapter<String>(
+		listAdapter = new DefaultAdapter<Instance>(
 				  listActivity.getApplicationContext(),
-				  new ArrayList<String>(),
+				  new ArrayList<Instance>(),
 				  listActivity,
-				  false
-		){
-			@Override
-			protected String format(String object)
-			{
-				if(FileChooser.this.currMode == Mode.Genre)
-				{
-					return TurtleUtil.translateGenreId(object);
-				}
-				else
-				{
-					return object;
-				}
-			}
-		};
+				  false,
+				  InstanceFormatter.SHORT);
 
 		listActivity.setListAdapter(listAdapter);
 
@@ -126,36 +112,47 @@ public class FileChooser implements TurtleDatabase.DbObserver
 	 * @param selection
 	 * @return null if no track was selected, track if trak was selected
 	 */
-	public Track choose(String selection)
+	public Track choose(Instance selection)
 	{
 
-		switch (currMode)
+		return selection.accept(new InstanceVisitor<Track>()
 		{
-			case Album:
-				filters.add(new FieldFilter(Tables.TRACKS.ALBUM, Operator.EQ, selection));
+			public Track visit(Track track)
+			{
+				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.TITLE, Operator.EQ, track.GetTitle()));
+				return chooseFirst();
+			}
+
+			public Track visit(TrackDigest track)
+			{
+				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.TITLE, Operator.EQ, track.getName()));
+				return chooseFirst();
+			}
+
+			public Track visit(Album album)
+			{
+				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.ALBUM, Operator.EQ, album.getId()));
 				currMode = Mode.Track;
 				update();
 				return null;
+			}
 
-			case Artist:
-				filters.add(new FieldFilter(Tables.TRACKS.ARTIST, Operator.EQ, selection));
-				currMode = Mode.Album;
-				update();
-				return null;
-
-			case Track:
-				filters.add(new FieldFilter(Tables.TRACKS.TITLE, Operator.EQ, selection));
-				return chooseFirst();
-
-			case Genre:
-				filters.add(new FieldFilter(Tables.TRACKS.GENRE, Operator.EQ, selection));
+			public Track visit(Genre genre)
+			{
+				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.GENRE, Operator.EQ, genre.getId()));
 				currMode = Mode.Artist;
 				update();
 				return null;
-			
-			default:
-				throw new RuntimeException(currMode.name() + " not expexted here");
-		}
+			}
+
+			public Track visit(Artist artist)
+			{
+				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.ARTIST, Operator.EQ, artist.getId()));
+				currMode = Mode.Album;
+				update();
+				return null;
+			}
+		});
 	}
 
 	public Track chooseFirst()
@@ -210,50 +207,9 @@ public class FileChooser implements TurtleDatabase.DbObserver
 
 	public void updated(final Instance instance)
 	{
-
-		final FieldPersistable<Track, ?> field;
-		switch (currMode)
-		{
-			case Album:
-				field = Tables.TRACKS.ALBUM;
-				break;
-			case Artist:
-				field = Tables.TRACKS.ARTIST;
-				break;
-			case Genre:
-				field = Tables.TRACKS.GENRE;
-				break;
-			case Track:
-				field = Tables.TRACKS.TITLE;
-				break;
-			default:
-				throw new RuntimeException(currMode.name() + " not expexted here");
-		}
-
 		if(getFilter().accept(new MatchFilterVisitor<Object>(instance)))
 		{
-			listAdapter.add(instance.accept(new InstanceVisitor<String>()
-			{
-				public String visit(Track track)
-				{
-					return field.getAsDisplayableString(track);
-				}
-
-				public String visit(Album album)
-				{
-					throw new UnsupportedOperationException();
-				}
-
-				public String visit(Genre genre)
-				{
-					throw new UnsupportedOperationException();
-				}
-
-				public String visit(Artist artist)
-				{
-					throw new UnsupportedOperationException();
-				}
-			}));
+			listAdapter.add(instance);
 		}
 	}
 

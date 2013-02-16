@@ -60,7 +60,7 @@ public class Tables
 
 			public String get(Track instance)
 			{
-				return instance.GetArtist().getName();
+				return instance.GetArtist().getId();
 			}
 		};
 
@@ -68,7 +68,7 @@ public class Tables
 		{
 			public String get(Track instance)
 			{
-				return instance.GetAlbum().getName();
+				return instance.GetAlbum().getId();
 			}
 		};
 

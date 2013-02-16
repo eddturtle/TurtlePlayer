@@ -28,16 +28,21 @@ public class Album implements Instance
 {
 	private static final String EMPTY_REPLACMENT= "Unknown";
 
-	private final String name;
+	private final String id;
 
-	public Album(String name)
+	public Album(String id)
 	{
-		this.name = Shorty.isVoid(name) ? EMPTY_REPLACMENT : name;
+		this.id = id;
+	}
+
+	public String getId()
+	{
+		return id;
 	}
 
 	public String getName()
 	{
-		return name;
+		return Shorty.isVoid(id) ? EMPTY_REPLACMENT : id;
 	}
 
 	public Set<Track> getChilds(Set<Track> tracks)
@@ -66,13 +71,13 @@ public class Album implements Instance
 
 		Album album = (Album) o;
 
-		return name.equals(album.name);
+		return id.equals(album.id);
 
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return name.hashCode();
+		return id.hashCode();
 	}
 }
