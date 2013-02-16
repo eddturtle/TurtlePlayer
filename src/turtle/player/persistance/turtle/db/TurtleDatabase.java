@@ -26,6 +26,7 @@ import android.util.Log;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
+import turtle.player.persistance.framework.creator.Creator;
 import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.db.ObservableDatabase;
 import turtle.player.persistance.framework.executor.OperationExecutor;
@@ -42,6 +43,7 @@ import turtle.player.persistance.source.sqlite.*;
 import turtle.player.persistance.turtle.FileBase;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.persistance.turtle.mapping.*;
+import turtle.player.util.TurtleUtil;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -141,7 +143,6 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 	{
 		return getList(filter, Tables.TRACKS.GENRE);
 	}
-
 
 	public List<String> getAlbumList(Filter filter)
 	{

@@ -26,17 +26,20 @@ public class TurtleUtil
 
 	public static String translateGenreId(String id){
 
-		String trimmedId = id.trim();
-
-		for(int i = 0; i < trimmedId.length(); i++){
-			if(!Character.isDigit(trimmedId.charAt(i))){
-				return trimmedId;
-			}
+		if(Shorty.isVoid(id.trim())){
+			return TurtlePlayer.getStaticInstance().getString(R.string.tag_genre_unknown);
 		}
 
-		return AndroidUtils.getResourceString(
-				  TurtlePlayer.getStaticInstance(),
-				  RES_GENRE_PREFIX + Integer.parseInt(id),
-				  R.string.tag_genre_unknown);
+		try
+		{
+			return AndroidUtils.getResourceString(
+					  TurtlePlayer.getStaticInstance(),
+					  RES_GENRE_PREFIX + Integer.parseInt(id),
+					  R.string.tag_genre_unknown);
+		}
+		catch (NumberFormatException nfe)
+		{
+			return id.trim();
+		}
 	}
 }

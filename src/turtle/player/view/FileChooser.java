@@ -32,6 +32,7 @@ import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.util.DefaultAdapter;
+import turtle.player.util.TurtleUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -83,7 +84,14 @@ public class FileChooser implements TurtleDatabase.DbObserver
 			@Override
 			protected String format(String object)
 			{
-				return object;
+				if(FileChooser.this.currMode == Mode.Genre)
+				{
+					return TurtleUtil.translateGenreId(object);
+				}
+				else
+				{
+					return object;
+				}
 			}
 		};
 
