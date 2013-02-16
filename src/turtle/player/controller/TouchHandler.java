@@ -17,6 +17,7 @@ import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.player.Player;
 import turtle.player.playlist.Playlist;
+import turtle.player.presentation.InstanceFormatter;
 
 import java.util.HashMap;
 import java.util.HashSet;

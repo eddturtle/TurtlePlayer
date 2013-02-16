@@ -1,8 +1,7 @@
-package turtle.player.persistance.source.relational;
+package turtle.player.util;
 
-import turtle.player.persistance.framework.filter.FilterVisitor;
-import turtle.player.persistance.framework.sort.OrderVisitor;
-import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
+import turtle.player.R;
+import turtle.player.TurtlePlayer;
 
 /**
  * TURTLE PLAYER
@@ -21,19 +20,14 @@ import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class FieldPersistable<I, O> extends Field
+public class TurtleUtil
 {
-	public FieldPersistable(String name)
-	{
-		super(name);
+	private static final String RES_GENRE_PREFIX = "tag.genre.";
+
+	public static String translateGenreId(String id){
+		return AndroidUtils.getResourceString(
+				  TurtlePlayer.getStaticInstance(),
+				  RES_GENRE_PREFIX + id,
+				  R.string.tag_genre_unknown);
 	}
-
-	public abstract O get(I instance);
-
-	public String getAsString(I instance){
-		return get(instance).toString();
-	}
-
-	public abstract <R> R accept(FieldVisitor<R, I> visitor);
-
 }

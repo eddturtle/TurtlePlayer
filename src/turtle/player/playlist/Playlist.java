@@ -95,7 +95,7 @@ public class Playlist
 	}
 
 	public <O> Filter addFilter(FieldPersistable<Track, O> field, Track track){
-		Filter filter = new FieldFilter<Track, O>(field, Operator.EQ, field.getAsString(track));
+		Filter filter = new FieldFilter<Track, O>(field, Operator.EQ, field.get(track));
 		filters.add(filter);
 		for (PlaylistObserver observer : observers)
 		{

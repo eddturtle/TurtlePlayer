@@ -10,6 +10,9 @@ import turtle.player.persistance.framework.sort.FieldOrder;
 import turtle.player.persistance.framework.sort.Order;
 import turtle.player.persistance.framework.sort.OrderSet;
 import turtle.player.persistance.framework.sort.RandomOrder;
+import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsDouble;
+import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
+import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
 import turtle.player.persistance.source.sql.query.*;
 
 /**
@@ -77,10 +80,10 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 		return mapping.create(cursor);
 	}
 
-	public WhereClause visit(FieldFilter fieldFilter)
+	public <T> WhereClause visit(final FieldFilter<I, T> fieldFilter)
 	{
 		final Operator operator;
-		String fieldValue = fieldFilter.getFieldValue();
+		Object filterValue = fieldFilter.getValue();
 
 		switch (fieldFilter.getOperator()){
 			case EQ:
@@ -97,7 +100,23 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 				break;
 			case LIKE:
 				operator = Operator.LIKE;
-				fieldValue = "%" + fieldValue + "%";
+				filterValue = fieldFilter.getField().accept(fieldFilter.new FieldVisitorField<Object>()
+				{
+					public Object visit(FieldPersistableAsString<I> field, String filterValue)
+					{
+						return "%" + filterValue + "%";
+					}
+
+					public Object visit(FieldPersistableAsDouble<I> field, Double filterValue)
+					{
+						return "%" + String.valueOf(filterValue) + "%";
+					}
+
+					public Object visit(FieldPersistableAsInteger<I> field, Integer filterValue)
+					{
+						return "%" + String.valueOf(filterValue) + "%";
+					}
+				});
 				break;
 			case LT:
 				operator = Operator.LT;
@@ -106,15 +125,15 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 				throw new IllegalArgumentException();
 		}
 
-		return new WhereClause(new WhereClauseField(fieldFilter.getField(), fieldValue, operator));
+		return new WhereClause(new WhereClauseField(fieldFilter.getField(), filterValue, operator));
 	}
 
-	 public OrderClause visit(RandomOrder orderFilter)
-	 {
-		  return new OrderClauseRandom();
-	 }
+	public OrderClause visit(RandomOrder orderFilter)
+	{
+		return new OrderClauseRandom();
+	}
 
-	 public WhereClause visit(FilterSet filterSet)
+	public WhereClause visit(FilterSet filterSet)
 	{
 		WhereClause whereClause = null;
 		for(Filter filter : filterSet.getFilters()){

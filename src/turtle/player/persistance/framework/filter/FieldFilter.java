@@ -2,6 +2,10 @@ package turtle.player.persistance.framework.filter;
 
 import turtle.player.persistance.source.relational.Field;
 import turtle.player.persistance.source.relational.FieldPersistable;
+import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsDouble;
+import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
+import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
+import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
 
 /**
  * TURTLE PLAYER
@@ -24,11 +28,11 @@ public class FieldFilter<I, T> implements Filter
 {
 	private final FieldPersistable<I, T> field;
 	private final Operator operator;
-	private final String value;
+	private final T value;
 
 	public FieldFilter(FieldPersistable<I, T> field,
 							 Operator operator,
-							 String value)
+							 T value)
 	{
 		this.field = field;
 		this.operator = operator;
@@ -40,7 +44,7 @@ public class FieldFilter<I, T> implements Filter
 		return field;
 	}
 
-	public String getFieldValue()
+	public T getValue()
 	{
 		return value;
 	}
@@ -59,5 +63,27 @@ public class FieldFilter<I, T> implements Filter
 	public String toString()
 	{
 		return getField().getName() + " " + operator.name() + " " + value;
+	}
+
+	public abstract class FieldVisitorField<R> implements FieldVisitor<R, I>
+	{
+		public abstract R visit(FieldPersistableAsString<I> field, String filterValue);
+		public abstract R visit(FieldPersistableAsDouble<I> field, Double filterValue);
+		public abstract R visit(FieldPersistableAsInteger<I> field, Integer filterValue);
+
+		public R visit(FieldPersistableAsString<I> field)
+		{
+			return visit(field, (String)value);
+		}
+
+		public R visit(FieldPersistableAsDouble<I> field)
+		{
+			return visit(field, (Double)value);
+		}
+
+		public R visit(FieldPersistableAsInteger<I> field)
+		{
+			return visit(field, (Integer)value);
+		}
 	}
 }

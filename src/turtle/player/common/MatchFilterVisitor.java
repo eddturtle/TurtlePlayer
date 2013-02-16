@@ -1,11 +1,10 @@
 package turtle.player.common;
 
-import turtle.player.model.Instance;
-import turtle.player.persistance.framework.filter.FieldFilter;
-import turtle.player.persistance.framework.filter.Filter;
-import turtle.player.persistance.framework.filter.FilterSet;
-import turtle.player.persistance.framework.filter.FilterVisitor;
-import turtle.player.persistance.framework.sort.FieldOrder;
+import turtle.player.persistance.framework.filter.*;
+import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsDouble;
+import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
+import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
+import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
 
 /**
  * TURTLE PLAYER
@@ -33,26 +32,31 @@ public class MatchFilterVisitor<I> implements FilterVisitor<I, Boolean>
 		this.instance = instance;
 	}
 
-	public <T> Boolean visit(FieldFilter<I, T> fieldFilter)
+	public <T> Boolean visit(final FieldFilter<I, T> fieldFilter)
 	{
-		String instanceValue = fieldFilter.getField().getAsString(instance);
-
-		switch (fieldFilter.getOperator())
+		return fieldFilter.getField().accept(fieldFilter.new FieldVisitorField<Boolean>()
 		{
-			case EQ:
-				return instanceValue.equals(fieldFilter.getFieldValue());
-			case GT:
-				return instanceValue.compareTo(fieldFilter.getFieldValue()) > 0;
-			case LE:
-				return instanceValue.compareTo(fieldFilter.getFieldValue()) <= 0;
-			case GE:
-				return instanceValue.compareTo(fieldFilter.getFieldValue()) >= 0;
-			case LIKE:
-				return instanceValue.contains(fieldFilter.getFieldValue());
-			case LT:
-				return instanceValue.compareTo(fieldFilter.getFieldValue()) < 0;
-		}
-		throw new RuntimeException("Operator " + fieldFilter.getOperator() + " is not supported");
+			@Override
+			public Boolean visit(FieldPersistableAsString<I> field,
+										String filterValue)
+			{
+				return matchField(filterValue, field.get(instance), fieldFilter.getOperator());
+			}
+
+			@Override
+			public Boolean visit(FieldPersistableAsDouble<I> field,
+										Double filterValue)
+			{
+				return matchField(filterValue, field.get(instance), fieldFilter.getOperator());
+			}
+
+			@Override
+			public Boolean visit(FieldPersistableAsInteger<I> field,
+										Integer filterValue)
+			{
+				return matchField(filterValue, field.get(instance), fieldFilter.getOperator());
+			}
+		});
 	}
 
 	public Boolean visit(FilterSet filterSet)
@@ -65,5 +69,102 @@ public class MatchFilterVisitor<I> implements FilterVisitor<I, Boolean>
 			}
 		}
 		return true;
+	}
+
+	private boolean matchField(String filterValue, String fieldValue, Operator operator){
+
+		Boolean nullCompare = matchFieldNull(filterValue, fieldValue, operator);
+		if(nullCompare != null)
+		{
+			return nullCompare;
+		}
+
+		switch (operator)
+		{
+			case EQ:
+				return fieldValue.equals(filterValue);
+			case GT:
+				return fieldValue.compareTo(filterValue) > 0;
+			case LE:
+				return fieldValue.compareTo(filterValue) <= 0;
+			case GE:
+				return fieldValue.compareTo(filterValue) >= 0;
+			case LIKE:
+				return fieldValue.contains(filterValue);
+			case LT:
+				return fieldValue.compareTo(filterValue) < 0;
+		}
+		throw new RuntimeException("Operator " + operator + " is not supported");
+	}
+
+	private boolean matchField(Double filterValue, Double fieldValue, Operator operator){
+		Boolean nullCompare = matchFieldNull(filterValue, fieldValue, operator);
+		if(nullCompare != null)
+		{
+			return nullCompare;
+		}
+
+		switch (operator)
+		{
+			case EQ:
+				return fieldValue.equals(filterValue);
+			case GT:
+				return fieldValue.compareTo(filterValue) > 0;
+			case LE:
+				return fieldValue.compareTo(filterValue) <= 0;
+			case GE:
+				return fieldValue.compareTo(filterValue) >= 0;
+			case LIKE:
+				return String.valueOf(fieldValue).contains(String.valueOf(filterValue));
+			case LT:
+				return fieldValue.compareTo(filterValue) < 0;
+		}
+		throw new RuntimeException("Operator " + operator + " is not supported");
+	}
+
+	private boolean matchField(Integer filterValue, Integer fieldValue, Operator operator){
+		Boolean nullCompare = matchFieldNull(filterValue, fieldValue, operator);
+		if(nullCompare != null)
+		{
+			return nullCompare;
+		}
+
+		switch (operator)
+		{
+			case EQ:
+				return fieldValue.equals(filterValue);
+			case GT:
+				return fieldValue.compareTo(filterValue) > 0;
+			case LE:
+				return fieldValue.compareTo(filterValue) <= 0;
+			case GE:
+				return fieldValue.compareTo(filterValue) >= 0;
+			case LIKE:
+				return String.valueOf(fieldValue).contains(String.valueOf(filterValue));
+			case LT:
+				return fieldValue.compareTo(filterValue) < 0;
+		}
+		throw new RuntimeException("Operator " + operator + " is not supported");
+	}
+
+	private Boolean matchFieldNull(Object filterValue, Object fieldValue, Operator operator){
+		if(filterValue != null || fieldValue != null) return null;
+
+		switch (operator)
+		{
+			case EQ:
+				return filterValue == fieldValue;
+			case GT:
+				return filterValue != fieldValue && fieldValue != null;
+			case LE:
+				return filterValue == fieldValue || fieldValue == null;
+			case GE:
+				return fieldValue == filterValue || fieldValue != null;
+			case LIKE:
+				return fieldValue == filterValue || filterValue == null;
+			case LT:
+				return filterValue != fieldValue && fieldValue == null;
+		}
+		throw new RuntimeException("Operator " + operator + " is not supported");
 	}
 }

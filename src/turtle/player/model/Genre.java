@@ -18,25 +18,33 @@
 
 package turtle.player.model;
 
+import android.content.Context;
+import turtle.player.R;
+import turtle.player.TurtlePlayer;
+import turtle.player.util.AndroidUtils;
 import turtle.player.util.Shorty;
+import turtle.player.util.TurtleUtil;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class Genre implements Instance
 {
-	private static final String EMPTY_REPLACMENT= "Unknown";
+	private final String id;
 
-	private final String name;
-
-	public Genre(String name)
+	public Genre(String id)
 	{
-		this.name = Shorty.isVoid(name) ? EMPTY_REPLACMENT : name;
+		this.id = id;
 	}
 
 	public String getName()
 	{
-		return name;
+		return TurtleUtil.translateGenreId(id);
+	}
+
+	public String getId()
+	{
+		return id;
 	}
 
 	public <R> R accept(InstanceVisitor<R> visitor)
@@ -50,15 +58,15 @@ public class Genre implements Instance
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		Genre album = (Genre) o;
+		Genre genre = (Genre) o;
 
-		return name.equals(album.name);
+		return id.equals(genre.id);
 
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return name.hashCode();
+		return id.hashCode();
 	}
 }
