@@ -8,6 +8,7 @@ import turtle.player.persistance.source.relational.Table;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsDouble;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
+import turtle.player.util.TurtleUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +77,12 @@ public class Tables
 			public String get(Track instance)
 			{
 				return instance.GetGenre().getId();
+			}
+
+			@Override
+			public String getAsDisplayableString(Track instance)
+			{
+				return TurtleUtil.translateGenreId(get(instance));
 			}
 		};
 

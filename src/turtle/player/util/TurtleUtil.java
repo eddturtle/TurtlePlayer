@@ -25,9 +25,16 @@ public class TurtleUtil
 	private static final String RES_GENRE_PREFIX = "tag.genre.";
 
 	public static String translateGenreId(String id){
-		return AndroidUtils.getResourceString(
-				  TurtlePlayer.getStaticInstance(),
-				  RES_GENRE_PREFIX + id,
-				  R.string.tag_genre_unknown);
+
+		try{
+			return AndroidUtils.getResourceString(
+					  TurtlePlayer.getStaticInstance(),
+					  RES_GENRE_PREFIX + Integer.parseInt(id),
+					  R.string.tag_genre_unknown);
+		}
+		catch (NumberFormatException ex)
+		{
+			return id;
+		}
 	}
 }
