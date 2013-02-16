@@ -29,7 +29,6 @@ import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterSet;
 import turtle.player.persistance.framework.filter.Operator;
 import turtle.player.persistance.source.relational.FieldPersistable;
-import turtle.player.persistance.source.sql.query.WhereClause;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.util.DefaultAdapter;
@@ -214,7 +213,7 @@ public class FileChooser implements TurtleDatabase.DbObserver
 			{
 				public String visit(Track track)
 				{
-					return field.getAsString(track);
+					return field.getAsDisplayableString(track);
 				}
 
 				public String visit(Album album)

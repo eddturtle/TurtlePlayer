@@ -30,7 +30,7 @@ public abstract class FieldPersistable<I, O> extends Field
 
 	public abstract O get(I instance);
 
-	public String getAsString(I instance){
+	public String getAsDisplayableString(I instance){
 		return get(instance).toString();
 	}
 

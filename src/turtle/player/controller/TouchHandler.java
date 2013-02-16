@@ -17,7 +17,6 @@ import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.player.Player;
 import turtle.player.playlist.Playlist;
-import turtle.player.presentation.InstanceFormatter;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -305,7 +304,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 	public void trackChanged(Track track)
 	{
 		for(Map.Entry<BowMenuEntry, TextView> bowMenuEntry : bowMenuTextEntries.entrySet()){
-			bowMenuEntry.getValue().setText(bowMenuEntry.getKey().getField().getAsString(track));
+			bowMenuEntry.getValue().setText(bowMenuEntry.getKey().getField().getAsDisplayableString(track));
 		}
 	}
 
