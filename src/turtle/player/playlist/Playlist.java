@@ -212,10 +212,12 @@ public class Playlist
 							FsReader.scanDir(db, mediaPath);
 							db.removeObserver(dbObserver);
 
-						} catch (NullPointerException e)
+						}
+						catch (NullPointerException e)
 						{
 							Log.v(Preferences.TAG, e.getMessage());
-						} finally
+						}
+						finally
 						{
 							for (PlaylistObserver observer : observers)
 							{
