@@ -116,20 +116,11 @@ public class Player extends ListActivity
 		SetupTelephoneChecker();
 	}
 
-	// ========================================= //
-	// 	onSaveInstanceState & onRestoreInstanceState
-	// ========================================= //
-
 	@Override
-	public void onSaveInstanceState(Bundle savedInstanceState)
+	protected void onDestroy()
 	{
-		super.onSaveInstanceState(savedInstanceState);
-	}
-
-	@Override
-	public void onRestoreInstanceState(Bundle savedInstanceState)
-	{
-		super.onRestoreInstanceState(savedInstanceState);
+		super.onDestroy();
+		tp.player.release();
 	}
 
 	private void lookupViewElements(){

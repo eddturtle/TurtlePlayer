@@ -26,14 +26,24 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
+/**
+ * Access for native Android Media player.<br />
+ *
+ * take a look at: http://developer.android.com/reference/android/media/MediaPlayer.html#StateDiagram
+ * <br /><br />
+ * {@link #getMp()} garantees media player is at least in idle state<br />
+ * {@link #initialized} garantees media player is at least in initialized state<br />
+ */
 public class Player
 {
 
-	private final MediaPlayer mp = new MediaPlayer();
 	private final List<PlayerObserver> observers = new ArrayList<PlayerObserver>();
 
+	private MediaPlayer mp = null; //use getMp to access plz
 	private boolean isPlaying = false;
 	private Track currTrack = null;
+
+	private boolean initialized = false; //indicates the player is at least in Initialized mode
 
 	public Player()
 	{
@@ -62,15 +72,17 @@ public class Player
 		{
 			try
 			{
+				final MediaPlayer mediaPlayer = getMp();
 				mp.reset();
-				mp.setDataSource(t.GetSrc());
+				mediaPlayer.setDataSource(t.GetSrc());
 
 				notifyTrackChanged(t);
 
-				mp.prepare();
+				mediaPlayer.prepare();
 
-				mp.start();
+				mediaPlayer.start();
 
+				initialized = true;
 				notifyStarted();
 			}
 			catch (IOException e)
@@ -82,13 +94,16 @@ public class Player
 
 	public void toggle()
 	{
-		if(isPlaying)
+		if(initialized)
 		{
-			pause();
-		}
-		else
-		{
-			play();
+			if(isPlaying)
+			{
+				pause();
+			}
+			else
+			{
+				play();
+			}
 		}
 	}
 
@@ -99,7 +114,7 @@ public class Player
 	{
 		if(isPlaying)
 		{
-			mp.pause();
+			getMp().pause();
 			notifyStopped();
 			return true;
 		}
@@ -110,9 +125,9 @@ public class Player
 	 * @return true if this call had an effect
 	 */
 	public boolean play(){
-		if(!isPlaying)
+		if(!isPlaying && initialized)
 		{
-			mp.start();
+			getMp().start();
 			notifyStarted();
 			return true;
 		}
@@ -121,12 +136,15 @@ public class Player
 
 	public void goToMillis(int millis)
 	{
-		mp.seekTo(millis);
+		if(initialized)
+		{
+			getMp().seekTo(millis);
+		}
 	}
 
 	public int getCurrentMillis()
 	{
-		return mp.getCurrentPosition();
+		return initialized ? getMp().getCurrentPosition() : 0;
 	}
 
 	public Track getCurrTrack()
@@ -136,7 +154,29 @@ public class Player
 
 	public void setOnCompletionListener(MediaPlayer.OnCompletionListener listener)
 	{
-		mp.setOnCompletionListener(listener);
+		getMp().setOnCompletionListener(listener);
+	}
+
+	/**
+	 * @return MediaPlayer at least in idle state
+	 */
+   private MediaPlayer getMp(){
+		if(mp == null)
+		{
+			mp = new MediaPlayer();
+			mp.reset();
+		}
+		return mp;
+	}
+
+	/**
+	 * releases the mp and kill the reference because the old instance is not usable anymore
+	 */
+	public void release()
+	{
+		initialized = false;
+		getMp().release();
+		mp = null;
 	}
 
 	//---------------------------------- Observable
