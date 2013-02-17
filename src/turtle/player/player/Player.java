@@ -66,7 +66,7 @@ public class Player
 		});
 	}
 
-	public void play(Track t)
+	private void prepare(Track t)
 	{
 		if (t != null)
 		{
@@ -76,20 +76,31 @@ public class Player
 				mp.reset();
 				mediaPlayer.setDataSource(t.GetSrc());
 
-				notifyTrackChanged(t);
-
 				mediaPlayer.prepare();
-
-				mediaPlayer.start();
-
 				initialized = true;
-				notifyStarted();
+				notifyStopped();
+				notifyTrackChanged(t);
 			}
 			catch (IOException e)
 			{
 				Log.v(Preferences.TAG, e.getMessage());
 			}
 		}
+	}
+
+	public void change(Track t){
+		boolean wasPlaying = isPlaying;
+		prepare(t);
+
+		if(wasPlaying){
+			play();
+		}
+	}
+
+	public void play(Track t)
+	{
+		prepare(t);
+		play();
 	}
 
 	public void toggle()
@@ -112,7 +123,7 @@ public class Player
 	 */
 	public boolean pause()
 	{
-		if(isPlaying)
+		if(initialized && isPlaying)
 		{
 			getMp().pause();
 			notifyStopped();
@@ -138,7 +149,7 @@ public class Player
 	{
 		if(initialized)
 		{
-			getMp().seekTo(millis);
+			getMp().seekTo(Math.max(Math.min(millis, getMp().getDuration()), 0));
 		}
 	}
 
@@ -175,6 +186,7 @@ public class Player
 	public void release()
 	{
 		initialized = false;
+		pause();
 		getMp().release();
 		mp = null;
 	}

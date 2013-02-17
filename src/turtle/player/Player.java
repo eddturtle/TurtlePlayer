@@ -36,11 +36,20 @@ import turtle.player.dirchooser.DirChooserConstants;
 import turtle.player.model.Instance;
 import turtle.player.model.Track;
 import turtle.player.persistance.framework.db.ObservableDatabase;
+import turtle.player.persistance.framework.executor.OperationExecutor;
+import turtle.player.persistance.framework.filter.FieldFilter;
+import turtle.player.persistance.framework.filter.Operator;
+import turtle.player.persistance.framework.paging.Paging;
+import turtle.player.persistance.source.sql.First;
+import turtle.player.persistance.source.sqlite.QuerySqlite;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.mapping.TrackCreator;
 import turtle.player.playlist.Playlist;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
 import turtle.player.preferences.PreferencesObserver;
+import turtle.player.util.Shorty;
 import turtle.player.view.AlbumArtView;
 import turtle.player.view.FileChooser;
 
@@ -114,12 +123,41 @@ public class Player extends ListActivity
 		SetupSlides();
 		SetupList();
 		SetupTelephoneChecker();
+
+		resetLastTrack();
+	}
+
+	private void resetLastTrack()
+	{
+		String lastTrack = tp.playlist.preferences.get(Keys.LAST_TRACK_PLAYED);
+
+		Track restoredTrack = null;
+		if(!Shorty.isVoid(lastTrack))
+		{
+			restoredTrack = OperationExecutor.execute(
+				tp.db,
+				new QuerySqlite<Track>(
+					new FieldFilter<Track, String>(Tables.TRACKS.SRC, Operator.EQ, lastTrack),
+					new First<Track>(Tables.TRACKS, new TrackCreator())
+				)
+			);
+		}
+		if(restoredTrack == null){
+			tp.player.change(tp.playlist.getNext(null).getTrack());
+		}
+		else
+		{
+			tp.player.change(restoredTrack);
+			tp.player.goToMillis(tp.playlist.preferences.get(Keys.EXIT_PLAY_TIME));
+		}
+
 	}
 
 	@Override
 	protected void onDestroy()
 	{
 		super.onDestroy();
+		tp.playlist.preferences.set(Keys.EXIT_PLAY_TIME, tp.player.getCurrentMillis());
 		tp.player.release();
 	}
 
@@ -230,13 +268,7 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				if (!tp.playlist.IsEmpty())
-				{
-					tp.player.play(tp.playlist.getPrevious(tp.player.getCurrTrack()).getTrack());
-				} else
-				{
-					Toast.makeText(getApplicationContext(), "Empty Playlist", Toast.LENGTH_SHORT).show();
-				}
+				tp.player.play(tp.playlist.getPrevious(tp.player.getCurrTrack()).getTrack());
 			}
 		});
 
@@ -244,14 +276,7 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				if (!tp.playlist.IsEmpty())
-				{
-					tp.player.toggle();
-				}
-				else
-				{
-					Toast.makeText(getApplicationContext(), "Empty Playlist", Toast.LENGTH_SHORT).show();
-				}
+				tp.player.toggle();
 			}
 		});
 
@@ -259,10 +284,7 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				if (!tp.playlist.IsEmpty())
-				{
-					tp.player.play(tp.playlist.getNext(tp.player.getCurrTrack()).getTrack());
-				}
+				tp.player.play(tp.playlist.getNext(tp.player.getCurrTrack()).getTrack());
 			}
 		});
 
@@ -459,6 +481,7 @@ public class Player extends ListActivity
 			{
 				progressBar.setMax((int)track.GetLength());
 				duration.setText(ConvertToMinutes((int)track.GetLength()));
+				tp.playlist.preferences.set(Keys.LAST_TRACK_PLAYED, track.GetSrc());
 			}
 
 			public void started()
