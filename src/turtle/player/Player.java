@@ -36,15 +36,7 @@ import turtle.player.dirchooser.DirChooserConstants;
 import turtle.player.model.Instance;
 import turtle.player.model.Track;
 import turtle.player.persistance.framework.db.ObservableDatabase;
-import turtle.player.persistance.framework.executor.OperationExecutor;
-import turtle.player.persistance.framework.filter.FieldFilter;
-import turtle.player.persistance.framework.filter.Operator;
-import turtle.player.persistance.framework.paging.Paging;
-import turtle.player.persistance.source.sql.First;
-import turtle.player.persistance.source.sqlite.QuerySqlite;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
-import turtle.player.persistance.turtle.db.structure.Tables;
-import turtle.player.persistance.turtle.mapping.TrackCreator;
 import turtle.player.playlist.Playlist;
 import turtle.player.playlist.playorder.PlayOrderRandom;
 import turtle.player.playlist.playorder.PlayOrderSorted;
@@ -105,6 +97,8 @@ public class Player extends ListActivity
 	private SeekBar progressBar;
 
 	private PlayOrderStrategy playOrderStrategy;
+	private PlayOrderStrategy standartPlayOrderStrategy;
+	private PlayOrderStrategy shufflePlayOrderStrategy;
 
 	// ========================================= //
 	// 	OnCreate & OnDestroy
@@ -120,7 +114,7 @@ public class Player extends ListActivity
 
 		lookupViewElements();
 
-		new AlbumArtView(this, tp.player, new PlayOrderSorted(tp.db, tp.playlist), tp.playlist);
+		new AlbumArtView(this, tp.player, standartPlayOrderStrategy, tp.playlist);
 
 		SetupObservers();
 		SetupButtons();
@@ -171,10 +165,11 @@ public class Player extends ListActivity
 		tp.db = new TurtleDatabase(tp.getApplicationContext());
 		tp.playlist = new Playlist(tp.getApplicationContext(), tp.db);
 		fileChooser = new FileChooser(FileChooser.Mode.Track, tp.db, this);
-		playOrderStrategy = tp.playlist.preferences.get(Keys.SHUFFLE) ?
-				new PlayOrderRandom(tp.db, tp.playlist) :
-				new PlayOrderSorted(tp.db, tp.playlist);
 
+		standartPlayOrderStrategy = new PlayOrderSorted(tp.db, tp.playlist);
+		shufflePlayOrderStrategy = new PlayOrderRandom(tp.db, tp.playlist);
+		playOrderStrategy = tp.playlist.preferences.get(Keys.SHUFFLE) ?
+				  shufflePlayOrderStrategy : standartPlayOrderStrategy;
 	}
 
 	// ========================================= //
@@ -256,7 +251,7 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				tp.player.play(tp.playlist.getNext(playOrderStrategy, tp.player.getCurrTrack()));
+				tp.player.play(tp.playlist.getNext(standartPlayOrderStrategy, tp.player.getCurrTrack()));
 			}
 		});
 
@@ -264,7 +259,15 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
+				tp.player.play(tp.playlist.getNext(shufflePlayOrderStrategy, tp.player.getCurrTrack()));
+			}
+		});
+		shuffleButton.setOnLongClickListener(new View.OnLongClickListener()
+		{
+			public boolean onLongClick(View v)
+			{
 				tp.playlist.preferences.set(Keys.SHUFFLE, !tp.playlist.preferences.get(Keys.SHUFFLE));
+				return true;
 			}
 		});
 
@@ -402,9 +405,7 @@ public class Player extends ListActivity
 				if (key.equals(Keys.SHUFFLE))
 				{
 					final boolean shuffle = tp.playlist.preferences.get(Keys.SHUFFLE);
-					playOrderStrategy = shuffle ?
-							new PlayOrderRandom(tp.db, tp.playlist) :
-							new PlayOrderSorted(tp.db, tp.playlist);
+					playOrderStrategy = shuffle ? shufflePlayOrderStrategy : standartPlayOrderStrategy;
 					//Update UI states
 					runOnUiThread(new Runnable()
 					{
