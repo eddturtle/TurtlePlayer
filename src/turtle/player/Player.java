@@ -59,6 +59,13 @@ public class Player extends ListActivity
 	public static final String DIR_CHOOSER_ACTION = "turtle.player.DIR_CHOOSER";
 	public static final int DIR_CHOOSER_REQUEST = 0;
 
+	private enum Slides
+	{
+		SETTINGS,
+		PLAYLIST,
+		NOW_PLAYING
+	}
+
 	// ========================================= //
 	// 	Attributes
 	// ========================================= //
@@ -100,6 +107,7 @@ public class Player extends ListActivity
 	private PlayOrderStrategy standartPlayOrderStrategy;
 	private PlayOrderStrategy shufflePlayOrderStrategy;
 
+	private Slides currSlide = Slides.NOW_PLAYING;
 	// ========================================= //
 	// 	OnCreate & OnDestroy
 	// ========================================= //
@@ -153,6 +161,18 @@ public class Player extends ListActivity
 		mediaDir = (TextView) findViewById(R.id.mediaDir);
 		rescanProgressBar = (ProgressBar) findViewById(R.id.rescanProgressBar);
 		chooseMediaDir = (ImageView) findViewById(R.id.chooseMediaDir);
+	}
+
+	@Override
+	public void onBackPressed() {
+		if(!Slides.NOW_PLAYING.equals(currSlide))
+		{
+			SwitchToNowPlayingSlide();
+		}
+		else
+		{
+			super.onBackPressed();
+		}
 	}
 
 	// ========================================= //
@@ -516,6 +536,7 @@ public class Player extends ListActivity
 
 		ResetHeaderButtons();
 		logo.setImageDrawable(getResources().getDrawable(R.drawable.logo128_active));
+		currSlide = Slides.NOW_PLAYING;
 
 		nowPlayingSlide.setVisibility(LinearLayout.VISIBLE);
 		playlistSlide.setVisibility(LinearLayout.INVISIBLE);
@@ -525,7 +546,9 @@ public class Player extends ListActivity
 	private void SwitchToPlaylistSlide()
 	{
 		ResetHeaderButtons();
+
 		list.setImageDrawable(getResources().getDrawable(R.drawable.list64_active));
+		currSlide = Slides.PLAYLIST;
 
 		nowPlayingSlide.setVisibility(LinearLayout.INVISIBLE);
 		playlistSlide.setVisibility(LinearLayout.VISIBLE);
@@ -535,12 +558,13 @@ public class Player extends ListActivity
 	private void SwitchToSettingsSlide()
 	{
 		ResetHeaderButtons();
+
 		settings.setImageDrawable(getResources().getDrawable(R.drawable.settings48_active));
+		currSlide = Slides.SETTINGS;
 
 		nowPlayingSlide.setVisibility(LinearLayout.INVISIBLE);
 		playlistSlide.setVisibility(LinearLayout.INVISIBLE);
 		settingsSlide.setVisibility(LinearLayout.VISIBLE);
-
 	}
 
 
