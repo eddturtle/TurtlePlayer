@@ -462,12 +462,12 @@ public class Player extends ListActivity
 
 			public void started()
 			{
-				playButton.setImageDrawable(getResources().getDrawable(R.drawable.pause64));
+				playButton.setImageDrawable(getResources().getDrawable(R.drawable.pause96));
 			}
 
 			public void stopped()
 			{
-				playButton.setImageDrawable(getResources().getDrawable(R.drawable.play64));
+				playButton.setImageDrawable(getResources().getDrawable(R.drawable.play96));
 			}
 		});
 
