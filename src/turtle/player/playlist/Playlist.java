@@ -89,7 +89,7 @@ public class Playlist
 
 	private void setPlayOrderStrategyAccordingPreferences()
 	{
-		playOrderStrategy = preferences.GetShuffle() ?
+		playOrderStrategy = preferences.setShuffle() ?
 				  new PlayOrderRandom(db, this):
 				  new PlayOrderSorted(db, this);
 	}
@@ -184,7 +184,7 @@ public class Playlist
 					{
 						try
 						{
-							final File mediaPath = preferences.GetMediaPath();
+							final File mediaPath = preferences.setMediaPath();
 
 							for (PlaylistObserver observer : observers)
 							{

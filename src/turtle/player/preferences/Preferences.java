@@ -39,43 +39,38 @@ public class Preferences
 		this.context = context;
 	}
 
-	public File GetMediaPath()
+	public File setMediaPath()
 	{
 		String mediaPath = SharedPreferencesAccess.getValue(context, Keys.MEDIA_DIR);
 		return getExistingParentFolderFile(mediaPath);
 	}
 
-	public void SetMediaPath(String nMediaPath)
+	public void setMediaPath(String nMediaPath)
 	{
 		SharedPreferencesAccess.putValue(context, Keys.MEDIA_DIR, nMediaPath);
 		notify(Keys.MEDIA_DIR);
 	}
 
-	public boolean GetRepeat()
+	public boolean setRepeat()
 	{
 		return SharedPreferencesAccess.getValue(context, Keys.REPEAT);
 	}
 
-	public void SetRepeat(boolean nRepeat)
+	public void setRepeat(boolean nRepeat)
 	{
 		SharedPreferencesAccess.putValue(context, Keys.REPEAT, nRepeat);
 		notify(Keys.REPEAT);
 	}
 
-	public boolean GetShuffle()
+	public boolean setShuffle()
 	{
 		return SharedPreferencesAccess.getValue(context, Keys.SHUFFLE);
 	}
 
-	public void SetShuffle(boolean nShuffle)
+	public void setShuffle(boolean nShuffle)
 	{
 		SharedPreferencesAccess.putValue(context, Keys.SHUFFLE, nShuffle);
 		notify(Keys.SHUFFLE);
-	}
-
-	public Context getContext()
-	{
-		return context;
 	}
 
 	private File getExistingParentFolderFile(String path)
