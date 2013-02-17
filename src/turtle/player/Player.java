@@ -167,15 +167,21 @@ public class Player extends ListActivity
 	private void SetupButtons()
 	{
 		shuffleButton.setImageDrawable(
-				  tp.playlist.preferences.setShuffle() ?
+				  tp.playlist.preferences.get(Keys.SHUFFLE) ?
 							 getResources().getDrawable(R.drawable.shuffle48_active) :
 							 getResources().getDrawable(R.drawable.shuffle48)
 		);
 
-		shuffleCheckBox.setChecked(tp.playlist.preferences.setShuffle());
-		repeatCheckBox.setChecked(tp.playlist.preferences.setRepeat());
+		repeatButton.setImageDrawable(
+				  tp.playlist.preferences.get(Keys.SHUFFLE) ?
+							 getResources().getDrawable(R.drawable.repeat48_active) :
+							 getResources().getDrawable(R.drawable.repeat48)
+		);
 
-		mediaDir.setText(tp.playlist.preferences.setMediaPath().toString());
+		shuffleCheckBox.setChecked(tp.playlist.preferences.get(Keys.SHUFFLE));
+		repeatCheckBox.setChecked(tp.playlist.preferences.get(Keys.REPEAT));
+
+		mediaDir.setText(tp.playlist.preferences.getExitstingMediaPath().toString());
 
 	}
 
@@ -264,7 +270,7 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				tp.playlist.preferences.setShuffle(!tp.playlist.preferences.setShuffle());
+				tp.playlist.preferences.set(Keys.SHUFFLE, !tp.playlist.preferences.get(Keys.SHUFFLE));
 			}
 		});
 
@@ -273,7 +279,7 @@ public class Player extends ListActivity
 			public void onCheckedChanged(CompoundButton buttonView,
 												  boolean isChecked)
 			{
-				tp.playlist.preferences.setShuffle(isChecked);
+				tp.playlist.preferences.set(Keys.SHUFFLE, isChecked);
 			}
 		});
 
@@ -281,7 +287,7 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				tp.playlist.preferences.setRepeat(!tp.playlist.preferences.setRepeat());
+				tp.playlist.preferences.set(Keys.REPEAT, !tp.playlist.preferences.get(Keys.REPEAT));
 			}
 		});
 
@@ -290,7 +296,7 @@ public class Player extends ListActivity
 			public void onCheckedChanged(CompoundButton buttonView,
 												  boolean isChecked)
 			{
-				tp.playlist.preferences.setRepeat(isChecked);
+				tp.playlist.preferences.set(Keys.REPEAT, isChecked);
 			}
 		});
 
@@ -309,7 +315,7 @@ public class Player extends ListActivity
 			{
 				Intent dirChooserIntent = new Intent(DIR_CHOOSER_ACTION);
 				dirChooserIntent.putExtra(DirChooserConstants.ACTIVITY_PARAM_KEY_DIR_CHOOSER_INITIAL_DIR,
-						  tp.playlist.preferences.setMediaPath().toString());
+						  tp.playlist.preferences.getExitstingMediaPath().toString());
 				startActivityForResult(dirChooserIntent, DIR_CHOOSER_REQUEST);
 			}
 		});
@@ -423,7 +429,7 @@ public class Player extends ListActivity
 					{
 						public void run()
 						{
-							boolean repeat = tp.playlist.preferences.setRepeat();
+							boolean repeat = tp.playlist.preferences.get(Keys.REPEAT);
 							repeatButton.setImageDrawable(getResources().getDrawable(
 									  repeat ? R.drawable.repeat48_active : R.drawable.repeat48));
 							repeatCheckBox.setChecked(repeat);
@@ -437,7 +443,7 @@ public class Player extends ListActivity
 					{
 						public void run()
 						{
-							boolean shuffle = tp.playlist.preferences.setShuffle();
+							boolean shuffle = tp.playlist.preferences.get(Keys.SHUFFLE);
 							shuffleButton.setImageDrawable(getResources().getDrawable(
 									  shuffle ? R.drawable.shuffle48_active : R.drawable.shuffle48));
 							shuffleCheckBox.setChecked(shuffle);
@@ -659,9 +665,9 @@ public class Player extends ListActivity
 		{
 			if (resultCode == RESULT_OK)
 			{
-				tp.playlist.preferences.setMediaPath(
+				tp.playlist.preferences.set(Keys.MEDIA_DIR,
 						  data.getStringExtra(DirChooserConstants.ACTIVITY_RETURN_KEY_DIR_CHOOSER_CHOOSED_DIR));
-				mediaDir.setText(tp.playlist.preferences.setMediaPath().toString());
+				mediaDir.setText(tp.playlist.preferences.getExitstingMediaPath().toString());
 				rescan();
 			}
 		} else

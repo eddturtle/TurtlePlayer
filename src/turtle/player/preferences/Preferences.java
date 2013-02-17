@@ -39,38 +39,26 @@ public class Preferences
 		this.context = context;
 	}
 
-	public File setMediaPath()
+	public <T> void set(Key<T> key, T object)
 	{
-		String mediaPath = SharedPreferencesAccess.getValue(context, Keys.MEDIA_DIR);
-		return getExistingParentFolderFile(mediaPath);
+		SharedPreferencesAccess.putValue(context, key, object);
+		notify(key);
 	}
 
-	public void setMediaPath(String nMediaPath)
+	public <T> T get(Key<T> key)
 	{
-		SharedPreferencesAccess.putValue(context, Keys.MEDIA_DIR, nMediaPath);
-		notify(Keys.MEDIA_DIR);
+		return SharedPreferencesAccess.getValue(context, key);
 	}
 
-	public boolean setRepeat()
+	/**
+	 * Sideeffect: corrects the stored path if not existing and fires notification
+	 * @return always an exiting File
+	 */
+	public File getExitstingMediaPath()
 	{
-		return SharedPreferencesAccess.getValue(context, Keys.REPEAT);
-	}
-
-	public void setRepeat(boolean nRepeat)
-	{
-		SharedPreferencesAccess.putValue(context, Keys.REPEAT, nRepeat);
-		notify(Keys.REPEAT);
-	}
-
-	public boolean setShuffle()
-	{
-		return SharedPreferencesAccess.getValue(context, Keys.SHUFFLE);
-	}
-
-	public void setShuffle(boolean nShuffle)
-	{
-		SharedPreferencesAccess.putValue(context, Keys.SHUFFLE, nShuffle);
-		notify(Keys.SHUFFLE);
+		File existingPath = getExistingParentFolderFile(get(Keys.MEDIA_DIR));
+		set(Keys.MEDIA_DIR, existingPath.getPath());
+		return existingPath;
 	}
 
 	private File getExistingParentFolderFile(String path)

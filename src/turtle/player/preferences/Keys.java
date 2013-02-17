@@ -23,9 +23,11 @@ import android.os.Environment;
 public abstract class Keys
 {
 
-	public final static Key<Boolean> SHUFFLE = new Key<Boolean>("firstTime", false);
-	public final static Key<Boolean> REPEAT = new Key<Boolean>("firstTime", false);
+	public final static Key<Boolean> SHUFFLE = new Key<Boolean>("shuffle", false);
+	public final static Key<Boolean> REPEAT = new Key<Boolean>("repeat", false);
 	public final static Key<String> MEDIA_DIR = new Key<String>("mediaDir",
 			  Environment.getExternalStorageDirectory().getPath());
 
+	public final static Key<String> LAST_TRACK_PLAYED = new Key<String>("lastTrackPlayed", null);
+	public final static Key<String> EXIT_PLAY_TIME = new Key<String>("exitPlayTime", null);
 }

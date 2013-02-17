@@ -89,7 +89,7 @@ public class Playlist
 
 	private void setPlayOrderStrategyAccordingPreferences()
 	{
-		playOrderStrategy = preferences.setShuffle() ?
+		playOrderStrategy = preferences.get(Keys.SHUFFLE) ?
 				  new PlayOrderRandom(db, this):
 				  new PlayOrderSorted(db, this);
 	}
@@ -184,7 +184,7 @@ public class Playlist
 					{
 						try
 						{
-							final File mediaPath = preferences.setMediaPath();
+							final File mediaPath = preferences.getExitstingMediaPath();
 
 							for (PlaylistObserver observer : observers)
 							{
