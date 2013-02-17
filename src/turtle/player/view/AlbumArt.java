@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
@@ -69,19 +70,21 @@ public class AlbumArt
 	{
 
 		albumArtView = albumArtViewGroup.findViewById(type.getRId());
-		//activity.findViewById(type.getRId())
 		this.type = type;
 
 		albumArt = (ImageView) albumArtView.findViewById(R.id.picture);
 		title = (TextView) albumArtView.findViewById(R.id.trackTitle);
 		artist = (TextView) albumArtView.findViewById(R.id.trackArtist);
 
-		albumArtView.getViewTreeObserver().addOnGlobalFocusChangeListener(new ViewTreeObserver.OnGlobalFocusChangeListener()
+
+		//Hack to place AlbumArts. Needs already layouted views.
+		albumArtView.setOnTouchListener(new View.OnTouchListener()
 		{
-			public void onGlobalFocusChanged(View oldFocus,
-														View newFocus)
+			public boolean onTouch(View v, MotionEvent event)
 			{
 				setInitialPositions();
+				albumArtView.setOnTouchListener(null);
+				return false;
 			}
 		});
 	}

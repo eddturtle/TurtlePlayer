@@ -24,7 +24,6 @@ public abstract class Keys
 {
 
 	public final static Key<Boolean> SHUFFLE = new Key<Boolean>("shuffle", false);
-	public final static Key<Boolean> REPEAT = new Key<Boolean>("repeat", false);
 	public final static Key<String> MEDIA_DIR = new Key<String>("mediaDir",
 			  Environment.getExternalStorageDirectory().getPath());
 

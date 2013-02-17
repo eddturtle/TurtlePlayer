@@ -46,6 +46,9 @@ import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.persistance.turtle.mapping.TrackCreator;
 import turtle.player.playlist.Playlist;
+import turtle.player.playlist.playorder.PlayOrderRandom;
+import turtle.player.playlist.playorder.PlayOrderSorted;
+import turtle.player.playlist.playorder.PlayOrderStrategy;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
 import turtle.player.preferences.PreferencesObserver;
@@ -86,11 +89,9 @@ public class Player extends ListActivity
 	private ImageView playButton;
 	private ImageView nextButton;
 	private ImageView shuffleButton;
-	private ImageView repeatButton;
 
 	// Settings Slide
 	CheckBox shuffleCheckBox;
-	CheckBox repeatCheckBox;
 	ImageView rescan;
 	ProgressBar rescanProgressBar;
 	TextView mediaDir;
@@ -102,6 +103,8 @@ public class Player extends ListActivity
 	// Progress Bar Attributes
 	private Runnable progressBarRunnable;
 	private SeekBar progressBar;
+
+	private PlayOrderStrategy playOrderStrategy;
 
 	// ========================================= //
 	// 	OnCreate & OnDestroy
@@ -116,7 +119,9 @@ public class Player extends ListActivity
 		SetupApplication();
 
 		lookupViewElements();
-		new AlbumArtView(this, tp.player, tp.playlist);
+
+		new AlbumArtView(this, tp.player, new PlayOrderSorted(tp.db, tp.playlist), tp.playlist);
+
 		SetupObservers();
 		SetupButtons();
 		SetupButtonListeners();
@@ -125,32 +130,6 @@ public class Player extends ListActivity
 		SetupTelephoneChecker();
 
 		resetLastTrack();
-	}
-
-	private void resetLastTrack()
-	{
-		String lastTrack = tp.playlist.preferences.get(Keys.LAST_TRACK_PLAYED);
-
-		Track restoredTrack = null;
-		if(!Shorty.isVoid(lastTrack))
-		{
-			restoredTrack = OperationExecutor.execute(
-				tp.db,
-				new QuerySqlite<Track>(
-					new FieldFilter<Track, String>(Tables.TRACKS.SRC, Operator.EQ, lastTrack),
-					new First<Track>(Tables.TRACKS, new TrackCreator())
-				)
-			);
-		}
-		if(restoredTrack == null){
-			tp.player.change(tp.playlist.getNext(null).getTrack());
-		}
-		else
-		{
-			tp.player.change(restoredTrack);
-			tp.player.goToMillis(tp.playlist.preferences.get(Keys.EXIT_PLAY_TIME));
-		}
-
 	}
 
 	@Override
@@ -174,11 +153,7 @@ public class Player extends ListActivity
 		nextButton = (ImageView) findViewById(R.id.nextButton);
 
 		shuffleButton = (ImageView) findViewById(R.id.shuffleButton);
-
-		repeatButton = (ImageView) findViewById(R.id.repeatButton);
-
 		shuffleCheckBox = (CheckBox) findViewById(R.id.shuffleCheckBox);
-		repeatCheckBox = (CheckBox) findViewById(R.id.repeatCheckBox);
 
 		rescan = (ImageView) findViewById(R.id.rescan);
 		mediaDir = (TextView) findViewById(R.id.mediaDir);
@@ -196,6 +171,10 @@ public class Player extends ListActivity
 		tp.db = new TurtleDatabase(tp.getApplicationContext());
 		tp.playlist = new Playlist(tp.getApplicationContext(), tp.db);
 		fileChooser = new FileChooser(FileChooser.Mode.Track, tp.db, this);
+		playOrderStrategy = tp.playlist.preferences.get(Keys.SHUFFLE) ?
+				new PlayOrderRandom(tp.db, tp.playlist) :
+				new PlayOrderSorted(tp.db, tp.playlist);
+
 	}
 
 	// ========================================= //
@@ -210,14 +189,7 @@ public class Player extends ListActivity
 							 getResources().getDrawable(R.drawable.shuffle48)
 		);
 
-		repeatButton.setImageDrawable(
-				  tp.playlist.preferences.get(Keys.SHUFFLE) ?
-							 getResources().getDrawable(R.drawable.repeat48_active) :
-							 getResources().getDrawable(R.drawable.repeat48)
-		);
-
 		shuffleCheckBox.setChecked(tp.playlist.preferences.get(Keys.SHUFFLE));
-		repeatCheckBox.setChecked(tp.playlist.preferences.get(Keys.REPEAT));
 
 		mediaDir.setText(tp.playlist.preferences.getExitstingMediaPath().toString());
 
@@ -268,7 +240,7 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				tp.player.play(tp.playlist.getPrevious(tp.player.getCurrTrack()).getTrack());
+				tp.player.play(tp.playlist.getPrevious(playOrderStrategy, tp.player.getCurrTrack()));
 			}
 		});
 
@@ -284,7 +256,7 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				tp.player.play(tp.playlist.getNext(tp.player.getCurrTrack()).getTrack());
+				tp.player.play(tp.playlist.getNext(playOrderStrategy, tp.player.getCurrTrack()));
 			}
 		});
 
@@ -302,23 +274,6 @@ public class Player extends ListActivity
 												  boolean isChecked)
 			{
 				tp.playlist.preferences.set(Keys.SHUFFLE, isChecked);
-			}
-		});
-
-		repeatButton.setOnClickListener(new OnClickListener()
-		{
-			public void onClick(View v)
-			{
-				tp.playlist.preferences.set(Keys.REPEAT, !tp.playlist.preferences.get(Keys.REPEAT));
-			}
-		});
-
-		repeatCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
-		{
-			public void onCheckedChanged(CompoundButton buttonView,
-												  boolean isChecked)
-			{
-				tp.playlist.preferences.set(Keys.REPEAT, isChecked);
 			}
 		});
 
@@ -444,28 +399,17 @@ public class Player extends ListActivity
 		{
 			public void changed(Key key)
 			{
-				if (key.equals(Keys.REPEAT))
+				if (key.equals(Keys.SHUFFLE))
 				{
+					final boolean shuffle = tp.playlist.preferences.get(Keys.SHUFFLE);
+					playOrderStrategy = shuffle ?
+							new PlayOrderRandom(tp.db, tp.playlist) :
+							new PlayOrderSorted(tp.db, tp.playlist);
 					//Update UI states
 					runOnUiThread(new Runnable()
 					{
 						public void run()
 						{
-							boolean repeat = tp.playlist.preferences.get(Keys.REPEAT);
-							repeatButton.setImageDrawable(getResources().getDrawable(
-									  repeat ? R.drawable.repeat48_active : R.drawable.repeat48));
-							repeatCheckBox.setChecked(repeat);
-						}
-					});
-				}
-				else if (key.equals(Keys.SHUFFLE))
-				{
-					//Update UI states
-					runOnUiThread(new Runnable()
-					{
-						public void run()
-						{
-							boolean shuffle = tp.playlist.preferences.get(Keys.SHUFFLE);
 							shuffleButton.setImageDrawable(getResources().getDrawable(
 									  shuffle ? R.drawable.shuffle48_active : R.drawable.shuffle48));
 							shuffleCheckBox.setChecked(shuffle);
@@ -531,7 +475,7 @@ public class Player extends ListActivity
 		{
 			public void onCompletion(MediaPlayer mplayer)
 			{
-				tp.player.play(tp.playlist.getNext(tp.player.getCurrTrack()).getTrack());
+				tp.player.play(tp.playlist.getNext(playOrderStrategy, tp.player.getCurrTrack()));
 			}
 		});
 
@@ -598,6 +542,26 @@ public class Player extends ListActivity
 
 	}
 
+
+	private void resetLastTrack()
+	{
+		String lastTrack = tp.playlist.preferences.get(Keys.LAST_TRACK_PLAYED);
+
+		Track restoredTrack = null;
+		if(!Shorty.isVoid(lastTrack))
+		{
+			restoredTrack = tp.playlist.getTrack(lastTrack);
+		}
+		if(restoredTrack == null){
+			tp.player.change(tp.playlist.getNext(playOrderStrategy, null));
+		}
+		else
+		{
+			tp.player.change(restoredTrack);
+			tp.player.goToMillis(tp.playlist.preferences.get(Keys.EXIT_PLAY_TIME));
+		}
+
+	}
 
 	// ========================================= //
 	// 	Setup Progress Bar - Part of Init()

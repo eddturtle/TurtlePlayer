@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.view.View;
 import android.widget.Toast;
 import turtle.player.R;
+import turtle.player.TurtlePlayer;
 import turtle.player.controller.TouchHandler;
 import turtle.player.model.Track;
 import turtle.player.model.TrackBundle;
@@ -11,6 +12,8 @@ import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.player.Player;
 import turtle.player.playlist.Playlist;
+import turtle.player.playlist.playorder.PlayOrderSorted;
+import turtle.player.playlist.playorder.PlayOrderStrategy;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,10 +50,10 @@ public class AlbumArtView
 
 	public AlbumArtView(final Activity activity,
 							  final Player player,
+							  final PlayOrderStrategy playOrderStrategy,
 							  final Playlist playlist)
 	{
 		albumArtViewGroup = activity.findViewById(R.id.relativeLayout_albumArt);
-
 
 		albumArt = new AlbumArt(albumArtViewGroup, AlbumArt.Type.CENTER);
 		albumArtLeft = new AlbumArt(albumArtViewGroup, AlbumArt.Type.LEFT);
@@ -60,7 +63,7 @@ public class AlbumArtView
 		{
 			public void trackChanged(Track track)
 			{
-				TrackBundle trackBundle = playlist.enrich(track);
+				TrackBundle trackBundle = playlist.enrich(playOrderStrategy, track);
 				albumArt.setTrack(trackBundle.getTrack());
 				albumArtRight.setTrack(trackBundle.getTrackAfter());
 				albumArtLeft.setTrack(trackBundle.getTrackBefore());
@@ -87,13 +90,13 @@ public class AlbumArtView
 			@Override
 			protected void nextGestureRecognized()
 			{
-				player.play(playlist.getNext(player.getCurrTrack()).getTrack());
+				player.play(playlist.getNext(playOrderStrategy, player.getCurrTrack()));
 			}
 
 			@Override
 			protected void previousGestureRecognized()
 			{
-				player.play(playlist.getPrevious(player.getCurrTrack()).getTrack());
+				player.play(playlist.getPrevious(playOrderStrategy, player.getCurrTrack()));
 			}
 
 

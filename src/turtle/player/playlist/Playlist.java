@@ -26,20 +26,22 @@ import turtle.player.model.Instance;
 import turtle.player.model.Track;
 import turtle.player.model.TrackBundle;
 import turtle.player.persistance.framework.db.ObservableDatabase;
+import turtle.player.persistance.framework.executor.OperationExecutor;
 import turtle.player.persistance.framework.filter.FieldFilter;
-import turtle.player.persistance.framework.filter.Operator;
-import turtle.player.persistance.source.relational.FieldPersistable;
-import turtle.player.persistance.turtle.FsReader;
-import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterSet;
-import turtle.player.playlist.playorder.PlayOrderRandom;
+import turtle.player.persistance.framework.filter.Operator;
+import turtle.player.persistance.framework.sort.RandomOrder;
+import turtle.player.persistance.source.relational.FieldPersistable;
+import turtle.player.persistance.source.sql.First;
+import turtle.player.persistance.source.sqlite.QuerySqlite;
+import turtle.player.persistance.turtle.FsReader;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.mapping.TrackCreator;
 import turtle.player.playlist.playorder.PlayOrderSorted;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
-import turtle.player.preferences.Key;
-import turtle.player.preferences.Keys;
 import turtle.player.preferences.Preferences;
-import turtle.player.preferences.PreferencesObserver;
 import turtle.player.util.dev.PerformanceMeasure;
 
 import java.io.File;
@@ -60,7 +62,6 @@ public class Playlist
 	public final Preferences preferences;
 	public final Stats stats = new Stats();
 
-	private PlayOrderStrategy playOrderStrategy;
 	private final TurtleDatabase db;
 	private final Set<Filter> filters = new HashSet<Filter>();
 
@@ -69,29 +70,6 @@ public class Playlist
 		// Location, Repeat, Shuffle (Remember Trailing / on Location)
 		preferences = new Preferences(mainContext);
 		this.db = db;
-		init();
-	}
-
-	private void init()
-	{
-		preferences.addObserver(new PreferencesObserver()
-		{
-			public void changed(Key key)
-			{
-				if (key.equals(Keys.SHUFFLE))
-				{
-					setPlayOrderStrategyAccordingPreferences();
-				}
-			}
-		});
-		setPlayOrderStrategyAccordingPreferences();
-	}
-
-	private void setPlayOrderStrategyAccordingPreferences()
-	{
-		playOrderStrategy = preferences.get(Keys.SHUFFLE) ?
-				  new PlayOrderRandom(db, this):
-				  new PlayOrderSorted(db, this);
 	}
 
 	public <O> Filter addFilter(FieldPersistable<Track, O> field, Track track){
@@ -121,50 +99,43 @@ public class Playlist
 	 * param track
 	 * @return adds additional information to track
 	 */
-	public TrackBundle enrich(Track track){
+	public TrackBundle enrich(PlayOrderStrategy strategy, Track track){
 		return new TrackBundle(
 				  track,
-				  playOrderStrategy.getNext(track),
-				  playOrderStrategy.getPrevious(track)
+				  strategy.getNext(track),
+				  strategy.getPrevious(track)
 		);
 	}
 
-
-	public TrackBundle getNext(Track ofTrack)
+	public Track getTrack(String src)
 	{
-		PerformanceMeasure.start(durations.NEXT.name());
-		List<Track> nextCandidates = playOrderStrategy.getNext(ofTrack, 2);
-
-		TrackBundle trackBundle = new TrackBundle(
-				  nextCandidates.size() > 0 ? nextCandidates.get(0) : null,
-				  nextCandidates.size() > 1 ? nextCandidates.get(1) : null,
-				  ofTrack
+		return OperationExecutor.execute(
+				  db,
+				  new QuerySqlite<Track>(
+							 new FilterSet(getFilter(), new FieldFilter<Track, String>(Tables.TRACKS.SRC, Operator.EQ, src)),
+							 new First<Track>(Tables.TRACKS, new TrackCreator())
+				  )
 		);
-
-		PerformanceMeasure.stop(durations.NEXT.name());
-
-		return trackBundle;
 	}
 
-	public TrackBundle getPrevious(Track ofTrack)
+
+	public Track getNext(PlayOrderStrategy strategy, Track ofTrack)
 	{
-		PerformanceMeasure.start(durations.PREV.name());
-
-		List<Track> previousCandidates = playOrderStrategy.getPrevious(ofTrack, 2);
-
-		TrackBundle trackBundle = new TrackBundle(
-				  previousCandidates.size() > 0 ? previousCandidates.get(0) : null,
-				  ofTrack,
-				  previousCandidates.size() > 1 ? previousCandidates.get(1) : null
-		);
-
-		PerformanceMeasure.stop(durations.PREV.name());
-
-		return trackBundle;
+		return strategy.getNext(ofTrack);
 	}
 
-	public int countAvailableTracks(){
-		return db.countAvailableTracks(getFilter());
+	public Track getPrevious(PlayOrderStrategy strategy, Track ofTrack)
+	{
+		return strategy.getPrevious(ofTrack);
+	}
+
+	public Track getRandom()
+	{
+		return OperationExecutor.execute(db,
+				  new QuerySqlite<Track>(
+							 getFilter(),
+							 new RandomOrder(),
+							 new First<Track>(Tables.TRACKS, new TrackCreator())));
 	}
 
 	public void UpdateList()
