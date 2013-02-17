@@ -187,6 +187,7 @@ public class Player
 	{
 		initialized = false;
 		pause();
+		setOnCompletionListener(null);
 		getMp().release();
 		mp = null;
 	}

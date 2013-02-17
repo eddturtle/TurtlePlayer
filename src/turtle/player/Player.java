@@ -52,6 +52,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Player extends ListActivity
 {
@@ -108,6 +110,9 @@ public class Player extends ListActivity
 	private PlayOrderStrategy shufflePlayOrderStrategy;
 
 	private Slides currSlide = Slides.NOW_PLAYING;
+
+	private Set<PhoneStateListener> phoneStateListeners = new HashSet<PhoneStateListener>();
+
 	// ========================================= //
 	// 	OnCreate & OnDestroy
 	// ========================================= //
@@ -140,6 +145,12 @@ public class Player extends ListActivity
 		super.onDestroy();
 		tp.playlist.preferences.set(Keys.EXIT_PLAY_TIME, tp.player.getCurrentMillis());
 		tp.player.release();
+
+		TelephonyManager mgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+		for(PhoneStateListener phoneStateListener : phoneStateListeners)
+		{
+			mgr.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+		}
 	}
 
 	private void lookupViewElements(){
@@ -608,7 +619,9 @@ public class Player extends ListActivity
 	private void SetupTelephoneChecker()
 	{
 		TelephonyManager mgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-		mgr.listen(new PhoneStateHandler(tp.player), PhoneStateListener.LISTEN_CALL_STATE);
+		PhoneStateListener phoneStateListener = new PhoneStateHandler(tp.player);
+		mgr.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+		phoneStateListeners.add(phoneStateListener);
 	}
 
 	@Override
