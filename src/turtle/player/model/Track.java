@@ -24,20 +24,22 @@ import java.util.*;
 public class Track implements Instance
 {
 
-	private String title;
-	private int number;
+	private final String title;
+	private final int number;
 	//private String number;
-	private Artist artist;
-	private Album album;
-	private double length;
-	private String src;
-	private String rootSrc;
-	private String albumArt;
+	private final Artist artist;
+	private final Album album;
+	private final Genre genre;
+	private final double length;
+	private final String src;
+	private final String rootSrc;
+	private final String albumArt;
 
 	public Track(String title,
 					 int number,
 					 Artist artist,
 					 Album album,
+					 Genre genre,
 					 double length,
 					 String src,
 					 String rootSrc,
@@ -47,6 +49,7 @@ public class Track implements Instance
 		this.number = number;
 		this.artist = artist;
 		this.album = album;
+		this.genre = genre;
 		this.length = length;
 		this.src = src;
 		this.rootSrc = rootSrc;
@@ -73,6 +76,11 @@ public class Track implements Instance
 		return album;
 	}
 
+	public Genre GetGenre()
+	{
+		return genre;
+	}
+
 	public double GetLength()
 	{
 		return length;
@@ -93,16 +101,6 @@ public class Track implements Instance
 		return albumArt;
 	}
 
-	/**
-	 * Track has no childs normally
-	 */
-	@Override
-	public Set<? extends Instance> getChilds(Set<Track> tracks)
-	{
-		return new HashSet<Instance>();
-	}
-
-	@Override
 	public <R> R accept(InstanceVisitor<R> visitor)
 	{
 		return visitor.visit(this);
@@ -116,9 +114,8 @@ public class Track implements Instance
 
 		Track track = (Track) o;
 
-		if (!src.equals(track.src)) return false;
+		return src.equals(track.src);
 
-		return true;
 	}
 
 	@Override

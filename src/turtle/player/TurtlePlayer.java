@@ -20,15 +20,17 @@
 package turtle.player;
 
 import android.app.Application;
-import android.media.MediaPlayer;
+import android.content.Context;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.playlist.Playlist;
 
 public class TurtlePlayer extends Application
 {
-	public MediaPlayer mp = new MediaPlayer();
+	public final turtle.player.player.Player player = new turtle.player.player.Player();
 	public Playlist playlist;
-	public boolean isPaused = true;
-	public boolean isInitialised = false;
+	public TurtleDatabase db;
+
+	private static TurtlePlayer instance = null;
 
 	public TurtlePlayer()
 	{
@@ -37,5 +39,19 @@ public class TurtlePlayer extends Application
 		isPaused = true;
 		isInitialised = false;
 		currentlyPlaying = new Track();*/
+	}
+
+	@Override
+	public void onCreate()
+	{
+		instance = this;
+	}
+
+	public static TurtlePlayer getStaticInstance()
+	{
+		if(instance == null){
+			throw new IllegalStateException("Not initialized yet");
+		}
+		return instance;
 	}
 }

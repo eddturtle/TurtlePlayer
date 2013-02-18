@@ -4,10 +4,15 @@ package turtle.player.playlist.playorder;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * A Stack With a max size. Old Object gets dropped.
+ * Avoids Memory Overflow by e.g. keeping play history
+ * @param <T> The Content Type
+ */
 public class LimitedStack<T> extends ArrayList<T> {
 
     private final int maxSize;
-    private final double clearPercent = 0.1;
+    private final static double CLEAR_PERCENT = 0.1;
 
     public LimitedStack(int maxSize) {
         super(maxSize);
@@ -58,7 +63,7 @@ public class LimitedStack<T> extends ArrayList<T> {
     {
         if(size() > maxSize)
         {
-            subList((int)(maxSize * clearPercent), size());
+            subList((int)(maxSize * CLEAR_PERCENT), size());
         }
     }
 }

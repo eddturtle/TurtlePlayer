@@ -22,26 +22,31 @@ import android.app.ListActivity;
 import android.view.View;
 import android.widget.ImageView;
 import turtle.player.R;
-import turtle.player.TurtlePlayer;
+import turtle.player.common.MatchFilterVisitor;
 import turtle.player.model.*;
-import turtle.player.playlist.Playlist;
-import turtle.player.playlist.filter.ChildsFilter;
-import turtle.player.playlist.filter.PlaylistFilter;
+import turtle.player.persistance.framework.filter.FieldFilter;
+import turtle.player.persistance.framework.filter.Filter;
+import turtle.player.persistance.framework.filter.FilterSet;
+import turtle.player.persistance.framework.filter.Operator;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.presentation.InstanceFormatter;
-import turtle.player.util.GenericInstanceComperator;
-import turtle.player.util.InstanceAdapter;
+import turtle.player.util.DefaultAdapter;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
-public class FileChooser extends Playlist.PlaylistObserverAdapter
+public class FileChooser implements TurtleDatabase.DbObserver
 {
 	public enum Mode
 	{
 		Album(R.id.albumButton, R.drawable.album48, R.drawable.album48_active),
 		Artist(R.id.artistButton, R.drawable.artist48, R.drawable.artist48_active),
-		Track(R.id.trackButton, R.drawable.track48, R.drawable.track48_active);
+		Track(R.id.trackButton, R.drawable.track48, R.drawable.track48_active),
+		Genre(R.id.genreButton, R.drawable.genre48, R.drawable.genre48_active);
 
-		Mode(int buttonId,
+		private Mode(int buttonId,
 			  int drawable,
 			  int drawableActive)
 		{
@@ -50,32 +55,33 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
 			this.buttonId = buttonId;
 		}
 
-		private int drawable;
-		private int drawableActive;
-		private int buttonId;
-	}
-
-	public enum Type
-	{
-		Album,
-		Artist,
-		Track,
+		private final int drawable;
+		private final int drawableActive;
+		private final int buttonId;
 	}
 
 	private Mode currMode;
-	private Type currType;
-	private TurtlePlayer tp;
-	private ListActivity listActivity;
+	private final TurtleDatabase database;
+	private final ListActivity listActivity;
+	final DefaultAdapter<Instance> listAdapter;
 
-	private PlaylistFilter filter = null;
+	private Set<Filter> filters = new HashSet<Filter>();
 
 	public FileChooser(Mode currMode,
-							 TurtlePlayer tp,
+							 TurtleDatabase db,
 							 ListActivity listActivity)
 	{
 		this.currMode = currMode;
-		this.tp = tp;
+		this.database = db;
 		this.listActivity = listActivity;
+		listAdapter = new DefaultAdapter<Instance>(
+				  listActivity.getApplicationContext(),
+				  new ArrayList<Instance>(),
+				  listActivity,
+				  false,
+				  InstanceFormatter.SHORT);
+
+		listActivity.setListAdapter(listAdapter);
 
 		change(currMode);
 
@@ -84,13 +90,11 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
 
 	private void init()
 	{
-
-		tp.playlist.addObserver(this);
+		database.addObserver(this);
 		for (final Mode currMode : Mode.values())
 		{
 			getButton(currMode).setOnClickListener(new View.OnClickListener()
 			{
-				@Override
 				public void onClick(View v)
 				{
 					change(currMode);
@@ -99,38 +103,61 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
 		}
 	}
 
+	private Filter getFilter()
+	{
+		return new FilterSet(filters);
+	}
+
 	/**
-	 * @param instance
+	 * @param selection
 	 * @return null if no track was selected, track if trak was selected
 	 */
-	public Track choose(Instance instance)
+	public Track choose(Instance selection)
 	{
-		Track selectedTrack = instance.accept(new InstanceVisitor<Track>()
+
+		return selection.accept(new InstanceVisitor<Track>()
 		{
-			@Override
 			public Track visit(Track track)
 			{
-				return track;
+				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.TITLE, Operator.EQ, track.GetTitle()));
+				return chooseFirst();
 			}
 
-			@Override
+			public Track visit(TrackDigest track)
+			{
+				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.TITLE, Operator.EQ, track.getName()));
+				return chooseFirst();
+			}
+
 			public Track visit(Album album)
 			{
-				currType = Type.Track;
-				filter = new ChildsFilter(album, tp.playlist);
+				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.ALBUM, Operator.EQ, album.getId()));
+				currMode = Mode.Track;
+				update();
 				return null;
 			}
 
-			@Override
+			public Track visit(Genre genre)
+			{
+				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.GENRE, Operator.EQ, genre.getId()));
+				currMode = Mode.Artist;
+				update();
+				return null;
+			}
+
 			public Track visit(Artist artist)
 			{
-				currType = Type.Track;
-				filter = new ChildsFilter(artist, tp.playlist);
+				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.ARTIST, Operator.EQ, artist.getId()));
+				currMode = Mode.Album;
+				update();
 				return null;
 			}
 		});
-		update();
-		return selectedTrack;
+	}
+
+	public Track chooseFirst()
+	{
+		return database.getTracks(getFilter()).iterator().next();
 	}
 
 	public void change(Mode mode)
@@ -141,73 +168,54 @@ public class FileChooser extends Playlist.PlaylistObserverAdapter
 			final ImageView button = getButton(aMode);
 			button.post(new Runnable()
 			{
-				@Override
 				public void run()
 				{
 					button.setImageResource(aMode.equals(currMode) ? aMode.drawableActive : aMode.drawable);
 				}
 			});
 		}
-
-		switch (currMode)
-		{
-			case Album:
-				currType = Type.Album;
-				break;
-			case Artist:
-				currType = Type.Artist;
-				break;
-			case Track:
-				currType = Type.Track;
-				break;
-			default:
-				throw new RuntimeException(currMode.name() + " not expexted here");
-		}
-		filter = null;
+		filters.clear();
 		update();
 	}
 
 	public void update()
 	{
-
-		final Set<? extends Instance> instances;
-
-		switch (currType)
+		new Thread(new Runnable()
 		{
-			case Album:
-				instances = tp.playlist.getAlbums(filter);
-				break;
-			case Artist:
-				instances = tp.playlist.getArtists(filter);
-				break;
-			case Track:
-				instances = tp.playlist.getTracks(filter);
-				break;
-			default:
-				throw new RuntimeException(currType.name() + " not expexted here");
-		}
-
-		listActivity.getListView().post(new Runnable()
-		{
-			@Override
 			public void run()
 			{
-				listActivity.setListAdapter(
-						  new InstanceAdapter(
-									 tp.getApplicationContext(),
-									 instances,
-									 InstanceFormatter.LIST,
-									 new GenericInstanceComperator()
-						  )
-				);
+				switch (currMode)
+				{
+					case Album:
+						listAdapter.replace(database.getAlbumList(getFilter()));
+						break;
+					case Artist:
+						listAdapter.replace(database.getArtistList(getFilter()));
+						break;
+					case Genre:
+						listAdapter.replace(database.getGenreList(getFilter()));
+						break;
+					case Track:
+						listAdapter.replace(database.getTrackList(getFilter()));
+						break;
+					default:
+						throw new RuntimeException(currMode.name() + " not expexted here");
+				}
 			}
-		});
+		}).start();
 	}
 
-	@Override
-	public void endUpdatePlaylist()
+	public void updated(final Instance instance)
 	{
-		update();
+		if(getFilter().accept(new MatchFilterVisitor<Object>(instance)))
+		{
+			listAdapter.add(instance);
+		}
+	}
+
+	public void cleared()
+	{
+		listAdapter.clear();
 	}
 
 	private ImageView getButton(Mode mode)

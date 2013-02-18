@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <ImageView
+            android:id="@+id/bowmenu_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/menubow_top_290"
+            android:contentDescription="@string/pointer"
+            android:visibility="invisible"
+            />
+
+    <TextView
+            android:id="@+id/track_instant_filter_top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_alignLeft="@id/bowmenu_top"
+            android:layout_alignRight="@id/bowmenu_top"
+            android:text="@string/rootSrcInitialValue"
+            android:singleLine="true"
+            android:paddingTop="5dp"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:ellipsize="start"
+            android:visibility="invisible"
+            />
+
+    <ImageView
+            android:id="@+id/bowmenu_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@drawable/menubow_left_290"
+            android:contentDescription="@string/pointer"
+            android:visibility="invisible"
+            />
+
+    <!--this relative layout is because VerticalTextView does not support center gravity -->
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignTop="@id/bowmenu_left"
+                    android:layout_alignBottom="@id/bowmenu_left"
+                    android:paddingBottom="25dp"
+                    android:paddingTop="25dp"
+                    android:paddingLeft="5dp">
+
+        <turtle.player.view.VerticalTextView
+            android:id="@+id/track_instant_filter_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/albumInitialValue"
+            android:singleLine="true"
+            android:gravity="bottom"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:ellipsize="end"
+            android:visibility="invisible"
+            />
+
+    </RelativeLayout>
+
+    <ImageView
+            android:id="@+id/bowmenu_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/menubow_right_290"
+            android:contentDescription="@string/pointer"
+            android:visibility="invisible"
+            />
+
+
+    <RelativeLayout android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignTop="@id/bowmenu_right"
+                    android:layout_alignBottom="@id/bowmenu_right"
+                    android:paddingBottom="25dp"
+                    android:paddingTop="25dp"
+                    android:paddingRight="5dp">
+
+        <turtle.player.view.VerticalTextView
+            android:id="@+id/track_instant_filter_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/artistInitialValue"
+            android:singleLine="true"
+            android:gravity="top"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:ellipsize="end"
+            android:visibility="invisible"
+            />
+
+    </RelativeLayout>
+
+    <ImageView
+            android:id="@+id/bowmenu_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:src="@drawable/menubow_bottom_290"
+            android:contentDescription="@string/pointer"
+            android:visibility="invisible"/>
+
+
+    <TextView
+            android:id="@+id/track_instant_filter_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_alignParentBottom="true"
+            android:layout_alignLeft="@id/bowmenu_bottom"
+            android:layout_alignRight="@id/bowmenu_bottom"
+            android:text="@string/genreInitialValue"
+            android:singleLine="true"
+            android:paddingBottom="5dp"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:ellipsize="end"
+            android:visibility="invisible"
+            />
+
+    <ImageView
+            android:id="@+id/pointer"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:src="@drawable/pointer120"
+            android:scaleType="center"
+            android:contentDescription="@string/pointer"
+            android:visibility="invisible"/>
+
+</RelativeLayout>

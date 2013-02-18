@@ -18,20 +18,16 @@
 
 package turtle.player.presentation;
 
-import turtle.player.model.Album;
-import turtle.player.model.Artist;
-import turtle.player.model.Track;
+import turtle.player.model.*;
 import turtle.player.util.Shorty;
 
-public class OverAllFormatter extends InstanceFormatter
+class OverAllFormatter extends InstanceFormatter
 {
     private final static String DELIMITER = " - ";
 
-    @Override
     public String visit(Track track)
     {
         String artist = track.GetArtist().getName();
-        String album = track.GetAlbum().getName();
         int number = track.GetNumber();
         String title = track.GetTitle();
 
@@ -65,14 +61,22 @@ public class OverAllFormatter extends InstanceFormatter
 
     }
 
-    @Override
-    public String visit(Album album)
+	public String visit(TrackDigest track)
+	{
+		return track.getName();
+	}
+
+	public String visit(Album album)
     {
         return album.getName();
     }
 
-    @Override
-    public String visit(Artist artist)
+	public String visit(Genre genre)
+	{
+		return genre.getName();
+	}
+
+	public String visit(Artist artist)
     {
         return artist.getName();
     }

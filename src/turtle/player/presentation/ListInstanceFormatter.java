@@ -18,15 +18,11 @@
 
 package turtle.player.presentation;
 
-import turtle.player.model.Album;
-import turtle.player.model.Artist;
-import turtle.player.model.InstanceVisitor;
-import turtle.player.model.Track;
+import turtle.player.model.*;
 import turtle.player.util.Shorty;
 
-public class ListInstanceFormatter extends InstanceFormatter
+class ListInstanceFormatter extends InstanceFormatter
 {
-    @Override
     public String visit(Track track)
     {
         int number = track.GetNumber();
@@ -63,14 +59,22 @@ public class ListInstanceFormatter extends InstanceFormatter
 
     }
 
-    @Override
+	public String visit(TrackDigest track)
+	{
+		return track.getName();
+	}
+
     public String visit(Album album)
     {
         return album.getName();
     }
 
-    @Override
-    public String visit(Artist artist)
+	public String visit(Genre genre)
+	{
+		return genre.getName();
+	}
+
+	public String visit(Artist artist)
     {
         return artist.getName();
     }

@@ -30,8 +30,6 @@ import java.util.List;
 public class Preferences
 {
 
-	// Not in ClassDiagram
-
 	public static final String TAG = "TurtlePlayer";
 
 	final Context context;
@@ -41,48 +39,26 @@ public class Preferences
 		this.context = context;
 	}
 
-	public File GetMediaPath()
+	public <T> void set(Key<T> key, T object)
 	{
-		String mediaPath = SharedPreferencesAccess.getValue(context, Keys.MEDIA_DIR);
-		return getExistingParentFolderFile(mediaPath);
+		SharedPreferencesAccess.putValue(context, key, object);
+		notify(key);
 	}
 
-	public void SetMediaPath(String nMediaPath)
+	public <T> T get(Key<T> key)
 	{
-		SharedPreferencesAccess.putValue(context, Keys.MEDIA_DIR, nMediaPath);
-		notify(Keys.MEDIA_DIR);
+		return SharedPreferencesAccess.getValue(context, key);
 	}
 
-	public boolean GetRepeat()
+	/**
+	 * Sideeffect: corrects the stored path if not existing and fires notification
+	 * @return always an exiting File
+	 */
+	public File getExitstingMediaPath()
 	{
-		return SharedPreferencesAccess.getValue(context, Keys.REPEAT);
-	}
-
-	public void SetRepeat(boolean nRepeat)
-	{
-		SharedPreferencesAccess.putValue(context, Keys.REPEAT, nRepeat);
-		notify(Keys.REPEAT);
-	}
-
-	public boolean GetShuffle()
-	{
-		return SharedPreferencesAccess.getValue(context, Keys.SHUFFLE);
-	}
-
-	public void SetShuffle(boolean nShuffle)
-	{
-		SharedPreferencesAccess.putValue(context, Keys.SHUFFLE, nShuffle);
-		notify(Keys.SHUFFLE);
-	}
-
-	public String GetTag()
-	{
-		return TAG;
-	}
-
-	public Context getContext()
-	{
-		return context;
+		File existingPath = getExistingParentFolderFile(get(Keys.MEDIA_DIR));
+		set(Keys.MEDIA_DIR, existingPath.getPath());
+		return existingPath;
 	}
 
 	private File getExistingParentFolderFile(String path)
@@ -106,7 +82,7 @@ public class Preferences
 
 	//Observable -------------------------------------------------
 
-	List<PreferencesObserver> observers = new ArrayList<PreferencesObserver>();
+	final List<PreferencesObserver> observers = new ArrayList<PreferencesObserver>();
 
 	private void notify(Key key)
 	{

@@ -20,41 +20,53 @@ package turtle.player;
 
 import android.app.ListActivity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
-import android.os.Handler;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import turtle.player.common.filefilter.FileFilters;
+import turtle.player.controller.PhoneStateHandler;
 import turtle.player.dirchooser.DirChooserConstants;
 import turtle.player.model.Instance;
 import turtle.player.model.Track;
+import turtle.player.persistance.framework.db.ObservableDatabase;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.playlist.Playlist;
+import turtle.player.playlist.playorder.PlayOrderRandom;
+import turtle.player.playlist.playorder.PlayOrderSorted;
+import turtle.player.playlist.playorder.PlayOrderStrategy;
 import turtle.player.preferences.Key;
 import turtle.player.preferences.Keys;
 import turtle.player.preferences.PreferencesObserver;
-import turtle.player.presentation.InstanceFormatter;
+import turtle.player.util.Shorty;
+import turtle.player.view.AlbumArtView;
 import turtle.player.view.FileChooser;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Player extends ListActivity
 {
 
-	public static String DIR_CHOOSER_ACTION = "turtle.player.DIR_CHOOSER";
-	public static int DIR_CHOOSER_REQUEST = 0;
+	public static final String DIR_CHOOSER_ACTION = "turtle.player.DIR_CHOOSER";
+	public static final int DIR_CHOOSER_REQUEST = 0;
+
+	private enum Slides
+	{
+		SETTINGS,
+		PLAYLIST,
+		NOW_PLAYING
+	}
 
 	// ========================================= //
 	// 	Attributes
@@ -78,27 +90,28 @@ public class Player extends ListActivity
 	private ImageView playButton;
 	private ImageView nextButton;
 	private ImageView shuffleButton;
-	private ImageView repeatButton;
 
 	// Settings Slide
 	CheckBox shuffleCheckBox;
-	CheckBox repeatCheckBox;
 	ImageView rescan;
 	ProgressBar rescanProgressBar;
 	TextView mediaDir;
 	ImageView chooseMediaDir;
 
 	private TextView duration;
+	private TextView currTrackPosition;
 
 	// Progress Bar Attributes
-	private Handler handler = new Handler();
 	private Runnable progressBarRunnable;
 	private SeekBar progressBar;
 
-	// Telephony
-	private TelephonyManager mgr;
-	private PhoneStateListener phoneStateListener;
+	private PlayOrderStrategy playOrderStrategy;
+	private PlayOrderStrategy standartPlayOrderStrategy;
+	private PlayOrderStrategy shufflePlayOrderStrategy;
 
+	private Slides currSlide = Slides.NOW_PLAYING;
+
+	private Set<PhoneStateListener> phoneStateListeners = new HashSet<PhoneStateListener>();
 
 	// ========================================= //
 	// 	OnCreate & OnDestroy
@@ -110,79 +123,68 @@ public class Player extends ListActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		// Call Main Initialise Function
-		this.Init();
-	}
-
-	@Override
-	public void onDestroy()
-	{
-		if (mgr != null)
-		{
-			mgr.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
-		}
-
-		super.onDestroy();
-	}
-
-	// ========================================= //
-	// 	OnStart & OnStop
-	// ========================================= //
-
-	@Override
-	public void onStart()
-	{
-		super.onStart();
-
-		if (tp.isInitialised && tp.isPaused)
-		{
-			Pause();
-		}
-	}
-
-	@Override
-	public void onStop()
-	{
-		super.onStop();
-	}
-
-
-	// ========================================= //
-	// 	onSaveInstanceState & onRestoreInstanceState
-	// ========================================= //
-
-	@Override
-	public void onSaveInstanceState(Bundle savedInstanceState)
-	{
-		super.onSaveInstanceState(savedInstanceState);
-	}
-
-	@Override
-	public void onRestoreInstanceState(Bundle savedInstanceState)
-	{
-		super.onRestoreInstanceState(savedInstanceState);
-	}
-
-
-	// ========================================= //
-	// 	Initialise Player
-	// ========================================= //
-
-	private void Init()
-	{
 		SetupApplication();
+
+		lookupViewElements();
+
+		new AlbumArtView(this, tp.player, standartPlayOrderStrategy, tp.playlist);
 
 		SetupObservers();
 		SetupButtons();
 		SetupButtonListeners();
 		SetupSlides();
 		SetupList();
-		SetupProgressBar();
 		SetupTelephoneChecker();
 
-		//tp.playlist.DatabasePush();
+		resetLastTrack();
 	}
 
+	@Override
+	protected void onDestroy()
+	{
+		super.onDestroy();
+		tp.playlist.preferences.set(Keys.EXIT_PLAY_TIME, tp.player.getCurrentMillis());
+		tp.player.release();
+
+		TelephonyManager mgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+		for(PhoneStateListener phoneStateListener : phoneStateListeners)
+		{
+			mgr.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+		}
+	}
+
+	private void lookupViewElements(){
+
+		progressBar = (SeekBar) findViewById(R.id.progressBar);
+
+		list = (ImageView) findViewById(R.id.listButton);
+		logo = (ImageView) findViewById(R.id.logoButton);
+		settings = (ImageView) findViewById(R.id.settingsButton);
+
+		backButton = (ImageView) findViewById(R.id.backButton);
+		playButton = (ImageView) findViewById(R.id.playButton);
+		nextButton = (ImageView) findViewById(R.id.nextButton);
+
+		shuffleButton = (ImageView) findViewById(R.id.shuffleButton);
+		shuffleCheckBox = (CheckBox) findViewById(R.id.shuffleCheckBox);
+
+		rescan = (ImageView) findViewById(R.id.rescan);
+		mediaDir = (TextView) findViewById(R.id.mediaDir);
+		rescanProgressBar = (ProgressBar) findViewById(R.id.rescanProgressBar);
+		chooseMediaDir = (ImageView) findViewById(R.id.chooseMediaDir);
+	}
+
+	@Override
+	public void onBackPressed() {
+		if(!Slides.NOW_PLAYING.equals(currSlide))
+		{
+			SwitchToNowPlayingSlide();
+		}
+		else
+		{
+			super.onBackPressed();
+		}
+	}
 
 	// ========================================= //
 	// 	Setup Application - Part of Init()
@@ -191,47 +193,31 @@ public class Player extends ListActivity
 	private void SetupApplication()
 	{
 		tp = (TurtlePlayer) getApplication();
-		tp.playlist = new Playlist(tp.getApplicationContext());
-		fileChooser = new FileChooser(FileChooser.Mode.Track, tp, this);
+		tp.db = new TurtleDatabase(tp.getApplicationContext());
+		tp.playlist = new Playlist(tp.getApplicationContext(), tp.db);
+		fileChooser = new FileChooser(FileChooser.Mode.Track, tp.db, this);
+
+		standartPlayOrderStrategy = new PlayOrderSorted(tp.db, tp.playlist);
+		shufflePlayOrderStrategy = new PlayOrderRandom(tp.db, tp.playlist);
+		playOrderStrategy = tp.playlist.preferences.get(Keys.SHUFFLE) ?
+				  shufflePlayOrderStrategy : standartPlayOrderStrategy;
 	}
 
-
-	// ========================================= //Pla
+	// ========================================= //
 	// 	Setup Buttons - Part of Init()
 	// ========================================= //
 
 	private void SetupButtons()
 	{
-		// Header Buttons
-		list = (ImageView) findViewById(R.id.listButton);
-		logo = (ImageView) findViewById(R.id.logoButton);
-		settings = (ImageView) findViewById(R.id.settingsButton);
-
-		// Now_Playing Footer Buttons
-		backButton = (ImageView) findViewById(R.id.backButton);
-		playButton = (ImageView) findViewById(R.id.playButton);
-		nextButton = (ImageView) findViewById(R.id.nextButton);
-
-		shuffleButton = (ImageView) findViewById(R.id.shuffleButton);
 		shuffleButton.setImageDrawable(
-				  tp.playlist.preferences.GetShuffle() ?
+				  tp.playlist.preferences.get(Keys.SHUFFLE) ?
 							 getResources().getDrawable(R.drawable.shuffle48_active) :
 							 getResources().getDrawable(R.drawable.shuffle48)
 		);
-		repeatButton = (ImageView) findViewById(R.id.repeatButton);
 
-		// Settings Slide
-		shuffleCheckBox = (CheckBox) findViewById(R.id.shuffleCheckBox);
-		shuffleCheckBox.setChecked(tp.playlist.preferences.GetShuffle());
+		shuffleCheckBox.setChecked(tp.playlist.preferences.get(Keys.SHUFFLE));
 
-		repeatCheckBox = (CheckBox) findViewById(R.id.repeatCheckBox);
-		repeatCheckBox.setChecked(tp.playlist.preferences.GetRepeat());
-
-		rescan = (ImageView) findViewById(R.id.rescan);
-		mediaDir = (TextView) findViewById(R.id.mediaDir);
-		rescanProgressBar = (ProgressBar) findViewById(R.id.rescanProgressBar);
-		chooseMediaDir = (ImageView) findViewById(R.id.chooseMediaDir);
-		mediaDir.setText(tp.playlist.preferences.GetMediaPath().toString());
+		mediaDir.setText(tp.playlist.preferences.getExitstingMediaPath().toString());
 
 	}
 
@@ -280,13 +266,7 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				if (!tp.playlist.IsEmpty())
-				{
-					Play(tp.playlist.getPrevious());
-				} else
-				{
-					Toast.makeText(getApplicationContext(), "Empty Playlist", Toast.LENGTH_SHORT).show();
-				}
+				tp.player.play(tp.playlist.getPrevious(playOrderStrategy, tp.player.getCurrTrack()));
 			}
 		});
 
@@ -294,25 +274,7 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				if (!tp.playlist.IsEmpty())
-				{
-					if (tp.isInitialised == true)
-					{
-						if (tp.isPaused == true)
-						{
-							UnPause();
-						} else
-						{
-							Pause();
-						}
-					} else
-					{
-						Play(tp.playlist.getNext());
-					}
-				} else
-				{
-					Toast.makeText(getApplicationContext(), "Empty Playlist", Toast.LENGTH_SHORT).show();
-				}
+				tp.player.toggle();
 			}
 		});
 
@@ -320,14 +282,7 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				if (!tp.playlist.IsEmpty())
-				{
-					Track t = tp.playlist.getNext();
-					if (t != null)
-					{
-						Play(t);
-					}
-				}
+				tp.player.play(tp.playlist.getNext(standartPlayOrderStrategy, tp.player.getCurrTrack()));
 			}
 		});
 
@@ -335,35 +290,24 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				tp.playlist.preferences.SetShuffle(!tp.playlist.preferences.GetShuffle());
+				tp.player.play(tp.playlist.getNext(shufflePlayOrderStrategy, tp.player.getCurrTrack()));
+			}
+		});
+		shuffleButton.setOnLongClickListener(new View.OnLongClickListener()
+		{
+			public boolean onLongClick(View v)
+			{
+				tp.playlist.preferences.set(Keys.SHUFFLE, !tp.playlist.preferences.get(Keys.SHUFFLE));
+				return true;
 			}
 		});
 
 		shuffleCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
 		{
-			@Override
 			public void onCheckedChanged(CompoundButton buttonView,
 												  boolean isChecked)
 			{
-				tp.playlist.preferences.SetShuffle(isChecked);
-			}
-		});
-
-		repeatButton.setOnClickListener(new OnClickListener()
-		{
-			public void onClick(View v)
-			{
-				tp.playlist.preferences.SetRepeat(!tp.playlist.preferences.GetRepeat());
-			}
-		});
-
-		repeatCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
-		{
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView,
-												  boolean isChecked)
-			{
-				tp.playlist.preferences.SetRepeat(isChecked);
+				tp.playlist.preferences.set(Keys.SHUFFLE, isChecked);
 			}
 		});
 
@@ -382,7 +326,7 @@ public class Player extends ListActivity
 			{
 				Intent dirChooserIntent = new Intent(DIR_CHOOSER_ACTION);
 				dirChooserIntent.putExtra(DirChooserConstants.ACTIVITY_PARAM_KEY_DIR_CHOOSER_INITIAL_DIR,
-						  tp.playlist.preferences.GetMediaPath().toString());
+						  tp.playlist.preferences.getExitstingMediaPath().toString());
 				startActivityForResult(dirChooserIntent, DIR_CHOOSER_REQUEST);
 			}
 		});
@@ -392,15 +336,12 @@ public class Player extends ListActivity
 	{
 
 		//Rescan Progress Bar
-		tp.playlist.addObserver(new Playlist.PlaylistObserverAdapter()
+		tp.playlist.addObserver(new Playlist.PlaylistTrackChangeObserver()
 		{
-
-			@Override
 			public void startUpdatePlaylist()
 			{
 				runOnUiThread(new Runnable()
 				{
-					@Override
 					public void run()
 					{
 						rescanProgressBar.setVisibility(View.VISIBLE);
@@ -410,7 +351,6 @@ public class Player extends ListActivity
 				});
 			}
 
-			@Override
 			public void startRescan(File mediaPath)
 			{
 
@@ -436,7 +376,6 @@ public class Player extends ListActivity
 				//start sync anim
 				runOnUiThread(new Runnable()
 				{
-					@Override
 					public void run()
 					{
 						rescanProgressBar.setIndeterminate(false);
@@ -446,12 +385,10 @@ public class Player extends ListActivity
 				});
 			}
 
-			@Override
-			public void trackAdded(Track track)
+			public void trackAdded()
 			{
 				runOnUiThread(new Runnable()
 				{
-					@Override
 					public void run()
 					{
 						rescanProgressBar.setProgress(rescanProgressBar.getProgress() + 1);
@@ -459,13 +396,11 @@ public class Player extends ListActivity
 				});
 			}
 
-			@Override
 			public void endRescan()
 			{
 				//start sync anim
 				runOnUiThread(new Runnable()
 				{
-					@Override
 					public void run()
 					{
 						rescanProgressBar.setIndeterminate(true);
@@ -473,13 +408,11 @@ public class Player extends ListActivity
 				});
 			}
 
-			@Override
 			public void endUpdatePlaylist()
 			{
 				//stop sync anim
 				runOnUiThread(new Runnable()
 				{
-					@Override
 					public void run()
 					{
 						rescanProgressBar.setVisibility(View.GONE);
@@ -498,38 +431,97 @@ public class Player extends ListActivity
 
 		tp.playlist.preferences.addObserver(new PreferencesObserver()
 		{
-			@Override
 			public void changed(Key key)
 			{
-				if (key.equals(Keys.REPEAT))
+				if (key.equals(Keys.SHUFFLE))
 				{
+					final boolean shuffle = tp.playlist.preferences.get(Keys.SHUFFLE);
+					playOrderStrategy = shuffle ? shufflePlayOrderStrategy : standartPlayOrderStrategy;
 					//Update UI states
 					runOnUiThread(new Runnable()
 					{
-						@Override
 						public void run()
 						{
-							boolean repeat = tp.playlist.preferences.GetRepeat();
-							repeatButton.setImageDrawable(getResources().getDrawable(
-									  repeat ? R.drawable.repeat48_active : R.drawable.repeat48));
-							repeatCheckBox.setChecked(repeat);
-						}
-					});
-				} else if (key.equals(Keys.SHUFFLE))
-				{
-					//Update UI states
-					runOnUiThread(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							boolean shuffle = tp.playlist.preferences.GetShuffle();
 							shuffleButton.setImageDrawable(getResources().getDrawable(
 									  shuffle ? R.drawable.shuffle48_active : R.drawable.shuffle48));
 							shuffleCheckBox.setChecked(shuffle);
 						}
 					});
 				}
+			}
+		});
+
+		tp.player.addObserver(new turtle.player.player.Player.PlayerObserver()
+		{
+			public void trackChanged(Track track)
+			{
+				progressBar.setMax((int)track.GetLength());
+				duration.setText(ConvertToMinutes((int)track.GetLength()));
+				tp.playlist.preferences.set(Keys.LAST_TRACK_PLAYED, track.GetSrc());
+			}
+
+			public void started()
+			{
+				playButton.setImageDrawable(getResources().getDrawable(R.drawable.pause96));
+			}
+
+			public void stopped()
+			{
+				playButton.setImageDrawable(getResources().getDrawable(R.drawable.play96));
+			}
+		});
+
+		progressBarRunnable = new Runnable()
+		{
+			public void run()
+			{
+				progressBar.setProgress(tp.player.getCurrentMillis());
+				currTrackPosition.setText(ConvertToMinutes(tp.player.getCurrentMillis()));
+				progressBar.postDelayed(this, 1000);
+			}
+		};
+		progressBar.postDelayed(progressBarRunnable, 1000);
+
+		progressBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
+		{
+			public void onStopTrackingTouch(SeekBar seekBar)
+			{
+				tp.player.goToMillis(seekBar.getProgress());
+				progressBar.postDelayed(progressBarRunnable, 1000);
+			}
+
+			public void onStartTrackingTouch(SeekBar seekBar)
+			{
+				progressBar.removeCallbacks(progressBarRunnable);
+			}
+
+			public void onProgressChanged(SeekBar seekBar,
+													int progress,
+													boolean fromUser)
+			{
+				// Needed, Although Blank
+			}
+		});
+
+		tp.player.setOnCompletionListener(new OnCompletionListener()
+		{
+			public void onCompletion(MediaPlayer mplayer)
+			{
+				tp.player.play(tp.playlist.getNext(playOrderStrategy, tp.player.getCurrTrack()));
+			}
+		});
+
+		tp.db.addObserver(new ObservableDatabase.DbObserver()
+		{
+			public void updated(Instance instance)
+			{
+				//doNothing
+			}
+
+			public void cleared()
+			{
+				Toast.makeText(getApplicationContext(), getString(R.string.toastRescan), Toast.LENGTH_LONG).show();
+				tp.playlist.UpdateList();
 			}
 		});
 	}
@@ -551,9 +543,11 @@ public class Player extends ListActivity
 	private void SwitchToNowPlayingSlide()
 	{
 		duration = (TextView) findViewById(R.id.trackDuration);
+		currTrackPosition = (TextView) findViewById(R.id.trackCurrPostion);
 
 		ResetHeaderButtons();
 		logo.setImageDrawable(getResources().getDrawable(R.drawable.logo128_active));
+		currSlide = Slides.NOW_PLAYING;
 
 		nowPlayingSlide.setVisibility(LinearLayout.VISIBLE);
 		playlistSlide.setVisibility(LinearLayout.INVISIBLE);
@@ -563,7 +557,9 @@ public class Player extends ListActivity
 	private void SwitchToPlaylistSlide()
 	{
 		ResetHeaderButtons();
+
 		list.setImageDrawable(getResources().getDrawable(R.drawable.list64_active));
+		currSlide = Slides.PLAYLIST;
 
 		nowPlayingSlide.setVisibility(LinearLayout.INVISIBLE);
 		playlistSlide.setVisibility(LinearLayout.VISIBLE);
@@ -573,14 +569,35 @@ public class Player extends ListActivity
 	private void SwitchToSettingsSlide()
 	{
 		ResetHeaderButtons();
+
 		settings.setImageDrawable(getResources().getDrawable(R.drawable.settings48_active));
+		currSlide = Slides.SETTINGS;
 
 		nowPlayingSlide.setVisibility(LinearLayout.INVISIBLE);
 		playlistSlide.setVisibility(LinearLayout.INVISIBLE);
 		settingsSlide.setVisibility(LinearLayout.VISIBLE);
-
 	}
 
+
+	private void resetLastTrack()
+	{
+		String lastTrack = tp.playlist.preferences.get(Keys.LAST_TRACK_PLAYED);
+
+		Track restoredTrack = null;
+		if(!Shorty.isVoid(lastTrack))
+		{
+			restoredTrack = tp.playlist.getTrack(lastTrack);
+		}
+		if(restoredTrack == null){
+			tp.player.change(tp.playlist.getNext(playOrderStrategy, null));
+		}
+		else
+		{
+			tp.player.change(restoredTrack);
+			tp.player.goToMillis(tp.playlist.preferences.get(Keys.EXIT_PLAY_TIME));
+		}
+
+	}
 
 	// ========================================= //
 	// 	Setup Progress Bar - Part of Init()
@@ -596,60 +613,15 @@ public class Player extends ListActivity
 
 
 	// ========================================= //
-	// 	Setup Progress Bar - Part of Init()
-	// ========================================= //
-
-	private void SetupProgressBar()
-	{
-		progressBar = (SeekBar) findViewById(R.id.progressBar);
-		progressBarRunnable = new Runnable()
-		{
-			public void run()
-			{
-				if (tp.isInitialised)
-				{
-					progressBar.setProgress(tp.mp.getCurrentPosition());
-					duration.setText(ConvertToMinutes(tp.mp.getCurrentPosition()) + " / " + ConvertToMinutes(tp.mp.getDuration()));
-				} else
-				{
-					progressBar.setProgress(0);
-				}
-				handler.postDelayed(this, 100);
-			}
-		};
-	}
-
-
-	// ========================================= //
 	// 	Setup Telephony Service - Part of Init()
 	// ========================================= //
 
 	private void SetupTelephoneChecker()
 	{
-		mgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-		phoneStateListener = new PhoneStateListener()
-		{
-			@Override
-			public void onCallStateChanged(int state,
-													 String incomingNumber)
-			{
-				if (state == TelephonyManager.CALL_STATE_RINGING)
-				{
-					if (tp.mp.isPlaying())
-					{
-						Pause();
-					}
-				} else if (state == TelephonyManager.CALL_STATE_IDLE)
-				{
-					if (tp.isInitialised && !tp.isPaused)
-					{
-						UnPause();
-					}
-				}
-				super.onCallStateChanged(state, incomingNumber);
-			}
-		};
+		TelephonyManager mgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+		PhoneStateListener phoneStateListener = new PhoneStateHandler(tp.player);
 		mgr.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+		phoneStateListeners.add(phoneStateListener);
 	}
 
 	@Override
@@ -661,7 +633,7 @@ public class Player extends ListActivity
 		Track trackSelected = fileChooser.choose((Instance) l.getItemAtPosition(position));
 		if (trackSelected != null)
 		{
-			Play(trackSelected);
+			tp.player.play(trackSelected);
 			SwitchToNowPlayingSlide();
 		}
 	}
@@ -677,130 +649,6 @@ public class Player extends ListActivity
 		settings.setImageDrawable(getResources().getDrawable(R.drawable.settings48));
 	}
 
-	private void Play(Track t)
-	{
-		if (t != null)
-		{
-			try
-			{
-				tp.mp.reset();
-				tp.mp.setDataSource(t.GetSrc());
-
-				tp.playlist.setCurrTrack(t);
-
-				tp.mp.prepare();
-				tp.mp.start();
-
-				tp.playlist.stats.IncrementPlayCount();
-
-				tp.isPaused = false;
-				tp.isInitialised = true;
-
-				TogglePlayButton();
-
-				UpdateScreenInfo(t);
-				UpdateProgressBar();
-
-				tp.mp.setOnCompletionListener(new OnCompletionListener()
-				{
-					public void onCompletion(MediaPlayer mplayer)
-					{
-						Play(tp.playlist.getNext());
-					}
-				});
-			} catch (IOException e)
-			{
-				Log.v(tp.playlist.preferences.GetTag(), e.getMessage());
-			}
-		}
-	}
-
-
-	// ========================================= //
-	// 	Update Progress Bar
-	// ========================================= //
-
-	private void UpdateScreenInfo(Track t)
-	{
-		TextView title = (TextView) findViewById(R.id.trackTitle);
-		TextView artist = (TextView) findViewById(R.id.trackArtist);
-
-		title.setVisibility(View.VISIBLE);
-		artist.setVisibility(View.VISIBLE);
-		duration.setVisibility(View.VISIBLE);
-
-		title.setText(t.accept(InstanceFormatter.SHORT_WITH_NUMBER));
-		artist.setText(t.GetAlbum().accept(InstanceFormatter.SHORT));
-
-		if (tp.isInitialised)
-		{
-			duration.setText(ConvertToMinutes(tp.mp.getCurrentPosition()) + " / " + ConvertToMinutes(tp.mp.getDuration()));
-		} else
-		{
-			title.setText("Welcome to");
-			artist.setText("Turtle Player");
-			duration.setText("0:00");
-		}
-
-		ImageView iv = (ImageView) findViewById(R.id.albumArt);
-
-
-		if (t.albumArt() != null)
-		{
-			Bitmap bmp = BitmapFactory.decodeFile(t.albumArt());
-			iv.setImageBitmap(bmp);
-		} else
-		{
-			iv.setImageDrawable(getResources().getDrawable(R.drawable.blank_album_art));
-		}
-	}
-
-
-	// ========================================= //
-	// 	Update Progress Bar
-	// ========================================= //
-
-	private void UpdateProgressBar()
-	{
-		// http://www.androidhive.info/2012/03/android-building-audio-player-tutorial/
-		//
-		if (tp.isInitialised)
-		{
-			progressBar.setMax(tp.mp.getDuration());
-		} else
-		{
-			progressBar.setMax(0);
-		}
-
-		handler.postDelayed(progressBarRunnable, 100);
-
-		progressBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
-		{
-			@Override
-			public void onStopTrackingTouch(SeekBar seekBar)
-			{
-				handler.removeCallbacks(progressBarRunnable);
-				tp.mp.seekTo(seekBar.getProgress());
-				UpdateProgressBar();
-			}
-
-			@Override
-			public void onStartTrackingTouch(SeekBar seekBar)
-			{
-				handler.removeCallbacks(progressBarRunnable);
-			}
-
-			@Override
-			public void onProgressChanged(SeekBar seekBar,
-													int progress,
-													boolean fromUser)
-			{
-				// Needed, Although Blank
-			}
-		});
-
-	}
-
 
 	// ========================================= //
 	// 	Get Duration String
@@ -810,9 +658,8 @@ public class Player extends ListActivity
 	{
 		String duration;
 
-		int milliseconds = time;
-		int seconds = (int) (milliseconds / 1000) % 60;
-		int minutes = (int) ((milliseconds / (1000 * 60)) % 60);
+		int seconds = (int) (time / 1000) % 60;
+		int minutes = (int) ((time / (1000 * 60)) % 60);
 
 		if (seconds < 10)
 		{
@@ -825,59 +672,12 @@ public class Player extends ListActivity
 		return duration;
 	}
 
-	// ========================================= //
-	// 	Pause & UnPause
-	// ========================================= //
-
-	public void Pause()
-	{
-		tp.mp.pause();
-		tp.isPaused = true;
-		TogglePlayButton();
-	}
-
-	public void UnPause()
-	{
-		tp.mp.start();
-		tp.isPaused = false;
-		TogglePlayButton();
-	}
-
-	public void Stop()
-	{
-		tp.isPaused = true;
-		tp.isInitialised = false;
-		tp.mp.stop();
-	}
-
-
-	// ========================================= //
-	// 	Toggle Play / Pause Button
-	// ========================================= //
-
-	public void TogglePlayButton()
-	{
-		if (tp.isPaused == true)
-		{
-			playButton.setImageDrawable(getResources().getDrawable(R.drawable.play64));
-		} else
-		{
-			playButton.setImageDrawable(getResources().getDrawable(R.drawable.pause64));
-		}
-
-	}
-
 	/**
 	 * Async rescan, returns immediately, use {@link turtle.player.playlist.Playlist.PlaylistObserver} to receive changes
 	 */
 	protected void rescan()
 	{
-		if (tp.isInitialised)
-		{
-			Stop();
-		}
-		tp.playlist.DatabaseClear(); // Don't Delete DB
-		tp.playlist.UpdateList();
+		tp.playlist.DatabaseClear();
 	}
 
 
@@ -890,9 +690,9 @@ public class Player extends ListActivity
 		{
 			if (resultCode == RESULT_OK)
 			{
-				tp.playlist.preferences.SetMediaPath(
+				tp.playlist.preferences.set(Keys.MEDIA_DIR,
 						  data.getStringExtra(DirChooserConstants.ACTIVITY_RETURN_KEY_DIR_CHOOSER_CHOOSED_DIR));
-				mediaDir.setText(tp.playlist.preferences.GetMediaPath().toString());
+				mediaDir.setText(tp.playlist.preferences.getExitstingMediaPath().toString());
 				rescan();
 			}
 		} else

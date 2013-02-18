@@ -25,7 +25,7 @@
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:textSize="18sp"
-                android:text="@string/media_path"
+                android:text="thius/is/a/long/Path/Root/Current_Folder"
                 android:gravity="center_vertical"
                 android:singleLine="true"
                 android:ellipsize="start"/>
