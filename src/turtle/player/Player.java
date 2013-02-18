@@ -594,14 +594,7 @@ public class Player extends ListActivity
 		else
 		{
 			tp.player.change(restoredTrack);
-			if (tp.playlist.preferences.get(Keys.EXIT_PLAY_TIME) != null)
-			{
-				tp.player.goToMillis(tp.playlist.preferences.get(Keys.EXIT_PLAY_TIME));
-			}
-			else
-			{
-				tp.player.goToMillis(0);
-			}
+			tp.player.goToMillis(tp.playlist.preferences.get(Keys.EXIT_PLAY_TIME));
 		}
 
 	}

@@ -39,9 +39,9 @@
             android:contentDescription="@string/pointer"
             android:visibility="invisible"
             />
-
+<!--  xmlns:android="http://schemas.android.com/apk/res/android" -->
     <!--this relative layout is because VerticalTextView does not support center gravity -->
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentLeft="true"

@@ -28,5 +28,5 @@ public abstract class Keys
 			  Environment.getExternalStorageDirectory().getPath());
 
 	public final static Key<String> LAST_TRACK_PLAYED = new Key<String>("lastTrackPlayed", null);
-	public final static Key<Integer> EXIT_PLAY_TIME = new Key<Integer>("exitPlayTime", null);
+	public final static Key<Integer> EXIT_PLAY_TIME = new Key<Integer>("exitPlayTime", 0);
 }
