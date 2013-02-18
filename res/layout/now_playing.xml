@@ -117,7 +117,7 @@
                             android:contentDescription="@string/back"
                             android:paddingLeft="14dp"
                             android:paddingRight="14dp"
-                            android:src="@drawable/shuffle48" />
+                            android:src="@drawable/dice48" />
 
                     <ImageView
                             android:id="@+id/nextButton"
