@@ -19,6 +19,8 @@
 package turtle.player;
 
 import android.app.ListActivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -47,6 +49,9 @@ import turtle.player.preferences.PreferencesObserver;
 import turtle.player.util.Shorty;
 import turtle.player.view.AlbumArtView;
 import turtle.player.view.FileChooser;
+import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
+import android.content.Intent;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -201,6 +206,8 @@ public class Player extends ListActivity
 		shufflePlayOrderStrategy = new PlayOrderRandom(tp.db, tp.playlist);
 		playOrderStrategy = tp.playlist.preferences.get(Keys.SHUFFLE) ?
 				  shufflePlayOrderStrategy : standartPlayOrderStrategy;
+		
+		this.registerReceiver(new BroadcastsHandler(), new IntentFilter(Intent.ACTION_HEADSET_PLUG));
 	}
 
 	// ========================================= //
@@ -700,4 +707,30 @@ public class Player extends ListActivity
 			super.onActivityResult(requestCode, resultCode, data);
 		}
 	}
+	
+	
+	
+	
+	public class BroadcastsHandler extends BroadcastReceiver {
+		private boolean headsetConnected = false;
+		public void onReceive(Context context, Intent intent)
+		{
+			if (intent.hasExtra("state"))
+			{
+				if (headsetConnected && intent.getIntExtra("state", 0) == 0)
+				{
+					headsetConnected = false;
+					Toast.makeText(context, "Headphones UnPlugged", Toast.LENGTH_LONG).show();
+					tp.player.pause();
+				}
+				else if (!headsetConnected && intent.getIntExtra("state", 0) == 1)
+				{
+				    headsetConnected = true;
+					tp.player.play();
+				}
+			}
+		}
+	}
+	
 }
+
