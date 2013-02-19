@@ -211,8 +211,8 @@ public class Player extends ListActivity
 	{
 		shuffleButton.setImageDrawable(
 				  tp.playlist.preferences.get(Keys.SHUFFLE) ?
-							 getResources().getDrawable(R.drawable.shuffle48_active) :
-							 getResources().getDrawable(R.drawable.shuffle48)
+							 getResources().getDrawable(R.drawable.dice48_active) :
+							 getResources().getDrawable(R.drawable.dice48)
 		);
 
 		shuffleCheckBox.setChecked(tp.playlist.preferences.get(Keys.SHUFFLE));
@@ -443,7 +443,7 @@ public class Player extends ListActivity
 						public void run()
 						{
 							shuffleButton.setImageDrawable(getResources().getDrawable(
-									  shuffle ? R.drawable.shuffle48_active : R.drawable.shuffle48));
+									  shuffle ? R.drawable.dice48_active : R.drawable.dice48));
 							shuffleCheckBox.setChecked(shuffle);
 						}
 					});
