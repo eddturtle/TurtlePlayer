@@ -110,9 +110,9 @@ public class Player extends ListActivity
 	private Runnable progressBarRunnable;
 	private SeekBar progressBar;
 
-	private PlayOrderStrategy playOrderStrategy;
-	private PlayOrderStrategy standartPlayOrderStrategy;
+	private PlayOrderStrategy standartPlayOrderStrategy; //default interactive next/prev strategy
 	private PlayOrderStrategy shufflePlayOrderStrategy;
+	private PlayOrderStrategy playOrderStrategy; //strategy after tracks is over, normally one of the above
 
 	private Slides currSlide = Slides.NOW_PLAYING;
 
@@ -273,7 +273,7 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				tp.player.play(tp.playlist.getPrevious(playOrderStrategy, tp.player.getCurrTrack()));
+				tp.player.play(tp.playlist.getPrevious(standartPlayOrderStrategy, tp.player.getCurrTrack()));
 			}
 		});
 
