@@ -334,7 +334,7 @@ public class Player extends ListActivity
 				Intent dirChooserIntent = new Intent(DIR_CHOOSER_ACTION);
 				dirChooserIntent.putExtra(DirChooserConstants.ACTIVITY_PARAM_KEY_DIR_CHOOSER_INITIAL_DIR,
 						  tp.playlist.preferences.getExitstingMediaPath().toString());
-				startActivityForResult(dirChooserIntent, DIR_CHOOSER_REQUEST);
+				Player.this.startActivityForResult(dirChooserIntent, DIR_CHOOSER_REQUEST);
 			}
 		});
 	}
