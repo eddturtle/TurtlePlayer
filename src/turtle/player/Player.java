@@ -57,6 +57,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -358,28 +359,8 @@ public class Player extends ListActivity
 				});
 			}
 
-			public void startRescan(File mediaPath)
+			public void startRescan(final Collection<String> mediaFilePaths)
 			{
-
-				final int[] numberOfTracks = new int[]{0};
-				try
-				{
-					Process p = Runtime.getRuntime().exec(new String[]{"ls", "-R", mediaPath.toString()});
-					BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-					String line = "";
-					while (line != null)
-					{
-						line = br.readLine();
-						if (line != null && FileFilters.PLAYABLE_FILES_FILTER.accept(null, line))
-						{
-							numberOfTracks[0] = numberOfTracks[0] + 1;
-						}
-					}
-				} catch (IOException e)
-				{
-					//Empty
-				}
-
 				//start sync anim
 				runOnUiThread(new Runnable()
 				{
@@ -387,7 +368,7 @@ public class Player extends ListActivity
 					{
 						rescanProgressBar.setIndeterminate(false);
 						rescanProgressBar.setProgress(0);
-						rescanProgressBar.setMax(numberOfTracks[0]);
+						rescanProgressBar.setMax(mediaFilePaths.size());
 					}
 				});
 			}

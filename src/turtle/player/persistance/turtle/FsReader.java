@@ -30,94 +30,83 @@ import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.preferences.Preferences;
 import turtle.player.util.Shorty;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FilenameFilter;
+import java.io.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class FsReader
 {
 	public static final int MAX_DIR_SCAN_DEPTH = 50;
 
 
-	public static void scanDir(TurtleDatabase db,
-										File rootNode)
+	public static void scanFiles(Collection<String> mediaFilePaths, TurtleDatabase db, File rootPath)
 	{
 		MediaMetadataRetriever metaDataReader = new MediaMetadataRetriever();
-		scanDir(db, metaDataReader, rootNode, 0, null);
-		metaDataReader.release();
+
+		try{
+			for(String mediaFilePath : mediaFilePaths)
+			{
+				try
+				{
+					scanFile(mediaFilePath, rootPath, db, metaDataReader);
+				}
+				catch (IOException e)
+				{
+					//log and go on with next File
+					Log.v(Preferences.TAG, "failed to process " + mediaFilePath);
+				}
+			}
+		}
+		finally {
+			metaDataReader.release();
+		}
 	}
 
-	/**
-	 * @param rootNode
-	 * @param depth    number of parent allready visited
-	 */
-	private static void scanDir(TurtleDatabase db,
-										 MediaMetadataRetriever metaDataReader,
-										 File rootNode,
-										 int depth,
-										 String parentAlbumArt)
+	private static void scanFile(String filePath,
+										  File rootPath,
+										  TurtleDatabase db,
+										  MediaMetadataRetriever metaDataReader) throws IOException
 	{
 		// http://www.exampledepot.com/egs/java.io/GetFiles.html
-
-		try
-		{
-			String albumArt = getAlbumArt(rootNode);
-
-			if (albumArt != null)
+		final File file = new File(filePath);
+		if(file.exists() && file.canRead() && file.isFile()){
+			Log.v(Preferences.TAG, "register " + filePath);
+			long start = System.currentTimeMillis();
+			metaDataReader.setDataSource(filePath);
+			Log.v(Preferences.TAG, "init   " + (System.currentTimeMillis() - start) + "ms");
+			String title = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_TITLE);
+			int number = parseTrackNumber(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER));
+			double length = parseDuration(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_DURATION));
+			String artist = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ARTIST);
+			String album = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ALBUM);
+			String genre = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_GENRE);
+			Log.v(Preferences.TAG, "md     " + (System.currentTimeMillis() - start) + "ms");
+			String albumArt = getAlbumArt(file.getParentFile(), rootPath);
+			Log.v(Preferences.TAG, "albumAr" + (System.currentTimeMillis() - start) + "ms");
+			if (Shorty.isVoid(title))
 			{
-				albumArt = rootNode + "/" + albumArt;
-			} else
+				title = "Unknown";
+			}
+			if (Shorty.isVoid(album))
 			{
-				albumArt = parentAlbumArt;
+				number = 0; //tracknumbers with no album results in strange sorting
 			}
 
-			for (String mp3 : rootNode.list(FileFilters.PLAYABLE_FILES_FILTER))
-			{
-				Log.v(Preferences.TAG, "register " + rootNode + "/" + mp3);
-				metaDataReader.setDataSource(rootNode + "/" + mp3);
-
-				String title = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_TITLE);
-				int number = parseTrackNumber(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER));
-				double length = parseDuration(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_DURATION));
-				String artist = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ARTIST);
-				String album = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ALBUM);
-				String genre = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_GENRE);
-
-				if (Shorty.isVoid(title))
-				{
-					title = "Unknown";
-				}
-				if (Shorty.isVoid(album))
-				{
-					number = 0; //tracknumbers with no album results in strange sorting
-				}
-
-				Track t = new Track(
-						  title,
-						  number,
-						  new Artist(artist),
-						  new Album(album),
-						  new Genre(genre),
-						  length,
-						  rootNode + "/" + mp3,
-						  rootNode + "/",
-						  albumArt
-				);
-
-				db.push(t);
-			}
-
-			for (File dir : rootNode.listFiles(isDIR))
-			{
-				if (depth < MAX_DIR_SCAN_DEPTH) // avoid Stack overflow - symbolic link points to a parent dir
-				{
-					scanDir(db, metaDataReader, dir, depth + 1, albumArt);
-				}
-			}
-		} catch (NullPointerException e)
-		{
-			// Probably No SD-Card
-			Log.v(Preferences.TAG, e.getMessage());
+			Track t = new Track(
+					  title,
+					  number,
+					  new Artist(artist),
+					  new Album(album),
+					  new Genre(genre),
+					  length,
+					  file.getAbsolutePath(),
+					  file.getPath(),
+					  albumArt
+			);
+			Log.v(Preferences.TAG, "created " + (System.currentTimeMillis() - start) + "ms");
+			db.push(t);
+			Log.v(Preferences.TAG, "pushed  " + (System.currentTimeMillis() - start) + "ms");
 		}
 	}
 
@@ -140,17 +129,61 @@ public class FsReader
 		return indexOfZeroTermination < 0 ? metaData : metaData.substring(0, indexOfZeroTermination);
 	}
 
-	static private String getAlbumArt(File dir)
-	{
-		for (FilenameFilter filenameFilter : FileFilters.folderArtFilters)
+	static public Set<String> getMediaFilesPaths(File mediaPath){
+
+		Set<String> paths = new HashSet<String>();
+
+		try
 		{
-			String[] paths = dir.list(filenameFilter);
-			if (paths.length > 0)
+			String mediaPathString = mediaPath.toString();
+			Process p = Runtime.getRuntime().exec(new String[]{"ls", "-R", mediaPathString});
+			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String currPath = mediaPathString;
+			String line = "";
+			while (line != null)
 			{
-				return paths[0];
+				line = br.readLine();
+				if (line != null)
+				{
+					if(line.startsWith("/")){
+						currPath = line;
+						currPath = currPath.lastIndexOf(":") == currPath.length()-1 ? currPath.substring(0, currPath.length()-1) : currPath;
+						currPath = currPath.indexOf(".") == 0 ? currPath.replaceFirst(".", mediaPathString) : currPath;
+						currPath = currPath.lastIndexOf("/") != currPath.length()-1 ? currPath + "/" : currPath;
+					}
+					else
+					{
+						if(FileFilters.PLAYABLE_FILES_FILTER.accept(null, line))
+						{
+							paths.add(currPath + line);
+							Log.v(Preferences.TAG, currPath + line);
+						}
+					}
+				}
 			}
+		} catch (IOException e)
+		{
+			//Empty
 		}
-		return null;
+		return paths;
+	}
+
+	static private String getAlbumArt(File mediaFileDir, File rootDir)
+	{
+		String albumArtPath = null;
+		if(mediaFileDir.isDirectory() && mediaFileDir.canRead() && mediaFileDir.getPath().contains(rootDir.getPath())){
+
+			for (FilenameFilter filenameFilter : FileFilters.folderArtFilters)
+			{
+				File[] paths = mediaFileDir.listFiles(filenameFilter);
+				if (paths.length > 0)
+				{
+					return paths[0].getAbsolutePath();
+				}
+			}
+			return getAlbumArt(mediaFileDir.getParentFile(), rootDir);
+		}
+		return albumArtPath;
 	}
 
 	static int parseTrackNumber(String trackNumber)
