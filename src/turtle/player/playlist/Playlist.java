@@ -157,9 +157,11 @@ public class Playlist
 						{
 							final File mediaPath = preferences.getExitstingMediaPath();
 
+							Collection<String> mediaFilePaths = FsReader.getMediaFilesPaths(mediaPath);
+
 							for (PlaylistObserver observer : observers)
 							{
-								observer.startRescan(mediaPath);
+								observer.startRescan(mediaFilePaths);
 							}
 
 							ObservableDatabase.DbObserver dbObserver = new ObservableDatabase.DbObserver()
@@ -168,7 +170,7 @@ public class Playlist
 								{
 									for (PlaylistObserver observer : observers)
 									{
-										observer.trackAdded();
+										observer.trackAdded(instance);
 									}
 
 								}
@@ -180,7 +182,8 @@ public class Playlist
 							};
 
 							db.addObserver(dbObserver);
-							FsReader.scanDir(db, mediaPath);
+
+							FsReader.scanFiles(mediaFilePaths, db, mediaPath);
 							db.removeObserver(dbObserver);
 
 						}
@@ -233,9 +236,9 @@ public class Playlist
 
 	public interface PlaylistObserver
 	{
-		void trackAdded();
+		void trackAdded(Instance instance);
 
-		void startRescan(File mediaPath);
+		void startRescan(Collection<String> mediaFilePaths);
 
 		void endRescan();
 
@@ -251,9 +254,9 @@ public class Playlist
 
 	public static abstract class PlaylistFilterChangeObserver implements PlaylistObserver
 	{
-		public void trackAdded(){/*doNothing*/}
+		public void trackAdded(Instance instance){/*doNothing*/}
 
-		public void startRescan(File mediaPath){/*doNothing*/}
+		public void startRescan(Collection<String> mediaFilePaths){/*doNothing*/}
 
 		public void endRescan(){/*doNothing*/}
 

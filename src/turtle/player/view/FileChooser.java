@@ -207,9 +207,52 @@ public class FileChooser implements TurtleDatabase.DbObserver
 
 	public void updated(final Instance instance)
 	{
-		if(getFilter().accept(new MatchFilterVisitor<Object>(instance)))
+		if(getFilter().accept(new MatchFilterVisitor<Instance>(instance)))
 		{
-			listAdapter.add(instance);
+			Instance instanceToAdd = instance.accept(new InstanceVisitor<Instance>()
+			{
+				public Instance visit(Track track)
+				{
+					switch (currMode)
+					{
+						case Album:
+							return track.GetAlbum();
+						case Artist:
+							return track.GetArtist();
+						case Genre:
+							return track.GetGenre();
+						case Track:
+							return track;
+						default:
+							throw new RuntimeException(currMode.name() + " not expexted here");
+					}
+				}
+
+				public Instance visit(TrackDigest track)
+				{
+					return Mode.Track.equals(currMode) ? track : null;
+				}
+
+				public Instance visit(Album album)
+				{
+					return Mode.Album.equals(currMode) ? album : null;
+				}
+
+				public Instance visit(Genre genre)
+				{
+					return Mode.Genre.equals(currMode) ? genre : null;
+				}
+
+				public Instance visit(Artist artist)
+				{
+					return Mode.Artist.equals(currMode) ? artist : null;
+				}
+			});
+
+			if(instanceToAdd != null)
+			{
+				listAdapter.add(instanceToAdd);
+			}
 		}
 	}
 

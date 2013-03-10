@@ -35,8 +35,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import turtle.player.common.filefilter.FileFilters;
 import turtle.player.controller.PhoneStateHandler;
 import turtle.player.dirchooser.DirChooserConstants;
-import turtle.player.model.Instance;
-import turtle.player.model.Track;
+import turtle.player.model.*;
 import turtle.player.persistance.framework.db.ObservableDatabase;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.playlist.Playlist;
@@ -57,6 +56,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -102,6 +102,10 @@ public class Player extends ListActivity
 	ProgressBar rescanProgressBar;
 	TextView mediaDir;
 	ImageView chooseMediaDir;
+	LinearLayout rescanProgressBarIndicator;
+	TextView rescanProgressBarIndicatorTrack;
+	TextView rescanProgressBarIndicatorState;
+	TextView rescanProgressBarIndicatorAll;
 
 	private TextView duration;
 	private TextView currTrackPosition;
@@ -110,9 +114,9 @@ public class Player extends ListActivity
 	private Runnable progressBarRunnable;
 	private SeekBar progressBar;
 
-	private PlayOrderStrategy playOrderStrategy;
-	private PlayOrderStrategy standartPlayOrderStrategy;
+	private PlayOrderStrategy standartPlayOrderStrategy; //default interactive next/prev strategy
 	private PlayOrderStrategy shufflePlayOrderStrategy;
+	private PlayOrderStrategy playOrderStrategy; //strategy after tracks is over, normally one of the above
 
 	private Slides currSlide = Slides.NOW_PLAYING;
 
@@ -176,6 +180,10 @@ public class Player extends ListActivity
 		rescan = (ImageView) findViewById(R.id.rescan);
 		mediaDir = (TextView) findViewById(R.id.mediaDir);
 		rescanProgressBar = (ProgressBar) findViewById(R.id.rescanProgressBar);
+		rescanProgressBarIndicator = (LinearLayout) findViewById(R.id.rescanProgressBarIndicator);
+		rescanProgressBarIndicatorAll = (TextView) findViewById(R.id.rescanProgressBarIndicatorAll);
+		rescanProgressBarIndicatorState = (TextView) findViewById(R.id.rescanProgressBarIndicatorState);
+		rescanProgressBarIndicatorTrack = (TextView) findViewById(R.id.rescanProgressBarIndicatorTrack);
 		chooseMediaDir = (ImageView) findViewById(R.id.chooseMediaDir);
 	}
 
@@ -273,7 +281,7 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				tp.player.play(tp.playlist.getPrevious(playOrderStrategy, tp.player.getCurrTrack()));
+				tp.player.play(tp.playlist.getPrevious(standartPlayOrderStrategy, tp.player.getCurrTrack()));
 			}
 		});
 
@@ -334,7 +342,7 @@ public class Player extends ListActivity
 				Intent dirChooserIntent = new Intent(DIR_CHOOSER_ACTION);
 				dirChooserIntent.putExtra(DirChooserConstants.ACTIVITY_PARAM_KEY_DIR_CHOOSER_INITIAL_DIR,
 						  tp.playlist.preferences.getExitstingMediaPath().toString());
-				startActivityForResult(dirChooserIntent, DIR_CHOOSER_REQUEST);
+				Player.this.startActivityForResult(dirChooserIntent, DIR_CHOOSER_REQUEST);
 			}
 		});
 	}
@@ -358,28 +366,8 @@ public class Player extends ListActivity
 				});
 			}
 
-			public void startRescan(File mediaPath)
+			public void startRescan(final Collection<String> mediaFilePaths)
 			{
-
-				final int[] numberOfTracks = new int[]{0};
-				try
-				{
-					Process p = Runtime.getRuntime().exec(new String[]{"ls", "-R", mediaPath.toString()});
-					BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-					String line = "";
-					while (line != null)
-					{
-						line = br.readLine();
-						if (line != null && FileFilters.PLAYABLE_FILES_FILTER.accept(null, line))
-						{
-							numberOfTracks[0] = numberOfTracks[0] + 1;
-						}
-					}
-				} catch (IOException e)
-				{
-					//Empty
-				}
-
 				//start sync anim
 				runOnUiThread(new Runnable()
 				{
@@ -387,18 +375,50 @@ public class Player extends ListActivity
 					{
 						rescanProgressBar.setIndeterminate(false);
 						rescanProgressBar.setProgress(0);
-						rescanProgressBar.setMax(numberOfTracks[0]);
+						rescanProgressBar.setMax(mediaFilePaths.size());
+						rescanProgressBarIndicator.setVisibility(View.VISIBLE);
+						rescanProgressBarIndicatorState.setText("");
+						rescanProgressBarIndicatorAll.setText(String.valueOf(mediaFilePaths.size()));
+						rescanProgressBarIndicatorTrack.setText("");
 					}
 				});
 			}
 
-			public void trackAdded()
+			public void trackAdded(final Instance instance)
 			{
 				runOnUiThread(new Runnable()
 				{
 					public void run()
 					{
 						rescanProgressBar.setProgress(rescanProgressBar.getProgress() + 1);
+						rescanProgressBarIndicatorState.setText(String.valueOf(rescanProgressBar.getProgress()));
+						rescanProgressBarIndicatorTrack.setText(instance.accept(new InstanceVisitor<CharSequence>()
+						{
+							public CharSequence visit(Track track)
+							{
+								return track.GetSrc();
+							}
+
+							public CharSequence visit(TrackDigest track)
+							{
+								return track.getName();
+							}
+
+							public CharSequence visit(Album album)
+							{
+								return album.getName();
+							}
+
+							public CharSequence visit(Genre genre)
+							{
+								return genre.getName();
+							}
+
+							public CharSequence visit(Artist artist)
+							{
+								return artist.getName();
+							}
+						}));
 					}
 				});
 			}
@@ -423,6 +443,7 @@ public class Player extends ListActivity
 					public void run()
 					{
 						rescanProgressBar.setVisibility(View.GONE);
+						rescanProgressBarIndicator.setVisibility(View.GONE);
 						rescan.setVisibility(View.VISIBLE);
 						if (!tp.playlist.IsEmpty())
 						{

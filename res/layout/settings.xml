@@ -17,14 +17,8 @@
         android:id="@+id/shuffleCheckBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textSize="18sp"
         android:text="@string/shuffle" />
-
-    <CheckBox
-        android:id="@+id/repeatCheckBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/repeat" />
-
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
@@ -47,7 +41,7 @@
             android:src="@android:drawable/stat_notify_sync_noanim"
             android:contentDescription="@string/sync_library"
             android:gravity="center_vertical"
-            android:paddingRight="4sp"/>
+            android:paddingRight="10sp"/>
 
         <TextView
                 android:id="@+id/mediaDir"
@@ -77,7 +71,44 @@
             android:layout_height="wrap_content"
             android:max="100"
             android:visibility="gone"/>
-    
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:id="@+id/rescanProgressBarIndicator"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal"
+                  android:visibility="gone">
+        <TextView
+                android:id="@+id/rescanProgressBarIndicatorTrack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:ellipsize="start"
+                android:text="currentReadingFile............................"/>
+        <TextView
+                android:id="@+id/rescanProgressBarIndicatorDelitmiter1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" - "/>
+        <TextView
+                android:id="@+id/rescanProgressBarIndicatorState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"/>
+        <TextView
+                android:id="@+id/rescanProgressBarIndicatorDelitmiter2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="/"/>
+        <TextView
+                android:id="@+id/rescanProgressBarIndicatorAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"/>
+    </LinearLayout>
+
+
     <TextView
         android:id="@+id/about"
         android:layout_width="wrap_content"
