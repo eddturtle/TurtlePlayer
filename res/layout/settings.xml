@@ -87,12 +87,17 @@
                 android:ellipsize="start"
                 android:text="currentReadingFile............................"/>
         <TextView
+                android:id="@+id/rescanProgressBarIndicatorDelitmiter1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" - "/>
+        <TextView
                 android:id="@+id/rescanProgressBarIndicatorState"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"/>
         <TextView
-                android:id="@+id/rescanProgressBarIndicatorDelitmiter"
+                android:id="@+id/rescanProgressBarIndicatorDelitmiter2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="/"/>
