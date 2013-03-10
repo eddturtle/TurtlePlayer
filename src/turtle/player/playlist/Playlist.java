@@ -170,7 +170,7 @@ public class Playlist
 								{
 									for (PlaylistObserver observer : observers)
 									{
-										observer.trackAdded();
+										observer.trackAdded(instance);
 									}
 
 								}
@@ -236,7 +236,7 @@ public class Playlist
 
 	public interface PlaylistObserver
 	{
-		void trackAdded();
+		void trackAdded(Instance instance);
 
 		void startRescan(Collection<String> mediaFilePaths);
 
@@ -254,7 +254,7 @@ public class Playlist
 
 	public static abstract class PlaylistFilterChangeObserver implements PlaylistObserver
 	{
-		public void trackAdded(){/*doNothing*/}
+		public void trackAdded(Instance instance){/*doNothing*/}
 
 		public void startRescan(Collection<String> mediaFilePaths){/*doNothing*/}
 
