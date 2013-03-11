@@ -99,7 +99,7 @@ public class Tables
 			public String get(Track instance)
 			{
 				return instance.GetSrc();
-			}y
+			}
 		};
 
 		public final FieldPersistable<Track, String> ROOTSRC = new FieldPersistableAsString<Track>("rootSrc")

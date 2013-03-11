@@ -31,10 +31,7 @@ import turtle.player.preferences.Preferences;
 import turtle.player.util.Shorty;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class FsReader
 {
@@ -46,11 +43,12 @@ public class FsReader
 		MediaMetadataRetriever metaDataReader = new MediaMetadataRetriever();
 
 		try{
+			Map<String, String> dirAlbumArtMap = new HashMap<String, String>();
 			for(String mediaFilePath : mediaFilePaths)
 			{
 				try
 				{
-					scanFile(mediaFilePath, rootPath, db, metaDataReader);
+					scanFile(mediaFilePath, rootPath, db, metaDataReader, dirAlbumArtMap);
 				}
 				catch (IOException e)
 				{
@@ -67,7 +65,8 @@ public class FsReader
 	private static void scanFile(String filePath,
 										  String rootPath,
 										  TurtleDatabase db,
-										  MediaMetadataRetriever metaDataReader) throws IOException
+										  MediaMetadataRetriever metaDataReader,
+	                             Map<String, String> dirAlbumArtMap) throws IOException
 	{
 		// http://www.exampledepot.com/egs/java.io/GetFiles.html
 
@@ -90,7 +89,15 @@ public class FsReader
 
 		Log.v(Preferences.TAG, "md     " + (System.currentTimeMillis() - start) + "ms");
 
-		String albumArt = getAlbumArt(rootSrc, rootPath);
+		final String albumArt;
+		if(dirAlbumArtMap.containsKey(rootSrc))
+		{
+			albumArt = dirAlbumArtMap.get(rootSrc);
+		}
+		else{
+			albumArt = getAlbumArt(rootSrc, rootPath);
+			dirAlbumArtMap.put(rootSrc, albumArt);
+		}
 
 		Log.v(Preferences.TAG, "albumAr" + (System.currentTimeMillis() - start) + "ms");
 
