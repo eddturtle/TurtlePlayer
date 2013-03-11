@@ -33,6 +33,7 @@ import turtle.player.util.Shorty;
 import java.io.*;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class FsReader
@@ -40,7 +41,7 @@ public class FsReader
 	public static final int MAX_DIR_SCAN_DEPTH = 50;
 
 
-	public static void scanFiles(Collection<String> mediaFilePaths, TurtleDatabase db, File rootPath)
+	public static void scanFiles(Collection<String> mediaFilePaths, TurtleDatabase db, String rootPath)
 	{
 		MediaMetadataRetriever metaDataReader = new MediaMetadataRetriever();
 
@@ -64,50 +65,58 @@ public class FsReader
 	}
 
 	private static void scanFile(String filePath,
-										  File rootPath,
+										  String rootPath,
 										  TurtleDatabase db,
 										  MediaMetadataRetriever metaDataReader) throws IOException
 	{
 		// http://www.exampledepot.com/egs/java.io/GetFiles.html
-		final File file = new File(filePath);
-		if(file.exists() && file.canRead() && file.isFile()){
-			Log.v(Preferences.TAG, "register " + filePath);
-			long start = System.currentTimeMillis();
-			metaDataReader.setDataSource(filePath);
-			Log.v(Preferences.TAG, "init   " + (System.currentTimeMillis() - start) + "ms");
-			String title = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_TITLE);
-			int number = parseTrackNumber(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER));
-			double length = parseDuration(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_DURATION));
-			String artist = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ARTIST);
-			String album = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ALBUM);
-			String genre = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_GENRE);
-			Log.v(Preferences.TAG, "md     " + (System.currentTimeMillis() - start) + "ms");
-			String albumArt = getAlbumArt(file.getParentFile(), rootPath);
-			Log.v(Preferences.TAG, "albumAr" + (System.currentTimeMillis() - start) + "ms");
-			if (Shorty.isVoid(title))
-			{
-				title = "Unknown";
-			}
-			if (Shorty.isVoid(album))
-			{
-				number = 0; //tracknumbers with no album results in strange sorting
-			}
 
-			Track t = new Track(
-					  title,
-					  number,
-					  new Artist(artist),
-					  new Album(album),
-					  new Genre(genre),
-					  length,
-					  file.getAbsolutePath(),
-					  file.getPath(),
-					  albumArt
-			);
-			Log.v(Preferences.TAG, "created " + (System.currentTimeMillis() - start) + "ms");
-			db.push(t);
-			Log.v(Preferences.TAG, "pushed  " + (System.currentTimeMillis() - start) + "ms");
+		Log.i(Preferences.TAG, "register " + filePath);
+
+		long start = System.currentTimeMillis();
+
+		metaDataReader.setDataSource(filePath);
+
+		Log.v(Preferences.TAG, "init   " + (System.currentTimeMillis() - start) + "ms");
+
+		String rootSrc = filePath.substring(0, filePath.lastIndexOf("/"));
+
+		String title = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_TITLE);
+		int number = parseTrackNumber(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER));
+		double length = parseDuration(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_DURATION));
+		String artist = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ARTIST);
+		String album = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ALBUM);
+		String genre = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_GENRE);
+
+		Log.v(Preferences.TAG, "md     " + (System.currentTimeMillis() - start) + "ms");
+
+		String albumArt = getAlbumArt(rootSrc, rootPath);
+
+		Log.v(Preferences.TAG, "albumAr" + (System.currentTimeMillis() - start) + "ms");
+
+		if (Shorty.isVoid(title))
+		{
+			title = "Unknown";
 		}
+		if (Shorty.isVoid(album))
+		{
+			number = 0; //tracknumbers with no album results in strange sorting
+		}
+
+		Track t = new Track(
+				  title,
+				  number,
+				  new Artist(artist),
+				  new Album(album),
+				  new Genre(genre),
+				  length,
+				  filePath,
+				  rootSrc,
+				  albumArt
+		);
+		Log.v(Preferences.TAG, "created " + (System.currentTimeMillis() - start) + "ms");
+		db.push(t);
+		Log.v(Preferences.TAG, "pushed  " + (System.currentTimeMillis() - start) + "ms");
 	}
 
 	/**
@@ -129,16 +138,18 @@ public class FsReader
 		return indexOfZeroTermination < 0 ? metaData : metaData.substring(0, indexOfZeroTermination);
 	}
 
-	static public Set<String> getMediaFilesPaths(File mediaPath){
+	static public Set<String> getMediaFilesPaths(String mediaPath, List<? extends FilenameFilter> filters, boolean recursive, boolean getFirstMatch){
 
-		Set<String> paths = new HashSet<String>();
+		Set<String> candidates = new HashSet<String>();
+
+		long start = System.currentTimeMillis();
 
 		try
 		{
-			String mediaPathString = mediaPath.toString();
-			Process p = Runtime.getRuntime().exec(new String[]{"ls", "-R", mediaPathString});
+			String[] arguments = recursive ? new String[]{"ls", "-R", mediaPath} : new String[]{"ls", mediaPath};
+			Process p = Runtime.getRuntime().exec(arguments);
 			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			String currPath = mediaPathString;
+			String currPath = mediaPath + "/";
 			String line = "";
 			while (line != null)
 			{
@@ -148,15 +159,14 @@ public class FsReader
 					if(line.startsWith("/")){
 						currPath = line;
 						currPath = currPath.lastIndexOf(":") == currPath.length()-1 ? currPath.substring(0, currPath.length()-1) : currPath;
-						currPath = currPath.indexOf(".") == 0 ? currPath.replaceFirst(".", mediaPathString) : currPath;
+						currPath = currPath.indexOf(".") == 0 ? currPath.replaceFirst(".", mediaPath) : currPath;
 						currPath = currPath.lastIndexOf("/") != currPath.length()-1 ? currPath + "/" : currPath;
 					}
 					else
 					{
-						if(FileFilters.PLAYABLE_FILES_FILTER.accept(null, line))
+						if(!Shorty.isVoid(line))
 						{
-							paths.add(currPath + line);
-							Log.v(Preferences.TAG, currPath + line);
+							candidates.add(currPath + line);
 						}
 					}
 				}
@@ -165,25 +175,42 @@ public class FsReader
 		{
 			//Empty
 		}
-		return paths;
-	}
 
-	static private String getAlbumArt(File mediaFileDir, File rootDir)
-	{
-		String albumArtPath = null;
-		if(mediaFileDir.isDirectory() && mediaFileDir.canRead() && mediaFileDir.getPath().contains(rootDir.getPath())){
+		//Log.v(Preferences.TAG, "found " + candidates.size() + " "+ (System.currentTimeMillis() - start) + "ms");
 
-			for (FilenameFilter filenameFilter : FileFilters.folderArtFilters)
+		Set<String> acceptedPaths = new HashSet<String>();
+
+		for (FilenameFilter filenameFilter : filters)
+		{
+			for(String path : candidates)
 			{
-				File[] paths = mediaFileDir.listFiles(filenameFilter);
-				if (paths.length > 0)
-				{
-					return paths[0].getAbsolutePath();
+				//Log.v(Preferences.TAG, "filter " + path + (System.currentTimeMillis() - start) + "ms " + path);
+				if(filenameFilter.accept(null, path)){
+
+					acceptedPaths.add(path);
+					if(getFirstMatch){
+						//Log.v(Preferences.TAG, "completed " + (System.currentTimeMillis() - start) + "ms " + path);
+						return acceptedPaths;
+					}
 				}
 			}
-			return getAlbumArt(mediaFileDir.getParentFile(), rootDir);
 		}
-		return albumArtPath;
+		return acceptedPaths;
+	}
+
+	static private String getAlbumArt(String mediaFileDir, String rootDir)
+	{
+		if (mediaFileDir.contains(rootDir)){
+			Set<String> albumArtStrings = FsReader.getMediaFilesPaths(mediaFileDir, FileFilters.folderArtFilters, false, true);
+			if(!albumArtStrings.isEmpty())
+			{
+				return albumArtStrings.iterator().next();
+			}
+
+			return getAlbumArt(mediaFileDir.substring(0, mediaFileDir.lastIndexOf("/")), rootDir);
+		}
+
+		return null;
 	}
 
 	static int parseTrackNumber(String trackNumber)

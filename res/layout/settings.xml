@@ -17,7 +17,7 @@
         android:id="@+id/shuffleCheckBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
+        android:textSize="14sp"
         android:text="@string/shuffle" />
     <TextView
         android:id="@+id/textView3"
@@ -48,7 +48,6 @@
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
-                android:textSize="18sp"
                 android:text="Path/To/Replace"
                 android:gravity="center_vertical"
                 android:singleLine="true"

@@ -160,6 +160,7 @@ public class Player extends ListActivity
 		{
 			mgr.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
 		}
+		//todo: unregisterReceiver call to remove Broadcast receiver
 	}
 
 	private void lookupViewElements(){

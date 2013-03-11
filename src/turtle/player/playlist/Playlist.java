@@ -22,6 +22,7 @@ package turtle.player.playlist;
 import android.content.Context;
 import android.util.Log;
 import turtle.player.Stats;
+import turtle.player.common.filefilter.FileFilters;
 import turtle.player.model.Instance;
 import turtle.player.model.Track;
 import turtle.player.model.TrackBundle;
@@ -155,9 +156,9 @@ public class Playlist
 					{
 						try
 						{
-							final File mediaPath = preferences.getExitstingMediaPath();
+							final String mediaPath = preferences.getExitstingMediaPath().toString();
 
-							Collection<String> mediaFilePaths = FsReader.getMediaFilesPaths(mediaPath);
+							Collection<String> mediaFilePaths = FsReader.getMediaFilesPaths(mediaPath, FileFilters.PLAYABLE_FILES_FILTER, true, false);
 
 							for (PlaylistObserver observer : observers)
 							{
