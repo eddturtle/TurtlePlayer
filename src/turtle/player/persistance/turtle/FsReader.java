@@ -89,15 +89,7 @@ public class FsReader
 
 		Log.v(Preferences.TAG, "md     " + (System.currentTimeMillis() - start) + "ms");
 
-		final String albumArt;
-		if(dirAlbumArtMap.containsKey(rootSrc))
-		{
-			albumArt = dirAlbumArtMap.get(rootSrc);
-		}
-		else{
-			albumArt = getAlbumArt(rootSrc, rootPath);
-			dirAlbumArtMap.put(rootSrc, albumArt);
-		}
+		final String albumArt = getAlbumArt(rootSrc, rootPath, dirAlbumArtMap);
 
 		Log.v(Preferences.TAG, "albumAr" + (System.currentTimeMillis() - start) + "ms");
 
@@ -205,19 +197,32 @@ public class FsReader
 		return acceptedPaths;
 	}
 
-	static private String getAlbumArt(String mediaFileDir, String rootDir)
+	static private String getAlbumArt(String mediaFileDir, String rootDir, Map<String, String> dirAlbumArtMap)
 	{
+		final String result;
+
+		if(dirAlbumArtMap.containsKey(mediaFileDir))
+		{
+			return dirAlbumArtMap.get(mediaFileDir);
+		}
+
 		if (mediaFileDir.contains(rootDir)){
 			Set<String> albumArtStrings = FsReader.getMediaFilesPaths(mediaFileDir, FileFilters.folderArtFilters, false, true);
 			if(!albumArtStrings.isEmpty())
 			{
-				return albumArtStrings.iterator().next();
+				result = albumArtStrings.iterator().next();
 			}
-
-			return getAlbumArt(mediaFileDir.substring(0, mediaFileDir.lastIndexOf("/")), rootDir);
+			else
+			{
+				result = getAlbumArt(mediaFileDir.substring(0, mediaFileDir.lastIndexOf("/")), rootDir, dirAlbumArtMap);
+			}
+		}
+		else{
+			result = null;
 		}
 
-		return null;
+		dirAlbumArtMap.put(mediaFileDir, result);
+		return result;
 	}
 
 	static int parseTrackNumber(String trackNumber)
