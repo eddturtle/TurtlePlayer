@@ -35,34 +35,8 @@ import java.util.*;
 
 public class FsReader
 {
-	public static final int MAX_DIR_SCAN_DEPTH = 50;
 
-
-	public static void scanFiles(Collection<String> mediaFilePaths, TurtleDatabase db, String rootPath)
-	{
-		MediaMetadataRetriever metaDataReader = new MediaMetadataRetriever();
-
-		try{
-			Map<String, String> dirAlbumArtMap = new HashMap<String, String>();
-			for(String mediaFilePath : mediaFilePaths)
-			{
-				try
-				{
-					scanFile(mediaFilePath, rootPath, db, metaDataReader, dirAlbumArtMap);
-				}
-				catch (IOException e)
-				{
-					//log and go on with next File
-					Log.v(Preferences.TAG, "failed to process " + mediaFilePath);
-				}
-			}
-		}
-		finally {
-			metaDataReader.release();
-		}
-	}
-
-	private static void scanFile(String filePath,
+	public static void scanFile(String filePath,
 										  String rootPath,
 										  TurtleDatabase db,
 										  MediaMetadataRetriever metaDataReader,
@@ -137,9 +111,9 @@ public class FsReader
 		return indexOfZeroTermination < 0 ? metaData : metaData.substring(0, indexOfZeroTermination);
 	}
 
-	static public Set<String> getMediaFilesPaths(String mediaPath, List<? extends FilenameFilter> filters, boolean recursive, boolean getFirstMatch){
+	static public List<String> getMediaFilesPaths(String mediaPath, List<? extends FilenameFilter> filters, boolean recursive, boolean getFirstMatch){
 
-		Set<String> candidates = new HashSet<String>();
+		List<String> candidates = new ArrayList<String>();
 
 		long start = System.currentTimeMillis();
 
@@ -177,7 +151,7 @@ public class FsReader
 
 		//Log.v(Preferences.TAG, "found " + candidates.size() + " "+ (System.currentTimeMillis() - start) + "ms");
 
-		Set<String> acceptedPaths = new HashSet<String>();
+		List<String> acceptedPaths = new ArrayList<String>();
 
 		for (FilenameFilter filenameFilter : filters)
 		{
@@ -207,7 +181,7 @@ public class FsReader
 		}
 
 		if (mediaFileDir.contains(rootDir)){
-			Set<String> albumArtStrings = FsReader.getMediaFilesPaths(mediaFileDir, FileFilters.folderArtFilters, false, true);
+			List<String> albumArtStrings = FsReader.getMediaFilesPaths(mediaFileDir, FileFilters.folderArtFilters, false, true);
 			if(!albumArtStrings.isEmpty())
 			{
 				result = albumArtStrings.iterator().next();

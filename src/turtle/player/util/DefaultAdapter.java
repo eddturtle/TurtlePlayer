@@ -29,6 +29,7 @@ import turtle.player.R;
 import turtle.player.model.Instance;
 import turtle.player.presentation.InstanceFormatter;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;

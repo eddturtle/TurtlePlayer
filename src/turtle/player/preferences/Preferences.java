@@ -39,6 +39,11 @@ public class Preferences
 		this.context = context;
 	}
 
+	/**
+	 * @param key see {@link Keys}
+	 * @param object if null, the pref gets removed, the next get will return the default
+	 * @param <T> the class of the object the key holds
+	 */
 	public <T> void set(Key<T> key, T object)
 	{
 		SharedPreferencesAccess.putValue(context, key, object);

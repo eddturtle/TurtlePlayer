@@ -23,7 +23,7 @@ import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
-import android.os.Bundle;
+import android.os.*;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -96,10 +96,11 @@ public class Player extends ListActivity
 	ProgressBar rescanProgressBar;
 	TextView mediaDir;
 	ImageView chooseMediaDir;
-	LinearLayout rescanProgressBarIndicator;
+	LinearLayout rescanProgressBarState;
 	TextView rescanProgressBarIndicatorTrack;
 	TextView rescanProgressBarIndicatorState;
 	TextView rescanProgressBarIndicatorAll;
+	ImageView rescanTogglePause;
 
 	private TextView duration;
 	private TextView currTrackPosition;
@@ -153,6 +154,8 @@ public class Player extends ListActivity
 
 		Log.i(TurtleDatabase.class.getName(), "Player.onDestory() called");
 
+		tp.playlist.pauseFsScan();
+
 		tp.playlist.preferences.set(Keys.EXIT_PLAY_TIME, tp.player.getCurrentMillis());
 		tp.player.release();
 
@@ -185,10 +188,11 @@ public class Player extends ListActivity
 		rescan = (ImageView) findViewById(R.id.rescan);
 		mediaDir = (TextView) findViewById(R.id.mediaDir);
 		rescanProgressBar = (ProgressBar) findViewById(R.id.rescanProgressBar);
-		rescanProgressBarIndicator = (LinearLayout) findViewById(R.id.rescanProgressBarIndicator);
+		rescanProgressBarState = (LinearLayout) findViewById(R.id.rescanState);
 		rescanProgressBarIndicatorAll = (TextView) findViewById(R.id.rescanProgressBarIndicatorAll);
 		rescanProgressBarIndicatorState = (TextView) findViewById(R.id.rescanProgressBarIndicatorState);
 		rescanProgressBarIndicatorTrack = (TextView) findViewById(R.id.rescanProgressBarIndicatorTrack);
+		rescanTogglePause = (ImageView) findViewById(R.id.togglePause);
 		chooseMediaDir = (ImageView) findViewById(R.id.chooseMediaDir);
 	}
 
@@ -334,7 +338,21 @@ public class Player extends ListActivity
 		{
 			public void onClick(View v)
 			{
-				rescan();
+				if(tp.playlist.isFsScanNotStarted())
+				{
+					rescan();
+				}
+				else{
+					tp.playlist.stopFsScan();
+				}
+			}
+		});
+
+		rescanTogglePause.setOnClickListener(new OnClickListener()
+		{
+			public void onClick(View v)
+			{
+				tp.playlist.toggleFsScanPause();
 			}
 		});
 
@@ -353,6 +371,8 @@ public class Player extends ListActivity
 	private void SetupObservers()
 	{
 
+		final Handler trackAddedhandler = new Handler(Looper.getMainLooper());
+
 		//Rescan Progress Bar
 		tp.playlist.addObserver(new Playlist.PlaylistTrackChangeObserver()
 		{
@@ -362,14 +382,14 @@ public class Player extends ListActivity
 				{
 					public void run()
 					{
-						rescanProgressBar.setVisibility(View.VISIBLE);
 						rescanProgressBar.setIndeterminate(true);
-						rescan.setVisibility(View.INVISIBLE);
+						rescan.setImageDrawable(getResources().getDrawable(R.drawable.fs_scan_stop48));
+						rescanProgressBar.setVisibility(View.VISIBLE);
 					}
 				});
 			}
 
-			public void startRescan(final Collection<String> mediaFilePaths)
+			public void startRescan(final int toProcess)
 			{
 				//start sync anim
 				runOnUiThread(new Runnable()
@@ -377,63 +397,72 @@ public class Player extends ListActivity
 					public void run()
 					{
 						rescanProgressBar.setIndeterminate(false);
+						rescanProgressBar.setMax(toProcess);
 						rescanProgressBar.setProgress(0);
-						rescanProgressBar.setMax(mediaFilePaths.size());
-						rescanProgressBarIndicator.setVisibility(View.VISIBLE);
+
+						rescanTogglePause.setImageDrawable(getResources().getDrawable(R.drawable.fs_scan_pause48));
 						rescanProgressBarIndicatorState.setText("");
-						rescanProgressBarIndicatorAll.setText(String.valueOf(mediaFilePaths.size()));
+						rescanProgressBarIndicatorAll.setText(String.valueOf(rescanProgressBar.getMax()));
 						rescanProgressBarIndicatorTrack.setText("");
+						rescanProgressBarState.setVisibility(View.VISIBLE);
 					}
 				});
 			}
 
-			public void trackAdded(final Instance instance)
+			public void unpauseRescan(final int alreadyProcessed,
+											  final int toProcess)
 			{
 				runOnUiThread(new Runnable()
 				{
 					public void run()
 					{
-						rescanProgressBar.setProgress(rescanProgressBar.getProgress() + 1);
-						rescanProgressBarIndicatorState.setText(String.valueOf(rescanProgressBar.getProgress()));
-						rescanProgressBarIndicatorTrack.setText(instance.accept(new InstanceVisitor<CharSequence>()
+						rescanProgressBar.setIndeterminate(false);
+						rescanProgressBar.setMax(alreadyProcessed + toProcess);
+						rescanProgressBar.setProgress(alreadyProcessed);
+						rescanProgressBarState.setVisibility(View.VISIBLE);
+						rescanProgressBarIndicatorAll.setText(String.valueOf(rescanProgressBar.getMax()));
+						rescanTogglePause.setImageDrawable(getResources().getDrawable(R.drawable.fs_scan_pause48));
+					}
+				});
+			}
+
+			public void trackAdded(final String filePath, final int allreadyProcessed)
+			{
+
+				if(!trackAddedhandler.hasMessages(0)){
+					trackAddedhandler.postDelayed(new Runnable()
+					{
+						public void run()
 						{
-							public CharSequence visit(Track track)
-							{
-								return track.GetSrc();
-							}
+							rescanProgressBar.setProgress(allreadyProcessed);
+							rescanProgressBarIndicatorState.setText(String.valueOf(rescanProgressBar.getProgress()));
+							rescanProgressBarIndicatorTrack.setText(filePath);
+						}
+					}, 250);
+				}
+			}
 
-							public CharSequence visit(TrackDigest track)
-							{
-								return track.getName();
-							}
-
-							public CharSequence visit(Album album)
-							{
-								return album.getName();
-							}
-
-							public CharSequence visit(Genre genre)
-							{
-								return genre.getName();
-							}
-
-							public CharSequence visit(Artist artist)
-							{
-								return artist.getName();
-							}
-						}));
+			public void pauseRescan()
+			{
+				runOnUiThread(new Runnable()
+				{
+					public void run()
+					{
+						rescanTogglePause.setImageDrawable(getResources().getDrawable(R.drawable.fs_scan_unpause48));
 					}
 				});
 			}
 
 			public void endRescan()
 			{
-				//start sync anim
+				//stop sync anim
 				runOnUiThread(new Runnable()
 				{
 					public void run()
 					{
-						rescanProgressBar.setIndeterminate(true);
+						rescanProgressBar.setVisibility(View.GONE);
+						rescanProgressBarState.setVisibility(View.GONE);
+						rescan.setImageDrawable(getResources().getDrawable(R.drawable.fs_scan_start48));
 					}
 				});
 			}
@@ -445,9 +474,6 @@ public class Player extends ListActivity
 				{
 					public void run()
 					{
-						rescanProgressBar.setVisibility(View.GONE);
-						rescanProgressBarIndicator.setVisibility(View.GONE);
-						rescan.setVisibility(View.VISIBLE);
 						if (!tp.playlist.IsEmpty())
 						{
 							SwitchToPlaylistSlide();
@@ -459,6 +485,7 @@ public class Player extends ListActivity
 				});
 			}
 		});
+		tp.playlist.notifyInitialState();
 
 		tp.playlist.preferences.addObserver(new PreferencesObserver()
 		{
@@ -486,8 +513,8 @@ public class Player extends ListActivity
 		{
 			public void trackChanged(Track track)
 			{
-				progressBar.setMax((int)track.GetLength());
-				duration.setText(ConvertToMinutes((int)track.GetLength()));
+				progressBar.setMax((int) track.GetLength());
+				duration.setText(ConvertToMinutes((int) track.GetLength()));
 				tp.playlist.preferences.set(Keys.LAST_TRACK_PLAYED, track.GetSrc());
 			}
 
@@ -552,7 +579,7 @@ public class Player extends ListActivity
 			public void cleared()
 			{
 				Toast.makeText(getApplicationContext(), getString(R.string.toastRescan), Toast.LENGTH_LONG).show();
-				tp.playlist.UpdateList();
+				tp.playlist.startFsScan();
 			}
 		});
 	}
@@ -638,7 +665,7 @@ public class Player extends ListActivity
 	{
 		if (tp.playlist.IsEmpty())
 		{
-			tp.playlist.UpdateList();
+			tp.playlist.startFsScan();
 		}
 	}
 
@@ -655,7 +682,7 @@ public class Player extends ListActivity
 		mgr.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
 		BroadcastReceiver broadcastsHandler = new BroadcastsHandler(tp.player);
-		broadcastHandlers.add(broadcastsHandler);
+		broadcastReceivers.add(broadcastsHandler);
 		registerReceiver(broadcastsHandler, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
 	}
 
