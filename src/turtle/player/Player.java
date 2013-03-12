@@ -60,7 +60,7 @@ public class Player extends ListActivity
 	public static final String DIR_CHOOSER_ACTION = "turtle.player.DIR_CHOOSER";
 	public static final int DIR_CHOOSER_REQUEST = 0;
 
-	private enum Slides
+	public enum Slides
 	{
 		SETTINGS,
 		PLAYLIST,
@@ -619,6 +619,8 @@ public class Player extends ListActivity
 		list.setImageDrawable(getResources().getDrawable(R.drawable.list64_active));
 		currSlide = Slides.PLAYLIST;
 
+		fileChooser.update();
+
 		nowPlayingSlide.setVisibility(LinearLayout.INVISIBLE);
 		playlistSlide.setVisibility(LinearLayout.VISIBLE);
 		settingsSlide.setVisibility(LinearLayout.INVISIBLE);
@@ -655,6 +657,11 @@ public class Player extends ListActivity
 			tp.player.goToMillis(tp.playlist.preferences.get(Keys.EXIT_PLAY_TIME));
 		}
 
+	}
+
+	public Slides getCurrSlide()
+	{
+		return currSlide;
 	}
 
 	// ========================================= //

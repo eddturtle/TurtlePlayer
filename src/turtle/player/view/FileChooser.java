@@ -19,8 +19,10 @@
 package turtle.player.view;
 
 import android.app.ListActivity;
+import android.database.sqlite.SQLiteDoneException;
 import android.view.View;
 import android.widget.ImageView;
+import turtle.player.Player;
 import turtle.player.R;
 import turtle.player.common.MatchFilterVisitor;
 import turtle.player.model.*;
@@ -62,14 +64,14 @@ public class FileChooser implements TurtleDatabase.DbObserver
 
 	private Mode currMode;
 	private final TurtleDatabase database;
-	private final ListActivity listActivity;
+	private final Player listActivity;
 	final DefaultAdapter<Instance> listAdapter;
 
 	private Set<Filter> filters = new HashSet<Filter>();
 
 	public FileChooser(Mode currMode,
 							 TurtleDatabase db,
-							 ListActivity listActivity)
+							 Player listActivity)
 	{
 		this.currMode = currMode;
 		this.database = db;
@@ -207,6 +209,11 @@ public class FileChooser implements TurtleDatabase.DbObserver
 
 	public void updated(final Instance instance)
 	{
+		if(!Player.Slides.PLAYLIST.equals(listActivity.getCurrSlide()))
+		{
+			return;
+		}
+
 		if(getFilter().accept(new MatchFilterVisitor<Instance>(instance)))
 		{
 			Instance instanceToAdd = instance.accept(new InstanceVisitor<Instance>()
