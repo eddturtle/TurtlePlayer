@@ -20,19 +20,19 @@ package turtle.player;
 
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import turtle.player.common.filefilter.FileFilters;
+import turtle.player.controller.BroadcastsHandler;
 import turtle.player.controller.PhoneStateHandler;
 import turtle.player.dirchooser.DirChooserConstants;
 import turtle.player.model.*;
@@ -49,13 +49,7 @@ import turtle.player.util.Shorty;
 import turtle.player.view.AlbumArtView;
 import turtle.player.view.FileChooser;
 import android.content.IntentFilter;
-import android.content.BroadcastReceiver;
-import android.content.Intent;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -121,6 +115,7 @@ public class Player extends ListActivity
 	private Slides currSlide = Slides.NOW_PLAYING;
 
 	private Set<PhoneStateListener> phoneStateListeners = new HashSet<PhoneStateListener>();
+	private Set<BroadcastReceiver> broadcastReceivers = new HashSet<BroadcastReceiver>();
 
 	// ========================================= //
 	// 	OnCreate & OnDestroy
@@ -130,6 +125,9 @@ public class Player extends ListActivity
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+
+		Log.i(TurtleDatabase.class.getName(), "Player.onCreate() called");
+
 		setContentView(R.layout.main);
 
 		SetupApplication();
@@ -143,7 +141,7 @@ public class Player extends ListActivity
 		SetupButtonListeners();
 		SetupSlides();
 		SetupList();
-		SetupTelephoneChecker();
+		SetupPhoneHandlers();
 
 		resetLastTrack();
 	}
@@ -152,6 +150,9 @@ public class Player extends ListActivity
 	protected void onDestroy()
 	{
 		super.onDestroy();
+
+		Log.i(TurtleDatabase.class.getName(), "Player.onDestory() called");
+
 		tp.playlist.preferences.set(Keys.EXIT_PLAY_TIME, tp.player.getCurrentMillis());
 		tp.player.release();
 
@@ -160,7 +161,10 @@ public class Player extends ListActivity
 		{
 			mgr.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
 		}
-		//todo: unregisterReceiver call to remove Broadcast receiver
+
+		for(BroadcastReceiver broadcastReceiver : broadcastReceivers){
+			unregisterReceiver(broadcastReceiver);
+		}
 	}
 
 	private void lookupViewElements(){
@@ -215,8 +219,6 @@ public class Player extends ListActivity
 		shufflePlayOrderStrategy = new PlayOrderRandom(tp.db, tp.playlist);
 		playOrderStrategy = tp.playlist.preferences.get(Keys.SHUFFLE) ?
 				  shufflePlayOrderStrategy : standartPlayOrderStrategy;
-		
-		this.registerReceiver(new BroadcastsHandler(), new IntentFilter(Intent.ACTION_HEADSET_PLUG));
 	}
 
 	// ========================================= //
@@ -645,12 +647,16 @@ public class Player extends ListActivity
 	// 	Setup Telephony Service - Part of Init()
 	// ========================================= //
 
-	private void SetupTelephoneChecker()
+	private void SetupPhoneHandlers()
 	{
 		TelephonyManager mgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
 		PhoneStateListener phoneStateListener = new PhoneStateHandler(tp.player);
-		mgr.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 		phoneStateListeners.add(phoneStateListener);
+		mgr.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+
+		BroadcastReceiver broadcastsHandler = new BroadcastsHandler(tp.player);
+		broadcastHandlers.add(broadcastsHandler);
+		registerReceiver(broadcastsHandler, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
 	}
 
 	@Override
@@ -729,30 +735,6 @@ public class Player extends ListActivity
 			super.onActivityResult(requestCode, resultCode, data);
 		}
 	}
-	
-	
-	
-	
-	public class BroadcastsHandler extends BroadcastReceiver {
-		private boolean headsetConnected = false;
-		public void onReceive(Context context, Intent intent)
-		{
-			if (intent.hasExtra("state"))
-			{
-				if (headsetConnected && intent.getIntExtra("state", 0) == 0)
-				{
-					headsetConnected = false;
-					Toast.makeText(context, "Headphones UnPlugged", Toast.LENGTH_LONG).show();
-					tp.player.pause();
-				}
-				else if (!headsetConnected && intent.getIntExtra("state", 0) == 1)
-				{
-				    headsetConnected = true;
-					tp.player.play();
-				}
-			}
-		}
-	}
-	
+
 }
 
