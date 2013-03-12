@@ -20,8 +20,11 @@ package turtle.player.playlist;
 
 
 import android.content.Context;
+import android.content.pm.FeatureInfo;
+import android.media.MediaMetadataRetriever;
 import android.util.Log;
 import turtle.player.Stats;
+import turtle.player.common.filefilter.FileFilters;
 import turtle.player.model.Instance;
 import turtle.player.model.Track;
 import turtle.player.model.TrackBundle;
@@ -39,13 +42,14 @@ import turtle.player.persistance.turtle.FsReader;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.persistance.turtle.mapping.TrackCreator;
-import turtle.player.playlist.playorder.PlayOrderSorted;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
+import turtle.player.preferences.Keys;
 import turtle.player.preferences.Preferences;
-import turtle.player.util.dev.PerformanceMeasure;
+import turtle.player.util.Shorty;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.*;
 
 public class Playlist
 {
@@ -55,7 +59,7 @@ public class Playlist
 	{
 		NEXT,
 		PREV,
-		PULL
+		PULL;
 	}
 
 	// Not in ClassDiagram
@@ -64,6 +68,9 @@ public class Playlist
 
 	private final TurtleDatabase db;
 	private final Set<Filter> filters = new HashSet<Filter>();
+
+	private final ExecutorService fsScannerExecutorService = Executors.newSingleThreadExecutor();
+	private Future<?> currentFuture = null;
 
 	public Playlist(Context mainContext, TurtleDatabase db)
 	{
@@ -138,76 +145,206 @@ public class Playlist
 							 new First<Track>(Tables.TRACKS, new TrackCreator())));
 	}
 
-	public void UpdateList()
+	/**
+	 * reads the stored state and calls the obsrver methods to adjust the ui,
+	 */
+	public void notifyInitialState()
 	{
-		new Thread(new Runnable()
+		if(!Shorty.isVoid(preferences.get(Keys.FS_SCAN_INTERRUPT_PATH))){
+			for (PlaylistObserver observer : observers)
+			{
+				observer.startUpdatePlaylist();
+				observer.startRescan(preferences.get(Keys.FS_SCAN_INTERRUPT_COUNT_ALL));
+				observer.trackAdded(
+						  preferences.get(Keys.FS_SCAN_INTERRUPT_PATH),
+						  preferences.get(Keys.FS_SCAN_INTERRUPT_COUNT_PROCESSED)
+				);
+				observer.pauseRescan();
+			}
+		}
+	}
+
+	public void toggleFsScanPause()
+	{
+		if(fsScanActive())
+		{
+			interruptFsScan();
+		}
+		else
+		{
+			runFsScan();
+		}
+	}
+
+	public boolean isFsScanNotStarted(){
+		return !fsScanActive() && Shorty.isVoid(preferences.get(Keys.FS_SCAN_INTERRUPT_PATH));
+	}
+
+	private boolean fsScanActive()
+	{
+		return currentFuture != null && !currentFuture.isCancelled() && !currentFuture.isDone();
+	}
+
+	public void pauseFsScan(){
+		interruptFsScan();
+	}
+
+	public void stopFsScan()
+	{
+		boolean interrupted = interruptFsScan();
+
+		if(interrupted)
+		{
+			try
+			{
+				synchronized (currentFuture)
+				{
+					currentFuture.wait(3000);
+				}
+			}
+			catch (InterruptedException e)
+			{
+				//expected
+			}
+
+			preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, null);
+
+			for (PlaylistObserver observer : observers)
+			{
+				observer.endRescan();
+			}
+		}
+		preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, null);
+	}
+
+	public void startFsScan()
+	{
+		stopFsScan();
+		runFsScan();
+	}
+
+	private boolean interruptFsScan()
+	{
+		return currentFuture != null && currentFuture.cancel(true);
+	}
+
+	private void runFsScan()
+	{
+		interruptFsScan();
+
+		currentFuture = fsScannerExecutorService.submit(new Runnable()
 		{
 			public void run()
 			{
+				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+
 				for (PlaylistObserver observer : observers)
 				{
 					observer.startUpdatePlaylist();
 				}
 
+				boolean wasPaused = false;
 				try
 				{
-					if (db.isEmpty(null))
+					final String mediaPath = preferences.getExitstingMediaPath().toString();
+					final String lastFsScanInterruptPath = preferences.get(Keys.FS_SCAN_INTERRUPT_PATH);
+
+					List<String> mediaFilePaths = FsReader.getMediaFilesPaths(mediaPath, FileFilters.PLAYABLE_FILES_FILTER, true, false);
+
+					final List<String> mediaFilePathsToScan;
+					final int lastFsScanInterruptPathIndex = mediaFilePaths.indexOf(lastFsScanInterruptPath);
+
+					if(lastFsScanInterruptPath == null || lastFsScanInterruptPathIndex < 0)
 					{
-						try
+						mediaFilePathsToScan = mediaFilePaths;
+						for (PlaylistObserver observer : observers)
 						{
-							final File mediaPath = preferences.getExitstingMediaPath();
-
-							Collection<String> mediaFilePaths = FsReader.getMediaFilesPaths(mediaPath);
-
-							for (PlaylistObserver observer : observers)
-							{
-								observer.startRescan(mediaFilePaths);
-							}
-
-							ObservableDatabase.DbObserver dbObserver = new ObservableDatabase.DbObserver()
-							{
-								public void updated(Instance instance)
-								{
-									for (PlaylistObserver observer : observers)
-									{
-										observer.trackAdded(instance);
-									}
-
-								}
-
-								public void cleared()
-								{
-									//do nothing
-								}
-							};
-
-							db.addObserver(dbObserver);
-
-							FsReader.scanFiles(mediaFilePaths, db, mediaPath);
-							db.removeObserver(dbObserver);
-
-						}
-						catch (NullPointerException e)
-						{
-							Log.v(Preferences.TAG, e.getMessage());
-						}
-						finally
-						{
-							for (PlaylistObserver observer : observers)
-							{
-								observer.endRescan();
-							}
+							observer.startRescan(mediaFilePathsToScan.size());
 						}
 					}
-				} finally
+					else
+					{
+						mediaFilePathsToScan = new ArrayList<String>();
+						for(int i = lastFsScanInterruptPathIndex+1; i < mediaFilePaths.size(); i++){
+							mediaFilePathsToScan.add(mediaFilePaths.get(i));
+						}
+						for (PlaylistObserver observer : observers)
+						{
+							observer.unpauseRescan(lastFsScanInterruptPathIndex+1, mediaFilePathsToScan.size());
+						}
+					}
+
+					scanFiles(mediaFilePathsToScan, db, mediaPath, lastFsScanInterruptPathIndex);
+				}
+				catch (InterruptedException e)
 				{
+					wasPaused = true;
 					for (PlaylistObserver observer : observers)
 					{
-						observer.endUpdatePlaylist();
+						observer.pauseRescan();
+					}
+				}
+				finally
+				{
+					if(!wasPaused)
+					{
+						for (PlaylistObserver observer : observers)
+						{
+							observer.endRescan();
+						}
 					}
 				}
 			}
-		}).start();
+		});
+	}
+
+	public void scanFiles(Collection<String> mediaFilePaths, TurtleDatabase db, String rootPath, int allreadyProcessed) throws InterruptedException
+	{
+		MediaMetadataRetriever metaDataReader = new MediaMetadataRetriever();
+
+		try{
+			Map<String, String> dirAlbumArtMap = new HashMap<String, String>();
+			int countProcessed = allreadyProcessed;
+
+			for(String mediaFilePath : mediaFilePaths)
+			{
+				try
+				{
+					FsReader.scanFile(mediaFilePath, rootPath, db, metaDataReader, dirAlbumArtMap);
+				}
+				catch (IOException e)
+				{
+					//log and go on with next File
+					Log.v(Preferences.TAG, "failed to process " + mediaFilePath);
+				}
+				finally
+				{
+					countProcessed++;
+					for (PlaylistObserver observer : observers)
+					{
+						observer.trackAdded(mediaFilePath, countProcessed);
+					}
+				}
+
+				if (Thread.currentThread().isInterrupted()) {
+					preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, mediaFilePath);
+					preferences.set(Keys.FS_SCAN_INTERRUPT_COUNT_PROCESSED, countProcessed);
+					preferences.set(Keys.FS_SCAN_INTERRUPT_COUNT_ALL, mediaFilePaths.size());
+					throw new InterruptedException();
+				}
+
+				Thread.sleep(10);
+			}
+
+			preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, null);
+			for (PlaylistObserver observer : observers)
+			{
+				observer.endUpdatePlaylist();
+			}
+		}
+		finally {
+			metaDataReader.release();
+		}
 	}
 
 	public Collection<Track> getCurrTracks()
@@ -236,11 +373,15 @@ public class Playlist
 
 	public interface PlaylistObserver
 	{
-		void trackAdded(Instance instance);
+		void trackAdded(final String filePath, final int allreadyProcessed);
 
-		void startRescan(Collection<String> mediaFilePaths);
+		void startRescan(int toProcess);
 
-		void endRescan();
+		public void endRescan();
+
+		void pauseRescan();
+
+		void unpauseRescan(int alreadyProcessed, int toProcess);
 
 		void startUpdatePlaylist();
 
@@ -254,15 +395,19 @@ public class Playlist
 
 	public static abstract class PlaylistFilterChangeObserver implements PlaylistObserver
 	{
-		public void trackAdded(Instance instance){/*doNothing*/}
+		public void trackAdded(final String filePath, final int allreadyProcessed){/*doNothing*/}
 
-		public void startRescan(Collection<String> mediaFilePaths){/*doNothing*/}
+		public void startRescan(int toProcess){/*doNothing*/}
 
 		public void endRescan(){/*doNothing*/}
 
 		public void startUpdatePlaylist(){/*doNothing*/}
 
 		public void endUpdatePlaylist(){/*doNothing*/}
+
+		public void unpauseRescan(int alreadyProcessed, int toProcess){/*doNothing*/}
+
+		public void pauseRescan(){/*doNothing*/}
 	}
 
 	public static abstract class PlaylistTrackChangeObserver implements PlaylistObserver{

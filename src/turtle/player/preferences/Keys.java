@@ -29,4 +29,8 @@ public abstract class Keys
 
 	public final static Key<String> LAST_TRACK_PLAYED = new Key<String>("lastTrackPlayed", null);
 	public final static Key<Integer> EXIT_PLAY_TIME = new Key<Integer>("exitPlayTime", 0);
+
+	public final static Key<String> FS_SCAN_INTERRUPT_PATH = new Key<String>("fsScanInterruptPath", null);
+	public final static Key<Integer> FS_SCAN_INTERRUPT_COUNT_ALL = new Key<Integer>("fsScanInterruptCountAll", 0);
+	public final static Key<Integer> FS_SCAN_INTERRUPT_COUNT_PROCESSED = new Key<Integer>("fsSancInterruptCountProcessed", 0);
 }

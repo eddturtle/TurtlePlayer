@@ -24,7 +24,9 @@ import java.util.List;
 
 public interface FileFilters
 {
-	final static FilenameFilter PLAYABLE_FILES_FILTER = new NameFilter(".*.mp3", ".*.ogg");
+	final static List<? extends FilenameFilter> PLAYABLE_FILES_FILTER = Arrays.asList(
+			  new NameFilter(".*.mp3", ".*.ogg")
+	);
 
 	final static List<? extends FilenameFilter> folderArtFilters = Arrays.asList(
 			  new NameFilter("folder.jpg"),

@@ -104,7 +104,6 @@ public class Tables
 
 		public final FieldPersistable<Track, String> ROOTSRC = new FieldPersistableAsString<Track>("rootSrc")
 		{
-
 			public String get(Track instance)
 			{
 				return instance.GetRootSrc();

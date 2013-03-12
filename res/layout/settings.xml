@@ -17,7 +17,7 @@
         android:id="@+id/shuffleCheckBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
+        android:textSize="14sp"
         android:text="@string/shuffle" />
     <TextView
         android:id="@+id/textView3"
@@ -33,12 +33,11 @@
                   android:layout_height="wrap_content"
                   android:orientation="horizontal">
 
-        <!-- android:src="@android:drawable/ic_menu_set_as" -->
         <ImageView
             android:id="@+id/rescan"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:src="@android:drawable/stat_notify_sync_noanim"
+            android:src="@drawable/fs_scan_start48"
             android:contentDescription="@string/sync_library"
             android:gravity="center_vertical"
             android:paddingRight="10sp"/>
@@ -48,7 +47,6 @@
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
-                android:textSize="18sp"
                 android:text="Path/To/Replace"
                 android:gravity="center_vertical"
                 android:singleLine="true"
@@ -70,41 +68,51 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:max="100"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            />
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:id="@+id/rescanProgressBarIndicator"
+                  android:id="@+id/rescanState"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:orientation="horizontal"
-                  android:visibility="gone">
+                  android:visibility="gone"
+                  >
+        <ImageView
+            android:id="@+id/togglePause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/fs_scan_pause48"
+            android:contentDescription="@string/sync_library"
+            android:gravity="center_vertical"
+            android:paddingRight="10sp"/>
         <TextView
                 android:id="@+id/rescanProgressBarIndicatorTrack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:singleLine="true"
                 android:ellipsize="start"
-                android:text="currentReadingFile............................"/>
-        <TextView
-                android:id="@+id/rescanProgressBarIndicatorDelitmiter1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" - "/>
+                android:gravity="center_vertical"
+                android:text="currentReadingFileeeeeeeeeeeeeeeeeeeeeeeeeee"
+                android:paddingRight="20dp"/>
         <TextView
                 android:id="@+id/rescanProgressBarIndicatorState"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
+                android:gravity="center_vertical"
                 android:text="0"/>
         <TextView
-                android:id="@+id/rescanProgressBarIndicatorDelitmiter2"
+                android:id="@+id/rescanProgressBarIndicatorDelitmiter"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
+                android:gravity="center_vertical"
                 android:text="/"/>
         <TextView
                 android:id="@+id/rescanProgressBarIndicatorAll"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
+                android:gravity="center_vertical"
                 android:text="0"/>
     </LinearLayout>
 

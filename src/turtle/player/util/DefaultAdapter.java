@@ -29,6 +29,7 @@ import turtle.player.R;
 import turtle.player.model.Instance;
 import turtle.player.presentation.InstanceFormatter;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -72,9 +73,11 @@ public class DefaultAdapter<T extends Instance> extends ArrayAdapter<T>
 			{
 				public void run()
 				{
-					objects.add(object);
-					Collections.sort(objects, new FormattedInstanceComparator(formatter));
-					notifyDataSetChanged();
+					if(allowsDuplicates || !objects.contains(object)){
+						objects.add(object);
+						Collections.sort(objects, new FormattedInstanceComparator(formatter));
+						notifyDataSetChanged();
+					}
 				}
 			});
 		}
