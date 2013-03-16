@@ -330,7 +330,7 @@ public class Playlist
 				throw new InterruptedException();
 			}
 
-			Thread.sleep(10);
+			Thread.yield();
 		}
 
 		preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, null);
