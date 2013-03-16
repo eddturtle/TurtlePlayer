@@ -67,7 +67,7 @@ public class FsReader
 		final double length;
 		try
 		{
-			Mp3File mp3file = new Mp3File(filePath);
+			Mp3File mp3file = new Mp3File(filePath, false);
 			final ID3v1 id3tag;
 
 			if(mp3file.hasId3v1Tag()){
