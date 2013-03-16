@@ -21,6 +21,10 @@ package turtle.player.persistance.turtle;
 
 import android.media.MediaMetadataRetriever;
 import android.util.Log;
+import com.mpatric.mp3agic.ID3v1;
+import com.mpatric.mp3agic.InvalidDataException;
+import com.mpatric.mp3agic.Mp3File;
+import com.mpatric.mp3agic.UnsupportedTagException;
 import turtle.player.common.filefilter.FileFilters;
 import turtle.player.model.Album;
 import turtle.player.model.Artist;
@@ -54,12 +58,48 @@ public class FsReader
 
 		String rootSrc = filePath.substring(0, filePath.lastIndexOf("/"));
 
-		String title = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_TITLE);
-		int number = parseTrackNumber(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER));
-		double length = parseDuration(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_DURATION));
-		String artist = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ARTIST);
-		String album = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ALBUM);
-		String genre = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_GENRE);
+
+		String title = null;
+		String artist = null;
+		String album = null;
+		int genre = -1;
+		int number = 0;
+		final double length;
+		try
+		{
+			Mp3File mp3file = new Mp3File(filePath);
+			final ID3v1 id3tag;
+
+			if(mp3file.hasId3v1Tag()){
+				id3tag = mp3file.getId3v1Tag();
+			}
+			else if(mp3file.hasId3v2Tag())
+			{
+				id3tag = mp3file.getId3v2Tag();
+			}
+			else
+			{
+				id3tag = null;
+			}
+
+			if(id3tag != null){
+				title = id3tag.getTitle();
+				artist = id3tag.getArtist();
+				album = id3tag.getAlbum();
+				genre = id3tag.getGenre();
+				number = parseTrackNumber(id3tag.getTrack());
+			}
+
+			length = mp3file.getLengthInMilliseconds();
+		}
+		catch (UnsupportedTagException e)
+		{
+			throw new IOException("Unable to read ID3 tag", e);
+		}
+		catch (InvalidDataException e)
+		{
+			throw new IOException("Unable to read ID3 tag", e);
+		}
 
 		Log.v(Preferences.TAG, "md     " + (System.currentTimeMillis() - start) + "ms");
 
@@ -81,7 +121,7 @@ public class FsReader
 				  number,
 				  new Artist(artist),
 				  new Album(album),
-				  new Genre(genre),
+				  new Genre(genre < 0 ? "" : String.valueOf(genre)),
 				  length,
 				  filePath,
 				  rootSrc,
@@ -90,25 +130,6 @@ public class FsReader
 		Log.v(Preferences.TAG, "created " + (System.currentTimeMillis() - start) + "ms");
 		db.push(t);
 		Log.v(Preferences.TAG, "pushed  " + (System.currentTimeMillis() - start) + "ms");
-	}
-
-	/**
-	 * calls {@link MediaMetadataRetriever#extractMetadata(int)} and removes
-	 * chunk after 0 terminated string
-	 *
-	 * @param keyCode see {@link MediaMetadataRetriever#extractMetadata(int)}
-	 * @return
-	 */
-	static String extractMetadata(MediaMetadataRetriever metaDataReader,
-											int keyCode)
-	{
-		String metaData = Shorty.avoidNull(metaDataReader.extractMetadata(keyCode));
-
-		//replace all chars exept letters and digits, space and dash
-		//return metaData.replaceAll("^\\w\\s-,:;?$[]\"]","");
-
-		int indexOfZeroTermination = metaData.indexOf(0);
-		return indexOfZeroTermination < 0 ? metaData : metaData.substring(0, indexOfZeroTermination);
 	}
 
 	static public List<String> getMediaFilesPaths(String mediaPath, List<? extends FilenameFilter> filters, boolean recursive, boolean getFirstMatch){
@@ -202,11 +223,18 @@ public class FsReader
 	static int parseTrackNumber(String trackNumber)
 	{
 		//strips all chars beginning at first non digit (e.g. 5/10)
-		String strippedTrackNumber = trackNumber.replaceAll("\\D.*", "");
+		String strippedTrackNumber = trackNumber == null ? "" : trackNumber.replaceAll("\\D.*", "");
 
 		if (strippedTrackNumber.length() > 0)
 		{
-			return Integer.parseInt(strippedTrackNumber);
+			try
+			{
+				return Integer.parseInt(strippedTrackNumber);
+			}
+			catch (NumberFormatException e)
+			{
+				Log.w(Preferences.TAG, "Unable to parse track number :" + strippedTrackNumber);
+			}
 		}
 		return 0;
 	}
@@ -218,7 +246,7 @@ public class FsReader
 			return Double.parseDouble(duration);
 		} catch (NumberFormatException e)
 		{
-			Log.v(Preferences.TAG, "Not able to parse duration '" + duration + "': " + e.getMessage());
+			Log.v(Preferences.TAG, "Unable to parse duration '" + duration + "': " + e.getMessage());
 		}
 		return 0;
 	}
