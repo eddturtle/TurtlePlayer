@@ -43,7 +43,6 @@ public class FsReader
 	public static void scanFile(String filePath,
 										  String rootPath,
 										  TurtleDatabase db,
-										  MediaMetadataRetriever metaDataReader,
 	                             Map<String, String> dirAlbumArtMap) throws IOException
 	{
 		// http://www.exampledepot.com/egs/java.io/GetFiles.html
@@ -51,8 +50,6 @@ public class FsReader
 		Log.i(Preferences.TAG, "register " + filePath);
 
 		long start = System.currentTimeMillis();
-
-		metaDataReader.setDataSource(filePath);
 
 		Log.v(Preferences.TAG, "init   " + (System.currentTimeMillis() - start) + "ms");
 

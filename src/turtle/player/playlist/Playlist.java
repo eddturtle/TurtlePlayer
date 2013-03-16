@@ -300,50 +300,43 @@ public class Playlist
 
 	public void scanFiles(Collection<String> mediaFilePaths, TurtleDatabase db, String rootPath, int allreadyProcessed) throws InterruptedException
 	{
-		MediaMetadataRetriever metaDataReader = new MediaMetadataRetriever();
+		Map<String, String> dirAlbumArtMap = new HashMap<String, String>();
+		int countProcessed = allreadyProcessed;
 
-		try{
-			Map<String, String> dirAlbumArtMap = new HashMap<String, String>();
-			int countProcessed = allreadyProcessed;
-
-			for(String mediaFilePath : mediaFilePaths)
+		for(String mediaFilePath : mediaFilePaths)
+		{
+			try
 			{
-				try
+				FsReader.scanFile(mediaFilePath, rootPath, db, dirAlbumArtMap);
+			}
+			catch (IOException e)
+			{
+				//log and go on with next File
+				Log.v(Preferences.TAG, "failed to process " + mediaFilePath);
+			}
+			finally
+			{
+				countProcessed++;
+				for (PlaylistObserver observer : observers)
 				{
-					FsReader.scanFile(mediaFilePath, rootPath, db, metaDataReader, dirAlbumArtMap);
+					observer.trackAdded(mediaFilePath, countProcessed);
 				}
-				catch (IOException e)
-				{
-					//log and go on with next File
-					Log.v(Preferences.TAG, "failed to process " + mediaFilePath);
-				}
-				finally
-				{
-					countProcessed++;
-					for (PlaylistObserver observer : observers)
-					{
-						observer.trackAdded(mediaFilePath, countProcessed);
-					}
-				}
-
-				if (Thread.currentThread().isInterrupted()) {
-					preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, mediaFilePath);
-					preferences.set(Keys.FS_SCAN_INTERRUPT_COUNT_PROCESSED, countProcessed);
-					preferences.set(Keys.FS_SCAN_INTERRUPT_COUNT_ALL, mediaFilePaths.size());
-					throw new InterruptedException();
-				}
-
-				Thread.sleep(10);
 			}
 
-			preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, null);
-			for (PlaylistObserver observer : observers)
-			{
-				observer.endUpdatePlaylist();
+			if (Thread.currentThread().isInterrupted()) {
+				preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, mediaFilePath);
+				preferences.set(Keys.FS_SCAN_INTERRUPT_COUNT_PROCESSED, countProcessed);
+				preferences.set(Keys.FS_SCAN_INTERRUPT_COUNT_ALL, mediaFilePaths.size());
+				throw new InterruptedException();
 			}
+
+			Thread.sleep(10);
 		}
-		finally {
-			metaDataReader.release();
+
+		preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, null);
+		for (PlaylistObserver observer : observers)
+		{
+			observer.endUpdatePlaylist();
 		}
 	}
 
