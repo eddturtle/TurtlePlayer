@@ -86,14 +86,6 @@ public class Tables
 			}
 		};
 
-		public final FieldPersistable<Track, Double> LENGTH = new FieldPersistableAsDouble<Track>("length")
-		{
-			public Double get(Track instance)
-			{
-				return instance.GetLength();
-			}
-		};
-
 		public final FieldPersistable<Track, String> SRC = new FieldPersistableAsString<Track>("src")
 		{
 			public String get(Track instance)

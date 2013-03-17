@@ -31,8 +31,7 @@ public class DefaultOrder extends OrderSet
 		super(new FieldOrder<Track, String>(Tables.TRACKS.ARTIST, sortOrder),
 				  new FieldOrder<Track, String>(Tables.TRACKS.ALBUM, sortOrder),
 				  new FieldOrder<Track, Integer>(Tables.TRACKS.NUMBER, sortOrder),
-				  new FieldOrder<Track, String>(Tables.TRACKS.TITLE, sortOrder),
-				  new FieldOrder<Track, Double>(Tables.TRACKS.LENGTH, sortOrder)
+				  new FieldOrder<Track, String>(Tables.TRACKS.TITLE, sortOrder)
 		);
 	}
 }

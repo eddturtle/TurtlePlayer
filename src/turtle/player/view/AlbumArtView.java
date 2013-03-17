@@ -61,7 +61,7 @@ public class AlbumArtView
 
 		player.addObserver(new Player.PlayerObserver()
 		{
-			public void trackChanged(Track track)
+			public void trackChanged(Track track, int lengthInMillis)
 			{
 				TrackBundle trackBundle = playlist.enrich(playOrderStrategy, track);
 				albumArt.setTrack(trackBundle.getTrack());

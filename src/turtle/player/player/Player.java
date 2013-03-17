@@ -49,7 +49,7 @@ public class Player
 	{
 		addObserver(new PlayerObserver()
 		{
-			public void trackChanged(Track track)
+			public void trackChanged(Track track, int lengthInMillis)
 			{
 				currTrack = track;
 			}
@@ -77,9 +77,10 @@ public class Player
 				mediaPlayer.setDataSource(t.GetSrc());
 
 				mediaPlayer.prepare();
+				mediaPlayer.getDuration();
 				initialized = true;
 				notifyStopped();
-				notifyTrackChanged(t);
+				notifyTrackChanged(t, mediaPlayer.getDuration());
 			}
 			catch (IOException e)
 			{
@@ -194,9 +195,9 @@ public class Player
 
 	//---------------------------------- Observable
 
-	private void notifyTrackChanged(Track track){
+	private void notifyTrackChanged(Track track, int lengthInMillis){
 		for(PlayerObserver observer : observers){
-			observer.trackChanged(track);
+			observer.trackChanged(track, lengthInMillis);
 		}
 	}
 
@@ -224,7 +225,7 @@ public class Player
 
 	public interface PlayerObserver
 	{
-		void trackChanged(Track track);
+		void trackChanged(Track track, int lengthInMillis);
 		void started();
 		void stopped();
 	}

@@ -30,7 +30,6 @@ public class Track implements Instance
 	private final Artist artist;
 	private final Album album;
 	private final Genre genre;
-	private final double length;
 	private final String src;
 	private final String rootSrc;
 	private final String albumArt;
@@ -40,7 +39,6 @@ public class Track implements Instance
 					 Artist artist,
 					 Album album,
 					 Genre genre,
-					 double length,
 					 String src,
 					 String rootSrc,
 					 String albumArt)
@@ -50,7 +48,6 @@ public class Track implements Instance
 		this.artist = artist;
 		this.album = album;
 		this.genre = genre;
-		this.length = length;
 		this.src = src;
 		this.rootSrc = rootSrc;
 		this.albumArt = albumArt;
@@ -79,11 +76,6 @@ public class Track implements Instance
 	public Genre GetGenre()
 	{
 		return genre;
-	}
-
-	public double GetLength()
-	{
-		return length;
 	}
 
 	public String GetSrc()

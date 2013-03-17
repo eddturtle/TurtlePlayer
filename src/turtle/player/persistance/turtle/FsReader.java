@@ -86,8 +86,6 @@ public class FsReader
 				genre = id3tag.getGenre();
 				number = parseTrackNumber(id3tag.getTrack());
 			}
-
-			length = mp3file.getLengthInMilliseconds();
 		}
 		catch (UnsupportedTagException e)
 		{
@@ -119,7 +117,6 @@ public class FsReader
 				  new Artist(artist),
 				  new Album(album),
 				  new Genre(genre < 0 ? "" : String.valueOf(genre)),
-				  length,
 				  filePath,
 				  rootSrc,
 				  albumArt

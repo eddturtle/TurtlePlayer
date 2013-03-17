@@ -511,10 +511,10 @@ public class Player extends ListActivity
 
 		tp.player.addObserver(new turtle.player.player.Player.PlayerObserver()
 		{
-			public void trackChanged(Track track)
+			public void trackChanged(Track track, int lengthInMillis)
 			{
-				progressBar.setMax((int) track.GetLength());
-				duration.setText(ConvertToMinutes((int) track.GetLength()));
+				progressBar.setMax(lengthInMillis);
+				duration.setText(ConvertToMinutes(lengthInMillis));
 				tp.playlist.preferences.set(Keys.LAST_TRACK_PLAYED, track.GetSrc());
 			}
 

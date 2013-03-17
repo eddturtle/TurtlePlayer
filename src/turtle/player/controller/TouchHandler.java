@@ -301,7 +301,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 		}
 	}
 
-	public void trackChanged(Track track)
+	public void trackChanged(Track track, int lengthInMillis)
 	{
 		for(Map.Entry<BowMenuEntry, TextView> bowMenuEntry : bowMenuTextEntries.entrySet()){
 			bowMenuEntry.getValue().setText(bowMenuEntry.getKey().getField().getAsDisplayableString(track));

@@ -35,7 +35,6 @@ public class TrackCreator implements Creator<Track, Cursor>
 				  new Artist(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ARTIST.getName()))),
 				  new Album(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ALBUM.getName()))),
 				  new Genre(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.GENRE.getName()))),
-				  cursor.getDouble(cursor.getColumnIndex(Tables.TRACKS.LENGTH.getName())),
 				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.SRC.getName())),
 				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ROOTSRC.getName())),
 				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ALBUMART.getName()))
