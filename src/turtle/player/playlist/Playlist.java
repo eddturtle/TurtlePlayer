@@ -79,22 +79,49 @@ public class Playlist
 		this.db = db;
 	}
 
-	public <O> Filter addFilter(FieldPersistable<Track, O> field, Track track){
+	/**
+	 * @return true if the filter was activated
+	 */
+	public <O> boolean toggleFilter(FieldPersistable<Track, O> field, Track track){
 		Filter filter = new FieldFilter<Track, O>(field, Operator.EQ, field.get(track));
-		filters.add(filter);
-		for (PlaylistObserver observer : observers)
+		if(!filters.contains(filter))
 		{
-			observer.filterAdded(filter);
+			addFilter(filter);
+			return true;
 		}
-		return filter;
+		else
+		{
+			removeFilter(filter);
+			return false;
+		}
 	}
 
-	public void removeFilter(Filter filter){
-		filters.remove(filter);
-		for (PlaylistObserver observer : observers)
+	/**
+	 * @return true if the filter was not allready there
+	 */
+	private <O> boolean addFilter(Filter filter){
+		boolean modified = filters.add(filter);
+		if(modified)
 		{
-			observer.filterRemoved(filter);
+			for (PlaylistObserver observer : observers)
+			{
+				observer.filterAdded(filter);
+			}
 		}
+		return modified;
+	}
+
+	public boolean removeFilter(Filter filter){
+		boolean modified = filters.remove(filter);
+
+		if(modified)
+		{
+			for (PlaylistObserver observer : observers)
+			{
+				observer.filterRemoved(filter);
+			}
+		}
+		return modified;
 	}
 
 	public Filter getFilter()

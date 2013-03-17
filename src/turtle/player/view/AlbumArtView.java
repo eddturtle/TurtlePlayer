@@ -39,9 +39,6 @@ public class AlbumArtView
 
 	private final View albumArtViewGroup;
 
-	private final Map<FieldPersistable<Track, ?>, Filter> settedFilters =
-			  new HashMap<FieldPersistable<Track, ?>, Filter>();
-
 	//AlbumArt
 	private final AlbumArt albumArt;
 	private final AlbumArt albumArtLeft;
@@ -101,20 +98,10 @@ public class AlbumArtView
 			@Override
 			protected void filterSelected(FieldPersistable<Track, ?> field)
 			{
-				Filter previousFilter = settedFilters.get(field);
-				String msg = field.getName();
-				if(previousFilter == null)
-				{
-					settedFilters.put(field, tp.playlist.addFilter(field, tp.player.getCurrTrack()));
-					msg += " " + activity.getString(R.string.added);
-				}
-				else
-				{
-					tp.playlist.removeFilter(previousFilter);
-					settedFilters.remove(field);
-					msg += " " + activity.getString(R.string.removed);
-				}
+				boolean added = tp.playlist.toggleFilter(field, tp.player.getCurrTrack());
 
+				String msg = field.getName();
+				msg += " " + (added ? activity.getString(R.string.added) : activity.getString(R.string.removed));
 				Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
 			}
 		};

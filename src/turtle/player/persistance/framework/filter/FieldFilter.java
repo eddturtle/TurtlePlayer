@@ -65,6 +65,30 @@ public class FieldFilter<I, T> implements Filter
 		return getField().getName() + " " + operator.name() + " " + value;
 	}
 
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		FieldFilter that = (FieldFilter) o;
+
+		if (!field.equals(that.field)) return false;
+		if (operator != that.operator) return false;
+		if (!value.equals(that.value)) return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = field.hashCode();
+		result = 31 * result + operator.hashCode();
+		result = 31 * result + value.hashCode();
+		return result;
+	}
+
 	public abstract class FieldVisitorField<R> implements FieldVisitor<R, I>
 	{
 		public abstract R visit(FieldPersistableAsString<I> field, String filterValue);
