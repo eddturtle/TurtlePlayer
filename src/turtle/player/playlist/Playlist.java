@@ -274,7 +274,7 @@ public class Playlist
 						}
 					}
 
-					scanFiles(mediaFilePathsToScan, db, mediaPath, lastFsScanInterruptPathIndex);
+					scanFiles(mediaFilePathsToScan, db, lastFsScanInterruptPathIndex);
 				}
 				catch (InterruptedException e)
 				{
@@ -298,7 +298,7 @@ public class Playlist
 		});
 	}
 
-	public void scanFiles(Collection<String> mediaFilePaths, TurtleDatabase db, String rootPath, int allreadyProcessed) throws InterruptedException
+	public void scanFiles(Collection<String> mediaFilePaths, TurtleDatabase db, int allreadyProcessed) throws InterruptedException
 	{
 		Map<String, String> dirAlbumArtMap = new HashMap<String, String>();
 		int countProcessed = allreadyProcessed;
@@ -307,7 +307,7 @@ public class Playlist
 		{
 			try
 			{
-				FsReader.scanFile(mediaFilePath, rootPath, db, dirAlbumArtMap);
+				FsReader.scanFile(mediaFilePath, db, dirAlbumArtMap);
 			}
 			catch (IOException e)
 			{

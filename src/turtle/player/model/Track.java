@@ -32,7 +32,6 @@ public class Track implements Instance
 	private final Genre genre;
 	private final String src;
 	private final String rootSrc;
-	private final String albumArt;
 
 	public Track(String title,
 					 int number,
@@ -40,8 +39,7 @@ public class Track implements Instance
 					 Album album,
 					 Genre genre,
 					 String src,
-					 String rootSrc,
-					 String albumArt)
+					 String rootSrc)
 	{
 		this.title = title;
 		this.number = number;
@@ -50,7 +48,6 @@ public class Track implements Instance
 		this.genre = genre;
 		this.src = src;
 		this.rootSrc = rootSrc;
-		this.albumArt = albumArt;
 	}
 
 	public String GetTitle()
@@ -86,11 +83,6 @@ public class Track implements Instance
 	public String GetRootSrc()
 	{
 		return rootSrc;
-	}
-
-	public String albumArt()
-	{
-		return albumArt;
 	}
 
 	public <R> R accept(InstanceVisitor<R> visitor)

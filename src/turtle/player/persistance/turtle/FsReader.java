@@ -41,7 +41,6 @@ public class FsReader
 {
 
 	public static void scanFile(String filePath,
-										  String rootPath,
 										  TurtleDatabase db,
 	                             Map<String, String> dirAlbumArtMap) throws IOException
 	{
@@ -51,17 +50,13 @@ public class FsReader
 
 		long start = System.currentTimeMillis();
 
-		Log.v(Preferences.TAG, "init   " + (System.currentTimeMillis() - start) + "ms");
-
 		String rootSrc = filePath.substring(0, filePath.lastIndexOf("/"));
-
 
 		String title = null;
 		String artist = null;
 		String album = null;
 		int genre = -1;
 		int number = 0;
-		final double length;
 		try
 		{
 			Mp3File mp3file = new Mp3File(filePath, false);
@@ -96,12 +91,6 @@ public class FsReader
 			throw new IOException("Unable to read ID3 tag", e);
 		}
 
-		Log.v(Preferences.TAG, "md     " + (System.currentTimeMillis() - start) + "ms");
-
-		final String albumArt = getAlbumArt(rootSrc, rootPath, dirAlbumArtMap);
-
-		Log.v(Preferences.TAG, "albumAr" + (System.currentTimeMillis() - start) + "ms");
-
 		if (Shorty.isVoid(title))
 		{
 			title = "Unknown";
@@ -118,8 +107,7 @@ public class FsReader
 				  new Album(album),
 				  new Genre(genre < 0 ? "" : String.valueOf(genre)),
 				  filePath,
-				  rootSrc,
-				  albumArt
+				  rootSrc
 		);
 		Log.v(Preferences.TAG, "created " + (System.currentTimeMillis() - start) + "ms");
 		db.push(t);
@@ -129,8 +117,6 @@ public class FsReader
 	static public List<String> getMediaFilesPaths(String mediaPath, List<? extends FilenameFilter> filters, boolean recursive, boolean getFirstMatch){
 
 		List<String> candidates = new ArrayList<String>();
-
-		long start = System.currentTimeMillis();
 
 		try
 		{
@@ -186,16 +172,12 @@ public class FsReader
 		return acceptedPaths;
 	}
 
-	static private String getAlbumArt(String mediaFileDir, String rootDir, Map<String, String> dirAlbumArtMap)
+	public static String getAlbumArt(String mediaFileDir)
 	{
 		final String result;
 
-		if(dirAlbumArtMap.containsKey(mediaFileDir))
-		{
-			return dirAlbumArtMap.get(mediaFileDir);
-		}
 
-		if (mediaFileDir.contains(rootDir)){
+		if (!Shorty.isVoid(mediaFileDir.replaceAll("/", "").replaceAll("\\.", ""))){
 			List<String> albumArtStrings = FsReader.getMediaFilesPaths(mediaFileDir, FileFilters.folderArtFilters, false, true);
 			if(!albumArtStrings.isEmpty())
 			{
@@ -203,14 +185,13 @@ public class FsReader
 			}
 			else
 			{
-				result = getAlbumArt(mediaFileDir.substring(0, mediaFileDir.lastIndexOf("/")), rootDir, dirAlbumArtMap);
+				result = getAlbumArt(mediaFileDir.substring(0, mediaFileDir.lastIndexOf("/")));
 			}
 		}
 		else{
 			result = null;
 		}
 
-		dirAlbumArtMap.put(mediaFileDir, result);
 		return result;
 	}
 

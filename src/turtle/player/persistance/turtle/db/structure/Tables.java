@@ -102,14 +102,6 @@ public class Tables
 			}
 		};
 
-		public final FieldPersistable<Track, String> ALBUMART = new FieldPersistableAsString<Track>("hasAlbumArt")
-		{
-			public String get(Track instance)
-			{
-				return instance.albumArt();
-			}
-		};
-
 		public Tracks()
 		{
 			super("Tracks");

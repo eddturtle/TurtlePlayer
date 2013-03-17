@@ -3,15 +3,22 @@ package turtle.player.view;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.mpatric.mp3agic.InvalidDataException;
+import com.mpatric.mp3agic.Mp3File;
+import com.mpatric.mp3agic.UnsupportedTagException;
 import turtle.player.R;
 import turtle.player.model.Track;
+import turtle.player.presentation.AlbumArtResolver;
 import turtle.player.presentation.InstanceFormatter;
+
+import java.io.IOException;
 
 /**
  * TURTLE PLAYER
@@ -94,22 +101,29 @@ public class AlbumArt
 		return albumArtView;
 	}
 
-	public void setTrack(Track track)
+	public void setTrack(final Track track)
 	{
 		if(track != null){
 
 			title.setText(track.accept(InstanceFormatter.SHORT_WITH_NUMBER));
 			artist.setText(track.GetAlbum().accept(InstanceFormatter.SHORT));
 
-			if (track.albumArt() != null)
-			{
-				Bitmap bmp = BitmapFactory.decodeFile(track.albumArt());
-				albumArt.setImageBitmap(bmp);
-			} else
-			{
-				albumArt.setImageDrawable(albumArtView.getResources().getDrawable(R.drawable.blank_album_art));
-			}
+			new AlbumArtResolver(){
+				@Override
+				protected void onPreExecute()
+				{
+					albumArt.setImageDrawable(albumArtView.getResources().getDrawable(R.drawable.blank_album_art));
+				}
 
+				@Override
+				protected void onPostExecute(Bitmap bitmap)
+				{
+					if(bitmap != null)
+					{
+						albumArt.setImageBitmap(bitmap);
+					}
+				}
+			}.execute(track);
 		}
 		else
 		{

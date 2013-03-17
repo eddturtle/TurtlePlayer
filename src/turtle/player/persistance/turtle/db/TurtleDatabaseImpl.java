@@ -46,8 +46,7 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 				  + Tables.TRACKS.ALBUM.getName() + " TEXT, "
 				  + Tables.TRACKS.GENRE.getName() + " TEXT, "
 				  + Tables.TRACKS.SRC.getName() + " TEXT, "
-				  + Tables.TRACKS.ROOTSRC.getName() + " TEXT, "
-				  + Tables.TRACKS.ALBUMART.getName() + " TEXT);";
+				  + Tables.TRACKS.ROOTSRC.getName() + " TEXT);";
 		db.execSQL(CREATE_TABLE);
 	}
 
