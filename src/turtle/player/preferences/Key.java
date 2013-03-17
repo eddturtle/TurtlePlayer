@@ -1,43 +1,39 @@
+package turtle.player.preferences;
+
 /**
- *
  * TURTLE PLAYER
- *
+ * <p/>
  * Licensed under MIT & GPL
- *
+ * <p/>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
  * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
  * OR OTHER DEALINGS IN THE SOFTWARE.
- *
+ * <p/>
  * More Information @ www.turtle-player.co.uk
  *
  * @author Simon Honegger (Hoene84)
  */
 
-package turtle.player.preferences;
-
-public class Key<T>
+public class Key<T> extends AbstractKey<T,T>
 {
-
-	private final String key;
-	private final T defaultValue;
-
 	Key(String key,
 		 T defaultValue)
 	{
-		this.defaultValue = defaultValue;
-		this.key = key;
+		super(key, defaultValue);
 	}
 
-	public String getKey()
+	@Override
+	public T marshall(T object)
 	{
-		return key;
+		return object;
 	}
 
-	public T getDefaultValue()
+	@Override
+	public T unmarshall(T object)
 	{
-		return defaultValue;
+		return object;
 	}
 }

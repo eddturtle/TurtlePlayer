@@ -1,36 +1,51 @@
-package turtle.player.persistance.source.relational;
-
-import java.io.Serializable;
-import java.util.List;
-
 /**
+ *
  * TURTLE PLAYER
- * <p/>
+ *
  * Licensed under MIT & GPL
- * <p/>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
  * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
  * OR OTHER DEALINGS IN THE SOFTWARE.
- * <p/>
+ *
  * More Information @ www.turtle-player.co.uk
  *
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class Table<I> implements Serializable
+package turtle.player.preferences;
+
+/**
+ * @param <O> object type to store
+ * @param <S> stored type
+ */
+public abstract class AbstractKey<O, S>
 {
-	final String name;
 
-	public Table(String name)
+	private final String key;
+	private final O defaultValue;
+
+	AbstractKey(String key,
+					O defaultValue)
 	{
-		this.name = name;
+		this.defaultValue = defaultValue;
+		this.key = key;
 	}
 
-	public String getName()
+	public String getKey()
 	{
-		return name;
+		return key;
 	}
+
+	public O getDefaultValue()
+	{
+		return defaultValue;
+	}
+
+	public abstract S marshall(O object);
+
+	public abstract O unmarshall(S object);
 }

@@ -37,12 +37,14 @@ import turtle.player.controller.PhoneStateHandler;
 import turtle.player.dirchooser.DirChooserConstants;
 import turtle.player.model.*;
 import turtle.player.persistance.framework.db.ObservableDatabase;
+import turtle.player.persistance.framework.filter.*;
+import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.playlist.Playlist;
 import turtle.player.playlist.playorder.PlayOrderRandom;
 import turtle.player.playlist.playorder.PlayOrderSorted;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
-import turtle.player.preferences.Key;
+import turtle.player.preferences.AbstractKey;
 import turtle.player.preferences.Keys;
 import turtle.player.preferences.PreferencesObserver;
 import turtle.player.util.Shorty;
@@ -50,7 +52,6 @@ import turtle.player.view.AlbumArtView;
 import turtle.player.view.FileChooser;
 import android.content.IntentFilter;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -157,6 +158,7 @@ public class Player extends ListActivity
 		tp.playlist.pauseFsScan();
 
 		tp.playlist.preferences.set(Keys.EXIT_PLAY_TIME, tp.player.getCurrentMillis());
+		tp.playlist.preferences.set(Keys.FILTERS, tp.playlist.getFilter());
 		tp.player.release();
 
 		TelephonyManager mgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
@@ -489,7 +491,7 @@ public class Player extends ListActivity
 
 		tp.playlist.preferences.addObserver(new PreferencesObserver()
 		{
-			public void changed(Key key)
+			public void changed(AbstractKey key)
 			{
 				if (key.equals(Keys.SHUFFLE))
 				{
@@ -655,6 +657,12 @@ public class Player extends ListActivity
 		{
 			tp.player.change(restoredTrack);
 			tp.player.goToMillis(tp.playlist.preferences.get(Keys.EXIT_PLAY_TIME));
+		}
+
+		Set<Filter> filtersFromPref = tp.playlist.preferences.get(Keys.FILTERS);
+		for(Filter filter : filtersFromPref)
+		{
+			tp.playlist.addFilter(filter);
 		}
 
 	}

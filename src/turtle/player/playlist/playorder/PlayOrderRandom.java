@@ -41,7 +41,7 @@ public class PlayOrderRandom implements PlayOrderStrategy
 	{
 		return OperationExecutor.execute(db,
 				  new QuerySqlite<Track>(
-							 playlist.getFilter(),
+							 playlist.getCompressedFilter(),
 							 new RandomOrder(),
 							 new First<Track>(Tables.TRACKS, new TrackCreator())));
 	}

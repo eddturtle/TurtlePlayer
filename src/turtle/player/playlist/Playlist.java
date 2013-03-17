@@ -99,7 +99,7 @@ public class Playlist
 	/**
 	 * @return true if the filter was not allready there
 	 */
-	private <O> boolean addFilter(Filter filter){
+	public <O> boolean addFilter(Filter filter){
 		boolean modified = filters.add(filter);
 		if(modified)
 		{
@@ -124,9 +124,14 @@ public class Playlist
 		return modified;
 	}
 
-	public Filter getFilter()
+	public Filter getCompressedFilter()
 	{
 		return filters.isEmpty() ? new FilterSet() : new FilterSet(filters);
+	}
+
+	public Set<Filter> getFilter()
+	{
+		return Collections.unmodifiableSet(filters);
 	}
 
 	/**@
@@ -146,7 +151,7 @@ public class Playlist
 		return OperationExecutor.execute(
 				  db,
 				  new QuerySqlite<Track>(
-							 new FilterSet(getFilter(), new FieldFilter<Track, String>(Tables.TRACKS.SRC, Operator.EQ, src)),
+							 new FilterSet(getCompressedFilter(), new FieldFilter<Track, String>(Tables.TRACKS.SRC, Operator.EQ, src)),
 							 new First<Track>(Tables.TRACKS, new TrackCreator())
 				  )
 		);
@@ -167,7 +172,7 @@ public class Playlist
 	{
 		return OperationExecutor.execute(db,
 				  new QuerySqlite<Track>(
-							 getFilter(),
+							 getCompressedFilter(),
 							 new RandomOrder(),
 							 new First<Track>(Tables.TRACKS, new TrackCreator())));
 	}
@@ -369,7 +374,7 @@ public class Playlist
 
 	public Collection<Track> getCurrTracks()
 	{
-		return db.getTracks(getFilter());
+		return db.getTracks(getCompressedFilter());
 	}
 
 	public int Length()

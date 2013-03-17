@@ -44,13 +44,13 @@ public class Preferences
 	 * @param object if null, the pref gets removed, the next get will return the default
 	 * @param <T> the class of the object the key holds
 	 */
-	public <T> void set(Key<T> key, T object)
+	public <T> void set(AbstractKey<T, ?> key, T object)
 	{
 		SharedPreferencesAccess.putValue(context, key, object);
 		notify(key);
 	}
 
-	public <T> T get(Key<T> key)
+	public <T> T get(AbstractKey<T, ?> key)
 	{
 		return SharedPreferencesAccess.getValue(context, key);
 	}
@@ -89,7 +89,7 @@ public class Preferences
 
 	final List<PreferencesObserver> observers = new ArrayList<PreferencesObserver>();
 
-	private void notify(Key key)
+	private void notify(AbstractKey key)
 	{
 		for (PreferencesObserver observer : observers)
 		{
