@@ -27,10 +27,10 @@ import turtle.player.persistance.source.sql.query.Select;
 
 public class First<I> implements Mapping<Select, I, Cursor>
 {
-	private final Table table;
+	private final Table<I> table;
 	private final Creator<I, Cursor> creator;
 
-	public First(Table table,
+	public First(Table<I> table,
 					  Creator<I, Cursor> creator)
 	{
 		this.table = table;

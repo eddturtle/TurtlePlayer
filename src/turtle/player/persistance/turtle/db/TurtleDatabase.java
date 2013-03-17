@@ -77,6 +77,11 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 		notifyUpdate(track);
 	}
 
+	public void push(final AlbumArtLocation albumArtLocation)
+	{
+		OperationExecutor.execute(this, new InsertOperationSqlLite<AlbumArtLocation>(new AlbumArtLoactionToDbMapper()), albumArtLocation);
+	}
+
 	public void clear()
 	{
 		OperationExecutor.execute(this, new DeleteTableContentSqlLite(), Tables.TRACKS);

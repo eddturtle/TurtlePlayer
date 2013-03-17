@@ -6,8 +6,21 @@ import android.os.AsyncTask;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.UnsupportedTagException;
+import turtle.player.model.AlbumArtLocation;
 import turtle.player.model.Track;
+import turtle.player.persistance.framework.db.Database;
+import turtle.player.persistance.framework.executor.OperationExecutor;
+import turtle.player.persistance.framework.filter.FieldFilter;
+import turtle.player.persistance.framework.filter.Operator;
+import turtle.player.persistance.framework.paging.Paging;
+import turtle.player.persistance.framework.sort.RandomOrder;
+import turtle.player.persistance.source.sql.First;
+import turtle.player.persistance.source.sqlite.QuerySqlite;
 import turtle.player.persistance.turtle.FsReader;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.mapping.AlbumArtLocationCreator;
+import turtle.player.persistance.turtle.mapping.TrackCreator;
 import turtle.player.util.Shorty;
 
 import java.io.IOException;
@@ -30,17 +43,25 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
-public class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
+public abstract class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 {
-	private static LookupStrategy[] lookupStrategies = new LookupStrategy[]{
-			  new IdTagLookupStrategy(),
-			  new FsLookupStrategy()
-	};
+	private final TurtleDatabase db;
+
+	protected AlbumArtResolver(TurtleDatabase db)
+	{
+		this.db = db;
+	}
+
 
 	@Override
 	protected Bitmap doInBackground(Track... params)
 	{
-		for(LookupStrategy lookupStrategy : lookupStrategies){
+
+		for(LookupStrategy lookupStrategy : new LookupStrategy[]{
+				  new IdTagLookupStrategy(),
+				  new FsLookupStrategy()
+		})
+		{
 			Bitmap albumArt = lookupStrategy.lookup(params[0]);
 			if(albumArt != null) return albumArt;
 		}
@@ -52,12 +73,12 @@ public class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 		Bitmap lookup(Track track);
 	}
 
-	private static class FsLookupStrategy implements LookupStrategy
+	private class FsLookupStrategy implements LookupStrategy
 	{
 
 		public Bitmap lookup(Track track)
 		{
-			String albumArtPath = FsReader.getAlbumArt(track.GetRootSrc());
+			String albumArtPath = FsReader.getAlbumArt(track.GetRootSrc(), db);
 			if(!Shorty.isVoid(albumArtPath))
 			{
 				return BitmapFactory.decodeFile(albumArtPath);
@@ -66,7 +87,7 @@ public class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 		}
 	}
 
-	private static class IdTagLookupStrategy implements LookupStrategy
+	private class IdTagLookupStrategy implements LookupStrategy
 	{
 		public Bitmap lookup(Track track)
 		{

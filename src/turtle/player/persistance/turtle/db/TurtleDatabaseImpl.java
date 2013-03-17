@@ -27,7 +27,7 @@ import turtle.player.persistance.turtle.db.structure.Tables;
 public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 {
 
-	public static final int DATABASE_VERSION = 4;
+	public static final int DATABASE_VERSION = 5;
 	public static final String DATABASE_NAME = "TurtlePlayer";
 
 	public TurtleDatabaseImpl(Context context)
@@ -38,7 +38,7 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 	@Override
 	public void onCreate(SQLiteDatabase db)
 	{
-		String CREATE_TABLE = "CREATE TABLE " + Tables.TRACKS.getName() + " ("
+		String createTracksSql = "CREATE TABLE " + Tables.TRACKS.getName() + " ("
 				  + Tables.TRACKS.ID.getName() + " INTEGER PRIMARY KEY, "
 				  + Tables.TRACKS.TITLE.getName() + " TEXT, "
 				  + Tables.TRACKS.NUMBER.getName() + " INTEGER, "
@@ -47,14 +47,21 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 				  + Tables.TRACKS.GENRE.getName() + " TEXT, "
 				  + Tables.TRACKS.SRC.getName() + " TEXT, "
 				  + Tables.TRACKS.ROOTSRC.getName() + " TEXT);";
-		db.execSQL(CREATE_TABLE);
+		db.execSQL(createTracksSql);
+
+		String createAlbumArtSql = "CREATE TABLE " + Tables.ALBUM_ART_LOCATIONS.getName() + " ("
+				  + Tables.ALBUM_ART_LOCATIONS.PATH.getName() + " TEXT, "
+				  + Tables.ALBUM_ART_LOCATIONS.ALBUM_ART_PATH.getName() + " TEXT);";
+		db.execSQL(createAlbumArtSql);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db,
 								 int oldVersion,
 								 int newVersion)
-	{db.execSQL("DROP TABLE IF EXISTS " + Tables.TRACKS.getName());
+	{
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.TRACKS.getName());
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.ALBUM_ART_LOCATIONS.getName());
 		onCreate(db);
 		dbResetted();
 	}

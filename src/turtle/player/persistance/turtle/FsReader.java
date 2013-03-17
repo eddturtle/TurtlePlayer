@@ -26,11 +26,15 @@ import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.UnsupportedTagException;
 import turtle.player.common.filefilter.FileFilters;
-import turtle.player.model.Album;
-import turtle.player.model.Artist;
-import turtle.player.model.Genre;
-import turtle.player.model.Track;
+import turtle.player.model.*;
+import turtle.player.persistance.framework.executor.OperationExecutor;
+import turtle.player.persistance.framework.filter.FieldFilter;
+import turtle.player.persistance.framework.filter.Operator;
+import turtle.player.persistance.source.sql.First;
+import turtle.player.persistance.source.sqlite.QuerySqlite;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.mapping.AlbumArtLocationCreator;
 import turtle.player.preferences.Preferences;
 import turtle.player.util.Shorty;
 
@@ -172,10 +176,19 @@ public class FsReader
 		return acceptedPaths;
 	}
 
-	public static String getAlbumArt(String mediaFileDir)
+	public static String getAlbumArt(String mediaFileDir, TurtleDatabase db)
 	{
 		final String result;
 
+		AlbumArtLocation albumArtLocation = OperationExecutor.execute(
+				  db,
+				  new QuerySqlite<AlbumArtLocation>(new FieldFilter<AlbumArtLocation, String>(Tables.ALBUM_ART_LOCATIONS.PATH, Operator.EQ, mediaFileDir),
+				  new First<AlbumArtLocation>(Tables.ALBUM_ART_LOCATIONS, new AlbumArtLocationCreator())));
+
+		if(albumArtLocation != null)
+		{
+			return albumArtLocation.getAlbumArtpath();
+		}
 
 		if (!Shorty.isVoid(mediaFileDir.replaceAll("/", "").replaceAll("\\.", ""))){
 			List<String> albumArtStrings = FsReader.getMediaFilesPaths(mediaFileDir, FileFilters.folderArtFilters, false, true);
@@ -185,13 +198,14 @@ public class FsReader
 			}
 			else
 			{
-				result = getAlbumArt(mediaFileDir.substring(0, mediaFileDir.lastIndexOf("/")));
+				result = getAlbumArt(mediaFileDir.substring(0, mediaFileDir.lastIndexOf("/")), db);
 			}
 		}
 		else{
 			result = null;
 		}
 
+		db.push(new AlbumArtLocation(mediaFileDir, result));
 		return result;
 	}
 

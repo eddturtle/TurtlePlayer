@@ -1,24 +1,15 @@
 package turtle.player.view;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.mpatric.mp3agic.InvalidDataException;
-import com.mpatric.mp3agic.Mp3File;
-import com.mpatric.mp3agic.UnsupportedTagException;
 import turtle.player.R;
 import turtle.player.model.Track;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.presentation.AlbumArtResolver;
 import turtle.player.presentation.InstanceFormatter;
-
-import java.io.IOException;
 
 /**
  * TURTLE PLAYER
@@ -73,8 +64,13 @@ public class AlbumArt
 	private final TextView title;
 	private final TextView artist;
 
-	public AlbumArt(View albumArtViewGroup, Type type)
+	private final TurtleDatabase db;
+
+	public AlbumArt(View albumArtViewGroup,
+						 Type type,
+						 TurtleDatabase db)
 	{
+		this.db = db;
 
 		albumArtView = albumArtViewGroup.findViewById(type.getRId());
 		this.type = type;
@@ -108,7 +104,7 @@ public class AlbumArt
 			title.setText(track.accept(InstanceFormatter.SHORT_WITH_NUMBER));
 			artist.setText(track.GetAlbum().accept(InstanceFormatter.SHORT));
 
-			new AlbumArtResolver(){
+			new AlbumArtResolver(db){
 				@Override
 				protected void onPreExecute()
 				{

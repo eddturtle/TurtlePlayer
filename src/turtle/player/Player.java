@@ -135,7 +135,7 @@ public class Player extends ListActivity
 
 		lookupViewElements();
 
-		new AlbumArtView(this, tp.player, standartPlayOrderStrategy, tp.playlist);
+		new AlbumArtView(this, tp, standartPlayOrderStrategy);
 
 		SetupObservers();
 		SetupButtons();

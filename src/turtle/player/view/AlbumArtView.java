@@ -12,7 +12,6 @@ import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.player.Player;
 import turtle.player.playlist.Playlist;
-import turtle.player.playlist.playorder.PlayOrderSorted;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
 
 import java.util.HashMap;
@@ -49,21 +48,20 @@ public class AlbumArtView
 	private final AlbumArt albumArtRight;
 
 	public AlbumArtView(final Activity activity,
-							  final Player player,
-							  final PlayOrderStrategy playOrderStrategy,
-							  final Playlist playlist)
+							  final TurtlePlayer tp,
+							  final PlayOrderStrategy playOrderStrategy)
 	{
 		albumArtViewGroup = activity.findViewById(R.id.relativeLayout_albumArt);
 
-		albumArt = new AlbumArt(albumArtViewGroup, AlbumArt.Type.CENTER);
-		albumArtLeft = new AlbumArt(albumArtViewGroup, AlbumArt.Type.LEFT);
-		albumArtRight = new AlbumArt(albumArtViewGroup, AlbumArt.Type.RIGHT);
+		albumArt = new AlbumArt(albumArtViewGroup, AlbumArt.Type.CENTER, tp.db);
+		albumArtLeft = new AlbumArt(albumArtViewGroup, AlbumArt.Type.LEFT, tp.db);
+		albumArtRight = new AlbumArt(albumArtViewGroup, AlbumArt.Type.RIGHT, tp.db);
 
-		player.addObserver(new Player.PlayerObserver()
+		tp.player.addObserver(new Player.PlayerObserver()
 		{
 			public void trackChanged(Track track, int lengthInMillis)
 			{
-				TrackBundle trackBundle = playlist.enrich(playOrderStrategy, track);
+				TrackBundle trackBundle = tp.playlist.enrich(playOrderStrategy, track);
 				albumArt.setTrack(trackBundle.getTrack());
 				albumArtRight.setTrack(trackBundle.getTrackAfter());
 				albumArtLeft.setTrack(trackBundle.getTrackBefore());
@@ -90,13 +88,13 @@ public class AlbumArtView
 			@Override
 			protected void nextGestureRecognized()
 			{
-				player.play(playlist.getNext(playOrderStrategy, player.getCurrTrack()));
+				tp.player.play(tp.playlist.getNext(playOrderStrategy, tp.player.getCurrTrack()));
 			}
 
 			@Override
 			protected void previousGestureRecognized()
 			{
-				player.play(playlist.getPrevious(playOrderStrategy, player.getCurrTrack()));
+				tp.player.play(tp.playlist.getPrevious(playOrderStrategy, tp.player.getCurrTrack()));
 			}
 
 
@@ -107,12 +105,12 @@ public class AlbumArtView
 				String msg = field.getName();
 				if(previousFilter == null)
 				{
-					settedFilters.put(field, playlist.addFilter(field, player.getCurrTrack()));
+					settedFilters.put(field, tp.playlist.addFilter(field, tp.player.getCurrTrack()));
 					msg += " " + activity.getString(R.string.added);
 				}
 				else
 				{
-					playlist.removeFilter(previousFilter);
+					tp.playlist.removeFilter(previousFilter);
 					settedFilters.remove(field);
 					msg += " " + activity.getString(R.string.removed);
 				}
@@ -122,7 +120,7 @@ public class AlbumArtView
 		};
 
 		albumArt.getAlbumArtView().setOnTouchListener(touchHandler);
-		playlist.addObserver(touchHandler);
-		player.addObserver(touchHandler);
+		tp.playlist.addObserver(touchHandler);
+		tp.player.addObserver(touchHandler);
 	}
 }
