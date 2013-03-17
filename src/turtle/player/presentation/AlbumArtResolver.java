@@ -58,6 +58,7 @@ public abstract class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 	{
 
 		for(LookupStrategy lookupStrategy : new LookupStrategy[]{
+				  new CachedFsLookupStrategy(),
 				  new IdTagLookupStrategy(),
 				  new FsLookupStrategy()
 		})
@@ -72,6 +73,25 @@ public abstract class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 	{
 		Bitmap lookup(Track track);
 	}
+
+	private class CachedFsLookupStrategy implements LookupStrategy
+	{
+
+		public Bitmap lookup(Track track)
+		{
+			AlbumArtLocation albumArtLocation = OperationExecutor.execute(
+					  db,
+					  new QuerySqlite<AlbumArtLocation>(new FieldFilter<AlbumArtLocation, String>(Tables.ALBUM_ART_LOCATIONS.PATH, Operator.EQ, track.GetRootSrc()),
+								 new First<AlbumArtLocation>(Tables.ALBUM_ART_LOCATIONS, new AlbumArtLocationCreator())));
+
+			if(albumArtLocation != null)
+			{
+				return BitmapFactory.decodeFile(albumArtLocation.getAlbumArtpath());
+			}
+			return null;
+		}
+	}
+
 
 	private class FsLookupStrategy implements LookupStrategy
 	{
