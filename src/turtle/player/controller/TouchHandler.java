@@ -237,27 +237,24 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 			{
 				if(!wasConsumed)
 				{
-					switch (currMode)
-					{
-						case MENU:
-							for(Map.Entry<BowMenuEntry, ImageView> entry : bowMenuEntries.entrySet()){
-								if(isPointInsideOf(entry.getValue(), event.getRawX(), event.getRawY())){
-									filterSelected(entry.getKey().getField());
-								}
-							}
-							break;
+					for(BowMenuEntry bowMenuEntry : BowMenuEntry.values()){
+						if(isPointInsideOf(bowMenuEntries.get(bowMenuEntry), event.getRawX(), event.getRawY()) &&
+								  (bowMenuEntry.isActive() && scrollingViews[0].getScrollX() == 0 || Mode.MENU.equals(currMode))){
+							filterSelected(bowMenuEntry.getField());
+						}
+					}
 
-						case TRACK:
-							if(scrollingViews[0].getScrollX() > scrollingViews[0].getWidth()*2/3){
-								nextGestureRecognized();
-								consumed = true;
-							}
-							else if(-scrollingViews[0].getScrollX() > scrollingViews[0].getWidth()*2/3)
-							{
-								previousGestureRecognized();
-								consumed = true;
-							}
-							break;
+					if (Mode.TRACK.equals(currMode))
+					{
+						if(scrollingViews[0].getScrollX() > scrollingViews[0].getWidth()*2/3){
+							nextGestureRecognized();
+							consumed = true;
+						}
+						else if(-scrollingViews[0].getScrollX() > scrollingViews[0].getWidth()*2/3)
+						{
+							previousGestureRecognized();
+							consumed = true;
+						}
 					}
 				}
 
