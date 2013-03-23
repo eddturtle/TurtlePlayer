@@ -63,27 +63,30 @@ public class FsReader
 		int number = 0;
 		try
 		{
-			Mp3File mp3file = new Mp3File(filePath, false);
-			final ID3v1 id3tag;
-
-			if(mp3file.hasId3v1Tag()){
-				id3tag = mp3file.getId3v1Tag();
-			}
-			else if(mp3file.hasId3v2Tag())
+			synchronized (Mp3File.class)
 			{
-				id3tag = mp3file.getId3v2Tag();
-			}
-			else
-			{
-				id3tag = null;
-			}
+				Mp3File mp3file = new Mp3File(filePath, false);
+				final ID3v1 id3tag;
 
-			if(id3tag != null){
-				title = id3tag.getTitle();
-				artist = id3tag.getArtist();
-				album = id3tag.getAlbum();
-				genre = id3tag.getGenre();
-				number = parseTrackNumber(id3tag.getTrack());
+				if(mp3file.hasId3v1Tag()){
+					id3tag = mp3file.getId3v1Tag();
+				}
+				else if(mp3file.hasId3v2Tag())
+				{
+					id3tag = mp3file.getId3v2Tag();
+				}
+				else
+				{
+					id3tag = null;
+				}
+
+				if(id3tag != null){
+					title = id3tag.getTitle();
+					artist = id3tag.getArtist();
+					album = id3tag.getAlbum();
+					genre = id3tag.getGenre();
+					number = parseTrackNumber(id3tag.getTrack());
+				}
 			}
 		}
 		catch (UnsupportedTagException e)

@@ -113,11 +113,14 @@ public abstract class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 		{
 			try
 			{
-				Mp3File mp3file = new Mp3File(track.GetSrc(), false);
-				if(mp3file.hasId3v2Tag() && mp3file.getId3v2Tag().getAlbumImage() != null)
+				synchronized (Mp3File.class)
 				{
-					byte[] albumImage = mp3file.getId3v2Tag().getAlbumImage();
-					return BitmapFactory.decodeByteArray(albumImage, 0, albumImage.length);
+					Mp3File mp3file = new Mp3File(track.GetSrc(), false);
+					if(mp3file.hasId3v2Tag() && mp3file.getId3v2Tag().getAlbumImage() != null)
+					{
+						byte[] albumImage = mp3file.getId3v2Tag().getAlbumImage();
+						return BitmapFactory.decodeByteArray(albumImage, 0, albumImage.length);
+					}
 				}
 			}
 			catch (IOException e)

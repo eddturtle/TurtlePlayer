@@ -1,6 +1,7 @@
 package turtle.player.view;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -8,6 +9,7 @@ import android.widget.TextView;
 import turtle.player.R;
 import turtle.player.model.Track;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.preferences.Preferences;
 import turtle.player.presentation.AlbumArtResolver;
 import turtle.player.presentation.InstanceFormatter;
 
@@ -117,6 +119,7 @@ public class AlbumArt
 					if(bitmap != null)
 					{
 						albumArt.setImageBitmap(bitmap);
+						Log.v(Preferences.TAG, "albumart for " + track.GetSrc() + " resolved");
 					}
 				}
 			}.execute(track);
