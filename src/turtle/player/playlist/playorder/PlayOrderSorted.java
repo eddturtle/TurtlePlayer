@@ -35,7 +35,7 @@ import turtle.player.playlist.Playlist;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayOrderSorted implements PlayOrderStrategy
+public class PlayOrderSorted extends AbstractPlayOrderStrategy
 {
 
 	private final Playlist playlist;
@@ -48,14 +48,25 @@ public class PlayOrderSorted implements PlayOrderStrategy
 		this.db = db;
 	}
 
-	public Track getNext(Track currTrack)
+	public List<Track> getNext(Track currTrack, int n)
 	{
-		return get(currTrack, new DefaultOrder(SortOrder.ASC));
+		return getTracks(currTrack, new DefaultOrder(SortOrder.ASC), n);
 	}
 
-	public Track getPrevious(Track currTrack)
+	public List<Track> getPrevious(Track currTrack, int n)
 	{
-		return get(currTrack, new DefaultOrder(SortOrder.DESC));
+		return getTracks(currTrack, new DefaultOrder(SortOrder.DESC), n);
+	}
+
+	private List<Track> getTracks(Track currTrack, OrderSet order, int n)
+	{
+		Track previous = currTrack;
+		List<Track> trackList = new ArrayList<Track>();
+		for(int i = 0; i < n ; i++){
+			previous = get(previous, order);
+			trackList.add(previous);
+		}
+		return trackList;
 	}
 
 	private Track get(Track ofTrack, OrderSet order)

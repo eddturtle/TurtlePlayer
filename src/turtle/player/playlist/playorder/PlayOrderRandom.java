@@ -3,7 +3,6 @@ package turtle.player.playlist.playorder;
 import turtle.player.model.Track;
 import turtle.player.persistance.framework.executor.OperationExecutor;
 import turtle.player.persistance.framework.sort.RandomOrder;
-import turtle.player.persistance.source.sql.First;
 import turtle.player.persistance.source.sql.Limited;
 import turtle.player.persistance.source.sqlite.CreatorForListSqlite;
 import turtle.player.persistance.source.sqlite.QuerySqlite;
@@ -14,7 +13,7 @@ import turtle.player.playlist.Playlist;
 
 import java.util.List;
 
-public class PlayOrderRandom implements PlayOrderStrategy
+public class PlayOrderRandom extends AbstractPlayOrderStrategy
 {
 
 	private final Playlist playlist;
@@ -27,22 +26,22 @@ public class PlayOrderRandom implements PlayOrderStrategy
 		this.db = db;
 	}
 
-	public Track getNext(Track currTrack)
+	public List<Track> getNext(Track currTrack, int n)
 	{
-		return get();
+		return get(n);
 	}
 
-	public Track getPrevious(Track currTrack)
+	public List<Track> getPrevious(Track currTrack, int n)
 	{
-		return get();
+		return get(n);
 	}
 
-	private Track get()
+	private List<Track> get(int n)
 	{
 		return OperationExecutor.execute(db,
-				  new QuerySqlite<Track>(
+				  new QuerySqlite<List<Track>>(
 							 playlist.getCompressedFilter(),
 							 new RandomOrder(),
-							 new First<Track>(Tables.TRACKS, new TrackCreator())));
+							 new Limited<Track>(Tables.TRACKS, new CreatorForListSqlite<Track>(new TrackCreator()), n)));
 	}
 }
