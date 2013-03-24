@@ -63,17 +63,13 @@ public class AlbumArtView
 
 		tp.player.addObserver(new Player.PlayerObserver()
 		{
-			public void trackChanged(Track track, int lengthInMillis)
+			public void trackChanged(final Track track, int lengthInMillis)
 			{
-				actualAsyncTask = new AsyncTask<Track, Void, TrackBundle>(){
+				albumArt.setTrackDigest(track);
+				albumArtLeft.setTrackDigest(null);
+				albumArtRight.setTrackDigest(null);
 
-					@Override
-					protected void onPreExecute()
-					{
-						albumArt.setTrack(null);
-						albumArtRight.setTrack(null);
-						albumArtLeft.setTrack(null);
-					}
+				actualAsyncTask = new AsyncTask<Track, Void, TrackBundle>(){
 
 					@Override
 					protected TrackBundle doInBackground(Track... params)

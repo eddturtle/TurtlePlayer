@@ -103,11 +103,9 @@ public class AlbumArt
 
 	public void setTrack(final Track track)
 	{
+		setTrackDigest(track);
+
 		if(track != null){
-
-			title.setText(track.accept(InstanceFormatter.SHORT_WITH_NUMBER));
-			artist.setText(track.GetAlbum().accept(InstanceFormatter.SHORT));
-
 			actualAsyncTask = new AlbumArtResolver(db){
 
 				@Override
@@ -131,12 +129,26 @@ public class AlbumArt
 				}
 			}.execute(track);
 		}
+	}
+
+	/**
+	 * update View synchronous with attributes easy to resolve
+	 * @param track
+	 */
+	public void setTrackDigest(final Track track)
+	{
+		if(track != null){
+
+			title.setText(track.accept(InstanceFormatter.SHORT_WITH_NUMBER));
+			artist.setText(track.GetAlbum().accept(InstanceFormatter.SHORT));
+		}
 		else
 		{
 			title.setText("");
 			artist.setText("");
-			albumArt.setImageDrawable(albumArtView.getResources().getDrawable(R.drawable.blank_album_art));
 		}
+		albumArt.setImageDrawable(albumArtView.getResources().getDrawable(R.drawable.blank_album_art));
+		albumArtView.invalidate();
 	}
 
 	private void setInitialPositions()
