@@ -1,6 +1,7 @@
 package turtle.player.view;
 
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -67,6 +68,7 @@ public class AlbumArt
 	private final TextView artist;
 
 	private final TurtleDatabase db;
+	private  AsyncTask<Track, Void, Bitmap> actualAsyncTask = null;
 
 	public AlbumArt(View albumArtViewGroup,
 						 Type type,
@@ -106,17 +108,22 @@ public class AlbumArt
 			title.setText(track.accept(InstanceFormatter.SHORT_WITH_NUMBER));
 			artist.setText(track.GetAlbum().accept(InstanceFormatter.SHORT));
 
-			new AlbumArtResolver(db){
+			actualAsyncTask = new AlbumArtResolver(db){
+
 				@Override
-				protected void onPreExecute()
+				protected Bitmap doInBackground(Track... params)
 				{
-					albumArt.setImageDrawable(albumArtView.getResources().getDrawable(R.drawable.blank_album_art));
+					if(actualAsyncTask == this)
+					{
+						return super.doInBackground(params);
+					}
+					return null;
 				}
 
 				@Override
 				protected void onPostExecute(Bitmap bitmap)
 				{
-					if(bitmap != null)
+					if(actualAsyncTask == this && bitmap != null)
 					{
 						albumArt.setImageBitmap(bitmap);
 						Log.v(Preferences.TAG, "albumart for " + track.GetSrc() + " resolved");

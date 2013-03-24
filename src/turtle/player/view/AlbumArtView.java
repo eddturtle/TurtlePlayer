@@ -1,6 +1,9 @@
 package turtle.player.view;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import turtle.player.R;
@@ -13,6 +16,8 @@ import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.player.Player;
 import turtle.player.playlist.Playlist;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
+import turtle.player.preferences.Preferences;
+import turtle.player.presentation.AlbumArtResolver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +49,8 @@ public class AlbumArtView
 	private final AlbumArt albumArtLeft;
 	private final AlbumArt albumArtRight;
 
+	private AsyncTask<Track, Void, TrackBundle> actualAsyncTask = null;
+
 	public AlbumArtView(final Activity activity,
 							  final TurtlePlayer tp,
 							  final PlayOrderStrategy playOrderStrategy)
@@ -58,10 +65,38 @@ public class AlbumArtView
 		{
 			public void trackChanged(Track track, int lengthInMillis)
 			{
-				TrackBundle trackBundle = tp.playlist.enrich(playOrderStrategy, track);
-				albumArt.setTrack(trackBundle.getTrack());
-				albumArtRight.setTrack(trackBundle.getTrackAfter());
-				albumArtLeft.setTrack(trackBundle.getTrackBefore());
+				actualAsyncTask = new AsyncTask<Track, Void, TrackBundle>(){
+
+					@Override
+					protected void onPreExecute()
+					{
+						albumArt.setTrack(null);
+						albumArtRight.setTrack(null);
+						albumArtLeft.setTrack(null);
+					}
+
+					@Override
+					protected TrackBundle doInBackground(Track... params)
+					{
+						if(actualAsyncTask == this)
+						{
+							return tp.playlist.enrich(playOrderStrategy, params[0]);
+						}
+						return null;
+					}
+
+					@Override
+					protected void onPostExecute(TrackBundle trackBundle)
+					{
+						if(actualAsyncTask == this && trackBundle != null)
+						{
+							albumArt.setTrack(trackBundle.getTrack());
+							albumArtRight.setTrack(trackBundle.getTrackAfter());
+							albumArtLeft.setTrack(trackBundle.getTrackBefore());
+						}
+					}
+				}.execute(track);
+
 			}
 
 			public void started()
