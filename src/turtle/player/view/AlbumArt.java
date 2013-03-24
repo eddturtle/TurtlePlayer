@@ -66,6 +66,7 @@ public class AlbumArt
 	private final ImageView albumArt;
 	private final TextView title;
 	private final TextView artist;
+	private final TextView album;
 
 	private final TurtleDatabase db;
 	private  AsyncTask<Track, Void, Bitmap> actualAsyncTask = null;
@@ -82,6 +83,7 @@ public class AlbumArt
 		albumArt = (ImageView) albumArtView.findViewById(R.id.picture);
 		title = (TextView) albumArtView.findViewById(R.id.trackTitle);
 		artist = (TextView) albumArtView.findViewById(R.id.trackArtist);
+		album = (TextView) albumArtView.findViewById(R.id.trackAlbum);
 
 
 		//Hack to place AlbumArts. Needs already layouted views.
@@ -138,14 +140,15 @@ public class AlbumArt
 	public void setTrackDigest(final Track track)
 	{
 		if(track != null){
-
 			title.setText(track.accept(InstanceFormatter.SHORT_WITH_NUMBER));
-			artist.setText(track.GetAlbum().accept(InstanceFormatter.SHORT));
+			artist.setText(track.GetArtist().accept(InstanceFormatter.SHORT));
+			album.setText(track.GetAlbum().accept(InstanceFormatter.SHORT));
 		}
 		else
 		{
 			title.setText("");
 			artist.setText("");
+			album.setText("");
 		}
 		albumArt.setImageDrawable(albumArtView.getResources().getDrawable(R.drawable.blank_album_art));
 		albumArtView.invalidate();

@@ -17,7 +17,7 @@
 
 
     <string name="trackInitialValue">Track</string>
-    <string name="rootSrcInitialValue">Folder</string>
+    <string name="rootSrcInitialValue">RootSrc</string>
     <string name="genreInitialValue">Genre</string>
     <string name="artistInitialValue">Artist</string>
     <string name="albumInitialValue">Album</string>
