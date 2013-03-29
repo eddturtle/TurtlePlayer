@@ -32,6 +32,7 @@ import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import turtle.player.common.MatchFilterVisitor;
 import turtle.player.controller.BroadcastsHandler;
 import turtle.player.controller.PhoneStateHandler;
 import turtle.player.dirchooser.DirChooserConstants;
@@ -232,6 +233,7 @@ public class Player extends ListActivity
 			@Override
 			protected void filterChoosen(Filter filter)
 			{
+				tp.playlist.clearFilters();
 				tp.playlist.addFilter(filter);
 				SwitchToNowPlayingSlide();
 			}
@@ -506,6 +508,27 @@ public class Player extends ListActivity
 			public String getId()
 			{
 				return "FsScanProgressUpdater";
+			}
+		});
+
+		tp.playlist.addObserver(new Playlist.PlaylistFilterChangeObserver()
+		{
+			public void filterAdded(Filter filter)
+			{
+				if(!filter.accept(new MatchFilterVisitor<Instance>(tp.player.getCurrTrack())))
+				{
+					tp.player.change(tp.playlist.getNext(playOrderStrategy, null));
+				}
+			}
+
+			public void filterRemoved(Filter filter)
+			{
+				//do nothing
+			}
+
+			public String getId()
+			{
+				return "currTrackMatchFilterVerifier";
 			}
 		});
 		tp.playlist.notifyInitialState();

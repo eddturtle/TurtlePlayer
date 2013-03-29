@@ -113,6 +113,15 @@ public class Playlist
 		return modified;
 	}
 
+	public void clearFilters(){
+
+		final Set<Filter> filtersToDelete = new HashSet<Filter>(filters);
+		for(Filter filter : filtersToDelete)
+		{
+			removeFilter(filter);
+		}
+	}
+
 	public boolean removeFilter(Filter filter){
 		boolean modified = filters.remove(filter);
 
