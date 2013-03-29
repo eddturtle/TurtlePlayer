@@ -34,10 +34,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Should be created outside the UI Thread, the initial sorting in the constructor can take a long time
- * for big lists.
- */
 public class DefaultAdapter<T extends Instance> extends ArrayAdapter<T>
 {
 	private final List<T> objects;

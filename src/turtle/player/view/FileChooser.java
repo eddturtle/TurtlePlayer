@@ -18,10 +18,10 @@
 
 package turtle.player.view;
 
-import android.app.ListActivity;
-import android.database.sqlite.SQLiteDoneException;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import turtle.player.Player;
 import turtle.player.R;
 import turtle.player.common.MatchFilterVisitor;
@@ -35,11 +35,9 @@ import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.presentation.InstanceFormatter;
 import turtle.player.util.DefaultAdapter;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
-public class FileChooser implements TurtleDatabase.DbObserver
+public abstract class FileChooser implements TurtleDatabase.DbObserver
 {
 
 	public enum Mode
@@ -67,8 +65,12 @@ public class FileChooser implements TurtleDatabase.DbObserver
 	private final TurtleDatabase database;
 	private final Player listActivity;
 	final DefaultAdapter<Instance> listAdapter;
+	final ArrayAdapter<Filter> filterListAdapter;
+
+	ListView filterList = null;
 
 	private Set<Filter> filters = new HashSet<Filter>();
+	private Map<Mode, Filter> filtersAddWithMode = new HashMap<Mode, Filter>();
 
 	public FileChooser(Mode currMode,
 							 TurtleDatabase db,
@@ -77,6 +79,26 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		this.currMode = currMode;
 		this.database = db;
 		this.listActivity = listActivity;
+
+		filterList = (ListView) listActivity.findViewById (R.id.filterlist);
+		filterListAdapter = new FilterListAdapter(listActivity.getApplicationContext(), new ArrayList<Filter>(filters))
+		{
+			@Override
+			protected void removeFilter(Filter filter)
+			{
+				filters.remove(filter);
+				filterListAdapter.remove(filter);
+			}
+
+			@Override
+			protected void chooseFilter(Filter filter)
+			{
+				filterChoosen(filter);
+			}
+		};
+
+		filterList.setAdapter(filterListAdapter);
+
 		listAdapter = new DefaultAdapter<Instance>(
 				  listActivity.getApplicationContext(),
 				  new ArrayList<Instance>(),
@@ -86,7 +108,7 @@ public class FileChooser implements TurtleDatabase.DbObserver
 
 		listActivity.setListAdapter(listAdapter);
 
-		change(currMode);
+		change(currMode, null);
 
 		init();
 	}
@@ -94,13 +116,17 @@ public class FileChooser implements TurtleDatabase.DbObserver
 	private void init()
 	{
 		database.addObserver(this);
+
 		for (final Mode currMode : Mode.values())
 		{
 			getButton(currMode).setOnClickListener(new View.OnClickListener()
 			{
 				public void onClick(View v)
 				{
-					change(currMode);
+					filters.clear();
+					filterListAdapter.clear();
+					filtersAddWithMode.clear();
+					change(currMode, null);
 				}
 			});
 		}
@@ -122,50 +148,52 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		{
 			public Track visit(Track track)
 			{
-				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.TITLE, Operator.EQ, track.GetTitle()));
-				return chooseFirst();
+				return track;
 			}
 
 			public Track visit(TrackDigest track)
 			{
-				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.TITLE, Operator.EQ, track.getName()));
-				return chooseFirst();
+				Filter trackFilter = new FieldFilter<Track, String>(Tables.TRACKS.TITLE, Operator.EQ, track.getName());
+				return database.getTracks(new FilterSet(getFilter(), trackFilter)).iterator().next();
 			}
 
 			public Track visit(Album album)
 			{
-				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.ALBUM, Operator.EQ, album.getId()));
-				currMode = Mode.Track;
-				update();
+				Filter filter = new FieldFilter<Track, String>(Tables.TRACKS.ALBUM, Operator.EQ, album.getId());
+				change(Mode.Track, filter);
 				return null;
 			}
 
 			public Track visit(Genre genre)
 			{
-				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.GENRE, Operator.EQ, genre.getId()));
-				currMode = Mode.Artist;
-				update();
+				Filter filter = new FieldFilter<Track, String>(Tables.TRACKS.GENRE, Operator.EQ, genre.getId());
+				change(Mode.Artist, filter);
 				return null;
 			}
 
 			public Track visit(Artist artist)
 			{
-				filters.add(new FieldFilter<Track, String>(Tables.TRACKS.ARTIST, Operator.EQ, artist.getId()));
-				currMode = Mode.Album;
-				update();
+				Filter filter = new FieldFilter<Track, String>(Tables.TRACKS.ARTIST, Operator.EQ, artist.getId());
+				change(Mode.Album, filter);
 				return null;
 			}
 		});
 	}
 
-	public Track chooseFirst()
+	/**
+	 * @param toMode
+	 * @param filter - filter to add, can be null
+	 */
+	public void change(Mode toMode, Filter filter)
 	{
-		return database.getTracks(getFilter()).iterator().next();
-	}
+		if(filter != null)
+		{
+			filtersAddWithMode.put(currMode, filter);
+			filters.add(filter);
+			filterListAdapter.add(filter);
+		}
 
-	public void change(Mode mode)
-	{
-		currMode = mode;
+		currMode = toMode;
 		for (final Mode aMode : Mode.values())
 		{
 			final ImageView button = getButton(aMode);
@@ -177,7 +205,6 @@ public class FileChooser implements TurtleDatabase.DbObserver
 				}
 			});
 		}
-		filters.clear();
 		update();
 	}
 
@@ -264,6 +291,39 @@ public class FileChooser implements TurtleDatabase.DbObserver
 		}
 	}
 
+	public boolean back(){
+		Mode backMode;
+		switch (currMode)
+		{
+			case Album:
+				backMode = Mode.Artist;
+				break;
+			case Artist:
+				backMode = Mode.Genre;
+				break;
+			case Genre:
+				backMode = null;
+				break;
+			case Track:
+				backMode = Mode.Album;
+				break;
+			default:
+				throw new RuntimeException(currMode.name() + " not expexted here");
+		}
+		Filter filterAddedByBack = filtersAddWithMode.remove(backMode);
+		if(filterAddedByBack == null)
+		{
+			return true;
+		}
+		else
+		{
+			filters.remove(filterAddedByBack);
+			filterListAdapter.remove(filterAddedByBack);
+			change(backMode, null);
+			return false;
+		}
+	}
+
 	public void cleared()
 	{
 		listAdapter.clear();
@@ -278,4 +338,6 @@ public class FileChooser implements TurtleDatabase.DbObserver
 	{
 		return (ImageView) listActivity.findViewById(mode.buttonId);
 	}
+
+	protected abstract void filterChoosen(Filter filter);
 }

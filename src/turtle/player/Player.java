@@ -200,7 +200,15 @@ public class Player extends ListActivity
 
 	@Override
 	public void onBackPressed() {
-		if(!Slides.NOW_PLAYING.equals(currSlide))
+		if (Slides.PLAYLIST.equals(currSlide))
+		{
+			boolean switchToPlayer = fileChooser.back();
+			if(switchToPlayer)
+			{
+				SwitchToNowPlayingSlide();
+			}
+		}
+		else if(!Slides.NOW_PLAYING.equals(currSlide))
 		{
 			SwitchToNowPlayingSlide();
 		}
@@ -219,7 +227,15 @@ public class Player extends ListActivity
 		tp = (TurtlePlayer) getApplication();
 		tp.db = new TurtleDatabase(tp.getApplicationContext());
 		tp.playlist = new Playlist(tp.getApplicationContext(), tp.db);
-		fileChooser = new FileChooser(FileChooser.Mode.Track, tp.db, this);
+		fileChooser = new FileChooser(FileChooser.Mode.Track, tp.db, this)
+		{
+			@Override
+			protected void filterChoosen(Filter filter)
+			{
+				tp.playlist.addFilter(filter);
+				SwitchToNowPlayingSlide();
+			}
+		};
 
 		standartPlayOrderStrategy = new PlayOrderSorted(tp.db, tp.playlist);
 		shufflePlayOrderStrategy = new PlayOrderRandom(tp.db, tp.playlist);
