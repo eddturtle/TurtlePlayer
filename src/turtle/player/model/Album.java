@@ -32,7 +32,7 @@ public class Album implements Instance
 
 	public Album(String id)
 	{
-		this.id = id;
+		this.id = Shorty.avoidNull(id);
 	}
 
 	public String getId()

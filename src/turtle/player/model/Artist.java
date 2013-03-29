@@ -32,7 +32,7 @@ public class Artist implements Instance
 
 	public Artist(String id)
 	{
-		this.id = id;
+		this.id = Shorty.avoidNull(id);
 	}
 
 	public String getId()
