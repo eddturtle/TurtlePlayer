@@ -88,6 +88,7 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 			{
 				filters.remove(filter);
 				filterListAdapter.remove(filter);
+				update();
 			}
 
 			@Override
