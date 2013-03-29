@@ -289,6 +289,11 @@ public class Playlist
 				boolean wasPaused = false;
 				try
 				{
+					for (PlaylistObserver observer : observers.values())
+					{
+						observer.unpauseRescanInitializing();
+					}
+
 					final String mediaPath = preferences.getExitstingMediaPath().toString();
 					final String lastFsScanInterruptPath = preferences.get(Keys.FS_SCAN_INTERRUPT_PATH);
 
@@ -373,7 +378,7 @@ public class Playlist
 				throw new InterruptedException();
 			}
 
-			Thread.yield();
+			Thread.sleep(10);
 		}
 
 		preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, null);
@@ -417,6 +422,8 @@ public class Playlist
 
 		void pauseRescan();
 
+		void unpauseRescanInitializing();
+
 		void unpauseRescan(int alreadyProcessed, int toProcess);
 
 		void startUpdatePlaylist();
@@ -440,6 +447,8 @@ public class Playlist
 		public void startUpdatePlaylist(){/*doNothing*/}
 
 		public void endUpdatePlaylist(){/*doNothing*/}
+
+		public void unpauseRescanInitializing(){/*doNothing*/}
 
 		public void unpauseRescan(int alreadyProcessed, int toProcess){/*doNothing*/}
 

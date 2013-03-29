@@ -429,6 +429,19 @@ public class Player extends ListActivity
 				});
 			}
 
+			public void unpauseRescanInitializing()
+			{
+				runOnUiThread(new Runnable()
+				{
+					public void run()
+					{
+						rescanProgressBar.setIndeterminate(true);
+						rescanTogglePause.setImageDrawable(getResources().getDrawable(R.drawable.fs_scan_pause48));
+						rescanProgressBarState.setVisibility(View.VISIBLE);
+					}
+				});
+			}
+
 			public void unpauseRescan(final int alreadyProcessed,
 											  final int toProcess)
 			{
