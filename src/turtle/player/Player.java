@@ -486,6 +486,11 @@ public class Player extends ListActivity
 					}
 				});
 			}
+
+			public String getId()
+			{
+				return "FsScanProgressUpdater";
+			}
 		});
 		tp.playlist.notifyInitialState();
 
@@ -509,6 +514,11 @@ public class Player extends ListActivity
 					});
 				}
 			}
+
+			public String getId()
+			{
+				return "SettingsButtonUpdater";
+			}
 		});
 
 		tp.player.addObserver(new turtle.player.player.Player.PlayerObserver()
@@ -528,6 +538,11 @@ public class Player extends ListActivity
 			public void stopped()
 			{
 				playButton.setImageDrawable(getResources().getDrawable(R.drawable.play96));
+			}
+
+			public String getId()
+			{
+				return "PlayViewComponentsUpdater";
 			}
 		});
 
@@ -582,6 +597,11 @@ public class Player extends ListActivity
 			{
 				Toast.makeText(getApplicationContext(), getString(R.string.toastRescan), Toast.LENGTH_LONG).show();
 				tp.playlist.startFsScan();
+			}
+
+			public String getId()
+			{
+				return "restartAfterDBClean";
 			}
 		});
 	}

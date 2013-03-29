@@ -21,11 +21,14 @@ package turtle.player.preferences;
 
 
 import android.content.Context;
+import turtle.player.controller.Observer;
 import turtle.player.dirchooser.DirChooserConstants;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Preferences
 {
@@ -87,11 +90,11 @@ public class Preferences
 
 	//Observable -------------------------------------------------
 
-	final List<PreferencesObserver> observers = new ArrayList<PreferencesObserver>();
+	final Map<String, PreferencesObserver> observers = new HashMap<String, PreferencesObserver>();
 
 	private void notify(AbstractKey key)
 	{
-		for (PreferencesObserver observer : observers)
+		for (PreferencesObserver observer : observers.values())
 		{
 			observer.changed(key);
 		}
@@ -99,11 +102,11 @@ public class Preferences
 
 	public void addObserver(PreferencesObserver observer)
 	{
-		observers.add(observer);
+		observers.put(observer.getId(), observer);
 	}
 
-	public void removeObserver(PreferencesObserver observer)
+	public void removeObserver(Observer observer)
 	{
-		observers.remove(observer);
+		observers.remove(observer.getId());
 	}
 }

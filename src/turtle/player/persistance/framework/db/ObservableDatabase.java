@@ -1,9 +1,12 @@
 package turtle.player.persistance.framework.db;
 
+import turtle.player.controller.Observer;
 import turtle.player.model.Instance;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * TURTLE PLAYER
@@ -27,21 +30,21 @@ public abstract class ObservableDatabase<Q,C,D> implements Database<Q,C,D>
 
 	//--------------------------------------------- Observable
 
-	private final List<DbObserver> observers = new ArrayList<DbObserver>();
+	private final Map<String, DbObserver> observers = new HashMap<String, DbObserver>();
 
 	public void notifyUpdate(Instance instance){
-		for(DbObserver observer : observers){
+		for(DbObserver observer : observers.values()){
 			observer.updated(instance);
 		}
 	}
 
 	public void notifyCleared(){
-		for(DbObserver observer : observers){
+		for(DbObserver observer : observers.values()){
 			observer.cleared();
 		}
 	}
 
-	public interface DbObserver
+	public interface DbObserver extends Observer
 	{
 		void updated(Instance instance);
 		void cleared();
@@ -49,7 +52,7 @@ public abstract class ObservableDatabase<Q,C,D> implements Database<Q,C,D>
 
 	public void addObserver(DbObserver observer)
 	{
-		observers.add(observer);
+		observers.put(observer.getId(), observer);
 	}
 
 	public void removeObserver(DbObserver observer)

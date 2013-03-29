@@ -25,6 +25,8 @@ import android.media.MediaMetadataRetriever;
 import android.util.Log;
 import turtle.player.Stats;
 import turtle.player.common.filefilter.FileFilters;
+import turtle.player.controller.*;
+import turtle.player.controller.Observer;
 import turtle.player.model.Instance;
 import turtle.player.model.Track;
 import turtle.player.model.TrackBundle;
@@ -103,7 +105,7 @@ public class Playlist
 		boolean modified = filters.add(filter);
 		if(modified)
 		{
-			for (PlaylistObserver observer : observers)
+			for (PlaylistObserver observer : observers.values())
 			{
 				observer.filterAdded(filter);
 			}
@@ -116,7 +118,7 @@ public class Playlist
 
 		if(modified)
 		{
-			for (PlaylistObserver observer : observers)
+			for (PlaylistObserver observer : observers.values())
 			{
 				observer.filterRemoved(filter);
 			}
@@ -183,7 +185,7 @@ public class Playlist
 	public void notifyInitialState()
 	{
 		if(!Shorty.isVoid(preferences.get(Keys.FS_SCAN_INTERRUPT_PATH))){
-			for (PlaylistObserver observer : observers)
+			for (PlaylistObserver observer : observers.values())
 			{
 				observer.startUpdatePlaylist();
 				observer.startRescan(preferences.get(Keys.FS_SCAN_INTERRUPT_COUNT_ALL));
@@ -241,7 +243,7 @@ public class Playlist
 
 			preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, null);
 
-			for (PlaylistObserver observer : observers)
+			for (PlaylistObserver observer : observers.values())
 			{
 				observer.endRescan();
 			}
@@ -270,7 +272,7 @@ public class Playlist
 			{
 				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
-				for (PlaylistObserver observer : observers)
+				for (PlaylistObserver observer : observers.values())
 				{
 					observer.startUpdatePlaylist();
 				}
@@ -289,7 +291,7 @@ public class Playlist
 					if(lastFsScanInterruptPath == null || lastFsScanInterruptPathIndex < 0)
 					{
 						mediaFilePathsToScan = mediaFilePaths;
-						for (PlaylistObserver observer : observers)
+						for (PlaylistObserver observer : observers.values())
 						{
 							observer.startRescan(mediaFilePathsToScan.size());
 						}
@@ -300,7 +302,7 @@ public class Playlist
 						for(int i = lastFsScanInterruptPathIndex+1; i < mediaFilePaths.size(); i++){
 							mediaFilePathsToScan.add(mediaFilePaths.get(i));
 						}
-						for (PlaylistObserver observer : observers)
+						for (PlaylistObserver observer : observers.values())
 						{
 							observer.unpauseRescan(lastFsScanInterruptPathIndex+1, mediaFilePathsToScan.size());
 						}
@@ -311,7 +313,7 @@ public class Playlist
 				catch (InterruptedException e)
 				{
 					wasPaused = true;
-					for (PlaylistObserver observer : observers)
+					for (PlaylistObserver observer : observers.values())
 					{
 						observer.pauseRescan();
 					}
@@ -320,7 +322,7 @@ public class Playlist
 				{
 					if(!wasPaused)
 					{
-						for (PlaylistObserver observer : observers)
+						for (PlaylistObserver observer : observers.values())
 						{
 							observer.endRescan();
 						}
@@ -349,7 +351,7 @@ public class Playlist
 			finally
 			{
 				countProcessed++;
-				for (PlaylistObserver observer : observers)
+				for (PlaylistObserver observer : observers.values())
 				{
 					observer.trackAdded(mediaFilePath, countProcessed);
 				}
@@ -366,7 +368,7 @@ public class Playlist
 		}
 
 		preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, null);
-		for (PlaylistObserver observer : observers)
+		for (PlaylistObserver observer : observers.values())
 		{
 			observer.endUpdatePlaylist();
 		}
@@ -394,9 +396,9 @@ public class Playlist
 
 	//------------------------------------------------------ 	Observable
 
-	final List<PlaylistObserver> observers = new ArrayList<PlaylistObserver>();
+	final Map<String, PlaylistObserver> observers = new HashMap<String, PlaylistObserver>();
 
-	public interface PlaylistObserver
+	public interface PlaylistObserver extends Observer
 	{
 		void trackAdded(final String filePath, final int allreadyProcessed);
 
@@ -443,12 +445,12 @@ public class Playlist
 
 	public void addObserver(PlaylistObserver observer)
 	{
-		observers.add(observer);
+		observers.put(observer.getId(), observer);
 	}
 
-	public void removeObserver(PlaylistObserver observer)
+	public void removeObserver(Observer observer)
 	{
-		observers.remove(observer);
+		observers.remove(observer.getId());
 	}
 
 }

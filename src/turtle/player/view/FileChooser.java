@@ -41,6 +41,7 @@ import java.util.Set;
 
 public class FileChooser implements TurtleDatabase.DbObserver
 {
+
 	public enum Mode
 	{
 		Album(R.id.albumButton, R.drawable.album48, R.drawable.album48_active),
@@ -266,6 +267,11 @@ public class FileChooser implements TurtleDatabase.DbObserver
 	public void cleared()
 	{
 		listAdapter.clear();
+	}
+
+	public String getId()
+	{
+		return "FileChooserUpdater";
 	}
 
 	private ImageView getButton(Mode mode)
