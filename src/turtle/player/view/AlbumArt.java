@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 import turtle.player.R;
@@ -85,17 +86,16 @@ public class AlbumArt
 		artist = (TextView) albumArtView.findViewById(R.id.trackArtist);
 		album = (TextView) albumArtView.findViewById(R.id.trackAlbum);
 
-
-		//Hack to place AlbumArts. Needs already layouted views.
-		albumArtView.setOnTouchListener(new View.OnTouchListener()
+		albumArtView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener()
 		{
-			public boolean onTouch(View v, MotionEvent event)
+			public boolean onPreDraw()
 			{
 				setInitialPositions();
-				albumArtView.setOnTouchListener(null);
-				return false;
+				albumArtView.getViewTreeObserver().removeOnPreDrawListener(this);
+				return true;
 			}
 		});
+
 	}
 
 	public View getAlbumArtView()
@@ -154,7 +154,7 @@ public class AlbumArt
 		albumArtView.invalidate();
 	}
 
-	private void setInitialPositions()
+	public void setInitialPositions()
 	{
 		albumArtView.setVisibility(View.VISIBLE);
 		albumArtView.scrollTo((int)(type.getHorizontalShift() * albumArtView.getWidth()), 0);
