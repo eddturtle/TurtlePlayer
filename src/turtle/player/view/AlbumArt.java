@@ -156,6 +156,7 @@ public class AlbumArt
 
 	private void setInitialPositions()
 	{
+		albumArtView.setVisibility(View.VISIBLE);
 		albumArtView.scrollTo((int)(type.getHorizontalShift() * albumArtView.getWidth()), 0);
 	}
 }
