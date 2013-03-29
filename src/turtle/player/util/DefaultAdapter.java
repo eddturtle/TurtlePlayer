@@ -20,6 +20,8 @@ package turtle.player.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,9 +31,7 @@ import turtle.player.R;
 import turtle.player.model.Instance;
 import turtle.player.presentation.InstanceFormatter;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class DefaultAdapter<T extends Instance> extends ArrayAdapter<T>
@@ -40,6 +40,7 @@ public class DefaultAdapter<T extends Instance> extends ArrayAdapter<T>
 	private final Activity activity;
 	private final boolean allowsDuplicates;
 	private final InstanceFormatter formatter;
+	final Handler instanceAddedhandler = new Handler(Looper.getMainLooper());
 
 	/**
 	 * @param context needed by super
@@ -71,8 +72,16 @@ public class DefaultAdapter<T extends Instance> extends ArrayAdapter<T>
 				{
 					if(allowsDuplicates || !objects.contains(object)){
 						objects.add(object);
-						Collections.sort(objects, new FormattedInstanceComparator(formatter));
-						notifyDataSetChanged();
+						if(!instanceAddedhandler.hasMessages(0)){
+							instanceAddedhandler.postDelayed(new Runnable()
+							{
+								public void run()
+								{
+									Collections.sort(objects, new FormattedInstanceComparator(formatter));
+									notifyDataSetChanged();
+								}
+							}, 2000);
+						}
 					}
 				}
 			});
