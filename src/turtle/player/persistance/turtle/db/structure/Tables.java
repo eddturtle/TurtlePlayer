@@ -1,5 +1,6 @@
 package turtle.player.persistance.turtle.db.structure;
 
+import turtle.player.model.AlbumArtLocation;
 import turtle.player.model.Artist;
 import turtle.player.model.Track;
 import turtle.player.persistance.source.relational.Field;
@@ -33,6 +34,7 @@ import java.util.List;
 public class Tables
 {
 	public final static Tracks TRACKS = new Tracks();
+	public final static AlbumArtLocations ALBUM_ART_LOCATIONS = new AlbumArtLocations();
 
 	public static final class Tracks extends Table<Track>
 	{
@@ -86,14 +88,6 @@ public class Tables
 			}
 		};
 
-		public final FieldPersistable<Track, Double> LENGTH = new FieldPersistableAsDouble<Track>("length")
-		{
-			public Double get(Track instance)
-			{
-				return instance.GetLength();
-			}
-		};
-
 		public final FieldPersistable<Track, String> SRC = new FieldPersistableAsString<Track>("src")
 		{
 			public String get(Track instance)
@@ -110,18 +104,35 @@ public class Tables
 			}
 		};
 
-		public final FieldPersistable<Track, String> ALBUMART = new FieldPersistableAsString<Track>("hasAlbumArt")
-		{
-			public String get(Track instance)
-			{
-				return instance.albumArt();
-			}
-		};
-
 		public Tracks()
 		{
 			super("Tracks");
 		}
 
+	}
+
+	public static final class AlbumArtLocations extends Table<AlbumArtLocation>
+	{
+
+		public final FieldPersistable<AlbumArtLocation, String> PATH = new FieldPersistableAsString<AlbumArtLocation>("path")
+		{
+			public String get(AlbumArtLocation albumArtLocation)
+			{
+				return albumArtLocation.getPath();
+			}
+		};
+
+		public final FieldPersistable<AlbumArtLocation, String> ALBUM_ART_PATH = new FieldPersistableAsString<AlbumArtLocation>("albumArtpath")
+		{
+			public String get(AlbumArtLocation albumArtLocation)
+			{
+				return albumArtLocation.getAlbumArtpath();
+			}
+		};
+
+		public AlbumArtLocations()
+		{
+			super("AlbumArt");
+		}
 	}
 }

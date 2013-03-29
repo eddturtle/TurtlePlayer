@@ -21,12 +21,20 @@ package turtle.player.persistance.turtle;
 
 import android.media.MediaMetadataRetriever;
 import android.util.Log;
+import com.mpatric.mp3agic.ID3v1;
+import com.mpatric.mp3agic.InvalidDataException;
+import com.mpatric.mp3agic.Mp3File;
+import com.mpatric.mp3agic.UnsupportedTagException;
 import turtle.player.common.filefilter.FileFilters;
-import turtle.player.model.Album;
-import turtle.player.model.Artist;
-import turtle.player.model.Genre;
-import turtle.player.model.Track;
+import turtle.player.model.*;
+import turtle.player.persistance.framework.executor.OperationExecutor;
+import turtle.player.persistance.framework.filter.FieldFilter;
+import turtle.player.persistance.framework.filter.Operator;
+import turtle.player.persistance.source.sql.First;
+import turtle.player.persistance.source.sqlite.QuerySqlite;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.mapping.AlbumArtLocationCreator;
 import turtle.player.preferences.Preferences;
 import turtle.player.util.Shorty;
 
@@ -37,9 +45,7 @@ public class FsReader
 {
 
 	public static void scanFile(String filePath,
-										  String rootPath,
 										  TurtleDatabase db,
-										  MediaMetadataRetriever metaDataReader,
 	                             Map<String, String> dirAlbumArtMap) throws IOException
 	{
 		// http://www.exampledepot.com/egs/java.io/GetFiles.html
@@ -48,24 +54,49 @@ public class FsReader
 
 		long start = System.currentTimeMillis();
 
-		metaDataReader.setDataSource(filePath);
-
-		Log.v(Preferences.TAG, "init   " + (System.currentTimeMillis() - start) + "ms");
-
 		String rootSrc = filePath.substring(0, filePath.lastIndexOf("/"));
 
-		String title = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_TITLE);
-		int number = parseTrackNumber(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER));
-		double length = parseDuration(extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_DURATION));
-		String artist = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ARTIST);
-		String album = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_ALBUM);
-		String genre = extractMetadata(metaDataReader, MediaMetadataRetriever.METADATA_KEY_GENRE);
+		String title = null;
+		String artist = null;
+		String album = null;
+		int genre = -1;
+		int number = 0;
+		try
+		{
+			synchronized (Mp3File.class)
+			{
+				Mp3File mp3file = new Mp3File(filePath, false);
+				final ID3v1 id3tag;
 
-		Log.v(Preferences.TAG, "md     " + (System.currentTimeMillis() - start) + "ms");
+				if(mp3file.hasId3v1Tag()){
+					id3tag = mp3file.getId3v1Tag();
+				}
+				else if(mp3file.hasId3v2Tag())
+				{
+					id3tag = mp3file.getId3v2Tag();
+				}
+				else
+				{
+					id3tag = null;
+				}
 
-		final String albumArt = getAlbumArt(rootSrc, rootPath, dirAlbumArtMap);
-
-		Log.v(Preferences.TAG, "albumAr" + (System.currentTimeMillis() - start) + "ms");
+				if(id3tag != null){
+					title = id3tag.getTitle();
+					artist = id3tag.getArtist();
+					album = id3tag.getAlbum();
+					genre = id3tag.getGenre();
+					number = parseTrackNumber(id3tag.getTrack());
+				}
+			}
+		}
+		catch (UnsupportedTagException e)
+		{
+			throw new IOException("Unable to read ID3 tag", e);
+		}
+		catch (InvalidDataException e)
+		{
+			throw new IOException("Unable to read ID3 tag", e);
+		}
 
 		if (Shorty.isVoid(title))
 		{
@@ -81,41 +112,18 @@ public class FsReader
 				  number,
 				  new Artist(artist),
 				  new Album(album),
-				  new Genre(genre),
-				  length,
+				  new Genre(genre < 0 ? "" : String.valueOf(genre)),
 				  filePath,
-				  rootSrc,
-				  albumArt
+				  rootSrc
 		);
 		Log.v(Preferences.TAG, "created " + (System.currentTimeMillis() - start) + "ms");
 		db.push(t);
 		Log.v(Preferences.TAG, "pushed  " + (System.currentTimeMillis() - start) + "ms");
 	}
 
-	/**
-	 * calls {@link MediaMetadataRetriever#extractMetadata(int)} and removes
-	 * chunk after 0 terminated string
-	 *
-	 * @param keyCode see {@link MediaMetadataRetriever#extractMetadata(int)}
-	 * @return
-	 */
-	static String extractMetadata(MediaMetadataRetriever metaDataReader,
-											int keyCode)
-	{
-		String metaData = Shorty.avoidNull(metaDataReader.extractMetadata(keyCode));
-
-		//replace all chars exept letters and digits, space and dash
-		//return metaData.replaceAll("^\\w\\s-,:;?$[]\"]","");
-
-		int indexOfZeroTermination = metaData.indexOf(0);
-		return indexOfZeroTermination < 0 ? metaData : metaData.substring(0, indexOfZeroTermination);
-	}
-
 	static public List<String> getMediaFilesPaths(String mediaPath, List<? extends FilenameFilter> filters, boolean recursive, boolean getFirstMatch){
 
 		List<String> candidates = new ArrayList<String>();
-
-		long start = System.currentTimeMillis();
 
 		try
 		{
@@ -171,16 +179,21 @@ public class FsReader
 		return acceptedPaths;
 	}
 
-	static private String getAlbumArt(String mediaFileDir, String rootDir, Map<String, String> dirAlbumArtMap)
+	public static String getAlbumArt(String mediaFileDir, TurtleDatabase db)
 	{
 		final String result;
 
-		if(dirAlbumArtMap.containsKey(mediaFileDir))
+		AlbumArtLocation albumArtLocation = OperationExecutor.execute(
+				  db,
+				  new QuerySqlite<AlbumArtLocation>(new FieldFilter<AlbumArtLocation, String>(Tables.ALBUM_ART_LOCATIONS.PATH, Operator.EQ, mediaFileDir),
+				  new First<AlbumArtLocation>(Tables.ALBUM_ART_LOCATIONS, new AlbumArtLocationCreator())));
+
+		if(albumArtLocation != null)
 		{
-			return dirAlbumArtMap.get(mediaFileDir);
+			return albumArtLocation.getAlbumArtpath();
 		}
 
-		if (mediaFileDir.contains(rootDir)){
+		if (!Shorty.isVoid(mediaFileDir.replaceAll("/", "").replaceAll("\\.", ""))){
 			List<String> albumArtStrings = FsReader.getMediaFilesPaths(mediaFileDir, FileFilters.folderArtFilters, false, true);
 			if(!albumArtStrings.isEmpty())
 			{
@@ -188,25 +201,32 @@ public class FsReader
 			}
 			else
 			{
-				result = getAlbumArt(mediaFileDir.substring(0, mediaFileDir.lastIndexOf("/")), rootDir, dirAlbumArtMap);
+				result = getAlbumArt(mediaFileDir.substring(0, mediaFileDir.lastIndexOf("/")), db);
 			}
 		}
 		else{
 			result = null;
 		}
 
-		dirAlbumArtMap.put(mediaFileDir, result);
+		db.push(new AlbumArtLocation(mediaFileDir, result));
 		return result;
 	}
 
 	static int parseTrackNumber(String trackNumber)
 	{
 		//strips all chars beginning at first non digit (e.g. 5/10)
-		String strippedTrackNumber = trackNumber.replaceAll("\\D.*", "");
+		String strippedTrackNumber = trackNumber == null ? "" : trackNumber.replaceAll("\\D.*", "");
 
 		if (strippedTrackNumber.length() > 0)
 		{
-			return Integer.parseInt(strippedTrackNumber);
+			try
+			{
+				return Integer.parseInt(strippedTrackNumber);
+			}
+			catch (NumberFormatException e)
+			{
+				Log.w(Preferences.TAG, "Unable to parse track number :" + strippedTrackNumber);
+			}
 		}
 		return 0;
 	}
@@ -218,7 +238,7 @@ public class FsReader
 			return Double.parseDouble(duration);
 		} catch (NumberFormatException e)
 		{
-			Log.v(Preferences.TAG, "Not able to parse duration '" + duration + "': " + e.getMessage());
+			Log.v(Preferences.TAG, "Unable to parse duration '" + duration + "': " + e.getMessage());
 		}
 		return 0;
 	}

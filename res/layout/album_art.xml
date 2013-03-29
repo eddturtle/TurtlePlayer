@@ -21,14 +21,14 @@
     <LinearLayout
             android:id="@+id/linearLayout1"
             android:layout_width="wrap_content"
-            android:layout_height="80dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:background="@drawable/trans_bg"
+            android:background="#75000000"
             android:orientation="vertical"
-            android:paddingBottom="0dp"
-            android:paddingTop="10dp" >
+            android:paddingBottom="14dp"
+            android:paddingTop="5dp" >
 
         <TextView
                 android:id="@+id/trackTitle"
@@ -36,28 +36,66 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:shadowColor="#000"
-                android:shadowDx="0"
-                android:shadowDy="0"
-                android:shadowRadius="5"
                 android:singleLine="true"
-                android:text="@string/rootSrcInitialValue"
+                android:text="@string/trackInitialValue"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:visibility="visible" />
 
-        <TextView
-                android:id="@+id/trackArtist"
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:background="#5033ff33"
+            android:layout_margin="5dp"/>
+
+        <LinearLayout
+                android:id="@+id/artistLayout1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="15dp"
-                android:shadowColor="#000"
-                android:shadowDx="0"
-                android:shadowDy="0"
-                android:shadowRadius="5"
-                android:text="@string/artistInitialValue"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:visibility="visible" />
+                android:layout_marginLeft="12dp"
+                android:orientation="horizontal">
+            <ImageView
+                    android:scaleType="fitCenter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:src="@drawable/artist24" />
+            <TextView
+                    android:id="@+id/trackArtist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="15dp"
+                    android:singleLine="true"
+                    android:text="@string/artistInitialValue"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:visibility="visible" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/artistLayout1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                    android:scaleType="fitCenter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:src="@drawable/album24" />
+            <TextView
+                    android:id="@+id/trackAlbum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="90dp"
+                    android:singleLine="true"
+                    android:text="@string/albumInitialValue"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:visibility="visible" />
+        </LinearLayout>
 
     </LinearLayout>
 

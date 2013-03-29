@@ -79,27 +79,59 @@ public class Playlist
 		this.db = db;
 	}
 
-	public <O> Filter addFilter(FieldPersistable<Track, O> field, Track track){
+	/**
+	 * @return true if the filter was activated
+	 */
+	public <O> boolean toggleFilter(FieldPersistable<Track, O> field, Track track){
 		Filter filter = new FieldFilter<Track, O>(field, Operator.EQ, field.get(track));
-		filters.add(filter);
-		for (PlaylistObserver observer : observers)
+		if(!filters.contains(filter))
 		{
-			observer.filterAdded(filter);
+			addFilter(filter);
+			return true;
 		}
-		return filter;
-	}
-
-	public void removeFilter(Filter filter){
-		filters.remove(filter);
-		for (PlaylistObserver observer : observers)
+		else
 		{
-			observer.filterRemoved(filter);
+			removeFilter(filter);
+			return false;
 		}
 	}
 
-	public Filter getFilter()
+	/**
+	 * @return true if the filter was not allready there
+	 */
+	public <O> boolean addFilter(Filter filter){
+		boolean modified = filters.add(filter);
+		if(modified)
+		{
+			for (PlaylistObserver observer : observers)
+			{
+				observer.filterAdded(filter);
+			}
+		}
+		return modified;
+	}
+
+	public boolean removeFilter(Filter filter){
+		boolean modified = filters.remove(filter);
+
+		if(modified)
+		{
+			for (PlaylistObserver observer : observers)
+			{
+				observer.filterRemoved(filter);
+			}
+		}
+		return modified;
+	}
+
+	public Filter getCompressedFilter()
 	{
 		return filters.isEmpty() ? new FilterSet() : new FilterSet(filters);
+	}
+
+	public Set<Filter> getFilter()
+	{
+		return Collections.unmodifiableSet(filters);
 	}
 
 	/**@
@@ -119,7 +151,7 @@ public class Playlist
 		return OperationExecutor.execute(
 				  db,
 				  new QuerySqlite<Track>(
-							 new FilterSet(getFilter(), new FieldFilter<Track, String>(Tables.TRACKS.SRC, Operator.EQ, src)),
+							 new FilterSet(getCompressedFilter(), new FieldFilter<Track, String>(Tables.TRACKS.SRC, Operator.EQ, src)),
 							 new First<Track>(Tables.TRACKS, new TrackCreator())
 				  )
 		);
@@ -140,7 +172,7 @@ public class Playlist
 	{
 		return OperationExecutor.execute(db,
 				  new QuerySqlite<Track>(
-							 getFilter(),
+							 getCompressedFilter(),
 							 new RandomOrder(),
 							 new First<Track>(Tables.TRACKS, new TrackCreator())));
 	}
@@ -274,7 +306,7 @@ public class Playlist
 						}
 					}
 
-					scanFiles(mediaFilePathsToScan, db, mediaPath, lastFsScanInterruptPathIndex);
+					scanFiles(mediaFilePathsToScan, db, lastFsScanInterruptPathIndex);
 				}
 				catch (InterruptedException e)
 				{
@@ -298,58 +330,51 @@ public class Playlist
 		});
 	}
 
-	public void scanFiles(Collection<String> mediaFilePaths, TurtleDatabase db, String rootPath, int allreadyProcessed) throws InterruptedException
+	public void scanFiles(Collection<String> mediaFilePaths, TurtleDatabase db, int allreadyProcessed) throws InterruptedException
 	{
-		MediaMetadataRetriever metaDataReader = new MediaMetadataRetriever();
+		Map<String, String> dirAlbumArtMap = new HashMap<String, String>();
+		int countProcessed = allreadyProcessed;
 
-		try{
-			Map<String, String> dirAlbumArtMap = new HashMap<String, String>();
-			int countProcessed = allreadyProcessed;
-
-			for(String mediaFilePath : mediaFilePaths)
+		for(String mediaFilePath : mediaFilePaths)
+		{
+			try
 			{
-				try
+				FsReader.scanFile(mediaFilePath, db, dirAlbumArtMap);
+			}
+			catch (IOException e)
+			{
+				//log and go on with next File
+				Log.v(Preferences.TAG, "failed to process " + mediaFilePath);
+			}
+			finally
+			{
+				countProcessed++;
+				for (PlaylistObserver observer : observers)
 				{
-					FsReader.scanFile(mediaFilePath, rootPath, db, metaDataReader, dirAlbumArtMap);
+					observer.trackAdded(mediaFilePath, countProcessed);
 				}
-				catch (IOException e)
-				{
-					//log and go on with next File
-					Log.v(Preferences.TAG, "failed to process " + mediaFilePath);
-				}
-				finally
-				{
-					countProcessed++;
-					for (PlaylistObserver observer : observers)
-					{
-						observer.trackAdded(mediaFilePath, countProcessed);
-					}
-				}
-
-				if (Thread.currentThread().isInterrupted()) {
-					preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, mediaFilePath);
-					preferences.set(Keys.FS_SCAN_INTERRUPT_COUNT_PROCESSED, countProcessed);
-					preferences.set(Keys.FS_SCAN_INTERRUPT_COUNT_ALL, mediaFilePaths.size());
-					throw new InterruptedException();
-				}
-
-				Thread.sleep(10);
 			}
 
-			preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, null);
-			for (PlaylistObserver observer : observers)
-			{
-				observer.endUpdatePlaylist();
+			if (Thread.currentThread().isInterrupted()) {
+				preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, mediaFilePath);
+				preferences.set(Keys.FS_SCAN_INTERRUPT_COUNT_PROCESSED, countProcessed);
+				preferences.set(Keys.FS_SCAN_INTERRUPT_COUNT_ALL, mediaFilePaths.size());
+				throw new InterruptedException();
 			}
+
+			Thread.yield();
 		}
-		finally {
-			metaDataReader.release();
+
+		preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, null);
+		for (PlaylistObserver observer : observers)
+		{
+			observer.endUpdatePlaylist();
 		}
 	}
 
 	public Collection<Track> getCurrTracks()
 	{
-		return db.getTracks(getFilter());
+		return db.getTracks(getCompressedFilter());
 	}
 
 	public int Length()

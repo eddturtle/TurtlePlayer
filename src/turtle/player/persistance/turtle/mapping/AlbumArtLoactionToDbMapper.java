@@ -1,8 +1,8 @@
 package turtle.player.persistance.turtle.mapping;
 
 import android.content.ContentValues;
+import turtle.player.model.AlbumArtLocation;
 import turtle.player.model.Track;
-import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.source.sql.QueryGeneratorTable;
 import turtle.player.persistance.turtle.db.structure.Tables;
 
@@ -23,24 +23,19 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class TrackToDbMapper extends QueryGeneratorTable<Track>
+public class AlbumArtLoactionToDbMapper extends QueryGeneratorTable<AlbumArtLocation>
 {
-	public TrackToDbMapper()
+	public AlbumArtLoactionToDbMapper()
 	{
-		super(Tables.TRACKS);
+		super(Tables.ALBUM_ART_LOCATIONS);
 	}
 
-	public ContentValues create(Track track)
+	public ContentValues create(AlbumArtLocation albumArtLocation)
 	{
 		final ContentValues values = new ContentValues();
 
-		values.put(Tables.TRACKS.TITLE.getName(), track.GetTitle());
-		values.put(Tables.TRACKS.NUMBER.getName(), track.GetNumber());
-		values.put(Tables.TRACKS.ARTIST.getName(), track.GetArtist().getId());
-		values.put(Tables.TRACKS.ALBUM.getName(), track.GetAlbum().getId());
-		values.put(Tables.TRACKS.GENRE.getName(), track.GetGenre().getId());
-		values.put(Tables.TRACKS.SRC.getName(), track.GetSrc());
-		values.put(Tables.TRACKS.ROOTSRC.getName(), track.GetRootSrc());
+		values.put(Tables.ALBUM_ART_LOCATIONS.PATH.getName(), albumArtLocation.getPath());
+		values.put(Tables.ALBUM_ART_LOCATIONS.ALBUM_ART_PATH.getName(), albumArtLocation.getAlbumArtpath());
 
 		return  values;
 	}

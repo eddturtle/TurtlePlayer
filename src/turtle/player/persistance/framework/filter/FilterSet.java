@@ -54,4 +54,23 @@ public class FilterSet implements Filter
 	{
 		return Arrays.deepToString(filters.toArray());
 	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		FilterSet filterSet = (FilterSet) o;
+
+		if (filters != null ? !filters.equals(filterSet.filters) : filterSet.filters != null) return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return filters != null ? filters.hashCode() : 0;
+	}
 }

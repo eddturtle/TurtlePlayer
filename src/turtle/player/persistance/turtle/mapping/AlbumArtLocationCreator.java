@@ -1,7 +1,9 @@
-package turtle.player.persistance.source.relational;
+package turtle.player.persistance.turtle.mapping;
 
-import java.io.Serializable;
-import java.util.List;
+import android.database.Cursor;
+import turtle.player.model.*;
+import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -20,17 +22,13 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class Table<I> implements Serializable
+public class AlbumArtLocationCreator implements Creator<AlbumArtLocation, Cursor>
 {
-	final String name;
-
-	public Table(String name)
+	public AlbumArtLocation create(Cursor cursor)
 	{
-		this.name = name;
-	}
-
-	public String getName()
-	{
-		return name;
+		return new AlbumArtLocation(
+				  cursor.getString(cursor.getColumnIndex(Tables.ALBUM_ART_LOCATIONS.PATH.getName())),
+				  cursor.getString(cursor.getColumnIndex(Tables.ALBUM_ART_LOCATIONS.ALBUM_ART_PATH.getName()))
+		);
 	}
 }

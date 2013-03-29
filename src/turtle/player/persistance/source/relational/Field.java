@@ -1,5 +1,7 @@
 package turtle.player.persistance.source.relational;
 
+import java.io.Serializable;
+
 /**
  * TURTLE PLAYER
  * <p/>
@@ -17,7 +19,7 @@ package turtle.player.persistance.source.relational;
  * @author Simon Honegger (Hoene84)
  */
 
-public class Field
+public class Field implements Serializable
 {
 	private final String name;
 
@@ -29,5 +31,24 @@ public class Field
 	public String getName()
 	{
 		return name;
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Field field = (Field) o;
+
+		if (!name.equals(field.name)) return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return name.hashCode();
 	}
 }

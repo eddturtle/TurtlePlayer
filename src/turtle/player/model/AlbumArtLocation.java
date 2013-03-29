@@ -1,7 +1,4 @@
-package turtle.player.persistance.source.relational;
-
-import java.io.Serializable;
-import java.util.List;
+package turtle.player.model;
 
 /**
  * TURTLE PLAYER
@@ -20,17 +17,25 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class Table<I> implements Serializable
+public class AlbumArtLocation
 {
-	final String name;
+	private final String path;
+	private final String albumArtpath;
 
-	public Table(String name)
+	public AlbumArtLocation(String path,
+									String albumArtpath)
 	{
-		this.name = name;
+		this.path = path;
+		this.albumArtpath = albumArtpath;
 	}
 
-	public String getName()
+	public String getPath()
 	{
-		return name;
+		return path;
+	}
+
+	public String getAlbumArtpath()
+	{
+		return albumArtpath;
 	}
 }

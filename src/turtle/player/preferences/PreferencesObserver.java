@@ -20,5 +20,5 @@ package turtle.player.preferences;
 
 public interface PreferencesObserver
 {
-	void changed(Key key);
+	void changed(AbstractKey key);
 }

@@ -1,0 +1,10 @@
+This project has a submodule for reading Id3 tags.
+To initialize the submodule, use:
+
+git submodule update --init
+
+alternativly, checkout the Turtle Player project with the recursive option:
+
+git clone --recursive git://github.com/mysociety/whatdotheyknow.git
+
+to add the source to your project, it is recommended to use a maven plugin for your IDE

@@ -1,5 +1,7 @@
 package turtle.player.persistance.framework.filter;
 
+import java.io.Serializable;
+
 /**
  * TURTLE PLAYER
  * <p/>
@@ -17,7 +19,7 @@ package turtle.player.persistance.framework.filter;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface Filter
+public interface Filter extends Serializable
 {
 	<R, I> R accept(FilterVisitor<I, R> visitor);
 }

@@ -62,6 +62,8 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 		final int layoutIdText;
 		final FieldPersistable<Track, ?> field;
 
+		boolean active = false;
+
 		private BowMenuEntry(int layoutId,
 									int layoutOnIdPic,
 									int layoutOffIdPic,
@@ -85,7 +87,12 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 			return field;
 		}
 
-		public int getLayoutPic(boolean active)
+		public boolean isActive()
+		{
+			return active;
+		}
+
+		public int getLayoutPic()
 		{
 			return active ? layoutIdOnPic : layoutIdOffPic;
 		}
@@ -94,12 +101,16 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 		{
 			return layoutIdText;
 		}
+
+		public void setActive(boolean active)
+		{
+			this.active = active;
+		}
 	}
 
 	//Filter
 	private final Map<BowMenuEntry, ImageView> bowMenuEntries = new HashMap<BowMenuEntry, ImageView>();
 	private final Map<BowMenuEntry, TextView> bowMenuTextEntries = new HashMap<BowMenuEntry, TextView>();
-	private final Set<View> bowMenuViews = new HashSet<View>();
 	private final ImageView pointer;
 
 	private final View[] scrollingViews;
@@ -122,8 +133,6 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 
 			bowMenuEntries.put(bowMenuEntry, view);
 			bowMenuTextEntries.put(bowMenuEntry, viewText);
-			bowMenuViews.add(view);
-			bowMenuViews.add(viewText);
 		}
 
 		initalScrollingOfScrollingViews = new Point[scrollingViews.length];
@@ -194,7 +203,11 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 		{
 			pointer.setVisibility(View.VISIBLE);
 
-			for(View view : bowMenuViews){
+			for(View view : bowMenuEntries.values()){
+				view.setVisibility(View.VISIBLE);
+			}
+
+			for(View view : bowMenuTextEntries.values()){
 				view.setVisibility(View.VISIBLE);
 			}
 
@@ -224,35 +237,36 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 			{
 				if(!wasConsumed)
 				{
-					switch (currMode)
-					{
-						case MENU:
-							for(Map.Entry<BowMenuEntry, ImageView> entry : bowMenuEntries.entrySet()){
-								if(isPointInsideOf(entry.getValue(), event.getRawX(), event.getRawY())){
-									filterSelected(entry.getKey().getField());
-								}
-							}
-							break;
+					for(BowMenuEntry bowMenuEntry : BowMenuEntry.values()){
+						if(isPointInsideOf(bowMenuEntries.get(bowMenuEntry), event.getRawX(), event.getRawY()) &&
+								  (bowMenuEntry.isActive() && scrollingViews[0].getScrollX() == 0 || Mode.MENU.equals(currMode))){
+							filterSelected(bowMenuEntry.getField());
+						}
+					}
 
-						case TRACK:
-							if(scrollingViews[0].getScrollX() > scrollingViews[0].getWidth()*2/3){
-								nextGestureRecognized();
-								consumed = true;
-							}
-							else if(-scrollingViews[0].getScrollX() > scrollingViews[0].getWidth()*2/3)
-							{
-								previousGestureRecognized();
-								consumed = true;
-							}
-							break;
+					if (Mode.TRACK.equals(currMode))
+					{
+						if(scrollingViews[0].getScrollX() > scrollingViews[0].getWidth()*2/3){
+							nextGestureRecognized();
+							consumed = true;
+						}
+						else if(-scrollingViews[0].getScrollX() > scrollingViews[0].getWidth()*2/3)
+						{
+							previousGestureRecognized();
+							consumed = true;
+						}
 					}
 				}
 
 				resetScrollingViews();
 				pointer.scrollTo(0,0);
 				pointer.setVisibility(View.INVISIBLE);
-				for(View view : bowMenuViews){
-					view.setVisibility(View.INVISIBLE);
+				for(BowMenuEntry bowMenuEntry : BowMenuEntry.values()){
+					if(!bowMenuEntry.isActive())
+					{
+						bowMenuEntries.get(bowMenuEntry).setVisibility(View.INVISIBLE);
+						bowMenuTextEntries.get(bowMenuEntry).setVisibility(View.INVISIBLE);
+					}
 				}
 
 				pointer.removeCallbacks(pointerShower);
@@ -301,7 +315,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 		}
 	}
 
-	public void trackChanged(Track track)
+	public void trackChanged(Track track, int lengthInMillis)
 	{
 		for(Map.Entry<BowMenuEntry, TextView> bowMenuEntry : bowMenuTextEntries.entrySet()){
 			bowMenuEntry.getValue().setText(bowMenuEntry.getKey().getField().getAsDisplayableString(track));
@@ -337,7 +351,10 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 				{
 					if(entry.getField().equals(fieldFilter.getField()))
 					{
-						bowMenuEntries.get(entry).setImageResource(entry.getLayoutPic(activated));
+						entry.setActive(activated);
+						bowMenuEntries.get(entry).setImageResource(entry.getLayoutPic());
+						bowMenuEntries.get(entry).setVisibility(View.VISIBLE);
+						bowMenuTextEntries.get(entry).setVisibility(View.VISIBLE);
 					}
 				}
 				return null;

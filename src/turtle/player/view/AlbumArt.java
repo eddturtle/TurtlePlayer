@@ -1,16 +1,17 @@
 package turtle.player.view;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.view.LayoutInflater;
+import android.os.AsyncTask;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 import turtle.player.R;
 import turtle.player.model.Track;
+import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.preferences.Preferences;
+import turtle.player.presentation.AlbumArtResolver;
 import turtle.player.presentation.InstanceFormatter;
 
 /**
@@ -65,9 +66,16 @@ public class AlbumArt
 	private final ImageView albumArt;
 	private final TextView title;
 	private final TextView artist;
+	private final TextView album;
 
-	public AlbumArt(View albumArtViewGroup, Type type)
+	private final TurtleDatabase db;
+	private  AsyncTask<Track, Void, Bitmap> actualAsyncTask = null;
+
+	public AlbumArt(View albumArtViewGroup,
+						 Type type,
+						 TurtleDatabase db)
 	{
+		this.db = db;
 
 		albumArtView = albumArtViewGroup.findViewById(type.getRId());
 		this.type = type;
@@ -75,6 +83,7 @@ public class AlbumArt
 		albumArt = (ImageView) albumArtView.findViewById(R.id.picture);
 		title = (TextView) albumArtView.findViewById(R.id.trackTitle);
 		artist = (TextView) albumArtView.findViewById(R.id.trackArtist);
+		album = (TextView) albumArtView.findViewById(R.id.trackAlbum);
 
 
 		//Hack to place AlbumArts. Needs already layouted views.
@@ -94,29 +103,55 @@ public class AlbumArt
 		return albumArtView;
 	}
 
-	public void setTrack(Track track)
+	public void setTrack(final Track track)
+	{
+		setTrackDigest(track);
+
+		if(track != null){
+			actualAsyncTask = new AlbumArtResolver(db){
+
+				@Override
+				protected Bitmap doInBackground(Track... params)
+				{
+					if(actualAsyncTask == this)
+					{
+						return super.doInBackground(params);
+					}
+					return null;
+				}
+
+				@Override
+				protected void onPostExecute(Bitmap bitmap)
+				{
+					if(actualAsyncTask == this && bitmap != null)
+					{
+						albumArt.setImageBitmap(bitmap);
+						Log.v(Preferences.TAG, "albumart for " + track.GetSrc() + " resolved");
+					}
+				}
+			}.execute(track);
+		}
+	}
+
+	/**
+	 * update View synchronous with attributes easy to resolve
+	 * @param track
+	 */
+	public void setTrackDigest(final Track track)
 	{
 		if(track != null){
-
 			title.setText(track.accept(InstanceFormatter.SHORT_WITH_NUMBER));
-			artist.setText(track.GetAlbum().accept(InstanceFormatter.SHORT));
-
-			if (track.albumArt() != null)
-			{
-				Bitmap bmp = BitmapFactory.decodeFile(track.albumArt());
-				albumArt.setImageBitmap(bmp);
-			} else
-			{
-				albumArt.setImageDrawable(albumArtView.getResources().getDrawable(R.drawable.blank_album_art));
-			}
-
+			artist.setText(track.GetArtist().accept(InstanceFormatter.SHORT));
+			album.setText(track.GetAlbum().accept(InstanceFormatter.SHORT));
 		}
 		else
 		{
 			title.setText("");
 			artist.setText("");
-			albumArt.setImageDrawable(albumArtView.getResources().getDrawable(R.drawable.blank_album_art));
+			album.setText("");
 		}
+		albumArt.setImageDrawable(albumArtView.getResources().getDrawable(R.drawable.blank_album_art));
+		albumArtView.invalidate();
 	}
 
 	private void setInitialPositions()

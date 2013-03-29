@@ -1,0 +1,3 @@
+[submodule "mp3agic"]
+	path = mp3agic
+	url = git@github.com:Hoene84/mp3agic.git

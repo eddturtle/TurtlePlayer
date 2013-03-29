@@ -1,6 +1,9 @@
 package turtle.player.view;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import turtle.player.R;
@@ -12,8 +15,9 @@ import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.player.Player;
 import turtle.player.playlist.Playlist;
-import turtle.player.playlist.playorder.PlayOrderSorted;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
+import turtle.player.preferences.Preferences;
+import turtle.player.presentation.AlbumArtResolver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,33 +44,55 @@ public class AlbumArtView
 
 	private final View albumArtViewGroup;
 
-	private final Map<FieldPersistable<Track, ?>, Filter> settedFilters =
-			  new HashMap<FieldPersistable<Track, ?>, Filter>();
-
 	//AlbumArt
 	private final AlbumArt albumArt;
 	private final AlbumArt albumArtLeft;
 	private final AlbumArt albumArtRight;
 
+	private AsyncTask<Track, Void, TrackBundle> actualAsyncTask = null;
+
 	public AlbumArtView(final Activity activity,
-							  final Player player,
-							  final PlayOrderStrategy playOrderStrategy,
-							  final Playlist playlist)
+							  final TurtlePlayer tp,
+							  final PlayOrderStrategy playOrderStrategy)
 	{
 		albumArtViewGroup = activity.findViewById(R.id.relativeLayout_albumArt);
 
-		albumArt = new AlbumArt(albumArtViewGroup, AlbumArt.Type.CENTER);
-		albumArtLeft = new AlbumArt(albumArtViewGroup, AlbumArt.Type.LEFT);
-		albumArtRight = new AlbumArt(albumArtViewGroup, AlbumArt.Type.RIGHT);
+		albumArt = new AlbumArt(albumArtViewGroup, AlbumArt.Type.CENTER, tp.db);
+		albumArtLeft = new AlbumArt(albumArtViewGroup, AlbumArt.Type.LEFT, tp.db);
+		albumArtRight = new AlbumArt(albumArtViewGroup, AlbumArt.Type.RIGHT, tp.db);
 
-		player.addObserver(new Player.PlayerObserver()
+		tp.player.addObserver(new Player.PlayerObserver()
 		{
-			public void trackChanged(Track track)
+			public void trackChanged(final Track track, int lengthInMillis)
 			{
-				TrackBundle trackBundle = playlist.enrich(playOrderStrategy, track);
-				albumArt.setTrack(trackBundle.getTrack());
-				albumArtRight.setTrack(trackBundle.getTrackAfter());
-				albumArtLeft.setTrack(trackBundle.getTrackBefore());
+				albumArt.setTrackDigest(track);
+				albumArtLeft.setTrackDigest(null);
+				albumArtRight.setTrackDigest(null);
+
+				actualAsyncTask = new AsyncTask<Track, Void, TrackBundle>(){
+
+					@Override
+					protected TrackBundle doInBackground(Track... params)
+					{
+						if(actualAsyncTask == this)
+						{
+							return tp.playlist.enrich(playOrderStrategy, params[0]);
+						}
+						return null;
+					}
+
+					@Override
+					protected void onPostExecute(TrackBundle trackBundle)
+					{
+						if(actualAsyncTask == this && trackBundle != null)
+						{
+							albumArt.setTrack(trackBundle.getTrack());
+							albumArtRight.setTrack(trackBundle.getTrackAfter());
+							albumArtLeft.setTrack(trackBundle.getTrackBefore());
+						}
+					}
+				}.execute(track);
+
 			}
 
 			public void started()
@@ -90,39 +116,29 @@ public class AlbumArtView
 			@Override
 			protected void nextGestureRecognized()
 			{
-				player.play(playlist.getNext(playOrderStrategy, player.getCurrTrack()));
+				tp.player.play(tp.playlist.getNext(playOrderStrategy, tp.player.getCurrTrack()));
 			}
 
 			@Override
 			protected void previousGestureRecognized()
 			{
-				player.play(playlist.getPrevious(playOrderStrategy, player.getCurrTrack()));
+				tp.player.play(tp.playlist.getPrevious(playOrderStrategy, tp.player.getCurrTrack()));
 			}
 
 
 			@Override
 			protected void filterSelected(FieldPersistable<Track, ?> field)
 			{
-				Filter previousFilter = settedFilters.get(field);
-				String msg = field.getName();
-				if(previousFilter == null)
-				{
-					settedFilters.put(field, playlist.addFilter(field, player.getCurrTrack()));
-					msg += " " + activity.getString(R.string.added);
-				}
-				else
-				{
-					playlist.removeFilter(previousFilter);
-					settedFilters.remove(field);
-					msg += " " + activity.getString(R.string.removed);
-				}
+				boolean added = tp.playlist.toggleFilter(field, tp.player.getCurrTrack());
 
+				String msg = field.getName();
+				msg += " " + (added ? activity.getString(R.string.added) : activity.getString(R.string.removed));
 				Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
 			}
 		};
 
 		albumArt.getAlbumArtView().setOnTouchListener(touchHandler);
-		playlist.addObserver(touchHandler);
-		player.addObserver(touchHandler);
+		tp.playlist.addObserver(touchHandler);
+		tp.player.addObserver(touchHandler);
 	}
 }
