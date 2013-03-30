@@ -51,14 +51,16 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 
 	private enum BowMenuEntry
 	{
-		LEFT(R.id.bowmenu_left, R.drawable.menubow_left_290_active, R.drawable.menubow_left_290, R.id.track_instant_filter_left, Tables.TRACKS.ALBUM),
-		RIGHT(R.id.bowmenu_right, R.drawable.menubow_right_290_active, R.drawable.menubow_right_290, R.id.track_instant_filter_right, Tables.TRACKS.ARTIST),
-		BOTTOM(R.id.bowmenu_bottom, R.drawable.menubow_bottom_290_active, R.drawable.menubow_bottom_290, R.id.track_instant_filter_bottom, Tables.TRACKS.GENRE),
-		TOP(R.id.bowmenu_top, R.drawable.menubow_top_290_active, R.drawable.menubow_top_290, R.id.track_instant_filter_top, Tables.TRACKS.ROOTSRC);
+		LEFT(R.id.bowmenu_left, R.drawable.menubow_left_290_active, R.drawable.menubow_left_290, R.id.bowmenu_left_icon, R.drawable.album24, R.id.track_instant_filter_left, Tables.TRACKS.ALBUM),
+		RIGHT(R.id.bowmenu_right, R.drawable.menubow_right_290_active, R.drawable.menubow_right_290, R.id.bowmenu_right_icon, R.drawable.artist24, R.id.track_instant_filter_right, Tables.TRACKS.ARTIST),
+		//BOTTOM(R.id.bowmenu_bottom, R.drawable.menubow_bottom_290_active, R.drawable.menubow_bottom_290, R.id.track_instant_filter_bottom, Tables.TRACKS.GENRE),
+		TOP(R.id.bowmenu_top, R.drawable.menubow_top_290_active, R.drawable.menubow_top_290, R.id.bowmenu_top_icon, R.drawable.genre24, R.id.track_instant_filter_top, Tables.TRACKS.GENRE);
 
 		final int layoutId;
 		final int layoutIdOnPic;
 		final int layoutIdOffPic;
+		final int layoutIconId;
+		final int layoutIconPic;
 		final int layoutIdText;
 		final FieldPersistable<Track, ?> field;
 
@@ -67,12 +69,16 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 		private BowMenuEntry(int layoutId,
 									int layoutOnIdPic,
 									int layoutOffIdPic,
+									int layoutIconId,
+									int layoutIconPic,
 									int layoutIdText,
 									FieldPersistable<Track, ?> field)
 		{
 			this.layoutId = layoutId;
 			this.layoutIdOnPic = layoutOnIdPic;
 			this.layoutIdOffPic = layoutOffIdPic;
+			this.layoutIconId = layoutIconId;
+			this.layoutIconPic = layoutIconPic;
 			this.layoutIdText = layoutIdText;
 			this.field = field;
 		}
@@ -80,6 +86,11 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 		public int getLayoutId()
 		{
 			return layoutId;
+		}
+
+		public int getLayoutIconId()
+		{
+			return layoutIconId;
 		}
 
 		public FieldPersistable<Track, ?> getField()
@@ -97,6 +108,11 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 			return active ? layoutIdOnPic : layoutIdOffPic;
 		}
 
+		public int getIconLayoutPic()
+		{
+			return layoutIconPic;
+		}
+
 		public int getLayoutIdText()
 		{
 			return layoutIdText;
@@ -110,6 +126,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 
 	//Filter
 	private final Map<BowMenuEntry, ImageView> bowMenuEntries = new HashMap<BowMenuEntry, ImageView>();
+	private final Map<BowMenuEntry, ImageView> bowMenuIconEntries = new HashMap<BowMenuEntry, ImageView>();
 	private final Map<BowMenuEntry, TextView> bowMenuTextEntries = new HashMap<BowMenuEntry, TextView>();
 	private final ImageView pointer;
 
@@ -129,9 +146,11 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 
 		for(BowMenuEntry bowMenuEntry : BowMenuEntry.values()){
 			ImageView view = (ImageView) activity.findViewById(bowMenuEntry.getLayoutId());
+			ImageView iconView = (ImageView) activity.findViewById(bowMenuEntry.getLayoutIconId());
 			TextView viewText = (TextView) activity.findViewById(bowMenuEntry.getLayoutIdText());
 
 			bowMenuEntries.put(bowMenuEntry, view);
+			bowMenuIconEntries.put(bowMenuEntry, iconView);
 			bowMenuTextEntries.put(bowMenuEntry, viewText);
 		}
 
@@ -207,6 +226,10 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 				view.setVisibility(View.VISIBLE);
 			}
 
+			for(View view : bowMenuIconEntries.values()){
+				view.setVisibility(View.VISIBLE);
+			}
+
 			for(View view : bowMenuTextEntries.values()){
 				view.setVisibility(View.VISIBLE);
 			}
@@ -265,6 +288,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 					if(!bowMenuEntry.isActive())
 					{
 						bowMenuEntries.get(bowMenuEntry).setVisibility(View.INVISIBLE);
+						bowMenuIconEntries.get(bowMenuEntry).setVisibility(View.INVISIBLE);
 						bowMenuTextEntries.get(bowMenuEntry).setVisibility(View.INVISIBLE);
 					}
 				}
@@ -353,8 +377,11 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 					{
 						entry.setActive(activated);
 						bowMenuEntries.get(entry).setImageResource(entry.getLayoutPic());
-						bowMenuEntries.get(entry).setVisibility(View.VISIBLE);
-						bowMenuTextEntries.get(entry).setVisibility(View.VISIBLE);
+						bowMenuIconEntries.get(entry).setImageResource(entry.getIconLayoutPic());
+						int visibility = activated ? View.VISIBLE : View.INVISIBLE;
+						bowMenuEntries.get(entry).setVisibility(visibility);
+						bowMenuIconEntries.get(entry).setVisibility(visibility);
+						bowMenuTextEntries.get(entry).setVisibility(visibility);
 					}
 				}
 				return null;

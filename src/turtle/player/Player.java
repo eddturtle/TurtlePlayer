@@ -782,6 +782,10 @@ public class Player extends ListActivity
 		Track trackSelected = fileChooser.choose((Instance) l.getItemAtPosition(position));
 		if (trackSelected != null)
 		{
+			if(!tp.playlist.getCompressedFilter().accept(new MatchFilterVisitor<Instance>(trackSelected)))
+			{
+				tp.playlist.clearFilters();
+			}
 			tp.player.play(trackSelected);
 			SwitchToNowPlayingSlide();
 		}

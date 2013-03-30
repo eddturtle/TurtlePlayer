@@ -26,9 +26,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 import turtle.player.R;
-import turtle.player.model.Instance;
+import turtle.player.model.*;
 import turtle.player.presentation.InstanceFormatter;
 
 import java.util.Collections;
@@ -129,6 +130,41 @@ public class DefaultAdapter<T extends Instance> extends ArrayAdapter<T>
 
 		TextView textView = (TextView) rowView.findViewById(R.id.label);
 		textView.setText(currObject.accept(formatter));
+
+		final ImageView icon = (ImageView) rowView.findViewById(R.id.icon);
+
+		currObject.accept(new InstanceVisitor<Object>()
+		{
+			public Object visit(Track track)
+			{
+				icon.setImageResource(R.drawable.track24);
+				return null;
+			}
+
+			public Object visit(TrackDigest track)
+			{
+				icon.setImageResource(R.drawable.track24);
+				return null;
+			}
+
+			public Object visit(Album album)
+			{
+				icon.setImageResource(R.drawable.album24);
+				return null;
+			}
+
+			public Object visit(Genre genre)
+			{
+				icon.setImageResource(R.drawable.genre24);
+				return null;
+			}
+
+			public Object visit(Artist artist)
+			{
+				icon.setImageResource(R.drawable.artist24);
+				return null;
+			}
+		});
 
 		return rowView;
 	}
