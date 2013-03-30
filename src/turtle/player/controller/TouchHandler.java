@@ -353,8 +353,9 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 					{
 						entry.setActive(activated);
 						bowMenuEntries.get(entry).setImageResource(entry.getLayoutPic());
-						bowMenuEntries.get(entry).setVisibility(View.VISIBLE);
-						bowMenuTextEntries.get(entry).setVisibility(View.VISIBLE);
+						int visibility = activated ? View.VISIBLE : View.INVISIBLE;
+						bowMenuEntries.get(entry).setVisibility(visibility);
+						bowMenuTextEntries.get(entry).setVisibility(visibility);
 					}
 				}
 				return null;
