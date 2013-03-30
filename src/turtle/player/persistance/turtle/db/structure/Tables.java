@@ -64,6 +64,12 @@ public class Tables
 			{
 				return instance.GetArtist().getId();
 			}
+
+			@Override
+			public String getAsDisplayableString(Track instance)
+			{
+				return instance.GetArtist().getName();
+			}
 		};
 
 		public final FieldPersistable<Track, String> ALBUM = new FieldPersistableAsString<Track>("album")
@@ -71,6 +77,12 @@ public class Tables
 			public String get(Track instance)
 			{
 				return instance.GetAlbum().getId();
+			}
+
+			@Override
+			public String getAsDisplayableString(Track instance)
+			{
+				return instance.GetAlbum().getName();
 			}
 		};
 
