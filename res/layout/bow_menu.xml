@@ -13,6 +13,17 @@
             android:visibility="invisible"
             />
 
+    <ImageView
+            android:id="@+id/bowmenu_top_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/genre24"
+            android:layout_marginTop="42px"
+            android:contentDescription="@string/pointer"
+            android:visibility="invisible"
+            />
+
     <TextView
             android:id="@+id/track_instant_filter_top"
             android:layout_width="match_parent"
@@ -20,7 +31,7 @@
             android:gravity="center"
             android:layout_alignLeft="@id/bowmenu_top"
             android:layout_alignRight="@id/bowmenu_top"
-            android:text="@string/rootSrcInitialValue"
+            android:text="@string/genreInitialValue"
             android:singleLine="true"
             android:paddingTop="5dp"
             android:paddingLeft="25dp"
@@ -39,7 +50,20 @@
             android:contentDescription="@string/pointer"
             android:visibility="invisible"
             />
-<!--  xmlns:android="http://schemas.android.com/apk/res/android" -->
+
+    <ImageView
+            android:id="@+id/bowmenu_left_icon"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/album24"
+            android:layout_marginLeft="32dp"
+            android:layout_alignParentLeft="true"
+            android:contentDescription="@string/pointer"
+            android:visibility="invisible"
+            />
+
+    <!--  xmlns:android="http://schemas.android.com/apk/res/android" -->
     <!--this relative layout is because VerticalTextView does not support center gravity -->
     <RelativeLayout
                     android:layout_width="wrap_content"
@@ -77,6 +101,17 @@
             android:visibility="invisible"
             />
 
+    <ImageView
+            android:id="@+id/bowmenu_right_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/artist24"
+            android:layout_marginRight="32dp"
+            android:layout_alignParentRight="true"
+            android:contentDescription="@string/pointer"
+            android:visibility="invisible"
+            />
 
     <RelativeLayout android:layout_width="wrap_content"
                     android:layout_height="match_parent"
