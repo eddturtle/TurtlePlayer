@@ -5,14 +5,15 @@
               android:padding="10dp"
               android:singleLine="true">
 
-<ImageView
-        android:id="@+id/icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="10px"
-        android:contentDescription="">
-</ImageView>
+    <ImageView
+            android:id="@+id/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10px"
+            android:contentDescription=""
+            android:layout_gravity="center">
+    </ImageView>
 
-<include layout="@layout/list_entry_label" />
+    <include layout="@layout/list_entry_label" />
 
 </LinearLayout>
