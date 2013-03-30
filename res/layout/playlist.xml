@@ -28,15 +28,6 @@
             android:padding="5px"
             android:layout_weight="1"
             android:scaleType="fitCenter"
-            android:id="@+id/trackButton"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:src="@drawable/track48" />
-
-        <ImageView
-            android:padding="5px"
-            android:layout_weight="1"
-            android:scaleType="fitCenter"
             android:id="@+id/genreButton"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
@@ -59,6 +50,16 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:src="@drawable/album48" />
+
+
+        <ImageView
+                android:padding="5px"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                android:id="@+id/trackButton"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:src="@drawable/track48" />
     </LinearLayout>
     
 

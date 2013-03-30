@@ -228,7 +228,7 @@ public class Player extends ListActivity
 		tp = (TurtlePlayer) getApplication();
 		tp.db = new TurtleDatabase(tp.getApplicationContext());
 		tp.playlist = new Playlist(tp.getApplicationContext(), tp.db);
-		fileChooser = new FileChooser(FileChooser.Mode.Track, tp.db, this)
+		fileChooser = new FileChooser(FileChooser.Mode.Genre, tp.db, this)
 		{
 			@Override
 			protected void filterChoosen(Filter filter)
