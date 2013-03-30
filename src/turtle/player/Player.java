@@ -32,6 +32,7 @@ import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import turtle.player.common.MatchFilterVisitor;
 import turtle.player.controller.BroadcastsHandler;
 import turtle.player.controller.PhoneStateHandler;
 import turtle.player.dirchooser.DirChooserConstants;
@@ -200,7 +201,15 @@ public class Player extends ListActivity
 
 	@Override
 	public void onBackPressed() {
-		if(!Slides.NOW_PLAYING.equals(currSlide))
+		if (Slides.PLAYLIST.equals(currSlide))
+		{
+			boolean switchToPlayer = fileChooser.back();
+			if(switchToPlayer)
+			{
+				SwitchToNowPlayingSlide();
+			}
+		}
+		else if(!Slides.NOW_PLAYING.equals(currSlide))
 		{
 			SwitchToNowPlayingSlide();
 		}
@@ -219,7 +228,16 @@ public class Player extends ListActivity
 		tp = (TurtlePlayer) getApplication();
 		tp.db = new TurtleDatabase(tp.getApplicationContext());
 		tp.playlist = new Playlist(tp.getApplicationContext(), tp.db);
-		fileChooser = new FileChooser(FileChooser.Mode.Track, tp.db, this);
+		fileChooser = new FileChooser(FileChooser.Mode.Genre, tp.db, this)
+		{
+			@Override
+			protected void filterChoosen(Filter filter)
+			{
+				tp.playlist.clearFilters();
+				tp.playlist.addFilter(filter);
+				SwitchToNowPlayingSlide();
+			}
+		};
 
 		standartPlayOrderStrategy = new PlayOrderSorted(tp.db, tp.playlist);
 		shufflePlayOrderStrategy = new PlayOrderRandom(tp.db, tp.playlist);
@@ -411,6 +429,19 @@ public class Player extends ListActivity
 				});
 			}
 
+			public void unpauseRescanInitializing()
+			{
+				runOnUiThread(new Runnable()
+				{
+					public void run()
+					{
+						rescanProgressBar.setIndeterminate(true);
+						rescanTogglePause.setImageDrawable(getResources().getDrawable(R.drawable.fs_scan_pause48));
+						rescanProgressBarState.setVisibility(View.VISIBLE);
+					}
+				});
+			}
+
 			public void unpauseRescan(final int alreadyProcessed,
 											  final int toProcess)
 			{
@@ -486,6 +517,32 @@ public class Player extends ListActivity
 					}
 				});
 			}
+
+			public String getId()
+			{
+				return "FsScanProgressUpdater";
+			}
+		});
+
+		tp.playlist.addObserver(new Playlist.PlaylistFilterChangeObserver()
+		{
+			public void filterAdded(Filter filter)
+			{
+				if(!filter.accept(new MatchFilterVisitor<Instance>(tp.player.getCurrTrack())))
+				{
+					tp.player.change(tp.playlist.getNext(playOrderStrategy, null));
+				}
+			}
+
+			public void filterRemoved(Filter filter)
+			{
+				//do nothing
+			}
+
+			public String getId()
+			{
+				return "currTrackMatchFilterVerifier";
+			}
 		});
 		tp.playlist.notifyInitialState();
 
@@ -509,6 +566,11 @@ public class Player extends ListActivity
 					});
 				}
 			}
+
+			public String getId()
+			{
+				return "SettingsButtonUpdater";
+			}
 		});
 
 		tp.player.addObserver(new turtle.player.player.Player.PlayerObserver()
@@ -528,6 +590,11 @@ public class Player extends ListActivity
 			public void stopped()
 			{
 				playButton.setImageDrawable(getResources().getDrawable(R.drawable.play96));
+			}
+
+			public String getId()
+			{
+				return "PlayViewComponentsUpdater";
 			}
 		});
 
@@ -582,6 +649,11 @@ public class Player extends ListActivity
 			{
 				Toast.makeText(getApplicationContext(), getString(R.string.toastRescan), Toast.LENGTH_LONG).show();
 				tp.playlist.startFsScan();
+			}
+
+			public String getId()
+			{
+				return "restartAfterDBClean";
 			}
 		});
 	}

@@ -22,11 +22,13 @@
 
                 <include
                         android:id="@+id/albumArtRight"
-                        layout="@layout/album_art"/>
+                        layout="@layout/album_art"
+                        android:visibility="invisible" />
 
                 <include
                         android:id="@+id/albumArtLeft"
-                        layout="@layout/album_art" />
+                        layout="@layout/album_art"
+                        android:visibility="invisible" />
 
             </RelativeLayout>
 
@@ -39,8 +41,7 @@
                     android:layout_marginBottom="8dp"
                     android:layout_marginRight="15dp"
                     android:text="@string/durationInitialValue"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:visibility="visible" />
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <TextView
                     android:id="@+id/trackPostionSeparator"
@@ -49,8 +50,7 @@
                     android:layout_toLeftOf="@id/trackDuration"
                     android:layout_alignBaseline="@id/trackDuration"
                     android:text="@string/trackPostionSeparator"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:visibility="visible" />
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
 
             <TextView
@@ -96,6 +96,12 @@
                         android:layout_height="fill_parent"
                         android:layout_alignParentRight="true">
                     <ImageView
+                            android:id="@+id/separator"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:src="@drawable/separator"
+                            android:scaleType="fitXY"/>
+                    <ImageView
                             android:id="@+id/backButton"
                             android:layout_width="wrap_content"
                             android:layout_height="fill_parent"
@@ -137,7 +143,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:progressDrawable="@drawable/progress_bar_full"
-                    android:visibility="visible"
                     android:layout_alignParentTop="true"/>
         </RelativeLayout>
 

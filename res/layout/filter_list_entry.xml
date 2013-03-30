@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:background="@drawable/row_bg30">
+
+    <ImageView
+            android:id="@+id/delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:contentDescription=""
+            android:layout_gravity="center"
+            android:src="@drawable/cancel24">
+    </ImageView>
+
+    <ImageView
+            android:id="@+id/separator"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:src="@drawable/separator"
+            android:scaleType="fitXY"/>
+
+    <LinearLayout android:id="@+id/chooseFilterArea"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:clickable="true"
+                  android:padding="5dp">
+        <ImageView
+                android:id="@+id/icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10px"
+                android:contentDescription=""
+                android:layout_gravity="center"
+                >
+        </ImageView>
+
+        <include layout="@layout/list_entry_label" />
+
+        <ImageView
+                android:id="@+id/icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:contentDescription=""
+                android:layout_gravity="center"
+                android:src="@drawable/play24"
+                >
+        </ImageView>
+
+    </LinearLayout>
+</LinearLayout>

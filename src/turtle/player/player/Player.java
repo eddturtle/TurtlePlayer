@@ -2,12 +2,15 @@ package turtle.player.player;
 
 import android.media.MediaPlayer;
 import android.util.Log;
+import turtle.player.controller.Observer;
 import turtle.player.model.Track;
 import turtle.player.preferences.Preferences;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * TURTLE PLAYER
@@ -37,7 +40,7 @@ import java.util.List;
 public class Player
 {
 
-	private final List<PlayerObserver> observers = new ArrayList<PlayerObserver>();
+	private final Map<String, PlayerObserver> observers = new HashMap<String, PlayerObserver>();
 
 	private MediaPlayer mp = null; //use getMp to access plz
 	private boolean isPlaying = false;
@@ -62,6 +65,11 @@ public class Player
 			public void stopped()
 			{
 				isPlaying = false;
+			}
+
+			public String getId()
+			{
+				return "PlyerRunningStateUpdater";
 			}
 		});
 	}
@@ -196,34 +204,34 @@ public class Player
 	//---------------------------------- Observable
 
 	private void notifyTrackChanged(Track track, int lengthInMillis){
-		for(PlayerObserver observer : observers){
+		for(PlayerObserver observer : observers.values()){
 			observer.trackChanged(track, lengthInMillis);
 		}
 	}
 
 	private void notifyStarted(){
-		for(PlayerObserver observer : observers){
+		for(PlayerObserver observer : observers.values()){
 			observer.started();
 		}
 	}
 
 	private void notifyStopped(){
-		for(PlayerObserver observer : observers){
+		for(PlayerObserver observer : observers.values()){
 			observer.stopped();
 		}
 	}
 
 	public void addObserver(PlayerObserver observer)
 	{
-		observers.add(observer);
+		observers.put(observer.getId(), observer);
 	}
 
-	public void removeObserver(PlayerObserver observer)
+	public void removeObserver(Observer observer)
 	{
 		observers.remove(observer);
 	}
 
-	public interface PlayerObserver
+	public interface PlayerObserver extends Observer
 	{
 		void trackChanged(Track track, int lengthInMillis);
 		void started();

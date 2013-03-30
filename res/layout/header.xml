@@ -1,46 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="70dip"
     android:background="@drawable/header_bg100"
-    android:tileMode="repeat"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
     <ImageView
         android:id="@+id/listButton"
-        android:layout_width="80dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
         android:contentDescription="@string/list"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:layout_gravity="center"
+        android:layout_weight="1"
         android:src="@drawable/list64" />
 
     <ImageView
-        android:id="@+id/settingsButton"
-        android:layout_width="76dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@string/settings"
-        android:paddingLeft="18dp"
-        android:paddingRight="18dp"
-        android:src="@drawable/settings48" />
+            android:id="@+id/separator"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:src="@drawable/separator"
+            android:scaleType="fitXY"/>
+    <ImageView
+            android:id="@+id/logoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/logo"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:src="@drawable/logo128" />
 
     <ImageView
-        android:id="@+id/logoButton"
-        android:layout_width="138dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:contentDescription="@string/logo"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:src="@drawable/logo128" />
+            android:id="@+id/separator"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:src="@drawable/separator"
+            android:scaleType="fitXY"/>
 
-</RelativeLayout>
+    <ImageView
+        android:id="@+id/settingsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/settings"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:src="@drawable/settings48" />
+
+
+</LinearLayout>

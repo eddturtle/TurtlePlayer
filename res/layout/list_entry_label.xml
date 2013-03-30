@@ -6,5 +6,6 @@
         android:layout_height="wrap_content"
         android:singleLine="true"
         android:gravity="center_vertical"
-        android:textSize="16sp">
+        android:textSize="16sp"
+        android:layout_weight="1">
 </TextView>

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 import turtle.player.R;
@@ -104,6 +105,11 @@ public class AlbumArtView
 			{
 				//ignore
 			}
+
+			public String getId()
+			{
+				return "AlbumArtUpdater";
+			}
 		});
 
 
@@ -134,6 +140,11 @@ public class AlbumArtView
 				String msg = field.getName();
 				msg += " " + (added ? activity.getString(R.string.added) : activity.getString(R.string.removed));
 				Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+			}
+
+			public String getId()
+			{
+				return "SwipeAndInstantFilterSelectionDetector";
 			}
 		};
 
