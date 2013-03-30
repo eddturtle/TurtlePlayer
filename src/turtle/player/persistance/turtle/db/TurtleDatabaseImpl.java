@@ -4,8 +4,14 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import turtle.player.persistance.framework.db.Database;
+import turtle.player.persistance.framework.sort.Order;
+import turtle.player.persistance.framework.sort.SortOrder;
+import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.source.relational.Table;
 import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.playlist.playorder.DefaultOrder;
+
+import java.util.Arrays;
 
 /**
  * TURTLE PLAYER
@@ -27,7 +33,7 @@ import turtle.player.persistance.turtle.db.structure.Tables;
 public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 {
 
-	public static final int DATABASE_VERSION = 5;
+	public static final int DATABASE_VERSION = 6;
 	public static final String DATABASE_NAME = "TurtlePlayer";
 
 	public TurtleDatabaseImpl(Context context)
@@ -49,10 +55,31 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 				  + Tables.TRACKS.ROOTSRC.getName() + " TEXT);";
 		db.execSQL(createTracksSql);
 
+		for(FieldPersistable<?,?> field : Arrays.asList(
+				  Tables.TRACKS.ARTIST,
+				  Tables.TRACKS.ALBUM,
+				  Tables.TRACKS.NUMBER,
+				  Tables.TRACKS.TITLE
+				  ))
+		{
+			String createTracksIndeces = "CREATE INDEX " + Tables.TRACKS.getName() + "_" + field.getName() + "_idx " +
+					  " ON " + Tables.TRACKS.getName() + "(" + field.getName() + ");";
+			db.execSQL(createTracksIndeces);
+		}
+
 		String createAlbumArtSql = "CREATE TABLE " + Tables.ALBUM_ART_LOCATIONS.getName() + " ("
 				  + Tables.ALBUM_ART_LOCATIONS.PATH.getName() + " TEXT, "
 				  + Tables.ALBUM_ART_LOCATIONS.ALBUM_ART_PATH.getName() + " TEXT);";
 		db.execSQL(createAlbumArtSql);
+
+		for(FieldPersistable<?,?> field : Arrays.asList(
+				  Tables.ALBUM_ART_LOCATIONS.PATH
+		))
+		{
+			String createAlbumArtIndeces = "CREATE INDEX " + Tables.ALBUM_ART_LOCATIONS.getName() + "_" + field.getName() + "_idx " +
+					  " ON " + Tables.ALBUM_ART_LOCATIONS.getName() + "(" + field.getName() + ");";
+			db.execSQL(createAlbumArtIndeces);
+		}
 	}
 
 	@Override
