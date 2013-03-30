@@ -96,6 +96,12 @@
                         android:layout_height="fill_parent"
                         android:layout_alignParentRight="true">
                     <ImageView
+                            android:id="@+id/separator"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:src="@drawable/separator"
+                            android:scaleType="fitXY"/>
+                    <ImageView
                             android:id="@+id/backButton"
                             android:layout_width="wrap_content"
                             android:layout_height="fill_parent"

@@ -25,16 +25,23 @@
         android:gravity="center">
 
         <ImageView
-            android:padding="5px"
+            android:padding="8dp"
             android:layout_weight="1"
             android:scaleType="fitCenter"
             android:id="@+id/genreButton"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:src="@drawable/genre48" />
+
+        <ImageView
+                android:id="@+id/separator"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:src="@drawable/separator"
+                android:scaleType="fitXY"/>
         
         <ImageView
-            android:padding="5px"
+            android:padding="8dp"
             android:layout_weight="1"
             android:scaleType="fitCenter"
             android:id="@+id/artistButton"
@@ -43,7 +50,14 @@
             android:src="@drawable/artist48" />
 
         <ImageView
-             android:padding="5px"
+                android:id="@+id/separator"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:src="@drawable/separator"
+                android:scaleType="fitXY"/>
+
+        <ImageView
+             android:padding="8dp"
             android:layout_weight="1"
             android:scaleType="fitCenter"
             android:id="@+id/albumButton"
@@ -51,9 +65,15 @@
             android:layout_height="fill_parent"
             android:src="@drawable/album48" />
 
+        <ImageView
+                android:id="@+id/separator"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:src="@drawable/separator"
+                android:scaleType="fitXY"/>
 
         <ImageView
-                android:padding="5px"
+                android:padding="8dp"
                 android:layout_weight="1"
                 android:scaleType="fitCenter"
                 android:id="@+id/trackButton"
