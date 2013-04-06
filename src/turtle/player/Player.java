@@ -693,7 +693,7 @@ public class Player extends ListActivity
 		list.setImageDrawable(getResources().getDrawable(R.drawable.list64_active));
 		currSlide = Slides.PLAYLIST;
 
-		fileChooser.update(false);
+		fileChooser.update();
 
 		nowPlayingSlide.setVisibility(LinearLayout.INVISIBLE);
 		playlistSlide.setVisibility(LinearLayout.VISIBLE);
