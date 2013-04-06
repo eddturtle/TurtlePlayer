@@ -32,6 +32,7 @@ import java.util.Set;
 public class Genre implements Instance
 {
 	private final String id;
+	public static final Genre NO_GENRE = new Genre(null);
 
 	public Genre(String id)
 	{

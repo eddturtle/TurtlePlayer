@@ -27,6 +27,7 @@ import java.util.Set;
 public class Artist implements Instance
 {
 	private static final String EMPTY_REPLACMENT= "Unknown";
+	public static final Artist NO_ARTIST = new Artist(null);
 
 	private final String id;
 
