@@ -2,7 +2,9 @@ package turtle.player.controller;
 
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import turtle.player.player.Player;
+import turtle.player.player.Output;
+import turtle.player.player.OutputAccess;
+import turtle.player.player.OutputCommand;
 
 /**
  * TURTLE PLAYER
@@ -23,29 +25,46 @@ import turtle.player.player.Player;
 
 public class PhoneStateHandler extends PhoneStateListener
 {
-	private final Player player;
+	private final OutputAccess outputAccess;
 
 	private boolean wasPlaying = false;
 
-	public PhoneStateHandler(Player player)
+	public PhoneStateHandler(OutputAccess outputAccess)
 	{
-		this.player = player;
+		this.outputAccess = outputAccess;
 	}
 
 	@Override
 	public void onCallStateChanged(int state,
 											 String incomingNumber)
 	{
+		OutputCommand outputCommand = null;
 		if (state == TelephonyManager.CALL_STATE_RINGING)
 		{
-			wasPlaying = player.pause();
+			outputCommand = new OutputCommand()
+			{
+				public void connected(Output output)
+				{
+					wasPlaying = output.pause();
+				}
+			};
 		}
 		else if (state == TelephonyManager.CALL_STATE_IDLE)
 		{
 			if(wasPlaying)
 			{
-				player.play();
+				outputCommand = new OutputCommand()
+				{
+					public void connected(Output output)
+					{
+						output.play();
+					}
+				};
 			}
+		}
+		if(outputCommand != null)
+		{
+			outputAccess.connectPlayer(outputCommand);
 		}
 		super.onCallStateChanged(state, incomingNumber);
 	}

@@ -15,13 +15,11 @@ import turtle.player.persistance.framework.filter.FilterSet;
 import turtle.player.persistance.framework.filter.FilterVisitor;
 import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.turtle.db.structure.Tables;
-import turtle.player.player.Player;
+import turtle.player.player.ObservableOutput;
 import turtle.player.playlist.Playlist;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -40,7 +38,7 @@ import java.util.Set;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver implements View.OnTouchListener, Player.PlayerObserver
+public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver implements View.OnTouchListener, ObservableOutput.PlayerObserver
 {
 
 	private enum Mode
