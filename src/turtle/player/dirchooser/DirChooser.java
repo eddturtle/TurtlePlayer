@@ -26,6 +26,7 @@ import android.widget.*;
 import turtle.player.R;
 
 import java.io.File;
+import java.util.Stack;
 
 /**
  * Activity with result to choose a folder.
@@ -45,6 +46,9 @@ public class DirChooser extends Activity
 
 	private File currDir;
 
+	private Stack<File> navigationStack = new Stack<File>();
+	private File initialDir;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -61,9 +65,10 @@ public class DirChooser extends Activity
 		upButton = (ImageView) findViewById(R.id.up);
 		chooseDir = (ImageView) findViewById(R.id.choose_dir);
 
-		final String initialDir = getIntent().getExtras().getString(
+		final String initialDirPath = getIntent().getExtras().getString(
 				  DirChooserConstants.ACTIVITY_PARAM_KEY_DIR_CHOOSER_INITIAL_DIR);
-		setCurrDir(new File(initialDir));
+		initialDir = new File(initialDirPath);
+		setCurrDir(initialDir);
 
 		initListeners();
 	}
@@ -80,7 +85,14 @@ public class DirChooser extends Activity
 				File selectedFile = (File) parent.getItemAtPosition(position);
 				if (selectedFile.isDirectory() && selectedFile.canRead())
 				{
+					if(initialDir != null &&
+							  selectedFile.getAbsolutePath().contains(initialDir.getAbsolutePath()) &&
+							  !initialDir.equals(selectedFile))
+					{
+						navigationStack.push(currDir);
+					}
 					setCurrDir(selectedFile);
+
 				}
 			}
 		});
@@ -101,6 +113,7 @@ public class DirChooser extends Activity
 		{
 			public void onClick(View v)
 			{
+				navigationStack.remove(currDir.getParentFile());
 				setCurrDir(currDir.getParentFile());
 			}
 		});
@@ -128,5 +141,18 @@ public class DirChooser extends Activity
 		}
 		ArrayAdapter<File> adapter = new FileAdapter(this, files);
 		dirList.setAdapter(adapter);
+	}
+
+	@Override
+	public void onBackPressed()
+	{
+		if(navigationStack.empty())
+		{
+			super.onBackPressed();
+		}
+		else
+		{
+			setCurrDir(navigationStack.pop());
+		}
 	}
 }
