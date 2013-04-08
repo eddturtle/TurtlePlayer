@@ -115,25 +115,31 @@ public class PlayerService extends Service implements Output
 	}
 
 	public void change(Track t){
-		boolean wasPlaying = isPlaying;
-		prepare(t);
+		if(t != null)
+		{
+			boolean wasPlaying = isPlaying;
+			prepare(t);
 
-		if(wasPlaying){
-			playInternal();
+			if(wasPlaying){
+				playInternal();
+			}
+			notifyTrackChanged(t, getMp().getDuration());
 		}
-		notifyTrackChanged(t, getMp().getDuration());
 	}
 
 	public void play(Track t)
 	{
-		boolean wasPlaying = isPlaying;
-		prepare(t);
-		playInternal();
-		if(!wasPlaying)
+		if(t != null)
 		{
-			notifyStarted();
+			boolean wasPlaying = isPlaying;
+			prepare(t);
+			playInternal();
+			if(!wasPlaying)
+			{
+				notifyStarted();
+			}
+			notifyTrackChanged(t, getMp().getDuration());
 		}
-		notifyTrackChanged(t, getMp().getDuration());
 	}
 
 	public void toggle()
@@ -300,7 +306,7 @@ public class PlayerService extends Service implements Output
 		PendingIntent pi=PendingIntent.getActivity(this, 0,i, 0);
 
 		note.setLatestEventInfo(this, getText(R.string.app_name),
-				  getCurrTrack().accept(InstanceFormatter.LIST),
+				  getCurrTrack() == null ? "" : getCurrTrack().accept(InstanceFormatter.LIST),
 				  pi);
 		note.flags|=Notification.FLAG_NO_CLEAR;
 		return note;
