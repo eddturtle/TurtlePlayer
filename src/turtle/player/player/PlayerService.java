@@ -259,7 +259,6 @@ public class PlayerService extends Service implements Output
 				mediaPlayer.setDataSource(t.GetSrc());
 
 				mediaPlayer.prepare();
-				mediaPlayer.getDuration();
 				initialized = true;
 				isPlaying = false;
 				currTrack = t;
