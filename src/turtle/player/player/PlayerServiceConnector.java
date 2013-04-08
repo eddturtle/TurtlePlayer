@@ -104,6 +104,7 @@ public class PlayerServiceConnector extends ObservableOutput
 			@Override
 			protected Output doInBackground(Void... params)
 			{
+				Thread.currentThread().setName(Thread.currentThread().getName() + ":connectPlayer");
 				synchronized (waitOnConnectionLock)
 				{
 					if(playerServiceBinder == null)
@@ -134,7 +135,7 @@ public class PlayerServiceConnector extends ObservableOutput
 				}
 			}
 
-			
+
 		}.execute();
 	}
 }

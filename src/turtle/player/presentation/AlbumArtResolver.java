@@ -56,7 +56,7 @@ public abstract class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 	@Override
 	protected Bitmap doInBackground(Track... params)
 	{
-
+		Thread.currentThread().setName(Thread.currentThread().getName() + ":AlbumArtResolver");
 		for(LookupStrategy lookupStrategy : new LookupStrategy[]{
 				  new CachedFsLookupStrategy(),
 				  new IdTagLookupStrategy(),

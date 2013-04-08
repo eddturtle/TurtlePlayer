@@ -67,6 +67,7 @@ public class AlbumArtView
 					@Override
 					protected TrackBundle doInBackground(Track... params)
 					{
+						Thread.currentThread().setName(Thread.currentThread().getName() + ":albumArtUpdater");
 						if(actualAsyncTask == this)
 						{
 							return tp.playlist.enrich(playOrderStrategy, params[0]);
