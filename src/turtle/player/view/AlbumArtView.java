@@ -144,11 +144,15 @@ public class AlbumArtView
 				{
 					public void connected(Output output)
 					{
-						boolean added = tp.playlist.toggleFilter(field, output.getCurrTrack());
+						Track currTrack = output.getCurrTrack();
+						if(currTrack != null)
+						{
+							boolean added = tp.playlist.toggleFilter(field, currTrack);
 
-						String msg = field.getName();
-						msg += " " + (added ? activity.getString(R.string.added) : activity.getString(R.string.removed));
-						Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+							String msg = field.getName();
+							msg += " " + (added ? activity.getString(R.string.added) : activity.getString(R.string.removed));
+							Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+						}
 					}
 				});
 			}

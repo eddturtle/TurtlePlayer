@@ -279,6 +279,10 @@ public class PlayerService extends Service implements Output
 	//---------------------------------- Observable
 
 	private void notifyTrackChanged(Track track, int lengthInMillis){
+		if(isPlaying)
+		{
+			startForeground(NOTIFICATION_ID, getNotification());
+		}
 		Bundle params = new Bundle();
 		params.putSerializable(PARAM_OBJECT_TRACK, track);
 		params.putInt(PARAM_INTEGER_MILLIS, lengthInMillis);

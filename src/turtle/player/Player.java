@@ -550,7 +550,8 @@ public class Player extends ListActivity
 				{
 					public void connected(Output output)
 					{
-						if(!filter.accept(new MatchFilterVisitor<Instance>(output.getCurrTrack())))
+						Track currTrack = output.getCurrTrack();
+						if(currTrack == null || !filter.accept(new MatchFilterVisitor<Instance>(currTrack)))
 						{
 							output.change(tp.playlist.getNext(playOrderStrategy, null));
 						}
