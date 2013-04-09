@@ -29,7 +29,7 @@ import com.turtleplayer.persistance.turtle.db.structure.Tables;
 public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 {
 
-	public static final int DATABASE_VERSION = 7;
+	public static final int DATABASE_VERSION = 8;
 	public static final String DATABASE_NAME = "TurtlePlayer";
 
 	public TurtleDatabaseImpl(Context context)
@@ -41,12 +41,12 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 	public void onCreate(SQLiteDatabase db)
 	{
 		String createTracksSql = "CREATE TABLE " + Tables.TRACKS.getName() + " ("
-				  + Tables.TRACKS.TITLE.getName() + " TEXT PRIMARY KEY, "
+				  + Tables.TRACKS.TITLE.getName() + " TEXT COLLATE LOCALIZED, "
 				  + Tables.TRACKS.NUMBER.getName() + " INTEGER, "
-				  + Tables.TRACKS.ARTIST.getName() + " TEXT, "
-				  + Tables.TRACKS.ALBUM.getName() + " TEXT, "
+				  + Tables.TRACKS.ARTIST.getName() + " TEXT COLLATE LOCALIZED, "
+				  + Tables.TRACKS.ALBUM.getName() + " TEXT COLLATE LOCALIZED, "
 				  + Tables.TRACKS.GENRE.getName() + " TEXT, "
-				  + Tables.TRACKS.SRC.getName() + " TEXT, "
+				  + Tables.TRACKS.SRC.getName() + " TEXT PRIMARY KEY, "
 				  + Tables.TRACKS.ROOTSRC.getName() + " TEXT);";
 		db.execSQL(createTracksSql);
 
