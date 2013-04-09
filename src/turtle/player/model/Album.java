@@ -27,6 +27,7 @@ import java.util.Set;
 public class Album implements Instance
 {
 	private static final String EMPTY_REPLACMENT= "Unknown";
+	public static final Album NO_ALBUM = new Album(null);
 
 	private final String id;
 

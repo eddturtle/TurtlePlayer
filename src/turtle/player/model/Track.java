@@ -18,9 +18,6 @@
 
 package turtle.player.model;
 
-import java.util.*;
-
-
 public class Track implements Instance
 {
 

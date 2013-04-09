@@ -3,6 +3,7 @@ package turtle.player.presentation;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.UnsupportedTagException;
@@ -21,6 +22,7 @@ import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.persistance.turtle.mapping.AlbumArtLocationCreator;
 import turtle.player.persistance.turtle.mapping.TrackCreator;
+import turtle.player.preferences.Preferences;
 import turtle.player.util.Shorty;
 
 import java.io.IOException;
@@ -56,15 +58,21 @@ public abstract class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 	@Override
 	protected Bitmap doInBackground(Track... params)
 	{
-
+		Thread.currentThread().setName(Thread.currentThread().getName() + ":AlbumArtResolver");
 		for(LookupStrategy lookupStrategy : new LookupStrategy[]{
 				  new CachedFsLookupStrategy(),
 				  new IdTagLookupStrategy(),
 				  new FsLookupStrategy()
 		})
 		{
-			Bitmap albumArt = lookupStrategy.lookup(params[0]);
-			if(albumArt != null) return albumArt;
+			try{
+				Bitmap albumArt = lookupStrategy.lookup(params[0]);
+				if(albumArt != null) return albumArt;
+			}
+			catch (Exception e)
+			{
+				Log.e(Preferences.TAG, "Error reading albumArt for :" + params[0].GetSrc(), e);
+			}
 		}
 		return null;
 	}
@@ -125,14 +133,17 @@ public abstract class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 			}
 			catch (IOException e)
 			{
+				Log.e(Preferences.TAG, "Error reading albumArt for :" + track.GetSrc(), e);
 				return null;
 			}
 			catch (UnsupportedTagException e)
 			{
+				Log.e(Preferences.TAG, "Error reading albumArt for :" + track.GetSrc(), e);
 				return null;
 			}
 			catch (InvalidDataException e)
 			{
+				Log.e(Preferences.TAG, "Error reading albumArt for :" + track.GetSrc(), e);
 				return null;
 			}
 			return null;

@@ -1,10 +1,7 @@
 package turtle.player.view;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 import turtle.player.R;
@@ -12,16 +9,11 @@ import turtle.player.TurtlePlayer;
 import turtle.player.controller.TouchHandler;
 import turtle.player.model.Track;
 import turtle.player.model.TrackBundle;
-import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.source.relational.FieldPersistable;
-import turtle.player.player.Player;
-import turtle.player.playlist.Playlist;
+import turtle.player.player.ObservableOutput;
+import turtle.player.player.Output;
+import turtle.player.player.OutputCommand;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
-import turtle.player.preferences.Preferences;
-import turtle.player.presentation.AlbumArtResolver;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * TURTLE PLAYER
@@ -62,7 +54,7 @@ public class AlbumArtView
 		albumArtLeft = new AlbumArt(albumArtViewGroup, AlbumArt.Type.LEFT, tp.db);
 		albumArtRight = new AlbumArt(albumArtViewGroup, AlbumArt.Type.RIGHT, tp.db);
 
-		tp.player.addObserver(new Player.PlayerObserver()
+		tp.player.addObserver(new ObservableOutput.PlayerObserver()
 		{
 			public void trackChanged(final Track track, int lengthInMillis)
 			{
@@ -75,6 +67,7 @@ public class AlbumArtView
 					@Override
 					protected TrackBundle doInBackground(Track... params)
 					{
+						Thread.currentThread().setName(Thread.currentThread().getName() + ":albumArtUpdater");
 						if(actualAsyncTask == this)
 						{
 							return tp.playlist.enrich(playOrderStrategy, params[0]);
@@ -122,24 +115,46 @@ public class AlbumArtView
 			@Override
 			protected void nextGestureRecognized()
 			{
-				tp.player.play(tp.playlist.getNext(playOrderStrategy, tp.player.getCurrTrack()));
+				tp.player.connectPlayer(new OutputCommand()
+				{
+					public void connected(Output output)
+					{
+						output.play(tp.playlist.getNext(playOrderStrategy, output.getCurrTrack()));
+					}
+				});
 			}
 
 			@Override
 			protected void previousGestureRecognized()
 			{
-				tp.player.play(tp.playlist.getPrevious(playOrderStrategy, tp.player.getCurrTrack()));
+				tp.player.connectPlayer(new OutputCommand()
+				{
+					public void connected(Output output)
+					{
+						output.play(tp.playlist.getPrevious(playOrderStrategy, output.getCurrTrack()));
+					}
+				});
 			}
 
 
 			@Override
-			protected void filterSelected(FieldPersistable<Track, ?> field)
+			protected void filterSelected(final FieldPersistable<Track, ?> field)
 			{
-				boolean added = tp.playlist.toggleFilter(field, tp.player.getCurrTrack());
+				tp.player.connectPlayer(new OutputCommand()
+				{
+					public void connected(Output output)
+					{
+						Track currTrack = output.getCurrTrack();
+						if(currTrack != null)
+						{
+							boolean added = tp.playlist.toggleFilter(field, currTrack);
 
-				String msg = field.getName();
-				msg += " " + (added ? activity.getString(R.string.added) : activity.getString(R.string.removed));
-				Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+							String msg = field.getName();
+							msg += " " + (added ? activity.getString(R.string.added) : activity.getString(R.string.removed));
+							Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+						}
+					}
+				});
 			}
 
 			public String getId()

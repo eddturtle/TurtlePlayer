@@ -20,13 +20,14 @@
 package turtle.player;
 
 import android.app.Application;
-import android.content.Context;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.player.ObservableOutput;
+import turtle.player.player.PlayerServiceConnector;
 import turtle.player.playlist.Playlist;
 
 public class TurtlePlayer extends Application
 {
-	public final turtle.player.player.Player player = new turtle.player.player.Player();
+	public final ObservableOutput player;
 	public Playlist playlist;
 	public TurtleDatabase db;
 
@@ -34,6 +35,7 @@ public class TurtlePlayer extends Application
 
 	public TurtlePlayer()
 	{
+		player = new PlayerServiceConnector(this);
 		/*mp = new MediaPlayer();
 		playlist = new Playlist();
 		isPaused = true;

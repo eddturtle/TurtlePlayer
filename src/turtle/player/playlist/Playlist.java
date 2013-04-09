@@ -289,13 +289,16 @@ public class Playlist
 				boolean wasPaused = false;
 				try
 				{
-					for (PlaylistObserver observer : observers.values())
-					{
-						observer.unpauseRescanInitializing();
-					}
-
 					final String mediaPath = preferences.getExitstingMediaPath().toString();
 					final String lastFsScanInterruptPath = preferences.get(Keys.FS_SCAN_INTERRUPT_PATH);
+
+					if(lastFsScanInterruptPath != null)
+					{
+						for (PlaylistObserver observer : observers.values())
+						{
+							observer.unpauseRescanInitializing();
+						}
+					}
 
 					List<String> mediaFilePaths = FsReader.getMediaFilesPaths(mediaPath, FileFilters.PLAYABLE_FILES_FILTER, true, false);
 

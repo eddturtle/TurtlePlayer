@@ -21,9 +21,12 @@ package turtle.player;
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
-import android.os.*;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -36,22 +39,26 @@ import turtle.player.common.MatchFilterVisitor;
 import turtle.player.controller.BroadcastsHandler;
 import turtle.player.controller.PhoneStateHandler;
 import turtle.player.dirchooser.DirChooserConstants;
-import turtle.player.model.*;
+import turtle.player.model.Instance;
+import turtle.player.model.Track;
 import turtle.player.persistance.framework.db.ObservableDatabase;
-import turtle.player.persistance.framework.filter.*;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.player.ObservableOutput;
+import turtle.player.player.Output;
+import turtle.player.player.OutputCommand;
+import turtle.player.player.OutputUsingOnClickListener;
 import turtle.player.playlist.Playlist;
 import turtle.player.playlist.playorder.PlayOrderRandom;
 import turtle.player.playlist.playorder.PlayOrderSorted;
 import turtle.player.playlist.playorder.PlayOrderStrategy;
 import turtle.player.preferences.AbstractKey;
 import turtle.player.preferences.Keys;
+import turtle.player.preferences.Preferences;
 import turtle.player.preferences.PreferencesObserver;
 import turtle.player.util.Shorty;
 import turtle.player.view.AlbumArtView;
 import turtle.player.view.FileChooser;
-import android.content.IntentFilter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -129,7 +136,7 @@ public class Player extends ListActivity
 	{
 		super.onCreate(savedInstanceState);
 
-		Log.i(TurtleDatabase.class.getName(), "Player.onCreate() called");
+		Log.i(Preferences.TAG, "Player.onCreate() called");
 
 		setContentView(R.layout.main);
 
@@ -154,13 +161,18 @@ public class Player extends ListActivity
 	{
 		super.onDestroy();
 
-		Log.i(TurtleDatabase.class.getName(), "Player.onDestory() called");
+		Log.i(Preferences.TAG, "Player.onDestory() called");
 
 		tp.playlist.pauseFsScan();
 
-		tp.playlist.preferences.set(Keys.EXIT_PLAY_TIME, tp.player.getCurrentMillis());
-		tp.playlist.preferences.set(Keys.FILTERS, tp.playlist.getFilter());
-		tp.player.release();
+		tp.player.connectPlayer(new OutputCommand()
+		{
+			public void connected(Output output)
+			{
+				tp.playlist.preferences.set(Keys.EXIT_PLAY_TIME, output.getCurrentMillis());
+				tp.playlist.preferences.set(Keys.FILTERS, tp.playlist.getFilter());
+			}
+		});
 
 		TelephonyManager mgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
 		for(PhoneStateListener phoneStateListener : phoneStateListeners)
@@ -171,6 +183,8 @@ public class Player extends ListActivity
 		for(BroadcastReceiver broadcastReceiver : broadcastReceivers){
 			unregisterReceiver(broadcastReceiver);
 		}
+
+		tp.player.releasePlayer();
 	}
 
 	private void lookupViewElements(){
@@ -302,37 +316,41 @@ public class Player extends ListActivity
 		});
 
 
-		// [now_playing.xml] Footer Buttons
 
-		backButton.setOnClickListener(new OnClickListener()
+
+		backButton.setOnClickListener(new OutputUsingOnClickListener(tp.player)
 		{
-			public void onClick(View v)
+			@Override
+			public void onClick(View v,Output output)
 			{
-				tp.player.play(tp.playlist.getPrevious(standartPlayOrderStrategy, tp.player.getCurrTrack()));
+				output.play(tp.playlist.getPrevious(standartPlayOrderStrategy, output.getCurrTrack()));
 			}
 		});
 
-		playButton.setOnClickListener(new OnClickListener()
+		playButton.setOnClickListener(new OutputUsingOnClickListener(tp.player)
 		{
-			public void onClick(View v)
+			@Override
+			public void onClick(View v,Output output)
 			{
-				tp.player.toggle();
+				output.toggle();
 			}
 		});
 
-		nextButton.setOnClickListener(new OnClickListener()
+		nextButton.setOnClickListener(new OutputUsingOnClickListener(tp.player)
 		{
-			public void onClick(View v)
+			@Override
+			public void onClick(View v,Output output)
 			{
-				tp.player.play(tp.playlist.getNext(standartPlayOrderStrategy, tp.player.getCurrTrack()));
+				output.play(tp.playlist.getNext(standartPlayOrderStrategy, output.getCurrTrack()));
 			}
 		});
 
-		shuffleButton.setOnClickListener(new OnClickListener()
+		shuffleButton.setOnClickListener(new OutputUsingOnClickListener(tp.player)
 		{
-			public void onClick(View v)
+			@Override
+			public void onClick(View v,Output output)
 			{
-				tp.player.play(tp.playlist.getNext(shufflePlayOrderStrategy, tp.player.getCurrTrack()));
+				output.play(tp.playlist.getNext(shufflePlayOrderStrategy, output.getCurrTrack()));
 			}
 		});
 		shuffleButton.setOnLongClickListener(new View.OnLongClickListener()
@@ -526,12 +544,19 @@ public class Player extends ListActivity
 
 		tp.playlist.addObserver(new Playlist.PlaylistFilterChangeObserver()
 		{
-			public void filterAdded(Filter filter)
+			public void filterAdded(final Filter filter)
 			{
-				if(!filter.accept(new MatchFilterVisitor<Instance>(tp.player.getCurrTrack())))
+				tp.player.connectPlayer(new OutputCommand()
 				{
-					tp.player.change(tp.playlist.getNext(playOrderStrategy, null));
-				}
+					public void connected(Output output)
+					{
+						Track currTrack = output.getCurrTrack();
+						if(currTrack == null || !filter.accept(new MatchFilterVisitor<Instance>(currTrack)))
+						{
+							output.change(tp.playlist.getNext(playOrderStrategy, null));
+						}
+					}
+				});
 			}
 
 			public void filterRemoved(Filter filter)
@@ -573,7 +598,7 @@ public class Player extends ListActivity
 			}
 		});
 
-		tp.player.addObserver(new turtle.player.player.Player.PlayerObserver()
+		tp.player.addObserver(new ObservableOutput.PlayerObserver()
 		{
 			public void trackChanged(Track track, int lengthInMillis)
 			{
@@ -602,19 +627,31 @@ public class Player extends ListActivity
 		{
 			public void run()
 			{
-				progressBar.setProgress(tp.player.getCurrentMillis());
-				currTrackPosition.setText(ConvertToMinutes(tp.player.getCurrentMillis()));
-				progressBar.postDelayed(this, 1000);
+				tp.player.connectPlayer(new OutputCommand()
+				{
+					public void connected(Output output)
+					{
+						progressBar.setProgress(output.getCurrentMillis());
+						currTrackPosition.setText(ConvertToMinutes(output.getCurrentMillis()));
+						progressBar.postDelayed(progressBarRunnable, 1000);
+					}
+				});
 			}
 		};
 		progressBar.postDelayed(progressBarRunnable, 1000);
 
 		progressBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
 		{
-			public void onStopTrackingTouch(SeekBar seekBar)
+			public void onStopTrackingTouch(final SeekBar seekBar)
 			{
-				tp.player.goToMillis(seekBar.getProgress());
-				progressBar.postDelayed(progressBarRunnable, 1000);
+				tp.player.connectPlayer(new OutputCommand()
+				{
+					public void connected(Output output)
+					{
+						output.goToMillis(seekBar.getProgress());
+						progressBar.postDelayed(progressBarRunnable, 1000);
+					}
+				});
 			}
 
 			public void onStartTrackingTouch(SeekBar seekBar)
@@ -630,11 +667,17 @@ public class Player extends ListActivity
 			}
 		});
 
-		tp.player.setOnCompletionListener(new OnCompletionListener()
+		tp.player.connectPlayer(new OutputCommand()
 		{
-			public void onCompletion(MediaPlayer mplayer)
+			public void connected(final Output output)
 			{
-				tp.player.play(tp.playlist.getNext(playOrderStrategy, tp.player.getCurrTrack()));
+				output.setOnCompletionListener(new OnCompletionListener()
+				{
+					public void onCompletion(MediaPlayer mplayer)
+					{
+						output.play(tp.playlist.getNext(playOrderStrategy, output.getCurrTrack()));
+					}
+				});
 			}
 		});
 
@@ -715,27 +758,33 @@ public class Player extends ListActivity
 
 	private void resetLastTrack()
 	{
-		String lastTrack = tp.playlist.preferences.get(Keys.LAST_TRACK_PLAYED);
-
-		Track restoredTrack = null;
-		if(!Shorty.isVoid(lastTrack))
-		{
-			restoredTrack = tp.playlist.getTrack(lastTrack);
-		}
-		if(restoredTrack == null){
-			tp.player.change(tp.playlist.getNext(playOrderStrategy, null));
-		}
-		else
-		{
-			tp.player.change(restoredTrack);
-			tp.player.goToMillis(tp.playlist.preferences.get(Keys.EXIT_PLAY_TIME));
-		}
-
 		Set<Filter> filtersFromPref = tp.playlist.preferences.get(Keys.FILTERS);
 		for(Filter filter : filtersFromPref)
 		{
 			tp.playlist.addFilter(filter);
 		}
+
+		tp.player.connectPlayer(new OutputCommand()
+		{
+			public void connected(Output output)
+			{
+				String lastTrack = tp.playlist.preferences.get(Keys.LAST_TRACK_PLAYED);
+
+				Track restoredTrack = null;
+				if(!Shorty.isVoid(lastTrack))
+				{
+					restoredTrack = tp.playlist.getTrack(lastTrack);
+				}
+				if(restoredTrack == null){
+					output.change(tp.playlist.getNext(playOrderStrategy, null));
+				}
+				else
+				{
+					output.change(restoredTrack);
+					output.goToMillis(tp.playlist.preferences.get(Keys.EXIT_PLAY_TIME));
+				}
+			}
+		});
 
 	}
 
@@ -779,14 +828,20 @@ public class Player extends ListActivity
 											 int position,
 											 long id)
 	{
-		Track trackSelected = fileChooser.choose((Instance) l.getItemAtPosition(position));
+		final Track trackSelected = fileChooser.choose((Instance) l.getItemAtPosition(position));
 		if (trackSelected != null)
 		{
 			if(!tp.playlist.getCompressedFilter().accept(new MatchFilterVisitor<Instance>(trackSelected)))
 			{
 				tp.playlist.clearFilters();
 			}
-			tp.player.play(trackSelected);
+			tp.player.connectPlayer(new OutputCommand()
+			{
+				public void connected(Output output)
+				{
+					output.play(trackSelected);
+				}
+			});
 			SwitchToNowPlayingSlide();
 		}
 	}

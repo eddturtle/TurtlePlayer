@@ -33,7 +33,7 @@ import java.util.Arrays;
 public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 {
 
-	public static final int DATABASE_VERSION = 6;
+	public static final int DATABASE_VERSION = 7;
 	public static final String DATABASE_NAME = "TurtlePlayer";
 
 	public TurtleDatabaseImpl(Context context)
@@ -45,8 +45,7 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 	public void onCreate(SQLiteDatabase db)
 	{
 		String createTracksSql = "CREATE TABLE " + Tables.TRACKS.getName() + " ("
-				  + Tables.TRACKS.ID.getName() + " INTEGER PRIMARY KEY, "
-				  + Tables.TRACKS.TITLE.getName() + " TEXT, "
+				  + Tables.TRACKS.TITLE.getName() + " TEXT PRIMARY KEY, "
 				  + Tables.TRACKS.NUMBER.getName() + " INTEGER, "
 				  + Tables.TRACKS.ARTIST.getName() + " TEXT, "
 				  + Tables.TRACKS.ALBUM.getName() + " TEXT, "
@@ -68,7 +67,7 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 		}
 
 		String createAlbumArtSql = "CREATE TABLE " + Tables.ALBUM_ART_LOCATIONS.getName() + " ("
-				  + Tables.ALBUM_ART_LOCATIONS.PATH.getName() + " TEXT, "
+				  + Tables.ALBUM_ART_LOCATIONS.PATH.getName() + " TEXT PRIMARY KEY, "
 				  + Tables.ALBUM_ART_LOCATIONS.ALBUM_ART_PATH.getName() + " TEXT);";
 		db.execSQL(createAlbumArtSql);
 
