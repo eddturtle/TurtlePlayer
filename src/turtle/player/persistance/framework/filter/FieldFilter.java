@@ -1,6 +1,5 @@
 package turtle.player.persistance.framework.filter;
 
-import turtle.player.persistance.source.relational.Field;
 import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsDouble;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
@@ -24,27 +23,27 @@ import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FieldFilter<I, T> implements Filter
+public class FieldFilter<TARGET, RESULT, TYPE> implements Filter<TARGET>
 {
-	private final FieldPersistable<I, T> field;
+	private final FieldPersistable<RESULT, TYPE> field;
 	private final Operator operator;
-	private final T value;
+	private final TYPE value;
 
-	public FieldFilter(FieldPersistable<I, T> field,
+	public FieldFilter(FieldPersistable<RESULT, TYPE> field,
 							 Operator operator,
-							 T value)
+							 TYPE value)
 	{
 		this.field = field;
 		this.operator = operator;
 		this.value = value;
 	}
 
-	public FieldPersistable<I, T> getField()
+	public FieldPersistable<RESULT, TYPE> getField()
 	{
 		return field;
 	}
 
-	public T getValue()
+	public TYPE getValue()
 	{
 		return value;
 	}
@@ -54,9 +53,9 @@ public class FieldFilter<I, T> implements Filter
 		return operator;
 	}
 
-	public <R, I> R accept(FilterVisitor<I, R> visitor)
+	public <R> R accept(FilterVisitor<TARGET, R> visitor)
 	{
-		return visitor.visit((FieldFilter<I, T>)this);
+		return visitor.visit(this);
 	}
 
 	@Override
@@ -89,25 +88,35 @@ public class FieldFilter<I, T> implements Filter
 		return result;
 	}
 
-	public abstract class FieldVisitorField<R> implements FieldVisitor<R, I>
+	/**
+	 * TODO refactor
+	 * @param <R>
+	 */
+	public abstract class FieldVisitorField<R> implements FieldVisitor<R, RESULT>
 	{
-		public abstract R visit(FieldPersistableAsString<I> field, String filterValue);
-		public abstract R visit(FieldPersistableAsDouble<I> field, Double filterValue);
-		public abstract R visit(FieldPersistableAsInteger<I> field, Integer filterValue);
+		public abstract R visit(FieldPersistableAsString<RESULT> field, String filterValue);
+		public abstract R visit(FieldPersistableAsDouble<RESULT> field, Double filterValue);
+		public abstract R visit(FieldPersistableAsInteger<RESULT> field, Integer filterValue);
 
-		public R visit(FieldPersistableAsString<I> field)
+		public R visit(FieldPersistableAsString<RESULT> field)
 		{
 			return visit(field, (String)value);
 		}
 
-		public R visit(FieldPersistableAsDouble<I> field)
+		public R visit(FieldPersistableAsDouble<RESULT> field)
 		{
-			return visit(field, (Double)value);
+			if(value instanceof Double){
+				return visit(field, (Double)value);
+			}
+			return visit(field, (Double.valueOf(value.toString())));
 		}
 
-		public R visit(FieldPersistableAsInteger<I> field)
+		public R visit(FieldPersistableAsInteger<RESULT> field)
 		{
-			return visit(field, (Integer)value);
+			if(value instanceof Integer){
+				return visit(field, (Integer)value);
+			}
+			return visit(field, (Integer.valueOf(value.toString())));
 		}
 	}
 }

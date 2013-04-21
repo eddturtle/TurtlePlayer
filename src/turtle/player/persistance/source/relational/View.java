@@ -1,6 +1,6 @@
-package turtle.player.persistance.source.relational.fieldtype;
+package turtle.player.persistance.source.relational;
 
-import turtle.player.persistance.source.relational.FieldPersistable;
+import java.io.Serializable;
 
 /**
  * TURTLE PLAYER
@@ -19,19 +19,7 @@ import turtle.player.persistance.source.relational.FieldPersistable;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class FieldPersistableAsInteger<I> extends FieldPersistable<I, Integer>
+public abstract class View<I> implements Serializable
 {
-	protected FieldPersistableAsInteger(String name)
-	{
-		super(name);
-	}
-
-	protected FieldPersistableAsInteger(FieldPersistable<?, ?> fieldPersistable)
-	{
-		super(fieldPersistable);
-	}
-
-	public <R> R accept(FieldVisitor<R, I> visitor){
-		return visitor.visit(this);
-	}
+	public abstract Table<?>[] getTables();
 }

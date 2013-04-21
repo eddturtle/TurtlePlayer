@@ -1,6 +1,8 @@
-package turtle.player.persistance.source.relational.fieldtype;
+package turtle.player.persistance.source.sql.query;
 
-import turtle.player.persistance.source.relational.FieldPersistable;
+import turtle.player.persistance.source.relational.Table;
+
+import java.util.List;
 
 /**
  * TURTLE PLAYER
@@ -19,19 +21,23 @@ import turtle.player.persistance.source.relational.FieldPersistable;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class FieldPersistableAsInteger<I> extends FieldPersistable<I, Integer>
+public class TablesPart implements SqlFragment
 {
-	protected FieldPersistableAsInteger(String name)
+	private final List<? extends Table<?>> tables;
+
+	public TablesPart(List<? extends Table<?>> tables)
 	{
-		super(name);
+		this.tables = tables;
 	}
 
-	protected FieldPersistableAsInteger(FieldPersistable<?, ?> fieldPersistable)
+	public String toSql()
 	{
-		super(fieldPersistable);
-	}
-
-	public <R> R accept(FieldVisitor<R, I> visitor){
-		return visitor.visit(this);
+		String[] tableNames = new String[tables.size()];
+		int i = 0;
+		for(Table<?> table : tables)
+		{
+			tableNames[i++] = table.getName();
+		}
+		return Helper.getSeparatedList(", ", tableNames);
 	}
 }

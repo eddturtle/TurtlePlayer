@@ -1,6 +1,7 @@
 package turtle.player.controller;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -9,10 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import turtle.player.R;
 import turtle.player.model.Track;
-import turtle.player.persistance.framework.filter.FieldFilter;
-import turtle.player.persistance.framework.filter.Filter;
-import turtle.player.persistance.framework.filter.FilterSet;
-import turtle.player.persistance.framework.filter.FilterVisitor;
+import turtle.player.persistance.framework.filter.*;
 import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.player.ObservableOutput;
@@ -364,12 +362,12 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 		filterChanged(filter, false);
 	}
 
-	private void filterChanged(Filter filter, final boolean activated){
-		filter.accept(new FilterVisitor<Object, Void>()
+	private void filterChanged(Filter<Track> filter, final boolean activated){
+		for(final BowMenuEntry entry : BowMenuEntry.values())
 		{
-			public <T> Void visit(FieldFilter<Object, T> fieldFilter)
+			filter.accept(new FilterVisitor<Track, Boolean>()
 			{
-				for(BowMenuEntry entry : BowMenuEntry.values())
+				public <T, Z> Boolean visit(FieldFilter<Track, Z, T> fieldFilter)
 				{
 					if(entry.getField().equals(fieldFilter.getField()))
 					{
@@ -380,19 +378,30 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 						bowMenuEntries.get(entry).setVisibility(visibility);
 						bowMenuIconEntries.get(entry).setVisibility(visibility);
 						bowMenuTextEntries.get(entry).setVisibility(visibility);
+						bowMenuTextEntries.get(entry).setTextColor(Color.WHITE);
 					}
+					return null;
 				}
-				return null;
-			}
 
-			public Void visit(FilterSet filterSet)
-			{
-				for(Filter filter : filterSet.getFilters()){
-					filter.accept(this);
+				public Boolean visit(FilterSet<Track> filterSet)
+				{
+					for(Filter<Track> filter : filterSet.getFilters()){
+						filter.accept(this);
+					}
+					return null;
 				}
-				return null;
-			}
-		});
+
+				public Boolean visit(NotFilter<Track> notFilter)
+				{
+					boolean adapted = notFilter.accept(this);
+					if(adapted)
+					{
+						bowMenuTextEntries.get(entry).setTextColor(Color.RED);
+					}
+					return adapted;
+				}
+			});
+		}
 	}
 
 

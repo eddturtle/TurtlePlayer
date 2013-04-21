@@ -2,6 +2,7 @@ package turtle.player.persistance.turtle;
 
 import turtle.player.model.*;
 import turtle.player.persistance.framework.filter.Filter;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 import java.util.Collection;
 import java.util.Set;
@@ -28,9 +29,9 @@ import java.util.Set;
  */
 public interface FileBase
 {
-	Collection<Track> getTracks(Filter filter);
+	Collection<Track> getTracks(Filter<Tables.Tracks> filter);
 
-	Collection<Album> getAlbums(Filter filter);
+	Collection<Album> getAlbums(Filter<Tables.Tracks> filter);
 
-	Collection<Artist> getArtist(Filter filter);
+	Collection<Artist> getArtist(Filter<Tables.Tracks> filter);
 }

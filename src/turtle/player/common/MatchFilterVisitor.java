@@ -1,10 +1,10 @@
 package turtle.player.common;
 
 import turtle.player.persistance.framework.filter.*;
+import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsDouble;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
-import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
 
 /**
  * TURTLE PLAYER
@@ -23,35 +23,38 @@ import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
  * @author Simon Honegger (Hoene84)
  */
 
-public class MatchFilterVisitor<I> implements FilterVisitor<I, Boolean>
+public class MatchFilterVisitor<RESULT, TARGET> extends FilterVisitorGenerified<TARGET, RESULT, Object, Boolean>
 {
-	private final I instance;
+	private final RESULT instance;
 
-	public MatchFilterVisitor(I instance)
+	public MatchFilterVisitor(RESULT instance)
 	{
 		this.instance = instance;
 	}
 
-	public <T> Boolean visit(final FieldFilter<I, T> fieldFilter)
+	@Override
+	public Boolean visit(final FieldFilter<TARGET, RESULT, Object> fieldFilter,
+								FieldPersistable<RESULT, Object> field)
 	{
-		return fieldFilter.getField().accept(fieldFilter.new FieldVisitorField<Boolean>()
+
+		return field.accept(fieldFilter.new FieldVisitorField<Boolean>()
 		{
 			@Override
-			public Boolean visit(FieldPersistableAsString<I> field,
+			public Boolean visit(FieldPersistableAsString<RESULT> field,
 										String filterValue)
 			{
 				return matchField(filterValue, field.get(instance), fieldFilter.getOperator());
 			}
 
 			@Override
-			public Boolean visit(FieldPersistableAsDouble<I> field,
+			public Boolean visit(FieldPersistableAsDouble<RESULT> field,
 										Double filterValue)
 			{
 				return matchField(filterValue, field.get(instance), fieldFilter.getOperator());
 			}
 
 			@Override
-			public Boolean visit(FieldPersistableAsInteger<I> field,
+			public Boolean visit(FieldPersistableAsInteger<RESULT> field,
 										Integer filterValue)
 			{
 				return matchField(filterValue, field.get(instance), fieldFilter.getOperator());
@@ -59,9 +62,9 @@ public class MatchFilterVisitor<I> implements FilterVisitor<I, Boolean>
 		});
 	}
 
-	public Boolean visit(FilterSet filterSet)
+	public Boolean visit(FilterSet<TARGET> filterSet)
 	{
-		for(Filter filter : filterSet.getFilters())
+		for(Filter<TARGET> filter : filterSet.getFilters())
 		{
 			if(!filter.accept(this))
 			{
@@ -69,6 +72,11 @@ public class MatchFilterVisitor<I> implements FilterVisitor<I, Boolean>
 			}
 		}
 		return true;
+	}
+
+	public Boolean visit(NotFilter<TARGET> notFilter)
+	{
+		return !notFilter.accept(this);
 	}
 
 	private boolean matchField(String filterValue, String fieldValue, Operator operator){
@@ -83,6 +91,8 @@ public class MatchFilterVisitor<I> implements FilterVisitor<I, Boolean>
 		{
 			case EQ:
 				return fieldValue.equals(filterValue);
+			case NEQ:
+				return !fieldValue.equals(filterValue);
 			case GT:
 				return fieldValue.compareTo(filterValue) > 0;
 			case LE:
@@ -91,6 +101,8 @@ public class MatchFilterVisitor<I> implements FilterVisitor<I, Boolean>
 				return fieldValue.compareTo(filterValue) >= 0;
 			case LIKE:
 				return fieldValue.contains(filterValue);
+			case NOT_LIKE:
+				return !fieldValue.contains(filterValue);
 			case LT:
 				return fieldValue.compareTo(filterValue) < 0;
 		}
@@ -118,6 +130,10 @@ public class MatchFilterVisitor<I> implements FilterVisitor<I, Boolean>
 				return String.valueOf(fieldValue).contains(String.valueOf(filterValue));
 			case LT:
 				return fieldValue.compareTo(filterValue) < 0;
+			case NOT_LIKE:
+				return !String.valueOf(fieldValue).contains(String.valueOf(filterValue));
+			case NEQ:
+				return !fieldValue.equals(filterValue);
 		}
 		throw new RuntimeException("Operator " + operator + " is not supported");
 	}
@@ -133,6 +149,8 @@ public class MatchFilterVisitor<I> implements FilterVisitor<I, Boolean>
 		{
 			case EQ:
 				return fieldValue.equals(filterValue);
+			case NEQ:
+				return !fieldValue.equals(filterValue);
 			case GT:
 				return fieldValue.compareTo(filterValue) > 0;
 			case LE:
@@ -141,17 +159,24 @@ public class MatchFilterVisitor<I> implements FilterVisitor<I, Boolean>
 				return fieldValue.compareTo(filterValue) >= 0;
 			case LIKE:
 				return String.valueOf(fieldValue).contains(String.valueOf(filterValue));
+			case NOT_LIKE:
+				return !String.valueOf(fieldValue).contains(String.valueOf(filterValue));
 			case LT:
 				return fieldValue.compareTo(filterValue) < 0;
 		}
 		throw new RuntimeException("Operator " + operator + " is not supported");
 	}
 
+	/**
+	 * TODO Refactor, seems to be not used, implementation is bullshit
+	 */
 	private Boolean matchFieldNull(Object filterValue, Object fieldValue, Operator operator){
 		if(filterValue != null || fieldValue != null) return null;
 
 		switch (operator)
 		{
+			case NEQ:
+				return filterValue != fieldValue;
 			case EQ:
 				return filterValue == fieldValue;
 			case GT:
@@ -162,6 +187,8 @@ public class MatchFilterVisitor<I> implements FilterVisitor<I, Boolean>
 				return fieldValue == filterValue || fieldValue != null;
 			case LIKE:
 				return fieldValue == filterValue || filterValue == null;
+			case NOT_LIKE:
+				return fieldValue != filterValue || filterValue == null;
 			case LT:
 				return filterValue != fieldValue && fieldValue == null;
 		}

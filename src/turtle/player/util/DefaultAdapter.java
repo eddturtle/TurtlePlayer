@@ -164,6 +164,12 @@ public class DefaultAdapter<T extends Instance> extends ArrayAdapter<T>
 				icon.setImageResource(R.drawable.artist24);
 				return null;
 			}
+
+			public Object visit(FSobject FSobject)
+			{
+				icon.setImageResource(R.drawable.dir24);
+				return null;
+			}
 		});
 
 		return rowView;

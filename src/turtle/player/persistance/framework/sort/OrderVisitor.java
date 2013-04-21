@@ -1,5 +1,7 @@
 package turtle.player.persistance.framework.sort;
 
+import turtle.player.persistance.framework.filter.FieldFilter;
+
 /**
  * TURTLE PLAYER
  * <p/>
@@ -17,11 +19,11 @@ package turtle.player.persistance.framework.sort;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface OrderVisitor<I, R>
+public interface OrderVisitor<TARGET, R>
 {
-   R visit(RandomOrder orderFilter);
+	<T, Z> R visit(FieldOrder<TARGET, Z, T> fieldOrder);
 
-	<T> R visit(FieldOrder<I, T> fieldOrder);
+	R visit(RandomOrder<TARGET> orderFilter);
 
-	R visit(OrderSet orderFilter);
+	R visit(OrderSet<TARGET> orderFilter);
 }

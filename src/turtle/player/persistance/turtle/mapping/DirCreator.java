@@ -1,6 +1,9 @@
-package turtle.player.persistance.source.relational.fieldtype;
+package turtle.player.persistance.turtle.mapping;
 
-import turtle.player.persistance.source.relational.FieldPersistable;
+import android.database.Cursor;
+import turtle.player.model.FSobject;
+import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -19,19 +22,13 @@ import turtle.player.persistance.source.relational.FieldPersistable;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class FieldPersistableAsInteger<I> extends FieldPersistable<I, Integer>
+public class DirCreator implements Creator<FSobject, Cursor>
 {
-	protected FieldPersistableAsInteger(String name)
+	public FSobject create(Cursor source)
 	{
-		super(name);
-	}
-
-	protected FieldPersistableAsInteger(FieldPersistable<?, ?> fieldPersistable)
-	{
-		super(fieldPersistable);
-	}
-
-	public <R> R accept(FieldVisitor<R, I> visitor){
-		return visitor.visit(this);
+		return new FSobject(
+				  source.getString(source.getColumnIndex(Tables.DIRS.PATH.getName())),
+				  source.getString(source.getColumnIndex(Tables.DIRS.NAME.getName()))
+		);
 	}
 }

@@ -1,6 +1,10 @@
-package turtle.player.persistance.source.relational.fieldtype;
+package turtle.player.persistance.turtle.mapping;
 
-import turtle.player.persistance.source.relational.FieldPersistable;
+import android.database.Cursor;
+import turtle.player.model.Artist;
+import turtle.player.model.TrackDigest;
+import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -19,19 +23,11 @@ import turtle.player.persistance.source.relational.FieldPersistable;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class FieldPersistableAsInteger<I> extends FieldPersistable<I, Integer>
+public class TrackDigestCreator implements Creator<TrackDigest, Cursor>
 {
-	protected FieldPersistableAsInteger(String name)
-	{
-		super(name);
-	}
 
-	protected FieldPersistableAsInteger(FieldPersistable<?, ?> fieldPersistable)
-	{
-		super(fieldPersistable);
-	}
-
-	public <R> R accept(FieldVisitor<R, I> visitor){
-		return visitor.visit(this);
-	}
+    public TrackDigest create(Cursor source)
+    {
+        return new TrackDigest(source.getString(source.getColumnIndex(Tables.TRACKS.TITLE.getName())));
+    }
 }

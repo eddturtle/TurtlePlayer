@@ -1,8 +1,5 @@
 package turtle.player.persistance.framework.filter;
 
-import turtle.player.persistance.framework.sort.FieldOrder;
-import turtle.player.persistance.source.sql.query.WhereClause;
-
 /**
  * TURTLE PLAYER
  * <p/>
@@ -23,9 +20,11 @@ import turtle.player.persistance.source.sql.query.WhereClause;
 /**
  * @param <R> What the Visitor Produces (can be {@link Void} if nothing gets produced)
  */
-public interface FilterVisitor<I, R>
+public interface FilterVisitor<TARGET, R>
 {
-	<T> R visit(FieldFilter<I, T> fieldFilter);
+	<T, Z> R visit(FieldFilter<TARGET, Z, T> fieldFilter);
 
-	R visit(FilterSet filterSet);
+	R visit(FilterSet<TARGET> filterSet);
+
+	R visit(NotFilter<TARGET> notFilter);
 }

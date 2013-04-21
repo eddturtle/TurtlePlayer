@@ -29,4 +29,6 @@ public interface InstanceVisitor<R>
 	R visit(Genre genre);
 
 	R visit(Artist artist);
+
+	R visit(FSobject FSobject);
 }

@@ -1,9 +1,10 @@
 package turtle.player.persistance.framework.filter;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import turtle.player.persistance.source.relational.FieldPersistable;
+import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsDouble;
+import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
+import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
+import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
 
 /**
  * TURTLE PLAYER
@@ -22,18 +23,13 @@ import java.util.Set;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FilterSet<I> implements Filter<I>
+public class NotFilter<I> implements Filter<I>
 {
-	private final Set<Filter<I>> filters;
+	private final Filter<I> filter;
 
-	public FilterSet(Filter<I>... filter)
+	public NotFilter(Filter<I> filter)
 	{
-		this.filters = new HashSet<Filter<I>>(Arrays.asList(filter));
-	}
-
-	public FilterSet(Set<Filter<I>> filters)
-	{
-		this.filters = new HashSet<Filter<I>>(filters);
+		this.filter = filter;
 	}
 
 	public <R> R accept(FilterVisitor<I, R> visitor)
@@ -41,29 +37,26 @@ public class FilterSet<I> implements Filter<I>
 		return visitor.visit(this);
 	}
 
-	/**
-	 * @return never null, Set can be empty
-	 */
-	public Set<Filter<I>> getFilters()
+	public Filter<I> getFilter()
 	{
-		return filters;
+		return filter;
 	}
 
 	@Override
 	public String toString()
 	{
-		return Arrays.deepToString(filters.toArray());
+		return " NOT (" + filter.toString() + ") ";
 	}
 
 	@Override
 	public boolean equals(Object o)
 	{
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (!(o instanceof NotFilter)) return false;
 
-		FilterSet filterSet = (FilterSet) o;
+		NotFilter notFilter = (NotFilter) o;
 
-		if (filters != null ? !filters.equals(filterSet.filters) : filterSet.filters != null) return false;
+		if (filter != null ? !filter.equals(notFilter.filter) : notFilter.filter != null) return false;
 
 		return true;
 	}
@@ -71,6 +64,6 @@ public class FilterSet<I> implements Filter<I>
 	@Override
 	public int hashCode()
 	{
-		return filters != null ? filters.hashCode() : 0;
+		return filter != null ? filter.hashCode() : 0;
 	}
 }

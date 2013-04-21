@@ -1,9 +1,14 @@
 package turtle.player.persistance.framework.sort;
 
+import turtle.player.persistance.framework.filter.FieldFilter;
+import turtle.player.persistance.framework.filter.Filter;
+import turtle.player.persistance.framework.filter.Operator;
 import turtle.player.persistance.source.relational.Field;
 import turtle.player.persistance.source.relational.FieldPersistable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * TURTLE PLAYER
@@ -22,19 +27,19 @@ import java.util.Arrays;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FieldOrder<I, T> implements Order
+public class FieldOrder<TARGET, RESULT, TYPE> implements Order<TARGET>
 {
-	private final FieldPersistable<I, T> field;
+	private final FieldPersistable<RESULT, TYPE> field;
 	private final SortOrder order;
 
-	public FieldOrder(FieldPersistable<I, T> field,
+	public FieldOrder(FieldPersistable<RESULT, TYPE> field,
                       SortOrder order)
 	{
 		this.field = field;
 		this.order = order;
 	}
 
-	public FieldPersistable<I, T> getField()
+	public FieldPersistable<RESULT, TYPE> getField()
 	{
 		return field;
 	}
@@ -44,14 +49,29 @@ public class FieldOrder<I, T> implements Order
         return order;
     }
 
-	public <R, I> R accept(OrderVisitor<I, R> visitor)
+	public <R> R accept(OrderVisitor<TARGET, R> visitor)
 	{
-		return visitor.visit((FieldOrder<I,T>) this);
+		return visitor.visit(this);
 	}
 
 	@Override
 	public String toString()
 	{
 		return getField().getName() + " " + order;
+	}
+
+	public Filter<TARGET> asFilter(TYPE value, Operator op){
+			return new FieldFilter<TARGET, RESULT, TYPE>(field, op, value);
+	}
+
+	public static <TARGET, RESULT, TYPE> Order<TARGET> getMultiFieldOrder(SortOrder order,
+												FieldPersistable<RESULT, TYPE>... fields)
+	{
+		List<FieldOrder<TARGET, RESULT, TYPE>> orders = new ArrayList<FieldOrder<TARGET, RESULT, TYPE>>();
+		for(FieldPersistable<RESULT, TYPE> field : fields)
+		{
+			orders.add(new FieldOrder<TARGET, RESULT, TYPE>(field, order));
+		}
+		return new OrderSet<TARGET>(orders);
 	}
 }

@@ -1,18 +1,14 @@
 package turtle.player.persistance.turtle.db.structure;
 
 import turtle.player.model.AlbumArtLocation;
-import turtle.player.model.Artist;
+import turtle.player.model.FSobject;
 import turtle.player.model.Track;
 import turtle.player.persistance.source.relational.Field;
 import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.source.relational.Table;
-import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsDouble;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
 import turtle.player.util.TurtleUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * TURTLE PLAYER
@@ -35,11 +31,34 @@ public class Tables
 {
 	public final static Tracks TRACKS = new Tracks();
 	public final static AlbumArtLocations ALBUM_ART_LOCATIONS = new AlbumArtLocations();
+	public final static Dirs DIRS = new Dirs();
 
-	public static final class Tracks extends Table<Track>
+	public static abstract class FsObjects<I extends FSobject> extends Table<I>
 	{
+		public FsObjects(String name)
+		{
+			super(name);
+		}
 
-		public final Field ID = new Field("id");
+		public final FieldPersistable<I, String> NAME = new FieldPersistableAsString<I>("name")
+		{
+			public String get(I fsObject)
+			{
+				return fsObject.getName();
+			}
+		};
+
+		public final FieldPersistable<I, String> PATH = new FieldPersistableAsString<I>("path")
+		{
+			public String get(FSobject fsObject)
+			{
+				return fsObject.getPath();
+			}
+		};
+	}
+
+	public static final class Tracks extends FsObjects<Track>
+	{
 
 		public final FieldPersistable<Track, String> TITLE = new FieldPersistableAsString<Track>("title")
 		{
@@ -100,22 +119,6 @@ public class Tables
 			}
 		};
 
-		public final FieldPersistable<Track, String> SRC = new FieldPersistableAsString<Track>("src")
-		{
-			public String get(Track instance)
-			{
-				return instance.GetSrc();
-			}
-		};
-
-		public final FieldPersistable<Track, String> ROOTSRC = new FieldPersistableAsString<Track>("rootSrc")
-		{
-			public String get(Track instance)
-			{
-				return instance.GetRootSrc();
-			}
-		};
-
 		public Tracks()
 		{
 			super("Tracks");
@@ -145,6 +148,14 @@ public class Tables
 		public AlbumArtLocations()
 		{
 			super("AlbumArt");
+		}
+	}
+
+	public static final class Dirs extends FsObjects<FSobject>
+	{
+		public Dirs()
+		{
+			super("Dirs");
 		}
 	}
 }

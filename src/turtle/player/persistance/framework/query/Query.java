@@ -22,9 +22,9 @@ import turtle.player.persistance.framework.sort.OrderVisitor;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class Query<Q, W, O, I, C> implements FilterVisitor<I, W>, OperationRead<Q, C, I>, OrderVisitor<I, O>
+public abstract class Query<QUERY, WHERE, ORDER, RESULT, CURSOR, TARGET> implements FilterVisitor<TARGET, WHERE>, OperationRead<QUERY, CURSOR, RESULT>, OrderVisitor<TARGET, ORDER>
 {
-	private final Filter filter;
+	private final Filter<TARGET> filter;
 	private final Order order;
 
     protected Query()
@@ -33,7 +33,7 @@ public abstract class Query<Q, W, O, I, C> implements FilterVisitor<I, W>, Opera
         order = null;
     }
 
-    protected Query(Filter filter)
+    protected Query(Filter<TARGET> filter)
     {
         this.filter = filter;
         order = null;
@@ -45,7 +45,7 @@ public abstract class Query<Q, W, O, I, C> implements FilterVisitor<I, W>, Opera
         this.filter = null;
     }
 
-    public Query(Filter filter, Order order)
+    public Query(Filter<TARGET> filter, Order order)
 	{
 		this.filter = filter;
 		this.order = order;
@@ -54,7 +54,7 @@ public abstract class Query<Q, W, O, I, C> implements FilterVisitor<I, W>, Opera
     /**
      * @return can be null
      */
-	public Filter getFilter()
+	public Filter<TARGET> getFilter()
 	{
 		return filter;
 	}
@@ -62,7 +62,7 @@ public abstract class Query<Q, W, O, I, C> implements FilterVisitor<I, W>, Opera
     /**
      * @return can be null
      */
-    public Order getOrder()
+    public Order<TARGET> getOrder()
     {
         return order;
     }

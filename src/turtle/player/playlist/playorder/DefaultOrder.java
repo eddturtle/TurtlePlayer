@@ -28,10 +28,10 @@ public class DefaultOrder extends OrderSet
 {
 	public DefaultOrder(SortOrder sortOrder)
 	{
-		super(new FieldOrder<Track, String>(Tables.TRACKS.ARTIST, sortOrder),
-				  new FieldOrder<Track, String>(Tables.TRACKS.ALBUM, sortOrder),
-				  new FieldOrder<Track, Integer>(Tables.TRACKS.NUMBER, sortOrder),
-				  new FieldOrder<Track, String>(Tables.TRACKS.TITLE, sortOrder)
+		super(new FieldOrder<Tables.Tracks, Track, String>(Tables.TRACKS.ARTIST, sortOrder),
+				  new FieldOrder<Tables.Tracks, Track, String>(Tables.TRACKS.ALBUM, sortOrder),
+				  new FieldOrder<Tables.Tracks, Track, Integer>(Tables.TRACKS.NUMBER, sortOrder),
+				  new FieldOrder<Tables.Tracks, Track, String>(Tables.TRACKS.TITLE, sortOrder)
 		);
 	}
 }

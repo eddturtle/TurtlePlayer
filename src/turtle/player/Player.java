@@ -44,6 +44,7 @@ import turtle.player.model.Track;
 import turtle.player.persistance.framework.db.ObservableDatabase;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
+import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.player.ObservableOutput;
 import turtle.player.player.Output;
 import turtle.player.player.OutputCommand;
@@ -544,14 +545,14 @@ public class Player extends ListActivity
 
 		tp.playlist.addObserver(new Playlist.PlaylistFilterChangeObserver()
 		{
-			public void filterAdded(final Filter filter)
+			public void filterAdded(final Filter<Tables.Tracks> filter)
 			{
 				tp.player.connectPlayer(new OutputCommand()
 				{
 					public void connected(Output output)
 					{
 						Track currTrack = output.getCurrTrack();
-						if(currTrack == null || !filter.accept(new MatchFilterVisitor<Instance>(currTrack)))
+						if(currTrack == null || !filter.accept(new MatchFilterVisitor<Track, Tables.Tracks>(currTrack)))
 						{
 							output.change(tp.playlist.getNext(playOrderStrategy, null));
 						}
@@ -604,7 +605,7 @@ public class Player extends ListActivity
 			{
 				progressBar.setMax(lengthInMillis);
 				duration.setText(ConvertToMinutes(lengthInMillis));
-				tp.playlist.preferences.set(Keys.LAST_TRACK_PLAYED, track.GetSrc());
+				tp.playlist.preferences.set(Keys.LAST_TRACK_PLAYED, track.getFullPath());
 			}
 
 			public void started()
@@ -758,7 +759,7 @@ public class Player extends ListActivity
 
 	private void resetLastTrack()
 	{
-		Set<Filter> filtersFromPref = tp.playlist.preferences.get(Keys.FILTERS);
+		Set<Filter<Tables.Tracks>> filtersFromPref = tp.playlist.preferences.get(Keys.FILTERS);
 		for(Filter filter : filtersFromPref)
 		{
 			tp.playlist.addFilter(filter);
@@ -831,7 +832,7 @@ public class Player extends ListActivity
 		final Track trackSelected = fileChooser.choose((Instance) l.getItemAtPosition(position));
 		if (trackSelected != null)
 		{
-			if(!tp.playlist.getCompressedFilter().accept(new MatchFilterVisitor<Instance>(trackSelected)))
+			if(!tp.playlist.getCompressedFilter().accept(new MatchFilterVisitor<Track, Tables.Tracks>(trackSelected)))
 			{
 				tp.playlist.clearFilters();
 			}

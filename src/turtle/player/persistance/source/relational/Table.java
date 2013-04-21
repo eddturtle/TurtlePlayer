@@ -1,8 +1,5 @@
 package turtle.player.persistance.source.relational;
 
-import java.io.Serializable;
-import java.util.List;
-
 /**
  * TURTLE PLAYER
  * <p/>
@@ -20,7 +17,7 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class Table<I> implements Serializable
+public abstract class Table<I> extends View<I>
 {
 	final String name;
 
@@ -32,5 +29,11 @@ public abstract class Table<I> implements Serializable
 	public String getName()
 	{
 		return name;
+	}
+
+	@Override
+	public Table<?>[] getTables()
+	{
+		return new Table[]{this};
 	}
 }

@@ -19,7 +19,9 @@
 package turtle.player.preferences;
 
 import android.os.Environment;
+import turtle.player.model.Track;
 import turtle.player.persistance.framework.filter.Filter;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,5 +40,5 @@ public abstract class Keys
 	public final static Key<Integer> FS_SCAN_INTERRUPT_COUNT_ALL = new Key<Integer>("fsScanInterruptCountAll", 0);
 	public final static Key<Integer> FS_SCAN_INTERRUPT_COUNT_PROCESSED = new Key<Integer>("fsSancInterruptCountProcessed", 0);
 
-	public final static ObjectKey<Set<Filter>> FILTERS = new ObjectKey<Set<Filter>>("filters", new HashSet<Filter>());
+	public final static ObjectKey<Set<Filter<Tables.Tracks>>> FILTERS = new ObjectKey<Set<Filter<Tables.Tracks>>>("filters", new HashSet<Filter<Tables.Tracks>>());
 }

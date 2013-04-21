@@ -1,7 +1,5 @@
 package turtle.player.persistance.source.relational;
 
-import turtle.player.persistance.framework.filter.FilterVisitor;
-import turtle.player.persistance.framework.sort.OrderVisitor;
 import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
 
 /**
@@ -21,19 +19,24 @@ import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class FieldPersistable<I, O> extends Field
+public abstract class FieldPersistable<RESULT, TYPE> extends Field
 {
 	public FieldPersistable(String name)
 	{
 		super(name);
 	}
 
-	public abstract O get(I instance);
+	public FieldPersistable(FieldPersistable<?, ?> fieldPersistable)
+	{
+		super(fieldPersistable.getName());
+	}
 
-	public String getAsDisplayableString(I instance){
+	public abstract TYPE get(RESULT instance);
+
+	public String getAsDisplayableString(RESULT instance){
 		return get(instance).toString();
 	}
 
-	public abstract <R> R accept(FieldVisitor<R, I> visitor);
+	public abstract <R> R accept(FieldVisitor<R, RESULT> visitor);
 
 }

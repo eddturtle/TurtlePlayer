@@ -19,7 +19,7 @@ import java.io.Serializable;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface Filter extends Serializable
+public interface Filter<I> extends Serializable
 {
-	<R, I> R accept(FilterVisitor<I, R> visitor);
+	<R> R accept(FilterVisitor<I, R> visitor);
 }

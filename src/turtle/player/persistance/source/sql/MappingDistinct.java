@@ -5,6 +5,7 @@ import turtle.player.persistance.framework.creator.CreatorForList;
 import turtle.player.persistance.framework.mapping.Mapping;
 import turtle.player.persistance.source.relational.Field;
 import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.source.relational.View;
 import turtle.player.persistance.source.sql.query.Select;
 
 import java.util.List;
@@ -26,27 +27,27 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
-public class MappingDistinct<I> implements Mapping<Select, List<I>, Cursor>
+public class MappingDistinct<RESULT> implements Mapping<Select, List<RESULT>, Cursor>
 {
-	private final Table table;
-	private final Field field;
-	private final CreatorForList<I, Cursor, Cursor> creator;
+	private final View<RESULT> view;
+	private final Field[] field;
+	private final CreatorForList<RESULT, Cursor, Cursor> creator;
 
-	public MappingDistinct(Table table,
-								  Field field,
-								  CreatorForList<I, Cursor, Cursor> creator)
+	public MappingDistinct(View<RESULT> view,
+								  CreatorForList<RESULT, Cursor, Cursor> creator,
+								  Field... field)
 	{
-		this.table = table;
+		this.view = view;
 		this.field = field;
       this.creator = creator;
 	}
 
 	public Select get()
 	{
-		return new Select(table, Select.SelectMethod.DISTINCT, field);
+		return new Select(view, Select.SelectMethod.DISTINCT, field);
 	}
 
-    public List<I> create(Cursor queryResult)
+    public List<RESULT> create(Cursor queryResult)
     {
         return creator.create(queryResult);
     }

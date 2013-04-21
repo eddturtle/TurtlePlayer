@@ -24,7 +24,9 @@ public enum Operator
 	GE(" >= "),
 	LE(" <= "),
 	EQ(" = "),
-	LIKE(" LIKE ");
+	NEQ(" != "),
+	LIKE(" LIKE "),
+	NOT_LIKE(" NOT LIKE ");
 
 	final String string;
 

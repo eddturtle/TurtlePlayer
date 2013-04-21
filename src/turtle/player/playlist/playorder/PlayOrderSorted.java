@@ -69,7 +69,7 @@ public class PlayOrderSorted implements PlayOrderStrategy
 					  "resulting in Paging Filters : " + Paging.getFilter(playlist.getCompressedFilter(), ofTrack, currOrder));
 			Track nextTrack = OperationExecutor.execute(
 				  db,
-				  new QuerySqlite<Track>(
+				  new QuerySqlite<Tables.Tracks, Track>(
 							 Paging.getFilter(playlist.getCompressedFilter(), ofTrack, currOrder),
 							 order,
 							 new First<Track>(Tables.TRACKS, new TrackCreator())

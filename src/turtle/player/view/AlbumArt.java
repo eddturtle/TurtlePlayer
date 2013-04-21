@@ -126,7 +126,7 @@ public class AlbumArt
 					if(actualAsyncTask == this && bitmap != null)
 					{
 						albumArt.setImageBitmap(bitmap);
-						Log.v(Preferences.TAG, "albumart for " + track.GetSrc() + " resolved");
+						Log.v(Preferences.TAG, "albumart for " + track.getFullPath() + " resolved");
 					}
 				}
 			}.execute(track);

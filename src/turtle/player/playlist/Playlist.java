@@ -27,6 +27,7 @@ import turtle.player.Stats;
 import turtle.player.common.filefilter.FileFilters;
 import turtle.player.controller.*;
 import turtle.player.controller.Observer;
+import turtle.player.model.FSobject;
 import turtle.player.model.Instance;
 import turtle.player.model.Track;
 import turtle.player.model.TrackBundle;
@@ -70,7 +71,7 @@ public class Playlist
 	public final Stats stats = new Stats();
 
 	private final TurtleDatabase db;
-	private final Set<Filter> filters = new HashSet<Filter>();
+	private final Set<Filter<Tables.Tracks>> filters = new HashSet<Filter<Tables.Tracks>>();
 
 	private final ExecutorService fsScannerExecutorService = Executors.newSingleThreadExecutor();
 	private Future<?> currentFuture = null;
@@ -86,7 +87,7 @@ public class Playlist
 	 * @return true if the filter was activated
 	 */
 	public <O> boolean toggleFilter(FieldPersistable<Track, O> field, Track track){
-		Filter filter = new FieldFilter<Track, O>(field, Operator.EQ, field.get(track));
+		Filter filter = new FieldFilter<Tables.Tracks, Track, O>(field, Operator.EQ, field.get(track));
 		if(!filters.contains(filter))
 		{
 			addFilter(filter);
@@ -136,12 +137,12 @@ public class Playlist
 		return modified;
 	}
 
-	public Filter getCompressedFilter()
+	public Filter<Tables.Tracks> getCompressedFilter()
 	{
-		return filters.isEmpty() ? new FilterSet() : new FilterSet(filters);
+		return filters.isEmpty() ? new FilterSet<Tables.Tracks>() : new FilterSet<Tables.Tracks>(filters);
 	}
 
-	public Set<Filter> getFilter()
+	public Set<Filter<Tables.Tracks>> getFilter()
 	{
 		return Collections.unmodifiableSet(filters);
 	}
@@ -160,10 +161,14 @@ public class Playlist
 
 	public Track getTrack(String src)
 	{
+		FSobject fsObject = new FSobject(src);
 		return OperationExecutor.execute(
 				  db,
-				  new QuerySqlite<Track>(
-							 new FilterSet(getCompressedFilter(), new FieldFilter<Track, String>(Tables.TRACKS.SRC, Operator.EQ, src)),
+				  new QuerySqlite<Tables.Tracks, Track>(
+							 new FilterSet<Tables.Tracks>(
+										getCompressedFilter(),
+										new FieldFilter<Tables.Tracks, Track, String>(Tables.TRACKS.NAME, Operator.EQ, fsObject.getPath()),
+										new FieldFilter<Tables.Tracks, Track, String>(Tables.TRACKS.PATH, Operator.EQ, fsObject.getName())),
 							 new First<Track>(Tables.TRACKS, new TrackCreator())
 				  )
 		);
@@ -183,7 +188,7 @@ public class Playlist
 	public Track getRandom()
 	{
 		return OperationExecutor.execute(db,
-				  new QuerySqlite<Track>(
+				  new QuerySqlite<Tables.Tracks, Track>(
 							 getCompressedFilter(),
 							 new RandomOrder(),
 							 new First<Track>(Tables.TRACKS, new TrackCreator())));
@@ -434,9 +439,9 @@ public class Playlist
 
 		void endUpdatePlaylist();
 
-		void filterAdded(Filter filter);
+		void filterAdded(Filter<Tables.Tracks> filter);
 
-		void filterRemoved(Filter filter);
+		void filterRemoved(Filter<Tables.Tracks> filter);
 
 	}
 
@@ -460,9 +465,9 @@ public class Playlist
 	}
 
 	public static abstract class PlaylistTrackChangeObserver implements PlaylistObserver{
-		public void filterAdded(Filter filter){/*doNothing*/}
+		public void filterAdded(Filter<Tables.Tracks> filter){/*doNothing*/}
 
-		public void filterRemoved(Filter filter){/*doNothing*/}
+		public void filterRemoved(Filter<Tables.Tracks> filter){/*doNothing*/}
 	}
 
 	public void addObserver(PlaylistObserver observer)

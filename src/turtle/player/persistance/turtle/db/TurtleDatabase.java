@@ -32,16 +32,16 @@ import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.sort.FieldOrder;
 import turtle.player.persistance.framework.sort.SortOrder;
 import turtle.player.persistance.source.relational.FieldPersistable;
+import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.source.relational.View;
 import turtle.player.persistance.source.sql.MappingDistinct;
 import turtle.player.persistance.source.sql.MappingTable;
-import turtle.player.persistance.source.sql.query.OrderClause;
 import turtle.player.persistance.source.sql.query.Select;
-import turtle.player.persistance.source.sql.query.WhereClause;
 import turtle.player.persistance.source.sqlite.*;
 import turtle.player.persistance.turtle.FileBase;
 import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.db.structure.Views;
 import turtle.player.persistance.turtle.mapping.*;
-import turtle.player.util.TurtleUtil;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -90,83 +90,85 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 
 	//Read------------------------------------
 
-	public boolean isEmpty(Filter filter)
+	public boolean isEmpty(Filter<Tables.Tracks> filter)
 	{
 		return OperationExecutor.execute(
 				  this,
-				  new QuerySqlite<Integer>(filter, new CounterSqlite(Tables.TRACKS))).equals(0);
+				  new QuerySqlite<Tables.Tracks, Integer>(filter, new CounterSqlite(Tables.TRACKS))).equals(0);
 	}
 
-	public int countAvailableTracks(Filter filter)
+	public int countAvailableTracks(Filter<Tables.Tracks> filter)
 	{
 		return OperationExecutor.execute(
 				  this,
-				  new QuerySqlite<Integer>(filter, new CounterSqlite(Tables.TRACKS)));
+				  new QuerySqlite<Tables.Tracks, Integer>(filter, new CounterSqlite(Tables.TRACKS)));
 	}
 
-	public Collection<Track> getTracks(Filter filter)
+	public Collection<Track> getTracks(Filter<Tables.Tracks> filter)
 	{
 		return OperationExecutor.execute(
 				  this,
-				  new QuerySqlite<List<Track>>(filter,
+				  new QuerySqlite<Tables.Tracks, List<Track>>(filter,
 							 new MappingTable<Track>(Tables.TRACKS, new CreatorForListSqlite<Track>(new TrackCreator())))
 		);
 	}
 
-	public Collection<Album> getAlbums(Filter filter)
+	public Collection<Album> getAlbums(Filter<Tables.Tracks> filter)
 	{
 		return OperationExecutor.execute(
 				  this,
-				  new QuerySqlite<List<Album>>(filter,
+				  new QuerySqlite<Tables.Tracks, List<Album>>(filter,
 							 new MappingTable<Album>(Tables.TRACKS, new CreatorForListSqlite<Album>(new AlbumCreator())))
 		);
 	}
 
-	public Collection<Artist> getArtist(Filter filter)
+	public Collection<Artist> getArtist(Filter<Tables.Tracks> filter)
 	{
 		return OperationExecutor.execute(
 				  this,
-				  new QuerySqlite<List<Artist>>(filter,
+				  new QuerySqlite<Tables.Tracks, List<Artist>>(filter,
 							 new MappingTable<Artist>(Tables.TRACKS, new CreatorForListSqlite<Artist>(new ArtistCreator()))
 				  )
 		);
 	}
 
-	public List<TrackDigest> getTrackList(Filter filter)
+	public List<TrackDigest> getTrackList(Filter<Tables.Tracks> filter)
 	{
-		return getList(filter, Tables.TRACKS.TITLE, new Creator<TrackDigest, Cursor>(){
-			public TrackDigest create(Cursor source)
-			{
-				return new TrackDigest(source.getString(source.getColumnIndex(Tables.TRACKS.TITLE.getName())));
-			}
-		});
+		return getList(filter, new TrackDigestCreator(), Views.TRACK_DIGEST, Views.TRACK_DIGEST.NAME);
 	}
 
-	public List<Artist> getArtistList(Filter filter)
+	public List<Artist> getArtistList(Filter<Tables.Tracks> filter)
 	{
-		return getList(filter, Tables.TRACKS.ARTIST, new ArtistCreator());
+		return getList(filter, new ArtistCreator(), Views.ARTISTS, Views.ARTISTS.NAME);
 	}
 
-	public List<Genre> getGenreList(Filter filter)
+	public List<Genre> getGenreList(Filter<Tables.Tracks> filter)
 	{
-		return getList(filter, Tables.TRACKS.GENRE,  new GenreCreator());
+		return getList(filter, new GenreCreator(), Views.GENRES, Views.GENRES.NAME);
 	}
 
-	public List<Album> getAlbumList(Filter filter)
+	public List<Album> getAlbumList(Filter<Tables.Tracks> filter)
 	{
-		return getList(filter, Tables.TRACKS.ALBUM, new AlbumCreator());
+		return getList(filter, new AlbumCreator(), Views.ALBUMS, Views.ALBUMS.NAME);
 	}
 
-	private <I,T, Z> List<I> getList(Filter filter,
-										  FieldPersistable<Z, T> field,
-										  Creator<I, Cursor> creator)
+	public List<FSobject> getDirList(Filter<Tables.Dirs> filter)
+	{
+		return getList(filter, new DirCreator(), Tables.DIRS, Tables.DIRS.NAME);
+	}
+
+	private <RESULT, TARGET, Z> List<RESULT> getList(
+			  Filter<TARGET> filter,
+			  Creator<RESULT, Cursor> creator,
+			  View<RESULT> view,
+			  FieldPersistable<RESULT, Z>... field)
 	{
 		return OperationExecutor.execute(
 				  this,
-				  new QuerySqlite<List<I>>(
+				  new QuerySqlite<TARGET, List<RESULT>>(
 							 filter,
-							 new FieldOrder<Z,T>(field, SortOrder.ASC),
-							 new MappingDistinct<I>(Tables.TRACKS, field, new CreatorForListSqlite<I>(creator))
+							 FieldOrder.getMultiFieldOrder(SortOrder.ASC, field),
+							 new MappingDistinct<RESULT>(view, new CreatorForListSqlite<RESULT>(creator), field)
 				  )
 		);
 	}

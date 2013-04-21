@@ -19,14 +19,19 @@ import turtle.player.persistance.source.relational.FieldPersistable;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class FieldPersistableAsString<I> extends FieldPersistable<I, String>
+public abstract class FieldPersistableAsString<RESULT> extends FieldPersistable<RESULT, String>
 {
 	protected FieldPersistableAsString(String name)
 	{
 		super(name);
 	}
 
-	public <R> R accept(FieldVisitor<R, I> visitor){
+	protected FieldPersistableAsString(FieldPersistable<?, ?> fieldPersistable)
+	{
+		super(fieldPersistable);
+	}
+
+	public <R> R accept(FieldVisitor<R, RESULT> visitor){
 		return visitor.visit(this);
 	}
 }

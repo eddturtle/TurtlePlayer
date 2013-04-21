@@ -20,46 +20,33 @@ package turtle.player.presentation;
 
 import turtle.player.model.*;
 import turtle.player.util.Shorty;
+import turtle.player.util.TurtleUtil;
 
 class OverAllFormatter extends InstanceFormatter
 {
-    private final static String DELIMITER = " - ";
 
-    public String visit(Track track)
-    {
-        String artist = track.GetArtist().getName();
-        int number = track.GetNumber();
-        String title = track.GetTitle();
+	public String visit(Track track)
+	{
+		String artist = track.GetArtist().getName();
+		int number = track.GetNumber();
+		String title = track.GetTitle();
 
-        if(!Shorty.isVoid(artist) && !Shorty.isVoid(title))
-        {
-            StringBuilder label = new StringBuilder();
-            if(number > 0){
-                label.append(number).append(DELIMITER);
-            }
-            label.append(artist).append(DELIMITER);
-            label.append(title);
-            return label.toString();
-        }
-        else
-        {
-            String filename = track.GetRootSrc();
+		if(!Shorty.isVoid(artist) && !Shorty.isVoid(title))
+		{
+			StringBuilder label = new StringBuilder();
+			if(number > 0){
+				label.append(number).append(DELIMITER);
+			}
+			label.append(artist).append(DELIMITER);
+			label.append(title);
+			return label.toString();
+		}
+		else
+		{
+			return TurtleUtil.getLastPartOfPath(track.getName());
+		}
 
-            // "/path/path/file/"
-
-            if(filename.lastIndexOf('/') == filename.length()-1)
-            {
-                filename = filename.substring(0, filename.length()-1);
-            }
-
-            // "/path/path/file"
-
-            return filename.substring(filename.lastIndexOf('/'));
-
-            // "file"
-        }
-
-    }
+	}
 
 	public String visit(TrackDigest track)
 	{
@@ -67,9 +54,9 @@ class OverAllFormatter extends InstanceFormatter
 	}
 
 	public String visit(Album album)
-    {
-        return album.getName();
-    }
+	{
+		return album.getName();
+	}
 
 	public String visit(Genre genre)
 	{
@@ -77,7 +64,12 @@ class OverAllFormatter extends InstanceFormatter
 	}
 
 	public String visit(Artist artist)
-    {
-        return artist.getName();
-    }
+	{
+		return artist.getName();
+	}
+
+	public String visit(FSobject FSobject)
+	{
+		return FSobject.getPath();
+	}
 }

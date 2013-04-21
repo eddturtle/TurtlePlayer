@@ -26,6 +26,11 @@ public abstract class FieldPersistableAsDouble<I> extends FieldPersistable<I, Do
 		super(name);
 	}
 
+	protected FieldPersistableAsDouble(FieldPersistable<?, ?> fieldPersistable)
+	{
+		super(fieldPersistable);
+	}
+
 	public <R> R accept(FieldVisitor<R, I> visitor){
 		return visitor.visit(this);
 	}

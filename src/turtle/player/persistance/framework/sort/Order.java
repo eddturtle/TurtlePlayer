@@ -20,7 +20,7 @@ package turtle.player.persistance.framework.sort;
 /**
  * @param <Q> eg sql as String
  */
-public interface Order
+public interface Order<I>
 {
-	<R, I> R accept(OrderVisitor<I, R> visitor);
+	<R> R accept(OrderVisitor<I, R> visitor);
 }

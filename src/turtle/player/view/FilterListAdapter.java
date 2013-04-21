@@ -27,26 +27,18 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import turtle.player.R;
-import turtle.player.dirchooser.FileSorter;
-import turtle.player.persistance.framework.filter.FieldFilter;
-import turtle.player.persistance.framework.filter.Filter;
-import turtle.player.persistance.framework.filter.FilterSet;
-import turtle.player.persistance.framework.filter.FilterVisitor;
-import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsDouble;
-import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
-import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
-import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
+import turtle.player.model.*;
+import turtle.player.persistance.framework.filter.*;
 import turtle.player.persistance.turtle.db.structure.Tables;
-import turtle.player.util.TurtleUtil;
+import turtle.player.presentation.InstanceFormatter;
 
-import java.io.File;
 import java.util.List;
 
 
-public abstract class FilterListAdapter extends ArrayAdapter<Filter>
+public abstract class FilterListAdapter extends ArrayAdapter<Filter<Tables.Tracks>>
 {
 	public FilterListAdapter(Context context,
-									 List<Filter> objects)
+									 List<Filter<Tables.Tracks>> objects)
 	{
 		super(context, R.layout.filter_list_entry, objects);
 	}
@@ -60,39 +52,60 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter>
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View rowView = inflater.inflate(R.layout.filter_list_entry, parent, false);
 
-		final Filter currFilter = getItem(position);
+		final Filter<Tables.Tracks> currFilter = getItem(position);
 
 		final TextView textView = (TextView) rowView.findViewById(R.id.label);
 		final ImageView icon = (ImageView) rowView.findViewById(R.id.icon);
 		final ImageView deleteIcon = (ImageView) rowView.findViewById(R.id.delete);
 		final LinearLayout chooseFilterArea = (LinearLayout) rowView.findViewById(R.id.chooseFilterArea);
 
-		currFilter.accept(new FilterVisitor<Object, Void>()
+		currFilter.accept(new FilterVisitor<Tables.Tracks, Void>()
 		{
 
-			public <T> Void visit(FieldFilter<Object, T> fieldFilter)
+			public <T, Z> Void visit(FieldFilter<Tables.Tracks, Z, T> fieldFilter)
 			{
+				final Instance instance;
 				if (Tables.TRACKS.ARTIST.equals(fieldFilter.getField()))
 				{
+					instance = new TrackDigest(fieldFilter.getValue().toString());
 					icon.setImageResource(R.drawable.artist24);
-					textView.setText(fieldFilter.getValue().toString());
-				} else if (Tables.TRACKS.ALBUM.equals(fieldFilter.getField()))
-				{
-					icon.setImageResource(R.drawable.album24);
-					textView.setText(fieldFilter.getValue().toString());
-				} else if (Tables.TRACKS.GENRE.equals(fieldFilter.getField()))
-				{
-					icon.setImageResource(R.drawable.genre24);
-					textView.setText(TurtleUtil.translateGenreId(fieldFilter.getValue().toString()));
 				}
+				else if (Tables.TRACKS.ALBUM.equals(fieldFilter.getField()))
+				{
+					instance = new Album(fieldFilter.getValue().toString());
+					icon.setImageResource(R.drawable.album24);
+				}
+				else if (Tables.TRACKS.GENRE.equals(fieldFilter.getField()))
+				{
+					instance = new Genre(fieldFilter.getValue().toString());
+					icon.setImageResource(R.drawable.genre24);
+				}
+				else if (Tables.TRACKS.PATH.equals(fieldFilter.getField()))
+				{
+					instance = new FSobject(fieldFilter.getValue().toString());
+					icon.setImageResource(R.drawable.dir24);
+				}
+				else
+				{
+					throw new RuntimeException("Unknown Filter: " + fieldFilter);
+				}
+
+				textView.setText(instance.accept(InstanceFormatter.SHORT));
 
 				return null;
 			}
 
-			public Void visit(FilterSet filterSet)
+			public Void visit(FilterSet<Tables.Tracks> filterSet)
 			{
 				//nothing
 				return null;
+			}
+
+			public Void visit(NotFilter<Tables.Tracks> notFilter)
+			{
+				notFilter.getFilter().accept(this);
+				textView.setText("! " + textView.getText());
+				return null;  //To change body of implemented methods use File | Settings | File Templates.
 			}
 		});
 
@@ -115,9 +128,9 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter>
 		return rowView;
 	}
 
-	protected abstract void removeFilter(Filter filter);
+	protected abstract void removeFilter(Filter<Tables.Tracks> filter);
 
-	protected abstract void chooseFilter(Filter filter);
+	protected abstract void chooseFilter(Filter<Tables.Tracks> filter);
 
 
 }

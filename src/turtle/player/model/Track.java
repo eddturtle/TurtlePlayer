@@ -18,7 +18,7 @@
 
 package turtle.player.model;
 
-public class Track implements Instance
+public class Track extends FSobject
 {
 
 	private final String title;
@@ -27,24 +27,21 @@ public class Track implements Instance
 	private final Artist artist;
 	private final Album album;
 	private final Genre genre;
-	private final String src;
-	private final String rootSrc;
 
 	public Track(String title,
 					 int number,
 					 Artist artist,
 					 Album album,
 					 Genre genre,
-					 String src,
-					 String rootSrc)
+					 String path,
+					 String name)
 	{
+		super(path, name);
 		this.title = title;
 		this.number = number;
 		this.artist = artist;
 		this.album = album;
 		this.genre = genre;
-		this.src = src;
-		this.rootSrc = rootSrc;
 	}
 
 	public String GetTitle()
@@ -72,36 +69,8 @@ public class Track implements Instance
 		return genre;
 	}
 
-	public String GetSrc()
-	{
-		return src;
-	}
-
-	public String GetRootSrc()
-	{
-		return rootSrc;
-	}
-
 	public <R> R accept(InstanceVisitor<R> visitor)
 	{
 		return visitor.visit(this);
-	}
-
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		Track track = (Track) o;
-
-		return src.equals(track.src);
-
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return src.hashCode();
 	}
 }

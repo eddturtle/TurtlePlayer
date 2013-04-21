@@ -19,6 +19,7 @@
 package turtle.player.presentation;
 
 import turtle.player.model.*;
+import turtle.player.util.TurtleUtil;
 
 class ShortInstanceFormatter extends InstanceFormatter
 {
@@ -43,7 +44,12 @@ class ShortInstanceFormatter extends InstanceFormatter
 	}
 
 	public String visit(Artist artist)
-    {
-        return artist.getName();
-    }
+	{
+		return artist.getName();
+	}
+
+	public String visit(FSobject FSobject)
+	{
+		return TurtleUtil.getLastPartOfPath(FSobject.getPath());
+	}
 }

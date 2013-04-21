@@ -4,10 +4,7 @@ import turtle.player.persistance.framework.filter.FieldFilter;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.FilterSet;
 import turtle.player.persistance.framework.filter.Operator;
-import turtle.player.persistance.framework.sort.FieldOrder;
-import turtle.player.persistance.framework.sort.OrderSet;
-import turtle.player.persistance.framework.sort.OrderVisitor;
-import turtle.player.persistance.framework.sort.RandomOrder;
+import turtle.player.persistance.framework.sort.*;
 import turtle.player.persistance.source.relational.FieldPersistable;
 
 /**
@@ -27,19 +24,19 @@ import turtle.player.persistance.source.relational.FieldPersistable;
  * @author Simon Honegger (Hoene84)
  */
 
-public class PagingFilterBuilder<I> implements OrderVisitor<I, Filter>
+public class PagingFilterBuilder<TARGET, RESULT> extends OrderVisitorGenerified<TARGET, RESULT, Object, Filter<TARGET>>
 {
-	final I instance;
+	final RESULT instance;
 
-	public PagingFilterBuilder(I instance)
+	public PagingFilterBuilder(RESULT instance)
 	{
 		this.instance = instance;
 	}
 
-	public <T> Filter visit(FieldOrder<I, T> fieldOrder)
+	@Override
+	public Filter<TARGET> visit(FieldOrder<TARGET, RESULT, Object> fieldOrder,
+										 FieldPersistable<RESULT, Object> field)
 	{
-		FieldPersistable<I, ?> field = fieldOrder.getField();
-
 		final Operator op;
 
 		switch(fieldOrder.getOrder()){
@@ -49,41 +46,61 @@ public class PagingFilterBuilder<I> implements OrderVisitor<I, Filter>
 			case DESC:
 				op = Operator.LT;
 				break;
-		   default:
+			default:
 				throw new IllegalArgumentException();
 		}
-		return new FieldFilter(field, op, field.get(instance).toString());
+		return new FieldFilter<TARGET, RESULT, Object>(field, op, field.get(instance));
 	}
+
+//	public <T, Z> Filter visit(FieldOrder<TARGET, Z, T> fieldOrder)
+//	{
+//		FieldPersistable<RESULT, T> field = fieldOrder.getField();
+//
+//		final Operator op;
+//
+//		switch(fieldOrder.getOrder()){
+//			case ASC:
+//				op = Operator.GT;
+//				break;
+//			case DESC:
+//				op = Operator.LT;
+//				break;
+//		   default:
+//				throw new IllegalArgumentException();
+//		}
+//		return new FieldFilter<TARGET, RESULT, T>(field, op, field.get(instance));
+//	}
 
 	public Filter visit(RandomOrder orderFilter)
 	{
 		return null;
 	}
 
-	public Filter visit(OrderSet orderFilter)
+	public Filter visit(OrderSet<TARGET> orderFilter)
 	{
 		if(!orderFilter.isEmpty()){
-			Filter filterSet = new FilterSet();
+			Filter<TARGET> filterSet = new FilterSet<TARGET>();
 			for( int i = 0; i < orderFilter.getOrders().size() -1; i++)
 			{
-				final Filter finalFilterSet = filterSet;
-				filterSet = orderFilter.getOrders().get(i).accept(new OrderVisitor<I, Filter>()
+				final Filter<TARGET> finalFilterSet = filterSet;
+				filterSet = orderFilter.getOrders().get(i).accept(new OrderVisitorGenerified<TARGET, RESULT, Object, Filter<TARGET>>()
 				{
-					public Filter visit(RandomOrder orderFilter)
+					public Filter<TARGET> visit(RandomOrder orderFilter)
 					{
 						// :-)
 						return null;
 					}
 
-					public <T> Filter visit(FieldOrder<I, T> fieldOrder)
+					@Override
+					public Filter<TARGET> visit(FieldOrder<TARGET, RESULT, Object> fieldOrder,
+														 FieldPersistable<RESULT, Object> field)
 					{
-						FieldPersistable<I, T> field = fieldOrder.getField();
-						return new FilterSet(
+						return new FilterSet<TARGET>(
 								  finalFilterSet,
-								  new FieldFilter(fieldOrder.getField(), Operator.EQ, field.get(instance).toString()));
+								  new FieldFilter<TARGET, RESULT, Object>(fieldOrder.getField(), Operator.EQ, field.get(instance)));
 					}
 
-					public Filter visit(OrderSet orderFilter)
+					public Filter<TARGET> visit(OrderSet orderFilter)
 					{
 						return this.visit(orderFilter);
 					}

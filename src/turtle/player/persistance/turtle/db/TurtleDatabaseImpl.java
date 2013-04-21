@@ -33,7 +33,7 @@ import java.util.Arrays;
 public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 {
 
-	public static final int DATABASE_VERSION = 8;
+	public static final int DATABASE_VERSION = 9;
 	public static final String DATABASE_NAME = "TurtlePlayer";
 
 	public TurtleDatabaseImpl(Context context)
@@ -50,8 +50,8 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 				  + Tables.TRACKS.ARTIST.getName() + " TEXT COLLATE LOCALIZED, "
 				  + Tables.TRACKS.ALBUM.getName() + " TEXT COLLATE LOCALIZED, "
 				  + Tables.TRACKS.GENRE.getName() + " TEXT, "
-				  + Tables.TRACKS.SRC.getName() + " TEXT PRIMARY KEY, "
-				  + Tables.TRACKS.ROOTSRC.getName() + " TEXT);";
+				  + Tables.TRACKS.PATH.getName() + " TEXT PRIMARY KEY, "
+				  + Tables.TRACKS.NAME.getName() + " TEXT);";
 		db.execSQL(createTracksSql);
 
 		for(FieldPersistable<?,?> field : Arrays.asList(
@@ -79,6 +79,22 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 					  " ON " + Tables.ALBUM_ART_LOCATIONS.getName() + "(" + field.getName() + ");";
 			db.execSQL(createAlbumArtIndeces);
 		}
+
+		String createDirsSql = "CREATE TABLE " + Tables.DIRS.getName() + " ("
+				  + Tables.DIRS.NAME.getName() + " TEXT COLLATE LOCALIZED, "
+				  + Tables.DIRS.PATH.getName() + " TEXT COLLATE LOCALIZED,"
+				  + " PRIMARY KEY (" + Tables.DIRS.NAME.getName() + ", " + Tables.DIRS.PATH.getName() + "));";
+		db.execSQL(createDirsSql);
+
+		for(FieldPersistable<?,?> field : Arrays.asList(
+				  Tables.DIRS.PATH,
+				  Tables.DIRS.NAME
+		))
+		{
+			String createAlbumArtIndeces = "CREATE INDEX " + Tables.DIRS.getName() + "_" + field.getName() + "_idx " +
+					  " ON " + Tables.DIRS.getName() + "(" + field.getName() + ");";
+			db.execSQL(createAlbumArtIndeces);
+		}
 	}
 
 	@Override
@@ -88,6 +104,8 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 	{
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.TRACKS.getName());
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.ALBUM_ART_LOCATIONS.getName());
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.DIRS.getName());
+
 		onCreate(db);
 		dbResetted();
 	}

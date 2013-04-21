@@ -262,7 +262,7 @@ public class PlayerService extends Service implements Output
 			{
 				final MediaPlayer mediaPlayer = getMp();
 				mp.reset();
-				mediaPlayer.setDataSource(t.GetSrc());
+				mediaPlayer.setDataSource(t.getFullPath());
 
 				mediaPlayer.prepare();
 				initialized = true;

@@ -25,6 +25,22 @@
         android:gravity="center">
 
         <ImageView
+                android:padding="8dp"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                android:id="@+id/dirButton"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:src="@drawable/dir48" />
+
+        <ImageView
+                android:id="@+id/separator"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:src="@drawable/separator"
+                android:scaleType="fitXY"/>
+
+        <ImageView
             android:padding="8dp"
             android:layout_weight="1"
             android:scaleType="fitCenter"

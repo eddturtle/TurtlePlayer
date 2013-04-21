@@ -39,8 +39,8 @@ public class TrackToDbMapper extends QueryGeneratorTable<Track>
 		values.put(Tables.TRACKS.ARTIST.getName(), track.GetArtist().getId());
 		values.put(Tables.TRACKS.ALBUM.getName(), track.GetAlbum().getId());
 		values.put(Tables.TRACKS.GENRE.getName(), track.GetGenre().getId());
-		values.put(Tables.TRACKS.SRC.getName(), track.GetSrc());
-		values.put(Tables.TRACKS.ROOTSRC.getName(), track.GetRootSrc());
+		values.put(Tables.TRACKS.PATH.getName(), track.getPath());
+		values.put(Tables.TRACKS.NAME.getName(), track.getPath());
 
 		return  values;
 	}

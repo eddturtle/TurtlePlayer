@@ -19,16 +19,16 @@ import java.util.*;
  * @author Simon Honegger (Hoene84)
  */
 
-public class OrderSet implements Order
+public class OrderSet<TARGET> implements Order<TARGET>
 {
-	private final List<Order> orders = new ArrayList<Order>();
+	private final List<Order<TARGET>> orders = new ArrayList<Order<TARGET>>();
 
-	public OrderSet(Order... order)
+	public OrderSet(Order<TARGET>... order)
 	{
 		Collections.addAll(orders, order);
 	}
 
-	public OrderSet(List<Order> orders)
+	public OrderSet(List<? extends Order<TARGET>> orders)
 	{
 		this.orders.addAll(orders);
 	}
@@ -36,12 +36,12 @@ public class OrderSet implements Order
 	/**
 	 * @return never null, Set can be empty
 	 */
-	public List<Order> getOrders()
+	public List<Order<TARGET>> getOrders()
 	{
 		return orders;
 	}
 
-	public <R, I> R accept(OrderVisitor<I, R> visitor)
+	public <R> R accept(OrderVisitor<TARGET, R> visitor)
 	{
 		return visitor.visit(this);
 	}
@@ -50,11 +50,11 @@ public class OrderSet implements Order
 	{
 		if(orders.size() > 1)
 		{
-			return new OrderSet(orders.subList(0, orders.size()-1));
+			return new OrderSet<TARGET>(orders.subList(0, orders.size()-1));
 		}
 		else
 		{
-			return new OrderSet(new ArrayList<Order>());
+			return new OrderSet<TARGET>(new ArrayList<Order<TARGET>>());
 		}
 	}
 

@@ -1,5 +1,7 @@
-package turtle.player.persistance.source.relational.fieldtype;
+package turtle.player.persistance.framework.filter;
 
+import turtle.player.persistance.framework.sort.FieldOrder;
+import turtle.player.persistance.framework.sort.OrderVisitor;
 import turtle.player.persistance.source.relational.FieldPersistable;
 
 /**
@@ -19,19 +21,13 @@ import turtle.player.persistance.source.relational.FieldPersistable;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class FieldPersistableAsInteger<I> extends FieldPersistable<I, Integer>
+public abstract class FilterVisitorGenerified<TARGET, RESULT, TYPE, R> implements FilterVisitor<TARGET, R>
 {
-	protected FieldPersistableAsInteger(String name)
-	{
-		super(name);
-	}
+	public abstract R visit(FieldFilter<TARGET, RESULT, TYPE> fieldFilter,
+									FieldPersistable<RESULT, TYPE> field);
 
-	protected FieldPersistableAsInteger(FieldPersistable<?, ?> fieldPersistable)
+	final public <T, Z> R visit(FieldFilter<TARGET, Z, T> fieldFilter)
 	{
-		super(fieldPersistable);
-	}
-
-	public <R> R accept(FieldVisitor<R, I> visitor){
-		return visitor.visit(this);
+		return visit((FieldFilter<TARGET, RESULT, TYPE>) fieldFilter, (FieldPersistable<RESULT, TYPE>) fieldFilter.getField());
 	}
 }

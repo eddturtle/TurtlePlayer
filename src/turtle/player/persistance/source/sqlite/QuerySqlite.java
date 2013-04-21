@@ -1,9 +1,7 @@
 package turtle.player.persistance.source.sqlite;
 
 import android.database.Cursor;
-import turtle.player.persistance.framework.filter.FieldFilter;
-import turtle.player.persistance.framework.filter.Filter;
-import turtle.player.persistance.framework.filter.FilterSet;
+import turtle.player.persistance.framework.filter.*;
 import turtle.player.persistance.framework.query.Query;
 import turtle.player.persistance.framework.mapping.Mapping;
 import turtle.player.persistance.framework.sort.FieldOrder;
@@ -14,6 +12,7 @@ import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsD
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
 import turtle.player.persistance.source.sql.query.*;
+import turtle.player.persistance.source.sql.query.Operator;
 
 /**
  * TURTLE PLAYER
@@ -32,28 +31,28 @@ import turtle.player.persistance.source.sql.query.*;
  * @author Simon Honegger (Hoene84)
  */
 
-public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, Cursor>
+public class QuerySqlite<TARGET, RESULT> extends Query<Select, WhereClause, OrderClause, RESULT, Cursor, TARGET>
 {
-	 private final Mapping<Select, I, Cursor> mapping;
+	 private final Mapping<Select, RESULT, Cursor> mapping;
 
-	 public QuerySqlite(Mapping<Select, I, Cursor> mapping)
+	 public QuerySqlite(Mapping<Select, RESULT, Cursor> mapping)
 	 {
 		  this.mapping = mapping;
 	 }
 
-	 public QuerySqlite(Filter filter, Mapping<Select, I, Cursor> mapping)
+	 public QuerySqlite(Filter<TARGET> filter, Mapping<Select, RESULT, Cursor> mapping)
 	 {
 		  super(filter);
 		  this.mapping = mapping;
 	 }
 
-	 public QuerySqlite(Order order, Mapping<Select, I, Cursor> mapping)
+	 public QuerySqlite(Order order, Mapping<Select, RESULT, Cursor> mapping)
 	 {
 		  super(order);
 		  this.mapping = mapping;
 	 }
 
-	 public QuerySqlite(Filter filter, Order order, Mapping<Select, I, Cursor> mapping)
+	 public QuerySqlite(Filter<TARGET> filter, Order order, Mapping<Select, RESULT, Cursor> mapping)
 	{
 		super(filter, order);
 
@@ -75,19 +74,38 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 		return sql;
 	}
 
-	public I map(final Cursor cursor)
+	public RESULT map(final Cursor cursor)
 	{
 		return mapping.create(cursor);
 	}
 
-	public <T> WhereClause visit(final FieldFilter<I, T> fieldFilter)
+	public <T, Z> WhereClause visit(FieldFilter<TARGET, Z, T> fieldFilter)
 	{
 		final Operator operator;
-		Object filterValue = fieldFilter.getValue();
+		Object filterValue = fieldFilter.getField().accept(fieldFilter.new FieldVisitorField<String>()
+		{
+			public String visit(FieldPersistableAsString<Z> field,String filterValue)
+			{
+				return filterValue;
+			}
+
+			public String visit(FieldPersistableAsDouble<Z> field, Double filterValue)
+			{
+				return String.valueOf(filterValue);
+			}
+
+			public String visit(FieldPersistableAsInteger<Z> field, Integer filterValue)
+			{
+				return String.valueOf(filterValue);
+			}
+		});
 
 		switch (fieldFilter.getOperator()){
 			case EQ:
 				operator = Operator.EQ;
+				break;
+			case NEQ:
+				operator = Operator.NEQ;
 				break;
 			case GE:
 				operator = Operator.GE;
@@ -100,23 +118,9 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 				break;
 			case LIKE:
 				operator = Operator.LIKE;
-				filterValue = fieldFilter.getField().accept(fieldFilter.new FieldVisitorField<Object>()
-				{
-					public Object visit(FieldPersistableAsString<I> field, String filterValue)
-					{
-						return "%" + filterValue + "%";
-					}
-
-					public Object visit(FieldPersistableAsDouble<I> field, Double filterValue)
-					{
-						return "%" + String.valueOf(filterValue) + "%";
-					}
-
-					public Object visit(FieldPersistableAsInteger<I> field, Integer filterValue)
-					{
-						return "%" + String.valueOf(filterValue) + "%";
-					}
-				});
+				break;
+			case NOT_LIKE:
+				operator = Operator.NOT_LIKE;
 				break;
 			case LT:
 				operator = Operator.LT;
@@ -133,10 +137,10 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 		return new OrderClauseRandom();
 	}
 
-	public WhereClause visit(FilterSet filterSet)
+	public WhereClause visit(FilterSet<TARGET> filterSet)
 	{
 		WhereClause whereClause = null;
-		for(Filter filter : filterSet.getFilters()){
+		for(Filter<TARGET> filter : filterSet.getFilters()){
 			if(whereClause == null)
 			{
 				whereClause = filter.accept(this);
@@ -149,16 +153,72 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 		return whereClause;
 	}
 
+	public WhereClause visit(NotFilter<TARGET> notFilter)
+	{
+		Filter<TARGET> inversedFilter = notFilter.getFilter().accept(new FilterVisitor<TARGET, Filter<TARGET>>()
+		{
+			public <T, Z> Filter<TARGET> visit(FieldFilter<TARGET, Z, T> fieldFilter)
+			{
+				final turtle.player.persistance.framework.filter.Operator inversedOp;
+				switch (fieldFilter.getOperator())
+				{
+					case NEQ:
+						inversedOp = turtle.player.persistance.framework.filter.Operator.EQ;
+						break;
+					case EQ:
+						inversedOp = turtle.player.persistance.framework.filter.Operator.NEQ;
+						break;
+					case GE:
+						inversedOp = turtle.player.persistance.framework.filter.Operator.LT;
+						break;
+					case GT:
+						inversedOp = turtle.player.persistance.framework.filter.Operator.LE;
+						break;
+					case LE:
+						inversedOp = turtle.player.persistance.framework.filter.Operator.GT;
+						break;
+					case LIKE:
+						inversedOp = turtle.player.persistance.framework.filter.Operator.NOT_LIKE;
+						break;
+					case NOT_LIKE:
+						inversedOp = turtle.player.persistance.framework.filter.Operator.LIKE;
+						break;
+					case LT:
+						inversedOp = turtle.player.persistance.framework.filter.Operator.GE;
+						break;
+					default:
+						throw new RuntimeException("Not supported Operator");
+				}
+				return new FieldFilter<TARGET, Z, T>(fieldFilter.getField(), inversedOp, fieldFilter.getValue());
+			}
 
-	 public OrderClause visit(FieldOrder fieldOrder)
+			public Filter<TARGET> visit(FilterSet<TARGET> filterSet)
+			{
+				for(Filter<TARGET> f : filterSet.getFilters())
+				{
+					f.accept(this);
+				}
+				return null;
+			}
+
+			public Filter<TARGET> visit(NotFilter<TARGET> notFilter)
+			{
+				return notFilter.getFilter();
+			}
+		});
+		return inversedFilter.accept(this);
+	}
+
+
+	public OrderClause visit(FieldOrder fieldOrder)
 	 {
 		  return new OrderClauseFields(new OrderClausePartField(fieldOrder.getField(), fieldOrder.getOrder()));
 	 }
 
-	 public OrderClause visit(OrderSet clauseSet)
+	 public OrderClause visit(OrderSet<TARGET> clauseSet)
 	 {
 		  OrderClause orderClause = null;
-		  for(Order order : clauseSet.getOrders()){
+		  for(Order<TARGET> order : clauseSet.getOrders()){
 				if(orderClause == null)
 				{
 					orderClause = order.accept(this);
