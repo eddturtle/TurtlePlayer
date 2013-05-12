@@ -44,4 +44,30 @@ public class Shorty
 		result.add(element);
 		return result;
 	}
+
+	@SuppressWarnings({"unchecked"})
+	public static <T> T[] concat(T[]... arrays)
+	{
+		int resultLength = 0;
+		for(T[] array : arrays)
+		{
+			resultLength += array.length;
+		}
+
+		T[] result = (T[]) new Object[resultLength];
+
+		int pos = 0;
+		for(T[] array : arrays)
+		{
+			System.arraycopy(array, 0, result, pos, array.length);
+			pos += array.length;
+		}
+
+		return result;
+	}
+
+	public static <T> T[] concatWith(T[] arrays, T... elements)
+	{
+		return concat(arrays, elements);
+	}
 }

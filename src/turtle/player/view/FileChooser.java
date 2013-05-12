@@ -29,7 +29,6 @@ import turtle.player.model.*;
 import turtle.player.persistance.framework.filter.*;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.turtle.db.structure.Tables;
-import turtle.player.persistance.turtle.db.structure.Views;
 import turtle.player.presentation.InstanceFormatter;
 import turtle.player.util.DefaultAdapter;
 
@@ -160,27 +159,27 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 
 			public Track visit(SongDigest track)
 			{
-				Filter<Views.SongsReadable> trackFilter = new FieldFilter<Views.SongsReadable, Track, String>(Views.SongsReadable.NAME, Operator.EQ, track.getSongName());
+				Filter<Tables.SongsReadable> trackFilter = new FieldFilter<Tables.SongsReadable, Track, String>(Tables.SongsReadable.TITLE, Operator.EQ, track.getSongName());
 				return database.getTracks(new FilterSet<Tables.Tracks>(getFilter(), trackFilter)).iterator().next();
 			}
 
 			public Track visit(Album album)
 			{
-				Filter<Views.AlbumsReadable> filter = new FieldFilter<Views.AlbumsReadable, Track, String>(Views.AlbumsReadable.NAME, Operator.EQ, album.getAlbumId());
+				Filter<Tables.AlbumsReadable> filter = new FieldFilter<Tables.AlbumsReadable, Track, String>(Tables.AlbumsReadable.ALBUM, Operator.EQ, album.getAlbumId());
 				change(Mode.Track, filter);
 				return null;
 			}
 
 			public Track visit(GenreDigest genre)
 			{
-				Filter<Views.GenresReadable> filter = new FieldFilter<Views.GenresReadable, Track, String>(Views.GenresReadable.NAME, Operator.EQ, genre.getGenreId());
+				Filter<Tables.GenresReadable> filter = new FieldFilter<Tables.GenresReadable, Track, String>(Tables.GenresReadable.GENRE, Operator.EQ, genre.getGenreId());
 				change(Mode.Artist, filter);
 				return null;
 			}
 
 			public Track visit(ArtistDigest artist)
 			{
-				Filter<Views.ArtistsReadable> filter = new FieldFilter<Views.ArtistsReadable, Track, String>(Views.ArtistsReadable.NAME, Operator.EQ, artist.getArtistId());
+				Filter<Tables.ArtistsReadable> filter = new FieldFilter<Tables.ArtistsReadable, Track, String>(Tables.ArtistsReadable.ARTIST, Operator.EQ, artist.getArtistId());
 				change(Mode.Album, filter);
 				return null;
 			}
@@ -240,19 +239,19 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 					case Album:
 						List<Instance> albums = new ArrayList<Instance>(database.getAlbums(getFilter()));
 						albums.remove(AlbumDigest.NO_ALBUM);
-						albums.addAll(database.getTracks(new FilterSet<Tables.Tracks>(getFilter(), new FieldFilter<Tables.Tracks, Album, String>(Views.AlbumsReadable.NAME, Operator.EQ, ""))));
+						albums.addAll(database.getTracks(new FilterSet<Tables.Tracks>(getFilter(), new FieldFilter<Tables.Tracks, Album, String>(Tables.AlbumsReadable.ALBUM, Operator.EQ, ""))));
 						listAdapter.replace(albums);
 						break;
 					case Artist:
 						List<Instance> artists = new ArrayList<Instance>(database.getArtists(getFilter()));
 						artists.remove(ArtistDigest.NO_ARTIST);
-						artists.addAll(database.getTracks(new FilterSet<Tables.Tracks>(getFilter(), new FieldFilter<Tables.Tracks, Artist, String>(Views.ArtistsReadable.NAME, Operator.EQ, ""))));
+						artists.addAll(database.getTracks(new FilterSet<Tables.Tracks>(getFilter(), new FieldFilter<Tables.Tracks, Artist, String>(Tables.ArtistsReadable.ARTIST, Operator.EQ, ""))));
 						listAdapter.replace(artists);
 						break;
 					case Genre:
 						List<Instance> genres = new ArrayList<Instance>(database.getGenres(getFilter()));
 						genres.remove(AlbumDigest.NO_ALBUM);
-						genres.addAll(database.getTracks(new FilterSet<Tables.Tracks>(getFilter(), new FieldFilter<Tables.Tracks, Genre, String>(Views.GenresReadable.NAME, Operator.EQ, ""))));
+						genres.addAll(database.getTracks(new FilterSet<Tables.Tracks>(getFilter(), new FieldFilter<Tables.Tracks, Genre, String>(Tables.GenresReadable.GENRE, Operator.EQ, ""))));
 						listAdapter.replace(genres);
 						break;
 					case Track:

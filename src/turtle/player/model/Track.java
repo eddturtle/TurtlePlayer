@@ -34,10 +34,26 @@ public class Track extends FSobject implements Album, Artist, Genre, Song
 					 Album album,
 					 Genre genre,
 					 int number,
-					 String path,
-					 String name)
+					 String path)
 	{
-		super(path, name);
+		super(path);
+		this.song = song;
+		this.number = number;
+		this.artist = artist;
+		this.album = album;
+		this.genre = genre;
+	}
+
+	public Track(
+			  Song song,
+			  Artist artist,
+			  Album album,
+			  Genre genre,
+			  int number,
+			  String dir,
+			  String name)
+	{
+		super(dir, name);
 		this.song = song;
 		this.number = number;
 		this.artist = artist;

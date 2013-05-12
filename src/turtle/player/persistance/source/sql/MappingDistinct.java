@@ -26,24 +26,24 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
-public class MappingDistinct<TARGET, PROJECTION extends View, RESULT> implements Mapping<Select, List<RESULT>, Cursor>
+public class MappingDistinct<TARGET extends View, PROJECTION extends View, RESULT> implements Mapping<Select, List<RESULT>, Cursor>
 {
 	private final PROJECTION view;
-	private final Field[] field;
+	private final Field[] fields;
 	private final CreatorForList<? super TARGET, RESULT, Cursor, Cursor> creator;
 
 	public MappingDistinct(PROJECTION view,
 								  CreatorForList<? super TARGET, RESULT, Cursor, Cursor> creator,
-								  Field... field)
+								  TARGET target)
 	{
 		this.view = view;
-		this.field = field;
+		this.fields = target.getFields();
       this.creator = creator;
 	}
 
 	public Select get()
 	{
-		return new Select(view, Select.SelectMethod.DISTINCT, field);
+		return new Select(view, Select.SelectMethod.DISTINCT, fields);
 	}
 
     public List<RESULT> create(Cursor queryResult)

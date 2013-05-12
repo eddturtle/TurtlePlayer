@@ -2,7 +2,6 @@ package turtle.player.playlist.playorder;
 
 import turtle.player.model.Track;
 import turtle.player.persistance.framework.sort.FieldOrder;
-import turtle.player.persistance.framework.sort.Order;
 import turtle.player.persistance.framework.sort.OrderSet;
 import turtle.player.persistance.framework.sort.SortOrder;
 import turtle.player.persistance.turtle.db.structure.Tables;
@@ -28,10 +27,10 @@ public class DefaultOrder extends OrderSet<Tables.Tracks>
 {
 	public DefaultOrder(SortOrder sortOrder)
 	{
-		super(new FieldOrder<Tables.Tracks, Track, String>(Tables.Tracks.ARTIST, sortOrder),
-				  new FieldOrder<Tables.Tracks, Track, String>(Tables.Tracks.ALBUM, sortOrder),
+		super(new FieldOrder<Tables.Tracks, Track, String>(Tables.ArtistsReadable.ARTIST, sortOrder),
+				  new FieldOrder<Tables.Tracks, Track, String>(Tables.AlbumsReadable.ALBUM, sortOrder),
 				  new FieldOrder<Tables.Tracks, Track, Integer>(Tables.Tracks.NUMBER, sortOrder),
-				  new FieldOrder<Tables.Tracks, Track, String>(Tables.Tracks.TITLE, sortOrder)
+				  new FieldOrder<Tables.Tracks, Track, String>(Tables.SongsReadable.TITLE, sortOrder)
 		);
 	}
 }

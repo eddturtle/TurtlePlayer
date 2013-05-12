@@ -113,8 +113,7 @@ public class FsReader
 				  new AlbumDigest(album),
 				  new GenreDigest(genre < 0 ? "" : String.valueOf(genre)),
 				  number,
-				  filePath,
-				  rootSrc
+				  filePath
 		);
 		Log.v(Preferences.TAG, "created " + (System.currentTimeMillis() - start) + "ms");
 		boolean added = db.push(t);

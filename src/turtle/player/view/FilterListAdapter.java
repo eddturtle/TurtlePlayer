@@ -30,7 +30,6 @@ import turtle.player.R;
 import turtle.player.model.*;
 import turtle.player.persistance.framework.filter.*;
 import turtle.player.persistance.turtle.db.structure.Tables;
-import turtle.player.persistance.turtle.db.structure.Views;
 import turtle.player.presentation.InstanceFormatter;
 
 import java.util.List;
@@ -65,17 +64,17 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter<? super Tabl
 			public <T, Z> Void visit(FieldFilter<? super Tables.Tracks, Z, T> fieldFilter)
 			{
 				final Instance instance;
-				if (Views.ArtistsReadable.NAME.equals(fieldFilter.getField()))
+				if (Tables.ArtistsReadable.ARTIST.equals(fieldFilter.getField()))
 				{
 					instance = new SongDigest(fieldFilter.getValue().toString());
 					icon.setImageResource(R.drawable.artist24);
 				}
-				else if (Views.AlbumsReadable.NAME.equals(fieldFilter.getField()))
+				else if (Tables.AlbumsReadable.ALBUM.equals(fieldFilter.getField()))
 				{
 					instance = new AlbumDigest(fieldFilter.getValue().toString());
 					icon.setImageResource(R.drawable.album24);
 				}
-				else if (Views.GenresReadable.NAME.equals(fieldFilter.getField()))
+				else if (Tables.GenresReadable.GENRE.equals(fieldFilter.getField()))
 				{
 					instance = new GenreDigest(fieldFilter.getValue().toString());
 					icon.setImageResource(R.drawable.genre24);

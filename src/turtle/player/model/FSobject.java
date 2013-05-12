@@ -43,7 +43,7 @@ public class FSobject implements Instance
 
 	public String getName()
 	{
-		return path;
+		return name;
 	}
 
 	public String getFullPath()

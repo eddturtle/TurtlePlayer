@@ -4,7 +4,6 @@ import android.database.Cursor;
 import turtle.player.model.GenreDigest;
 import turtle.player.persistance.framework.creator.ResultCreator;
 import turtle.player.persistance.turtle.db.structure.Tables;
-import turtle.player.persistance.turtle.db.structure.Views;
 
 /**
  * TURTLE PLAYER
@@ -23,10 +22,10 @@ import turtle.player.persistance.turtle.db.structure.Views;
  * @author Simon Honegger (Hoene84)
  */
 
-public class GenreCreator implements ResultCreator<Views.GenresReadable, GenreDigest, Cursor>
+public class GenreCreator implements ResultCreator<Tables.GenresReadable, GenreDigest, Cursor>
 {
     public GenreDigest create(Cursor source)
     {
-        return new GenreDigest(source.getString(source.getColumnIndex(Views.GenresReadable.NAME.getName())));
+        return new GenreDigest(source.getString(source.getColumnIndex(Tables.GenresReadable.GENRE.getName())));
     }
 }

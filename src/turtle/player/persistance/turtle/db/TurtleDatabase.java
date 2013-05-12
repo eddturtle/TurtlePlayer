@@ -131,41 +131,42 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 
 	public List<? extends Song> getSongs(Filter<? super Tables.Tracks> filter)
 	{
-		return getList(filter, new SongCreator(), Tables.TRACKS, Views.SongsReadable.NAME);
+		return getList(filter, new SongCreator(), Tables.TRACKS, Views.SONGS ,Tables.SongsReadable.TITLE);
 	}
 
 	public List<? extends Artist> getArtists(Filter<? super Tables.Tracks> filter)
 	{
-		return getList(filter, new ArtistCreator(), Tables.TRACKS, Tables.Tracks.ARTIST);
+		return getList(filter, new ArtistCreator(), Tables.TRACKS, Views.ARTISTS,  Tables.ArtistsReadable.ARTIST);
 	}
 
 	public List<? extends Genre> getGenres(Filter<? super Tables.Tracks> filter)
 	{
-		return getList(filter, new GenreCreator(), Tables.TRACKS, Tables.Tracks.GENRE);
+		return getList(filter, new GenreCreator(), Tables.TRACKS, Views.GENRES, Tables.GenresReadable.GENRE);
 	}
 
 	public List<? extends Album> getAlbums(Filter<? super Tables.Tracks> filter)
 	{
-		return getList(filter, new AlbumCreator(), Tables.TRACKS, Tables.Tracks.ALBUM);
+		return getList(filter, new AlbumCreator(), Tables.TRACKS, Views.ALBUMS, Tables.AlbumsReadable.ALBUM);
 	}
 
 	public List<? extends FSobject> getDirList(Filter<? super Tables.Dirs> filter)
 	{
-		return getList(filter, new DirCreator(), Tables.DIRS, Tables.Dirs.NAME);
+		return getList(filter, new DirCreator(), Tables.DIRS, Tables.DIRS, Tables.Dirs.NAME);
 	}
 
-	private <RESULT, TARGET, PROJECTION extends View, Z> List<RESULT> getList(
+	private <RESULT, TARGET extends View, PROJECTION extends View, Z> List<RESULT> getList(
 			  Filter<? super PROJECTION> filter,
 			  ResultCreator<TARGET, RESULT, Cursor> creator,
 			  PROJECTION view,
-			  FieldPersistable<? super RESULT, Z>... field)
+			  TARGET target,
+			  FieldPersistable<? super RESULT, Z>... sortFields)
 	{
 		return OperationExecutor.execute(
 				  this,
 				  new QuerySqlite<PROJECTION, TARGET, List<RESULT>>(
 							 filter,
-							 FieldOrder.<PROJECTION, RESULT, Z>getMultiFieldOrder(SortOrder.ASC, field),
-							 new MappingDistinct<TARGET, PROJECTION,  RESULT>(view, new CreatorForListSqlite<TARGET, RESULT>(creator), field)
+							 FieldOrder.<PROJECTION, RESULT, Z>getMultiFieldOrder(SortOrder.ASC, sortFields),
+							 new MappingDistinct<TARGET, PROJECTION,  RESULT>(view, new CreatorForListSqlite<TARGET, RESULT>(creator), target)
 				  )
 		);
 	}

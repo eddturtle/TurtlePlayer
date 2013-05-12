@@ -3,13 +3,8 @@ package turtle.player.persistance.turtle.db;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import turtle.player.persistance.framework.db.Database;
-import turtle.player.persistance.framework.sort.Order;
-import turtle.player.persistance.framework.sort.SortOrder;
 import turtle.player.persistance.source.relational.FieldPersistable;
-import turtle.player.persistance.source.relational.Table;
 import turtle.player.persistance.turtle.db.structure.Tables;
-import turtle.player.playlist.playorder.DefaultOrder;
 
 import java.util.Arrays;
 
@@ -33,7 +28,7 @@ import java.util.Arrays;
 public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 {
 
-	public static final int DATABASE_VERSION = 9;
+	public static final int DATABASE_VERSION = 10;
 	public static final String DATABASE_NAME = "TurtlePlayer";
 
 	public TurtleDatabaseImpl(Context context)
@@ -45,20 +40,20 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 	public void onCreate(SQLiteDatabase db)
 	{
 		String createTracksSql = "CREATE TABLE " + Tables.TRACKS.getName() + " ("
-				  + Tables.Tracks.TITLE.getName() + " TEXT COLLATE LOCALIZED, "
+				  + Tables.SongsReadable.TITLE.getName() + " TEXT COLLATE LOCALIZED, "
 				  + Tables.Tracks.NUMBER.getName() + " INTEGER, "
-				  + Tables.Tracks.ARTIST.getName() + " TEXT COLLATE LOCALIZED, "
-				  + Tables.Tracks.ALBUM.getName() + " TEXT COLLATE LOCALIZED, "
-				  + Tables.Tracks.GENRE.getName() + " TEXT, "
+				  + Tables.ArtistsReadable.ARTIST.getName() + " TEXT COLLATE LOCALIZED, "
+				  + Tables.AlbumsReadable.ALBUM.getName() + " TEXT COLLATE LOCALIZED, "
+				  + Tables.GenresReadable.GENRE.getName() + " TEXT, "
 				  + Tables.FsObjects.PATH.getName() + " TEXT PRIMARY KEY, "
 				  + Tables.FsObjects.NAME.getName() + " TEXT);";
 		db.execSQL(createTracksSql);
 
 		for(FieldPersistable<?,?> field : Arrays.asList(
-				  Tables.Tracks.ARTIST,
-				  Tables.Tracks.ALBUM,
+				  Tables.ArtistsReadable.ARTIST,
+				  Tables.AlbumsReadable.ALBUM,
 				  Tables.Tracks.NUMBER,
-				  Tables.Tracks.TITLE
+				  Tables.SongsReadable.TITLE
 				  ))
 		{
 			String createTracksIndeces = "CREATE INDEX " + Tables.TRACKS.getName() + "_" + field.getName() + "_idx " +

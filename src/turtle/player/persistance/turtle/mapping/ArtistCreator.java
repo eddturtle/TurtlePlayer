@@ -27,6 +27,6 @@ public class ArtistCreator implements ResultCreator<Views.Artists, ArtistDigest,
 {
     public ArtistDigest create(Cursor source)
     {
-        return new ArtistDigest(source.getString(source.getColumnIndex(Views.ArtistsReadable.NAME.getName())));
+        return new ArtistDigest(source.getString(source.getColumnIndex(Tables.ArtistsReadable.ARTIST.getName())));
     }
 }

@@ -1,5 +1,7 @@
 package turtle.player.persistance.source.relational;
 
+import turtle.player.persistance.source.sql.query.FieldsPart;
+
 import java.io.Serializable;
 import java.util.Set;
 
@@ -22,5 +24,7 @@ import java.util.Set;
 
 public interface View extends Serializable
 {
-	public abstract Set<? extends Table> getTables();
+	public Set<? extends Table> getTables();
+
+	public Field[] getFields();
 }

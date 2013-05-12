@@ -4,7 +4,6 @@ import android.database.Cursor;
 import turtle.player.model.SongDigest;
 import turtle.player.persistance.framework.creator.ResultCreator;
 import turtle.player.persistance.turtle.db.structure.Tables;
-import turtle.player.persistance.turtle.db.structure.Views;
 
 /**
  * TURTLE PLAYER
@@ -23,11 +22,11 @@ import turtle.player.persistance.turtle.db.structure.Views;
  * @author Simon Honegger (Hoene84)
  */
 
-public class SongCreator implements ResultCreator<Views.SongsReadable , SongDigest, Cursor>
+public class SongCreator implements ResultCreator<Tables.SongsReadable, SongDigest, Cursor>
 {
 
     public SongDigest create(Cursor source)
     {
-        return new SongDigest(source.getString(source.getColumnIndex(Views.SongsReadable.NAME.getName())));
+        return new SongDigest(source.getString(source.getColumnIndex(Tables.SongsReadable.TITLE.getName())));
     }
 }

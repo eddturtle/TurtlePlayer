@@ -29,20 +29,15 @@ public class TrackToDbMapper extends QueryGeneratorTable<Track>
 		super(Tables.TRACKS);
 	}
 
-	public Tables.Tracks get()
-	{
-		return null;  //To change body of implemented methods use File | Settings | File Templates.
-	}
-
 	public ContentValues create(Track track)
 	{
 		final ContentValues values = new ContentValues();
 
-		values.put(Tables.Tracks.TITLE.getName(), track.getSongName());
+		values.put(Tables.SongsReadable.TITLE.getName(), track.getSongName());
 		values.put(Tables.Tracks.NUMBER.getName(), track.GetNumber());
-		values.put(Tables.Tracks.ARTIST.getName(), track.getArtistId());
-		values.put(Tables.Tracks.ALBUM.getName(), track.getAlbumId());
-		values.put(Tables.Tracks.GENRE.getName(), track.getGenreId());
+		values.put(Tables.ArtistsReadable.ARTIST.getName(), track.getArtistId());
+		values.put(Tables.AlbumsReadable.ALBUM.getName(), track.getAlbumId());
+		values.put(Tables.GenresReadable.GENRE.getName(), track.getGenreId());
 		values.put(Tables.FsObjects.PATH.getName(), track.getPath());
 		values.put(Tables.FsObjects.NAME.getName(), track.getPath());
 

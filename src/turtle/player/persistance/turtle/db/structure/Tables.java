@@ -2,10 +2,13 @@ package turtle.player.persistance.turtle.db.structure;
 
 import turtle.player.model.*;
 import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.persistance.source.relational.Field;
 import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.source.relational.Table;
+import turtle.player.persistance.source.relational.View;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
+import turtle.player.util.Shorty;
 
 /**
  * TURTLE PLAYER
@@ -30,6 +33,50 @@ public class Tables
 	public final static AlbumArtLocations ALBUM_ART_LOCATIONS = new AlbumArtLocations();
 	public final static Dirs DIRS = new Dirs();
 
+	//Marker interface
+	public interface AlbumsReadable extends View
+	{
+		FieldPersistable<Album, String> ALBUM = new FieldPersistableAsString<Album>("album", new Creator<String, Album>(){
+
+			public String create(Album album)
+			{
+				return album.getAlbumId();
+			}
+		});
+	}
+
+	//Marker interface
+	public interface GenresReadable extends View{
+		FieldPersistable<Genre, String> GENRE = new FieldPersistableAsString<Genre>("genre", new Creator<String, Genre>(){
+
+			public String create(Genre genre)
+			{
+				return genre.getGenreId();
+			}
+		});
+	}
+
+	//Marker interface
+	public interface ArtistsReadable extends View{
+		FieldPersistable<Artist, String> ARTIST = new FieldPersistableAsString<Artist>("artist", new Creator<String, Artist>(){
+
+			public String create(Artist artist)
+			{
+				return artist.getArtistId();
+			}
+		});
+	}
+
+	//Marker interface
+	public interface SongsReadable extends View{
+		FieldPersistable<Song, String> TITLE = new FieldPersistableAsString<Song>("title", new Creator<String, Song>(){
+			public String create(Song song)
+			{
+				return song.getSongId();
+			}
+		});
+	}
+
 	public static abstract class FsObjects extends Table
 	{
 		public FsObjects(String name)
@@ -49,46 +96,24 @@ public class Tables
 				return fSobject.getPath();
 			}
 		});
+
+		public Field[] getFields()
+		{
+			return new Field[]{NAME, PATH};
+		}
 	}
 
 	public static final class Tracks extends FsObjects implements
-			  Views.AlbumsReadable,
-			  Views.ArtistsReadable,
-			  Views.GenresReadable,
-			  Views.SongsReadable
+			  AlbumsReadable,
+			  ArtistsReadable,
+			  GenresReadable,
+			  SongsReadable
 	{
-		public static final FieldPersistable<Song, String> TITLE = new FieldPersistableAsString<Song>("title", new Creator<String, Song>(){
-			public String create(Song song)
-			{
-				return song.getSongId();
-			}
-		});
 		public static final FieldPersistable<Track, Integer> NUMBER = new FieldPersistableAsInteger<Track>("number", new Creator<Integer, Track>(){
 
 			public Integer create(Track track)
 			{
 				return track.GetNumber();
-			}
-		});
-		public static final FieldPersistable<Artist, String> ARTIST = new FieldPersistableAsString<Artist>("artist", new Creator<String, Artist>(){
-
-			public String create(Artist artist)
-			{
-				return artist.getArtistId();
-			}
-		});
-		public static final FieldPersistable<Album, String> ALBUM = new FieldPersistableAsString<Album>("album", new Creator<String, Album>(){
-
-			public String create(Album album)
-			{
-				return album.getAlbumId();
-			}
-		});
-		public static final FieldPersistable<Genre, String> GENRE = new FieldPersistableAsString<Genre>("genre", new Creator<String, Genre>(){
-
-			public String create(Genre genre)
-			{
-				return genre.getGenreId();
 			}
 		});
 
@@ -97,6 +122,11 @@ public class Tables
 			super("Tracks");
 		}
 
+		@Override
+		public Field[] getFields()
+		{
+			return Shorty.concatWith(super.getFields(), NUMBER, ALBUM, ARTIST, GENRE, TITLE);
+		}
 	}
 
 	public static final class AlbumArtLocations extends Table
@@ -118,6 +148,11 @@ public class Tables
 		public AlbumArtLocations()
 		{
 			super("AlbumArt");
+		}
+
+		public Field[] getFields()
+		{
+			return new Field[]{PATH, ALBUM_ART_PATH};
 		}
 	}
 

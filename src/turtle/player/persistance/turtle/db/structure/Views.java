@@ -1,8 +1,6 @@
 package turtle.player.persistance.turtle.db.structure;
 
-import turtle.player.model.*;
-import turtle.player.persistance.source.relational.*;
-import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
+import turtle.player.persistance.source.relational.Field;
 import turtle.player.util.Shorty;
 
 import java.util.Set;
@@ -31,55 +29,55 @@ public class Views
 	public final static Genres GENRES = new Genres();
 	public final static Songs SONGS = new Songs();
 
-	//Marker interface
-	public interface AlbumsReadable extends View{
-		public static final FieldPersistable<Album, String> NAME = new FieldPersistableAsString<Album>(Tables.Tracks.ALBUM);
-	}
-
-	//Marker interface
-	public interface GenresReadable extends View{
-		public static final FieldPersistable<Genre, String> NAME = new FieldPersistableAsString<Genre>(Tables.Tracks.GENRE);
-	}
-
-	//Marker interface
-	public interface ArtistsReadable extends View{
-		public static final FieldPersistable<Artist, String> NAME = new FieldPersistableAsString<Artist>(Tables.Tracks.ARTIST);
-	}
-
-	//Marker interface
-	public interface SongsReadable extends View{
-		public static final FieldPersistable<Song, String> NAME = new FieldPersistableAsString<Song>(Tables.Tracks.TITLE);
-	}
-
-	public static final class Albums implements AlbumsReadable
+	public static final class Albums implements Tables.AlbumsReadable
 	{
 		public Set<Tables.Tracks> getTables()
 		{
 			return Shorty.oneElementSet(Tables.TRACKS);
 		}
+
+		public Field[] getFields()
+		{
+			return new Field[]{ALBUM};
+		}
 	}
 
-	public static final class Artists implements ArtistsReadable
+	public static final class Artists implements Tables.ArtistsReadable
 	{
 		public Set<Tables.Tracks> getTables()
 		{
 			return Shorty.oneElementSet(Tables.TRACKS);
 		}
+
+		public Field[] getFields()
+		{
+			return new Field[]{ARTIST};
+		}
 	}
 
-	public static final class Genres  implements GenresReadable
+	public static final class Genres  implements Tables.GenresReadable
 	{
 		public Set<Tables.Tracks> getTables()
 		{
 			return Shorty.oneElementSet(Tables.TRACKS);
 		}
+
+		public Field[] getFields()
+		{
+			return new Field[]{GENRE};
+		}
 	}
 
-	public static final class Songs  implements SongsReadable
+	public static final class Songs  implements Tables.SongsReadable
 	{
 		public Set<Tables.Tracks> getTables()
 		{
 			return Shorty.oneElementSet(Tables.TRACKS);
+		}
+
+		public Field[] getFields()
+		{
+			return new Field[]{TITLE};
 		}
 	}
 
