@@ -18,20 +18,36 @@
 
 package turtle.player.model;
 
+import turtle.player.util.Shorty;
 
-public class TrackDigest implements Instance
+import java.util.HashSet;
+import java.util.Set;
+
+public class AlbumDigest implements Album
 {
+	private static final String EMPTY_REPLACMENT= "Unknown";
+	public static final AlbumDigest NO_ALBUM = new AlbumDigest(null);
 
-	private final String name;
+	private final String id;
 
-	public TrackDigest(String name)
+	public AlbumDigest(String id)
 	{
-		this.name = name;
+		this.id = Shorty.avoidNull(id);
 	}
 
-	public String getName()
+	public String getAlbumId()
 	{
-		return name;
+		return id;
+	}
+
+	public String getAlbumName()
+	{
+		return Shorty.isVoid(id) ? EMPTY_REPLACMENT : id;
+	}
+
+	public <R> R accept(InstanceVisitor<R> visitor)
+	{
+		return visitor.visit(this);
 	}
 
 	@Override
@@ -40,21 +56,15 @@ public class TrackDigest implements Instance
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		TrackDigest that = (TrackDigest) o;
+		AlbumDigest album = (AlbumDigest) o;
 
-		if (name != null ? !name.equals(that.name) : that.name != null) return false;
+		return id.equals(album.id);
 
-		return true;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return name != null ? name.hashCode() : 0;
-	}
-
-	public <R> R accept(InstanceVisitor<R> visitor)
-	{
-		return visitor.visit(this);
+		return id.hashCode();
 	}
 }

@@ -5,6 +5,7 @@ import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsDouble;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
+import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
 
 /**
  * TURTLE PLAYER
@@ -23,7 +24,7 @@ import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsS
  * @author Simon Honegger (Hoene84)
  */
 
-public class MatchFilterVisitor<RESULT, TARGET> extends FilterVisitorGenerified<TARGET, RESULT, Object, Boolean>
+public class MatchFilterVisitor<RESULT, PROJECTION> extends FilterVisitorGenerified<PROJECTION, RESULT, Object, Boolean>
 {
 	private final RESULT instance;
 
@@ -33,38 +34,32 @@ public class MatchFilterVisitor<RESULT, TARGET> extends FilterVisitorGenerified<
 	}
 
 	@Override
-	public Boolean visit(final FieldFilter<TARGET, RESULT, Object> fieldFilter,
+	public Boolean visit(final FieldFilter<PROJECTION, RESULT, Object> fieldFilter,
 								FieldPersistable<RESULT, Object> field)
 	{
 
-		return field.accept(fieldFilter.new FieldVisitorField<Boolean>()
+		return field.accept(new FieldVisitor<Boolean, RESULT>()
 		{
-			@Override
-			public Boolean visit(FieldPersistableAsString<RESULT> field,
-										String filterValue)
+			public Boolean visit(FieldPersistableAsString<? super RESULT> field)
 			{
-				return matchField(filterValue, field.get(instance), fieldFilter.getOperator());
+				return matchField((String)fieldFilter.getValue(), field.get(instance), fieldFilter.getOperator());
 			}
 
-			@Override
-			public Boolean visit(FieldPersistableAsDouble<RESULT> field,
-										Double filterValue)
+			public Boolean visit(FieldPersistableAsDouble<? super RESULT> field)
 			{
-				return matchField(filterValue, field.get(instance), fieldFilter.getOperator());
+				return matchField((Double)fieldFilter.getValue(), field.get(instance), fieldFilter.getOperator());
 			}
 
-			@Override
-			public Boolean visit(FieldPersistableAsInteger<RESULT> field,
-										Integer filterValue)
+			public Boolean visit(FieldPersistableAsInteger<? super RESULT> field)
 			{
-				return matchField(filterValue, field.get(instance), fieldFilter.getOperator());
+				return matchField((Integer)fieldFilter.getValue(), field.get(instance), fieldFilter.getOperator());
 			}
 		});
 	}
 
-	public Boolean visit(FilterSet<TARGET> filterSet)
+	public Boolean visit(FilterSet<? super PROJECTION> filterSet)
 	{
-		for(Filter<TARGET> filter : filterSet.getFilters())
+		for(Filter<? super PROJECTION> filter : filterSet.getFilters())
 		{
 			if(!filter.accept(this))
 			{
@@ -74,7 +69,7 @@ public class MatchFilterVisitor<RESULT, TARGET> extends FilterVisitorGenerified<
 		return true;
 	}
 
-	public Boolean visit(NotFilter<TARGET> notFilter)
+	public Boolean visit(NotFilter<? super PROJECTION> notFilter)
 	{
 		return !notFilter.accept(this);
 	}

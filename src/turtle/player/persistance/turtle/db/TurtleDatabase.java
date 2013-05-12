@@ -24,7 +24,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import turtle.player.model.*;
-import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.persistance.framework.creator.ResultCreator;
 import turtle.player.persistance.framework.db.Database;
 import turtle.player.persistance.framework.db.ObservableDatabase;
 import turtle.player.persistance.framework.executor.OperationExecutor;
@@ -32,7 +32,6 @@ import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.sort.FieldOrder;
 import turtle.player.persistance.framework.sort.SortOrder;
 import turtle.player.persistance.source.relational.FieldPersistable;
-import turtle.player.persistance.source.relational.Table;
 import turtle.player.persistance.source.relational.View;
 import turtle.player.persistance.source.sql.MappingDistinct;
 import turtle.player.persistance.source.sql.MappingTable;
@@ -44,7 +43,6 @@ import turtle.player.persistance.turtle.db.structure.Views;
 import turtle.player.persistance.turtle.mapping.*;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 // Import - Android Content
@@ -71,15 +69,28 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 
 	//Write------------------------------------
 
-	public void push(final Track track)
+	/**
+	 * @return true when successful inserted
+	 */
+	public boolean push(final Track track)
 	{
-		OperationExecutor.execute(this, new InsertOperationSqlLite<Track>(new TrackToDbMapper()), track);
-		notifyUpdate(track);
+		int insertedCount = OperationExecutor.execute(this, new InsertOperationSqlLite<Track>(new TrackToDbMapper()), track);
+		if(insertedCount > 0)
+		{
+			notifyUpdate(track);
+			return true;
+		}
+		return false;
 	}
 
 	public void push(final AlbumArtLocation albumArtLocation)
 	{
 		OperationExecutor.execute(this, new InsertOperationSqlLite<AlbumArtLocation>(new AlbumArtLoactionToDbMapper()), albumArtLocation);
+	}
+
+	public void push(final FSobject dir)
+	{
+		OperationExecutor.execute(this, new InsertOperationSqlLite<FSobject>(new FsObjectToDbMapper()), dir);
 	}
 
 	public void clear()
@@ -94,81 +105,67 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 	{
 		return OperationExecutor.execute(
 				  this,
-				  new QuerySqlite<Tables.Tracks, Integer>(filter, new CounterSqlite(Tables.TRACKS))).equals(0);
+				  new QuerySqlite<Tables.Tracks, Tables.Tracks, Integer>(filter, new CounterSqlite(Tables.TRACKS))).equals(0);
 	}
 
 	public int countAvailableTracks(Filter<Tables.Tracks> filter)
 	{
 		return OperationExecutor.execute(
 				  this,
-				  new QuerySqlite<Tables.Tracks, Integer>(filter, new CounterSqlite(Tables.TRACKS)));
+				  new QuerySqlite<Tables.Tracks, Tables.Tracks, Integer>(filter, new CounterSqlite(Tables.TRACKS)));
 	}
 
-	public Collection<Track> getTracks(Filter<Tables.Tracks> filter)
+	public List<? extends Track> getTracks(Filter<? super Tables.Tracks> filter)
 	{
 		return OperationExecutor.execute(
 				  this,
-				  new QuerySqlite<Tables.Tracks, List<Track>>(filter,
-							 new MappingTable<Track>(Tables.TRACKS, new CreatorForListSqlite<Track>(new TrackCreator())))
-		);
-	}
-
-	public Collection<Album> getAlbums(Filter<Tables.Tracks> filter)
-	{
-		return OperationExecutor.execute(
-				  this,
-				  new QuerySqlite<Tables.Tracks, List<Album>>(filter,
-							 new MappingTable<Album>(Tables.TRACKS, new CreatorForListSqlite<Album>(new AlbumCreator())))
-		);
-	}
-
-	public Collection<Artist> getArtist(Filter<Tables.Tracks> filter)
-	{
-		return OperationExecutor.execute(
-				  this,
-				  new QuerySqlite<Tables.Tracks, List<Artist>>(filter,
-							 new MappingTable<Artist>(Tables.TRACKS, new CreatorForListSqlite<Artist>(new ArtistCreator()))
+				  new QuerySqlite<Tables.Tracks, Tables.Tracks, List<Track>>(
+							 filter,
+							 new MappingTable<Tables.Tracks, Track>(
+										Tables.TRACKS,
+										new CreatorForListSqlite<Tables.Tracks, Track>(new TrackCreator())
+							 )
 				  )
 		);
 	}
 
-	public List<TrackDigest> getTrackList(Filter<Tables.Tracks> filter)
+	public List<? extends Song> getSongs(Filter<? super Tables.Tracks> filter)
 	{
-		return getList(filter, new TrackDigestCreator(), Views.TRACK_DIGEST, Views.TRACK_DIGEST.NAME);
+		return getList(filter, new SongCreator(), Tables.TRACKS, Views.SongsReadable.NAME);
 	}
 
-	public List<Artist> getArtistList(Filter<Tables.Tracks> filter)
+	public List<? extends Artist> getArtists(Filter<? super Tables.Tracks> filter)
 	{
-		return getList(filter, new ArtistCreator(), Views.ARTISTS, Views.ARTISTS.NAME);
+		return getList(filter, new ArtistCreator(), Tables.TRACKS, Views.ARTISTS.NAME);
 	}
 
-	public List<Genre> getGenreList(Filter<Tables.Tracks> filter)
+	public List<? extends Genre> getGenres(Filter<? super Tables.Tracks> filter)
 	{
-		return getList(filter, new GenreCreator(), Views.GENRES, Views.GENRES.NAME);
+		return getList(filter, new GenreCreator(), Tables.TRACKS, Views.GENRES.NAME);
 	}
 
-	public List<Album> getAlbumList(Filter<Tables.Tracks> filter)
+	public List<? extends Album> getAlbums(Filter<? super Tables.Tracks> filter)
 	{
-		return getList(filter, new AlbumCreator(), Views.ALBUMS, Views.ALBUMS.NAME);
+		return getList(filter, new AlbumCreator(), Tables.TRACKS, Views.ALBUMS.NAME);
 	}
 
-	public List<FSobject> getDirList(Filter<Tables.Dirs> filter)
+	public List<? extends FSobject> getDirList(Filter<? super Tables.Dirs> filter)
 	{
 		return getList(filter, new DirCreator(), Tables.DIRS, Tables.DIRS.NAME);
 	}
 
-	private <RESULT, TARGET, Z> List<RESULT> getList(
-			  Filter<TARGET> filter,
-			  Creator<RESULT, Cursor> creator,
-			  View<RESULT> view,
-			  FieldPersistable<RESULT, Z>... field)
+	private <RESULT, TARGET, PROJECTION extends View, Z> List<RESULT> getList(
+			  Filter<? super PROJECTION> filter,
+			  ResultCreator<TARGET, RESULT, Cursor> creator,
+			  PROJECTION view,
+			  FieldPersistable<? super RESULT, Z>... field)
 	{
 		return OperationExecutor.execute(
 				  this,
-				  new QuerySqlite<TARGET, List<RESULT>>(
+				  new QuerySqlite<PROJECTION, TARGET, List<RESULT>>(
 							 filter,
-							 FieldOrder.getMultiFieldOrder(SortOrder.ASC, field),
-							 new MappingDistinct<RESULT>(view, new CreatorForListSqlite<RESULT>(creator), field)
+							 FieldOrder.<PROJECTION, RESULT, Z>getMultiFieldOrder(SortOrder.ASC, field),
+							 new MappingDistinct<TARGET, PROJECTION,  RESULT>(view, new CreatorForListSqlite<TARGET, RESULT>(creator), field)
 				  )
 		);
 	}
@@ -205,10 +202,10 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 		}
 	}
 
-	public <I> void write(DbWriteOp<SQLiteDatabase, I> writeOp,
+	public <I> int write(DbWriteOp<SQLiteDatabase, I> writeOp,
 								 I instance)
 	{
-		writeOp.write(db, instance);
+		return writeOp.write(db, instance);
 	}
 
 }

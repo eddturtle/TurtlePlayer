@@ -24,7 +24,7 @@ public abstract class OrderVisitorGenerified<TARGET, RESULT, TYPE, R> implements
 	public abstract R visit(FieldOrder<TARGET, RESULT, TYPE> fieldOrder,
 									FieldPersistable<RESULT, TYPE> field);
 
-	final public <T, Z> R visit(FieldOrder<TARGET, Z, T> fieldOrder)
+	final public <T, Z> R visit(FieldOrder<? super TARGET, Z, T> fieldOrder)
 	{
 		return visit((FieldOrder<TARGET, RESULT, TYPE>)fieldOrder, (FieldPersistable<RESULT, TYPE>)fieldOrder.getField());
 	}

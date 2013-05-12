@@ -3,6 +3,7 @@ package turtle.player.persistance.turtle.mapping;
 import android.database.Cursor;
 import turtle.player.model.FSobject;
 import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.persistance.framework.creator.ResultCreator;
 import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
@@ -22,7 +23,7 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class DirCreator implements Creator<FSobject, Cursor>
+public class DirCreator implements ResultCreator<Tables.Dirs, FSobject, Cursor>
 {
 	public FSobject create(Cursor source)
 	{

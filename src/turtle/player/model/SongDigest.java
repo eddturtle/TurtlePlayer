@@ -1,56 +1,56 @@
-package turtle.player.persistance.framework.filter;
-
 /**
+ *
  * TURTLE PLAYER
- * <p/>
+ *
  * Licensed under MIT & GPL
- * <p/>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
  * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
  * OR OTHER DEALINGS IN THE SOFTWARE.
- * <p/>
+ *
  * More Information @ www.turtle-player.co.uk
  *
  * @author Simon Honegger (Hoene84)
  */
 
-public class NotFilter<PROJECTION> implements Filter<PROJECTION>
+package turtle.player.model;
+
+
+import turtle.player.util.Shorty;
+
+public class SongDigest implements Song
 {
-	private final Filter<? super PROJECTION> filter;
 
-	public NotFilter(Filter<? super PROJECTION> filter)
+	private static final String EMPTY_REPLACMENT= "Unknown";
+	private final String id;
+
+	public SongDigest(String id)
 	{
-		this.filter = filter;
+		this.id = id;
 	}
 
-	public <R> R accept(FilterVisitor<? extends PROJECTION, R> visitor)
+	public String getSongId()
 	{
-		return visitor.visit(this);
+		return id;
 	}
 
-	public Filter<? super PROJECTION> getFilter()
+	public String getSongName()
 	{
-		return filter;
-	}
-
-	@Override
-	public String toString()
-	{
-		return " NOT (" + filter.toString() + ") ";
+		return Shorty.isVoid(id) ? EMPTY_REPLACMENT : id;
 	}
 
 	@Override
 	public boolean equals(Object o)
 	{
 		if (this == o) return true;
-		if (!(o instanceof NotFilter)) return false;
+		if (!(o instanceof SongDigest)) return false;
 
-		NotFilter notFilter = (NotFilter) o;
+		SongDigest that = (SongDigest) o;
 
-		if (filter != null ? !filter.equals(notFilter.filter) : notFilter.filter != null) return false;
+		if (id != null ? !id.equals(that.id) : that.id != null) return false;
 
 		return true;
 	}
@@ -58,7 +58,11 @@ public class NotFilter<PROJECTION> implements Filter<PROJECTION>
 	@Override
 	public int hashCode()
 	{
-		return filter != null ? filter.hashCode() : 0;
+		return id != null ? id.hashCode() : 0;
 	}
 
+	public <R> R accept(InstanceVisitor<R> visitor)
+	{
+		return visitor.visit(this);
+	}
 }

@@ -19,7 +19,6 @@
 
 package turtle.player.persistance.turtle;
 
-import android.media.MediaMetadataRetriever;
 import android.util.Log;
 import com.mpatric.mp3agic.ID3v1;
 import com.mpatric.mp3agic.InvalidDataException;
@@ -34,6 +33,7 @@ import turtle.player.persistance.source.sql.First;
 import turtle.player.persistance.source.sqlite.QuerySqlite;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.db.structure.Views;
 import turtle.player.persistance.turtle.mapping.AlbumArtLocationCreator;
 import turtle.player.preferences.Preferences;
 import turtle.player.util.Shorty;
@@ -44,9 +44,9 @@ import java.util.*;
 public class FsReader
 {
 
-	public static void scanFile(String filePath,
+	public static boolean scanFile(String filePath,
 										  TurtleDatabase db,
-	                             Map<String, String> dirAlbumArtMap) throws IOException
+	                             Set<String> encounteredRootSrcs) throws IOException
 	{
 		// http://www.exampledepot.com/egs/java.io/GetFiles.html
 
@@ -108,17 +108,27 @@ public class FsReader
 		}
 
 		Track t = new Track(
-				  title,
+				  new SongDigest(title),
+				  new ArtistDigest(artist),
+				  new AlbumDigest(album),
+				  new GenreDigest(genre < 0 ? "" : String.valueOf(genre)),
 				  number,
-				  new Artist(artist),
-				  new Album(album),
-				  new Genre(genre < 0 ? "" : String.valueOf(genre)),
 				  filePath,
 				  rootSrc
 		);
 		Log.v(Preferences.TAG, "created " + (System.currentTimeMillis() - start) + "ms");
-		db.push(t);
+		boolean added = db.push(t);
 		Log.v(Preferences.TAG, "pushed  " + (System.currentTimeMillis() - start) + "ms");
+
+		if(added)
+		{
+			if(encounteredRootSrcs.add(rootSrc))
+			{
+				db.push(new FSobject(rootSrc));
+			}
+		}
+
+		return added;
 	}
 
 	static public List<String> getMediaFilesPaths(String mediaPath, List<? extends FilenameFilter> filters, boolean recursive, boolean getFirstMatch){
@@ -185,8 +195,11 @@ public class FsReader
 
 		AlbumArtLocation albumArtLocation = OperationExecutor.execute(
 				  db,
-				  new QuerySqlite<Tables.AlbumArtLocations, AlbumArtLocation>(new FieldFilter<Tables.AlbumArtLocations, AlbumArtLocation, String>(Tables.ALBUM_ART_LOCATIONS.PATH, Operator.EQ, mediaFileDir),
-				  new First<AlbumArtLocation>(Tables.ALBUM_ART_LOCATIONS, new AlbumArtLocationCreator())));
+				  new QuerySqlite<Tables.AlbumArtLocations, Tables.AlbumArtLocations, AlbumArtLocation>(
+							 new FieldFilter<Tables.AlbumArtLocations, AlbumArtLocation, String>(Tables.ALBUM_ART_LOCATIONS.PATH, Operator.EQ, mediaFileDir),
+				  			 new First<AlbumArtLocation>(Tables.ALBUM_ART_LOCATIONS, new AlbumArtLocationCreator())
+				  )
+		);
 
 		if(albumArtLocation != null)
 		{

@@ -25,27 +25,27 @@ class ShortInstanceFormatter extends InstanceFormatter
 {
     public String visit(Track track)
     {
-        return track.GetTitle();
+        return track.getSongName();
     }
 
-	public String visit(TrackDigest track)
+	public String visit(SongDigest track)
 	{
-		return track.getName();
+		return track.getSongName();
 	}
 
 	public String visit(Album album)
     {
-        return album.getName();
+        return album.getAlbumName();
     }
 
-	public String visit(Genre genre)
+	public String visit(GenreDigest genre)
 	{
-		return genre.getName();
+		return genre.getGenreName();
 	}
 
-	public String visit(Artist artist)
+	public String visit(ArtistDigest artist)
 	{
-		return artist.getName();
+		return artist.getArtistName();
 	}
 
 	public String visit(FSobject FSobject)

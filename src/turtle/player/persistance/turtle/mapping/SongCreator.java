@@ -1,6 +1,10 @@
-package turtle.player.persistance.framework.filter;
+package turtle.player.persistance.turtle.mapping;
 
-import java.io.Serializable;
+import android.database.Cursor;
+import turtle.player.model.SongDigest;
+import turtle.player.persistance.framework.creator.ResultCreator;
+import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.db.structure.Views;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +23,11 @@ import java.io.Serializable;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface Filter<PROJECTION> extends Serializable
+public class SongCreator implements ResultCreator<Views.SongsReadable , SongDigest, Cursor>
 {
-	<R> R accept(FilterVisitor<? extends PROJECTION, R> visitor);
+
+    public SongDigest create(Cursor source)
+    {
+        return new SongDigest(source.getString(source.getColumnIndex(Views.SongsReadable.NAME.getName())));
+    }
 }

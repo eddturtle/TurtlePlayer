@@ -61,7 +61,7 @@ public class ObjectKey<T> extends AbstractKey<T, String>
 	}
 
 	@Override
-	public T unmarshall(String object)
+	public T unmarshall(String object) throws UnmarshallExcpetion
 	{
 		try
 		{
@@ -73,13 +73,15 @@ public class ObjectKey<T> extends AbstractKey<T, String>
 			Base64InputStream base64InputStream = new Base64InputStream(byteArray, Base64.DEFAULT);
 			ObjectInputStream in = new ObjectInputStream(base64InputStream);
 			return (T) in.readObject();
-		} catch (ClassNotFoundException e)
-		{
-			Log.e(Preferences.TAG, "error restoring key " + getKey() + " from: " + object);
-		} catch (IOException e)
-		{
-			Log.e(Preferences.TAG, "error restoring key " + getKey() + " from: " + object);
 		}
-		return getDefaultValue();
+		catch (ClassNotFoundException e)
+		{
+			throw new UnmarshallExcpetion(e);
+		}
+		catch (IOException e)
+		{
+			throw new UnmarshallExcpetion(e);
+		}
+
 	}
 }

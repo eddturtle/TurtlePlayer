@@ -1,6 +1,8 @@
-package turtle.player.persistance.framework.query;
+package turtle.player.persistance.source.relational.fieldtype;
 
+import turtle.player.persistance.framework.creator.Creator;
 import turtle.player.persistance.framework.mapping.Mapping;
+import turtle.player.persistance.source.sql.QueryGeneratorTable;
 
 /**
  * TURTLE PLAYER
@@ -19,11 +21,27 @@ import turtle.player.persistance.framework.mapping.Mapping;
  * @author Simon Honegger (Hoene84)
  */
 
-/**
- * @param <D> write target eg SQLiteDb
- * @param <I> Object Type of the write information
- */
-public interface OperationInsert<D, I>
+public class ToStringFieldVisitor<RESULT> implements  FieldVisitor<String, RESULT>
 {
-	int insert(D db, I instance);
+	final RESULT result;
+
+	public ToStringFieldVisitor(RESULT result)
+	{
+		this.result = result;
+	}
+
+	public String visit(FieldPersistableAsString<? super RESULT> field)
+	{
+		return field.get(result);
+	}
+
+	public String visit(FieldPersistableAsDouble<? super RESULT> field)
+	{
+		return field.get(result).toString();
+	}
+
+	public String visit(FieldPersistableAsInteger<? super RESULT> field)
+	{
+		return field.get(result).toString();
+	}
 }

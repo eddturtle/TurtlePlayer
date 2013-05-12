@@ -19,5 +19,5 @@ package turtle.player.persistance.framework.query;
 
 public interface OperationDelete<D, T>
 {
-	void delete(D db, T target);
+	int delete(D db, T target);
 }

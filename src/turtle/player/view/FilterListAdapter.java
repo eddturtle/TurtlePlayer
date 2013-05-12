@@ -35,10 +35,10 @@ import turtle.player.presentation.InstanceFormatter;
 import java.util.List;
 
 
-public abstract class FilterListAdapter extends ArrayAdapter<Filter<Tables.Tracks>>
+public abstract class FilterListAdapter extends ArrayAdapter<Filter<? super Tables.Tracks>>
 {
 	public FilterListAdapter(Context context,
-									 List<Filter<Tables.Tracks>> objects)
+									 List<Filter<? super Tables.Tracks>> objects)
 	{
 		super(context, R.layout.filter_list_entry, objects);
 	}
@@ -52,7 +52,7 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter<Tables.Track
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View rowView = inflater.inflate(R.layout.filter_list_entry, parent, false);
 
-		final Filter<Tables.Tracks> currFilter = getItem(position);
+		final Filter<? super Tables.Tracks> currFilter = getItem(position);
 
 		final TextView textView = (TextView) rowView.findViewById(R.id.label);
 		final ImageView icon = (ImageView) rowView.findViewById(R.id.icon);
@@ -61,23 +61,22 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter<Tables.Track
 
 		currFilter.accept(new FilterVisitor<Tables.Tracks, Void>()
 		{
-
-			public <T, Z> Void visit(FieldFilter<Tables.Tracks, Z, T> fieldFilter)
+			public <T, Z> Void visit(FieldFilter<? super Tables.Tracks, Z, T> fieldFilter)
 			{
 				final Instance instance;
 				if (Tables.TRACKS.ARTIST.equals(fieldFilter.getField()))
 				{
-					instance = new TrackDigest(fieldFilter.getValue().toString());
+					instance = new SongDigest(fieldFilter.getValue().toString());
 					icon.setImageResource(R.drawable.artist24);
 				}
 				else if (Tables.TRACKS.ALBUM.equals(fieldFilter.getField()))
 				{
-					instance = new Album(fieldFilter.getValue().toString());
+					instance = new AlbumDigest(fieldFilter.getValue().toString());
 					icon.setImageResource(R.drawable.album24);
 				}
 				else if (Tables.TRACKS.GENRE.equals(fieldFilter.getField()))
 				{
-					instance = new Genre(fieldFilter.getValue().toString());
+					instance = new GenreDigest(fieldFilter.getValue().toString());
 					icon.setImageResource(R.drawable.genre24);
 				}
 				else if (Tables.TRACKS.PATH.equals(fieldFilter.getField()))
@@ -95,13 +94,13 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter<Tables.Track
 				return null;
 			}
 
-			public Void visit(FilterSet<Tables.Tracks> filterSet)
+			public Void visit(FilterSet<? super Tables.Tracks> filterSet)
 			{
 				//nothing
 				return null;
 			}
 
-			public Void visit(NotFilter<Tables.Tracks> notFilter)
+			public Void visit(NotFilter<? super Tables.Tracks> notFilter)
 			{
 				notFilter.getFilter().accept(this);
 				textView.setText("! " + textView.getText());
@@ -128,9 +127,9 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter<Tables.Track
 		return rowView;
 	}
 
-	protected abstract void removeFilter(Filter<Tables.Tracks> filter);
+	protected abstract void removeFilter(Filter<? super Tables.Tracks> filter);
 
-	protected abstract void chooseFilter(Filter<Tables.Tracks> filter);
+	protected abstract void chooseFilter(Filter<? super Tables.Tracks> filter);
 
 
 }

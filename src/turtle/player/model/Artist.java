@@ -18,54 +18,9 @@
 
 package turtle.player.model;
 
-import turtle.player.util.Shorty;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-public class Artist implements Instance
+public interface Artist extends Instance
 {
-	private static final String EMPTY_REPLACMENT= "Unknown";
-	public static final Artist NO_ARTIST = new Artist(null);
+	public String getArtistId();
 
-	private final String id;
-
-	public Artist(String id)
-	{
-		this.id = Shorty.avoidNull(id);
-	}
-
-	public String getId()
-	{
-		return id;
-	}
-
-	public String getName()
-	{
-		return Shorty.isVoid(id) ? EMPTY_REPLACMENT : id;
-	}
-
-	public <R> R accept(InstanceVisitor<R> visitor)
-	{
-		return visitor.visit(this);
-	}
-
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		Artist artist = (Artist) o;
-
-		return id.equals(artist.id);
-
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return id.hashCode();
-	}
+	public String getArtistName();
 }

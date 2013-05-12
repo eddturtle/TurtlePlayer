@@ -23,13 +23,13 @@ import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FieldFilter<TARGET, RESULT, TYPE> implements Filter<TARGET>
+public class FieldFilter<PROJECTION, RESULT, TYPE> implements Filter<PROJECTION>
 {
-	private final FieldPersistable<RESULT, TYPE> field;
+	private final FieldPersistable<? super RESULT, TYPE> field;
 	private final Operator operator;
 	private final TYPE value;
 
-	public FieldFilter(FieldPersistable<RESULT, TYPE> field,
+	public FieldFilter(FieldPersistable<? super RESULT, TYPE> field,
 							 Operator operator,
 							 TYPE value)
 	{
@@ -38,7 +38,7 @@ public class FieldFilter<TARGET, RESULT, TYPE> implements Filter<TARGET>
 		this.value = value;
 	}
 
-	public FieldPersistable<RESULT, TYPE> getField()
+	public FieldPersistable<? super RESULT, TYPE> getField()
 	{
 		return field;
 	}
@@ -52,8 +52,7 @@ public class FieldFilter<TARGET, RESULT, TYPE> implements Filter<TARGET>
 	{
 		return operator;
 	}
-
-	public <R> R accept(FilterVisitor<TARGET, R> visitor)
+	public <R> R accept(FilterVisitor<? extends PROJECTION, R> visitor)
 	{
 		return visitor.visit(this);
 	}
@@ -86,37 +85,5 @@ public class FieldFilter<TARGET, RESULT, TYPE> implements Filter<TARGET>
 		result = 31 * result + operator.hashCode();
 		result = 31 * result + value.hashCode();
 		return result;
-	}
-
-	/**
-	 * TODO refactor
-	 * @param <R>
-	 */
-	public abstract class FieldVisitorField<R> implements FieldVisitor<R, RESULT>
-	{
-		public abstract R visit(FieldPersistableAsString<RESULT> field, String filterValue);
-		public abstract R visit(FieldPersistableAsDouble<RESULT> field, Double filterValue);
-		public abstract R visit(FieldPersistableAsInteger<RESULT> field, Integer filterValue);
-
-		public R visit(FieldPersistableAsString<RESULT> field)
-		{
-			return visit(field, (String)value);
-		}
-
-		public R visit(FieldPersistableAsDouble<RESULT> field)
-		{
-			if(value instanceof Double){
-				return visit(field, (Double)value);
-			}
-			return visit(field, (Double.valueOf(value.toString())));
-		}
-
-		public R visit(FieldPersistableAsInteger<RESULT> field)
-		{
-			if(value instanceof Integer){
-				return visit(field, (Integer)value);
-			}
-			return visit(field, (Integer.valueOf(value.toString())));
-		}
 	}
 }

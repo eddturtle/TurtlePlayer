@@ -12,6 +12,7 @@ import turtle.player.R;
 import turtle.player.model.Track;
 import turtle.player.persistance.framework.filter.*;
 import turtle.player.persistance.source.relational.FieldPersistable;
+import turtle.player.persistance.source.relational.fieldtype.*;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.player.ObservableOutput;
 import turtle.player.playlist.Playlist;
@@ -58,7 +59,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 		final int layoutIconId;
 		final int layoutIconPic;
 		final int layoutIdText;
-		final FieldPersistable<Track, ?> field;
+		final FieldPersistable<? super Track, ?> field;
 
 		boolean active = false;
 
@@ -68,7 +69,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 									int layoutIconId,
 									int layoutIconPic,
 									int layoutIdText,
-									FieldPersistable<Track, ?> field)
+									FieldPersistable<? super Track, ?> field)
 		{
 			this.layoutId = layoutId;
 			this.layoutIdOnPic = layoutOnIdPic;
@@ -89,7 +90,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 			return layoutIconId;
 		}
 
-		public FieldPersistable<Track, ?> getField()
+		public FieldPersistable<? super Track, ?> getField()
 		{
 			return field;
 		}
@@ -338,7 +339,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 	public void trackChanged(Track track, int lengthInMillis)
 	{
 		for(Map.Entry<BowMenuEntry, TextView> bowMenuEntry : bowMenuTextEntries.entrySet()){
-			bowMenuEntry.getValue().setText(bowMenuEntry.getKey().getField().getAsDisplayableString(track));
+			bowMenuEntry.getValue().setText(bowMenuEntry.getKey().getField().accept(new ToStringFieldVisitor<Track>(track)));
 		}
 	}
 
@@ -352,22 +353,23 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 		//do nothing
 	}
 
-	public void filterAdded(Filter filter)
+	public void filterAdded(Filter<? super Tables.Tracks> filter)
 	{
 		filterChanged(filter, true);
 	}
 
-	public void filterRemoved(Filter filter)
+	public void filterRemoved(Filter<? super Tables.Tracks> filter)
 	{
 		filterChanged(filter, false);
 	}
 
-	private void filterChanged(Filter<Track> filter, final boolean activated){
+	private <PROJECTION> void filterChanged(Filter<PROJECTION> filter, final boolean activated){
 		for(final BowMenuEntry entry : BowMenuEntry.values())
 		{
-			filter.accept(new FilterVisitor<Track, Boolean>()
+			filter.accept(new FilterVisitor<PROJECTION, Boolean>()
 			{
-				public <T, Z> Boolean visit(FieldFilter<Track, Z, T> fieldFilter)
+
+				public <T, Z> Boolean visit(FieldFilter<? super PROJECTION, Z, T> fieldFilter)
 				{
 					if(entry.getField().equals(fieldFilter.getField()))
 					{
@@ -383,15 +385,15 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 					return null;
 				}
 
-				public Boolean visit(FilterSet<Track> filterSet)
+				public Boolean visit(FilterSet<? super PROJECTION> filterSet)
 				{
-					for(Filter<Track> filter : filterSet.getFilters()){
+					for(Filter<? super PROJECTION> filter : filterSet.getFilters()){
 						filter.accept(this);
 					}
 					return null;
 				}
 
-				public Boolean visit(NotFilter<Track> notFilter)
+				public Boolean visit(NotFilter<? super PROJECTION> notFilter)
 				{
 					boolean adapted = notFilter.accept(this);
 					if(adapted)
@@ -407,5 +409,5 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 
 	protected abstract void nextGestureRecognized();
 	protected abstract void previousGestureRecognized();
-	protected abstract void filterSelected(FieldPersistable<Track, ?> field);
+	protected abstract void filterSelected(FieldPersistable<? super Track, ?> field);
 }

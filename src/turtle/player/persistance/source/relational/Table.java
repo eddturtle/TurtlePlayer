@@ -1,5 +1,10 @@
 package turtle.player.persistance.source.relational;
 
+import turtle.player.util.Shorty;
+
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * TURTLE PLAYER
  * <p/>
@@ -17,7 +22,7 @@ package turtle.player.persistance.source.relational;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class Table<I> extends View<I>
+public abstract class Table implements View
 {
 	final String name;
 
@@ -31,9 +36,8 @@ public abstract class Table<I> extends View<I>
 		return name;
 	}
 
-	@Override
-	public Table<?>[] getTables()
+	public Set<Table> getTables()
 	{
-		return new Table[]{this};
+		return Shorty.oneElementSet(this);
 	}
 }

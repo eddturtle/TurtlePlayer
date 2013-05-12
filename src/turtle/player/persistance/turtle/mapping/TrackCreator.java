@@ -1,11 +1,8 @@
 package turtle.player.persistance.turtle.mapping;
 
 import android.database.Cursor;
-import turtle.player.model.Album;
-import turtle.player.model.Artist;
-import turtle.player.model.Genre;
-import turtle.player.model.Track;
-import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.model.*;
+import turtle.player.persistance.framework.creator.ResultCreator;
 import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
@@ -25,18 +22,18 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class TrackCreator implements Creator<Track, Cursor>
+public class TrackCreator implements ResultCreator<Tables.Tracks, Track, Cursor>
 {
 	public Track create(Cursor cursor)
 	{
 		return new Track(
-				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.TITLE.getName())),
+				  new SongDigest(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.TITLE.getName()))),
+				  new ArtistDigest(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ARTIST.getName()))),
+				  new AlbumDigest(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ALBUM.getName()))),
+				  new GenreDigest(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.GENRE.getName()))),
 				  cursor.getInt(cursor.getColumnIndex(Tables.TRACKS.NUMBER.getName())),
-				  new Artist(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ARTIST.getName()))),
-				  new Album(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ALBUM.getName()))),
-				  new Genre(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.GENRE.getName()))),
-				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.PATH.getName())),
-				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.NAME.getName()))
+				  cursor.getString(cursor.getColumnIndex(Tables.FsObjects.PATH.getName())),
+				  cursor.getString(cursor.getColumnIndex(Tables.FsObjects.NAME.getName()))
 		);
 	}
 }

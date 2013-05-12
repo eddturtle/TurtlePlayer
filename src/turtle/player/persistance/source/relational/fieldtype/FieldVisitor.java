@@ -1,8 +1,5 @@
 package turtle.player.persistance.source.relational.fieldtype;
 
-import turtle.player.persistance.framework.filter.FieldFilter;
-import turtle.player.persistance.framework.filter.FilterSet;
-
 /**
  * TURTLE PLAYER
  * <p/>
@@ -23,12 +20,12 @@ import turtle.player.persistance.framework.filter.FilterSet;
 /**
  * @param <R> What the Visitor Produces (can be {@link Void} if nothing gets produced)
  */
-public interface FieldVisitor<R, I>
+public interface FieldVisitor<R, RESULT>
 {
-	R visit(FieldPersistableAsString<I> field);
+	R visit(FieldPersistableAsString<? super RESULT> field);
 
-	R visit(FieldPersistableAsDouble<I> field);
+	R visit(FieldPersistableAsDouble<? super RESULT> field);
 
-	R visit(FieldPersistableAsInteger<I> field);
+	R visit(FieldPersistableAsInteger<? super RESULT> field);
 
 }

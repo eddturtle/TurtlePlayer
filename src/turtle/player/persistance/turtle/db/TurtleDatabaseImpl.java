@@ -45,20 +45,20 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 	public void onCreate(SQLiteDatabase db)
 	{
 		String createTracksSql = "CREATE TABLE " + Tables.TRACKS.getName() + " ("
-				  + Tables.TRACKS.TITLE.getName() + " TEXT COLLATE LOCALIZED, "
-				  + Tables.TRACKS.NUMBER.getName() + " INTEGER, "
-				  + Tables.TRACKS.ARTIST.getName() + " TEXT COLLATE LOCALIZED, "
-				  + Tables.TRACKS.ALBUM.getName() + " TEXT COLLATE LOCALIZED, "
-				  + Tables.TRACKS.GENRE.getName() + " TEXT, "
-				  + Tables.TRACKS.PATH.getName() + " TEXT PRIMARY KEY, "
-				  + Tables.TRACKS.NAME.getName() + " TEXT);";
+				  + Tables.Tracks.TITLE.getName() + " TEXT COLLATE LOCALIZED, "
+				  + Tables.Tracks.NUMBER.getName() + " INTEGER, "
+				  + Tables.Tracks.ARTIST.getName() + " TEXT COLLATE LOCALIZED, "
+				  + Tables.Tracks.ALBUM.getName() + " TEXT COLLATE LOCALIZED, "
+				  + Tables.Tracks.GENRE.getName() + " TEXT, "
+				  + Tables.FsObjects.PATH.getName() + " TEXT PRIMARY KEY, "
+				  + Tables.FsObjects.NAME.getName() + " TEXT);";
 		db.execSQL(createTracksSql);
 
 		for(FieldPersistable<?,?> field : Arrays.asList(
-				  Tables.TRACKS.ARTIST,
-				  Tables.TRACKS.ALBUM,
-				  Tables.TRACKS.NUMBER,
-				  Tables.TRACKS.TITLE
+				  Tables.Tracks.ARTIST,
+				  Tables.Tracks.ALBUM,
+				  Tables.Tracks.NUMBER,
+				  Tables.Tracks.TITLE
 				  ))
 		{
 			String createTracksIndeces = "CREATE INDEX " + Tables.TRACKS.getName() + "_" + field.getName() + "_idx " +
@@ -67,12 +67,12 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 		}
 
 		String createAlbumArtSql = "CREATE TABLE " + Tables.ALBUM_ART_LOCATIONS.getName() + " ("
-				  + Tables.ALBUM_ART_LOCATIONS.PATH.getName() + " TEXT PRIMARY KEY, "
-				  + Tables.ALBUM_ART_LOCATIONS.ALBUM_ART_PATH.getName() + " TEXT);";
+				  + Tables.AlbumArtLocations.PATH.getName() + " TEXT PRIMARY KEY, "
+				  + Tables.AlbumArtLocations.ALBUM_ART_PATH.getName() + " TEXT);";
 		db.execSQL(createAlbumArtSql);
 
 		for(FieldPersistable<?,?> field : Arrays.asList(
-				  Tables.ALBUM_ART_LOCATIONS.PATH
+				  Tables.AlbumArtLocations.PATH
 		))
 		{
 			String createAlbumArtIndeces = "CREATE INDEX " + Tables.ALBUM_ART_LOCATIONS.getName() + "_" + field.getName() + "_idx " +
@@ -81,14 +81,14 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 		}
 
 		String createDirsSql = "CREATE TABLE " + Tables.DIRS.getName() + " ("
-				  + Tables.DIRS.NAME.getName() + " TEXT COLLATE LOCALIZED, "
-				  + Tables.DIRS.PATH.getName() + " TEXT COLLATE LOCALIZED,"
-				  + " PRIMARY KEY (" + Tables.DIRS.NAME.getName() + ", " + Tables.DIRS.PATH.getName() + "));";
+				  + Tables.Dirs.NAME.getName() + " TEXT COLLATE LOCALIZED, "
+				  + Tables.Dirs.PATH.getName() + " TEXT COLLATE LOCALIZED,"
+				  + " PRIMARY KEY (" + Tables.Dirs.NAME.getName() + ", " + Tables.Dirs.PATH.getName() + "));";
 		db.execSQL(createDirsSql);
 
 		for(FieldPersistable<?,?> field : Arrays.asList(
-				  Tables.DIRS.PATH,
-				  Tables.DIRS.NAME
+				  Tables.Dirs.PATH,
+				  Tables.Dirs.NAME
 		))
 		{
 			String createAlbumArtIndeces = "CREATE INDEX " + Tables.DIRS.getName() + "_" + field.getName() + "_idx " +

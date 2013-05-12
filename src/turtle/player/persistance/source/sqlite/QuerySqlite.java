@@ -8,6 +8,7 @@ import turtle.player.persistance.framework.sort.FieldOrder;
 import turtle.player.persistance.framework.sort.Order;
 import turtle.player.persistance.framework.sort.OrderSet;
 import turtle.player.persistance.framework.sort.RandomOrder;
+import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsDouble;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
@@ -31,7 +32,7 @@ import turtle.player.persistance.source.sql.query.Operator;
  * @author Simon Honegger (Hoene84)
  */
 
-public class QuerySqlite<TARGET, RESULT> extends Query<Select, WhereClause, OrderClause, RESULT, Cursor, TARGET>
+public class QuerySqlite<PROJECTION, TARGET, RESULT> extends Query<Select, WhereClause, OrderClause, RESULT, Cursor, TARGET, PROJECTION>
 {
 	 private final Mapping<Select, RESULT, Cursor> mapping;
 
@@ -40,7 +41,7 @@ public class QuerySqlite<TARGET, RESULT> extends Query<Select, WhereClause, Orde
 		  this.mapping = mapping;
 	 }
 
-	 public QuerySqlite(Filter<TARGET> filter, Mapping<Select, RESULT, Cursor> mapping)
+	 public QuerySqlite(Filter<? super PROJECTION> filter, Mapping<Select, RESULT, Cursor> mapping)
 	 {
 		  super(filter);
 		  this.mapping = mapping;
@@ -52,7 +53,7 @@ public class QuerySqlite<TARGET, RESULT> extends Query<Select, WhereClause, Orde
 		  this.mapping = mapping;
 	 }
 
-	 public QuerySqlite(Filter<TARGET> filter, Order order, Mapping<Select, RESULT, Cursor> mapping)
+	 public QuerySqlite(Filter<? super PROJECTION> filter, Order<? super PROJECTION> order, Mapping<Select, RESULT, Cursor> mapping)
 	{
 		super(filter, order);
 
@@ -79,27 +80,9 @@ public class QuerySqlite<TARGET, RESULT> extends Query<Select, WhereClause, Orde
 		return mapping.create(cursor);
 	}
 
-	public <T, Z> WhereClause visit(FieldFilter<TARGET, Z, T> fieldFilter)
+	public <T, Z> WhereClause visit(FieldFilter<? super PROJECTION, Z, T> fieldFilter)
 	{
 		final Operator operator;
-		Object filterValue = fieldFilter.getField().accept(fieldFilter.new FieldVisitorField<String>()
-		{
-			public String visit(FieldPersistableAsString<Z> field,String filterValue)
-			{
-				return filterValue;
-			}
-
-			public String visit(FieldPersistableAsDouble<Z> field, Double filterValue)
-			{
-				return String.valueOf(filterValue);
-			}
-
-			public String visit(FieldPersistableAsInteger<Z> field, Integer filterValue)
-			{
-				return String.valueOf(filterValue);
-			}
-		});
-
 		switch (fieldFilter.getOperator()){
 			case EQ:
 				operator = Operator.EQ;
@@ -129,18 +112,18 @@ public class QuerySqlite<TARGET, RESULT> extends Query<Select, WhereClause, Orde
 				throw new IllegalArgumentException();
 		}
 
-		return new WhereClause(new WhereClauseField(fieldFilter.getField(), filterValue, operator));
+		return new WhereClause(new WhereClauseField(fieldFilter.getField(), fieldFilter.getValue(), operator));
 	}
 
-	public OrderClause visit(RandomOrder orderFilter)
+	public OrderClause visit(RandomOrder<? super PROJECTION> orderFilter)
 	{
 		return new OrderClauseRandom();
 	}
 
-	public WhereClause visit(FilterSet<TARGET> filterSet)
+	public WhereClause visit(FilterSet<? super PROJECTION> filterSet)
 	{
 		WhereClause whereClause = null;
-		for(Filter<TARGET> filter : filterSet.getFilters()){
+		for(Filter<? super PROJECTION> filter : filterSet.getFilters()){
 			if(whereClause == null)
 			{
 				whereClause = filter.accept(this);
@@ -153,11 +136,15 @@ public class QuerySqlite<TARGET, RESULT> extends Query<Select, WhereClause, Orde
 		return whereClause;
 	}
 
-	public WhereClause visit(NotFilter<TARGET> notFilter)
+
+	public WhereClause visit(NotFilter<? super PROJECTION> notFilter)
 	{
-		Filter<TARGET> inversedFilter = notFilter.getFilter().accept(new FilterVisitor<TARGET, Filter<TARGET>>()
+		Filter<? super PROJECTION> inversedFilter = notFilter.getFilter().accept(new FilterVisitorGenerified<PROJECTION, RESULT,Object,Filter<? super PROJECTION>>()
 		{
-			public <T, Z> Filter<TARGET> visit(FieldFilter<TARGET, Z, T> fieldFilter)
+
+			@Override
+			public Filter<? super PROJECTION> visit(FieldFilter<PROJECTION, RESULT, Object> fieldFilter,
+													  FieldPersistable<RESULT, Object> field)
 			{
 				final turtle.player.persistance.framework.filter.Operator inversedOp;
 				switch (fieldFilter.getOperator())
@@ -189,19 +176,19 @@ public class QuerySqlite<TARGET, RESULT> extends Query<Select, WhereClause, Orde
 					default:
 						throw new RuntimeException("Not supported Operator");
 				}
-				return new FieldFilter<TARGET, Z, T>(fieldFilter.getField(), inversedOp, fieldFilter.getValue());
+				return new FieldFilter<PROJECTION, RESULT, Object>(fieldFilter.getField(), inversedOp, fieldFilter.getValue());
 			}
 
-			public Filter<TARGET> visit(FilterSet<TARGET> filterSet)
+			public Filter<? super PROJECTION> visit(FilterSet<? super PROJECTION> filterSet)
 			{
-				for(Filter<TARGET> f : filterSet.getFilters())
+				for(Filter<? super PROJECTION> f : filterSet.getFilters())
 				{
 					f.accept(this);
 				}
 				return null;
 			}
 
-			public Filter<TARGET> visit(NotFilter<TARGET> notFilter)
+			public Filter<? super PROJECTION> visit(NotFilter<? super PROJECTION> notFilter)
 			{
 				return notFilter.getFilter();
 			}
@@ -209,16 +196,15 @@ public class QuerySqlite<TARGET, RESULT> extends Query<Select, WhereClause, Orde
 		return inversedFilter.accept(this);
 	}
 
-
-	public OrderClause visit(FieldOrder fieldOrder)
+	public <T, Z> OrderClause visit(FieldOrder<? super PROJECTION, Z, T> fieldOrder)
 	 {
 		  return new OrderClauseFields(new OrderClausePartField(fieldOrder.getField(), fieldOrder.getOrder()));
 	 }
 
-	 public OrderClause visit(OrderSet<TARGET> clauseSet)
+	 public OrderClause visit(OrderSet<? super PROJECTION> clauseSet)
 	 {
 		  OrderClause orderClause = null;
-		  for(Order<TARGET> order : clauseSet.getOrders()){
+		  for(Order<? super PROJECTION> order : clauseSet.getOrders()){
 				if(orderClause == null)
 				{
 					orderClause = order.accept(this);

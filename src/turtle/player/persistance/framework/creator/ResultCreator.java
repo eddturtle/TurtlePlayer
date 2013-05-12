@@ -1,10 +1,4 @@
-package turtle.player.persistance.turtle.mapping;
-
-import android.database.Cursor;
-import turtle.player.model.Artist;
-import turtle.player.model.TrackDigest;
-import turtle.player.persistance.framework.creator.Creator;
-import turtle.player.persistance.turtle.db.structure.Tables;
+package turtle.player.persistance.framework.creator;
 
 /**
  * TURTLE PLAYER
@@ -23,11 +17,7 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class TrackDigestCreator implements Creator<TrackDigest, Cursor>
+public interface ResultCreator<TARGET, RESULT, SOURCE> extends Creator<RESULT, SOURCE>
 {
 
-    public TrackDigest create(Cursor source)
-    {
-        return new TrackDigest(source.getString(source.getColumnIndex(Tables.TRACKS.TITLE.getName())));
-    }
 }

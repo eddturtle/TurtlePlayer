@@ -22,6 +22,7 @@ package turtle.player.preferences;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 public abstract class SharedPreferencesAccess
 {
@@ -32,7 +33,15 @@ public abstract class SharedPreferencesAccess
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mainContext);
 		if (prefs.contains(key.getKey()))
 		{
-			return key.unmarshall((S)prefs.getAll().get(key.getKey()));
+			try
+			{
+				return key.unmarshall((S)prefs.getAll().get(key.getKey()));
+			}
+			catch (AbstractKey.UnmarshallExcpetion unmarshallExcpetion)
+			{
+				Log.e(Preferences.TAG, "error restoring key " + key.getKey() + ", Exception: " + unmarshallExcpetion);
+				putValue(mainContext, key, null);
+			}
 		}
 		return key.getDefaultValue();
 	}
@@ -45,7 +54,7 @@ public abstract class SharedPreferencesAccess
 		SharedPreferences.Editor edit = prefs.edit();
 		prefs.edit();
 
-		S marshalledValue = key.marshall(value);
+		S marshalledValue = value == null ? null : key.marshall(value);
 
 		if (marshalledValue  == null)
 		{

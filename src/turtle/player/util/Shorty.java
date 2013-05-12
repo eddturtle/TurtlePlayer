@@ -18,6 +18,9 @@
 
 package turtle.player.util;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Shorty
 {
 	public static boolean isVoid(String string)
@@ -33,5 +36,12 @@ public class Shorty
 	public static String avoidNull(String s)
 	{
 		return isVoid(s) ? "" : s;
+	}
+
+	public static <E> Set<E> oneElementSet(E element)
+	{
+		final Set<E> result = new HashSet<E>();
+		result.add(element);
+		return result;
 	}
 }

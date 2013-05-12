@@ -17,7 +17,7 @@ package turtle.player.persistance.framework.creator;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface Creator<T, S>
+public interface Creator<RESULT, SOURCE>
 {
-	T create(S source);
+	RESULT create(SOURCE source);
 }

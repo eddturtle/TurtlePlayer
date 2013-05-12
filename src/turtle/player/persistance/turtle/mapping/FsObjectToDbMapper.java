@@ -1,6 +1,9 @@
-package turtle.player.persistance.framework.filter;
+package turtle.player.persistance.turtle.mapping;
 
-import java.io.Serializable;
+import android.content.ContentValues;
+import turtle.player.model.FSobject;
+import turtle.player.persistance.source.sql.QueryGeneratorTable;
+import turtle.player.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +22,20 @@ import java.io.Serializable;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface Filter<PROJECTION> extends Serializable
+public class FsObjectToDbMapper extends QueryGeneratorTable<FSobject>
 {
-	<R> R accept(FilterVisitor<? extends PROJECTION, R> visitor);
+	public FsObjectToDbMapper()
+	{
+		super(Tables.DIRS);
+	}
+
+	public ContentValues create(FSobject fsObject)
+	{
+		final ContentValues values = new ContentValues();
+
+		values.put(Tables.DIRS.NAME.getName(), fsObject.getName());
+		values.put(Tables.DIRS.PATH.getName(), fsObject.getPath());
+
+		return  values;
+	}
 }

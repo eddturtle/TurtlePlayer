@@ -47,5 +47,13 @@ public abstract class AbstractKey<O, S>
 
 	public abstract S marshall(O object);
 
-	public abstract O unmarshall(S object);
+	public abstract O unmarshall(S object) throws UnmarshallExcpetion;
+
+	public static class UnmarshallExcpetion extends Exception{
+
+		public UnmarshallExcpetion(Throwable throwable)
+		{
+			super(throwable);
+		}
+	}
 }

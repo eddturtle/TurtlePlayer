@@ -3,11 +3,9 @@ package turtle.player.persistance.framework.sort;
 import turtle.player.persistance.framework.filter.FieldFilter;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.framework.filter.Operator;
-import turtle.player.persistance.source.relational.Field;
 import turtle.player.persistance.source.relational.FieldPersistable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,19 +25,19 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FieldOrder<TARGET, RESULT, TYPE> implements Order<TARGET>
+public class FieldOrder<PROJECTION, RESULT, TYPE> implements Order<PROJECTION>
 {
-	private final FieldPersistable<RESULT, TYPE> field;
+	private final FieldPersistable<? super RESULT, TYPE> field;
 	private final SortOrder order;
 
-	public FieldOrder(FieldPersistable<RESULT, TYPE> field,
+	public FieldOrder(FieldPersistable<? super RESULT, TYPE> field,
                       SortOrder order)
 	{
 		this.field = field;
 		this.order = order;
 	}
 
-	public FieldPersistable<RESULT, TYPE> getField()
+	public FieldPersistable<? super RESULT, TYPE> getField()
 	{
 		return field;
 	}
@@ -49,7 +47,7 @@ public class FieldOrder<TARGET, RESULT, TYPE> implements Order<TARGET>
         return order;
     }
 
-	public <R> R accept(OrderVisitor<TARGET, R> visitor)
+	public <R> R accept(OrderVisitor<? extends PROJECTION, R> visitor)
 	{
 		return visitor.visit(this);
 	}
@@ -60,18 +58,18 @@ public class FieldOrder<TARGET, RESULT, TYPE> implements Order<TARGET>
 		return getField().getName() + " " + order;
 	}
 
-	public Filter<TARGET> asFilter(TYPE value, Operator op){
-			return new FieldFilter<TARGET, RESULT, TYPE>(field, op, value);
+	public Filter<PROJECTION> asFilter(TYPE value, Operator op){
+			return new FieldFilter<PROJECTION, RESULT, TYPE>(field, op, value);
 	}
 
-	public static <TARGET, RESULT, TYPE> Order<TARGET> getMultiFieldOrder(SortOrder order,
-												FieldPersistable<RESULT, TYPE>... fields)
+	public static <PROJECTION, RESULT, TYPE> Order<PROJECTION> getMultiFieldOrder(SortOrder order,
+												FieldPersistable<? super RESULT, TYPE>... fields)
 	{
-		List<FieldOrder<TARGET, RESULT, TYPE>> orders = new ArrayList<FieldOrder<TARGET, RESULT, TYPE>>();
-		for(FieldPersistable<RESULT, TYPE> field : fields)
+		List<FieldOrder<PROJECTION, RESULT, TYPE>> orders = new ArrayList<FieldOrder<PROJECTION, RESULT, TYPE>>();
+		for(FieldPersistable<? super RESULT, TYPE> field : fields)
 		{
-			orders.add(new FieldOrder<TARGET, RESULT, TYPE>(field, order));
+			orders.add(new FieldOrder<PROJECTION, RESULT, TYPE>(field, order));
 		}
-		return new OrderSet<TARGET>(orders);
+		return new OrderSet<PROJECTION>(orders);
 	}
 }

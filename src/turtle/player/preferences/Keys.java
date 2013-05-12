@@ -40,5 +40,5 @@ public abstract class Keys
 	public final static Key<Integer> FS_SCAN_INTERRUPT_COUNT_ALL = new Key<Integer>("fsScanInterruptCountAll", 0);
 	public final static Key<Integer> FS_SCAN_INTERRUPT_COUNT_PROCESSED = new Key<Integer>("fsSancInterruptCountProcessed", 0);
 
-	public final static ObjectKey<Set<Filter<Tables.Tracks>>> FILTERS = new ObjectKey<Set<Filter<Tables.Tracks>>>("filters", new HashSet<Filter<Tables.Tracks>>());
+	public final static ObjectKey<Set<Filter<? super Tables.Tracks>>> FILTERS = new ObjectKey<Set<Filter<? super Tables.Tracks>>>("filters", new HashSet<Filter<? super Tables.Tracks>>());
 }

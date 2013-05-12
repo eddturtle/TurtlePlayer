@@ -1,14 +1,11 @@
 package turtle.player.persistance.turtle.db.structure;
 
-import turtle.player.model.AlbumArtLocation;
-import turtle.player.model.FSobject;
-import turtle.player.model.Track;
-import turtle.player.persistance.source.relational.Field;
+import turtle.player.model.*;
+import turtle.player.persistance.framework.creator.Creator;
 import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.source.relational.Table;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
-import turtle.player.util.TurtleUtil;
 
 /**
  * TURTLE PLAYER
@@ -33,91 +30,67 @@ public class Tables
 	public final static AlbumArtLocations ALBUM_ART_LOCATIONS = new AlbumArtLocations();
 	public final static Dirs DIRS = new Dirs();
 
-	public static abstract class FsObjects<I extends FSobject> extends Table<I>
+	public static abstract class FsObjects extends Table
 	{
 		public FsObjects(String name)
 		{
 			super(name);
 		}
 
-		public final FieldPersistable<I, String> NAME = new FieldPersistableAsString<I>("name")
-		{
-			public String get(I fsObject)
+		public static final FieldPersistable<FSobject, String> NAME = new FieldPersistableAsString<FSobject>("name", new Creator<String, FSobject>(){
+			public String create(FSobject fSobject)
 			{
-				return fsObject.getName();
+				return fSobject.getName();
 			}
-		};
-
-		public final FieldPersistable<I, String> PATH = new FieldPersistableAsString<I>("path")
-		{
-			public String get(FSobject fsObject)
+		});
+		public static final FieldPersistable<FSobject, String> PATH = new FieldPersistableAsString<FSobject>("path", new Creator<String, FSobject>(){
+			public String create(FSobject fSobject)
 			{
-				return fsObject.getPath();
+				return fSobject.getPath();
 			}
-		};
+		});
 	}
 
-	public static final class Tracks extends FsObjects<Track>
+	public static final class Tracks extends FsObjects implements
+			  Views.AlbumsReadable,
+			  Views.ArtistsReadable,
+			  Views.GenresReadable,
+			  Views.SongsReadable
 	{
-
-		public final FieldPersistable<Track, String> TITLE = new FieldPersistableAsString<Track>("title")
-		{
-			public String get(Track instance)
+		public static final FieldPersistable<Song, String> TITLE = new FieldPersistableAsString<Song>("title", new Creator<String, Song>(){
+			public String create(Song song)
 			{
-				return instance.GetTitle();
+				return song.getSongId();
 			}
-		};
+		});
+		public static final FieldPersistable<Track, Integer> NUMBER = new FieldPersistableAsInteger<Track>("number", new Creator<Integer, Track>(){
 
-		public final FieldPersistable<Track, Integer> NUMBER = new FieldPersistableAsInteger<Track>("number")
-		{
-			public Integer get(Track instance)
+			public Integer create(Track track)
 			{
-				return instance.GetNumber();
+				return track.GetNumber();
 			}
-		};
+		});
+		public static final FieldPersistable<Artist, String> ARTIST = new FieldPersistableAsString<Artist>("artist", new Creator<String, Artist>(){
 
-		public final FieldPersistable<Track, String> ARTIST = new FieldPersistableAsString<Track>("artist")
-		{
-
-			public String get(Track instance)
+			public String create(Artist artist)
 			{
-				return instance.GetArtist().getId();
+				return artist.getArtistId();
 			}
+		});
+		public static final FieldPersistable<Album, String> ALBUM = new FieldPersistableAsString<Album>("album", new Creator<String, Album>(){
 
-			@Override
-			public String getAsDisplayableString(Track instance)
+			public String create(Album album)
 			{
-				return instance.GetArtist().getName();
+				return album.getAlbumId();
 			}
-		};
+		});
+		public static final FieldPersistable<Genre, String> GENRE = new FieldPersistableAsString<Genre>("genre", new Creator<String, Genre>(){
 
-		public final FieldPersistable<Track, String> ALBUM = new FieldPersistableAsString<Track>("album")
-		{
-			public String get(Track instance)
+			public String create(Genre genre)
 			{
-				return instance.GetAlbum().getId();
+				return genre.getGenreId();
 			}
-
-			@Override
-			public String getAsDisplayableString(Track instance)
-			{
-				return instance.GetAlbum().getName();
-			}
-		};
-
-		public final FieldPersistable<Track, String> GENRE = new FieldPersistableAsString<Track>("genre")
-		{
-			public String get(Track instance)
-			{
-				return instance.GetGenre().getId();
-			}
-
-			@Override
-			public String getAsDisplayableString(Track instance)
-			{
-				return TurtleUtil.translateGenreId(get(instance));
-			}
-		};
+		});
 
 		public Tracks()
 		{
@@ -126,24 +99,21 @@ public class Tables
 
 	}
 
-	public static final class AlbumArtLocations extends Table<AlbumArtLocation>
+	public static final class AlbumArtLocations extends Table
 	{
 
-		public final FieldPersistable<AlbumArtLocation, String> PATH = new FieldPersistableAsString<AlbumArtLocation>("path")
-		{
-			public String get(AlbumArtLocation albumArtLocation)
+		public static final FieldPersistable<AlbumArtLocation, String> PATH = new FieldPersistableAsString<AlbumArtLocation>("path", new Creator<String, AlbumArtLocation>(){
+			public String create(AlbumArtLocation albumArtLocation)
 			{
 				return albumArtLocation.getPath();
 			}
-		};
-
-		public final FieldPersistable<AlbumArtLocation, String> ALBUM_ART_PATH = new FieldPersistableAsString<AlbumArtLocation>("albumArtpath")
-		{
-			public String get(AlbumArtLocation albumArtLocation)
+		});
+		public static final FieldPersistable<AlbumArtLocation, String> ALBUM_ART_PATH = new FieldPersistableAsString<AlbumArtLocation>("albumArtpath", new Creator<String, AlbumArtLocation>(){
+			public String create(AlbumArtLocation albumArtLocation)
 			{
 				return albumArtLocation.getAlbumArtpath();
 			}
-		};
+		});
 
 		public AlbumArtLocations()
 		{
@@ -151,7 +121,7 @@ public class Tables
 		}
 	}
 
-	public static final class Dirs extends FsObjects<FSobject>
+	public static final class Dirs extends FsObjects
 	{
 		public Dirs()
 		{

@@ -545,7 +545,7 @@ public class Player extends ListActivity
 
 		tp.playlist.addObserver(new Playlist.PlaylistFilterChangeObserver()
 		{
-			public void filterAdded(final Filter<Tables.Tracks> filter)
+			public void filterAdded(final Filter<? super Tables.Tracks> filter)
 			{
 				tp.player.connectPlayer(new OutputCommand()
 				{
@@ -759,8 +759,8 @@ public class Player extends ListActivity
 
 	private void resetLastTrack()
 	{
-		Set<Filter<Tables.Tracks>> filtersFromPref = tp.playlist.preferences.get(Keys.FILTERS);
-		for(Filter filter : filtersFromPref)
+		Set<Filter<? super Tables.Tracks>> filtersFromPref = tp.playlist.preferences.get(Keys.FILTERS);
+		for(Filter<? super Tables.Tracks> filter : filtersFromPref)
 		{
 			tp.playlist.addFilter(filter);
 		}

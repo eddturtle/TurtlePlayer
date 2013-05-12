@@ -138,7 +138,7 @@ public class AlbumArtView
 
 
 			@Override
-			protected void filterSelected(final FieldPersistable<Track, ?> field)
+			protected void filterSelected(final FieldPersistable<? super Track, ?> field)
 			{
 				tp.player.connectPlayer(new OutputCommand()
 				{

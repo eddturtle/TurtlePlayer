@@ -1,6 +1,7 @@
 package turtle.player.persistance.source.relational;
 
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +20,7 @@ import java.io.Serializable;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class View<I> implements Serializable
+public interface View extends Serializable
 {
-	public abstract Table<?>[] getTables();
+	public abstract Set<? extends Table> getTables();
 }

@@ -24,7 +24,7 @@ import turtle.player.persistance.source.relational.FieldPersistable;
  * @author Simon Honegger (Hoene84)
  */
 
-public class PagingFilterBuilder<TARGET, RESULT> extends OrderVisitorGenerified<TARGET, RESULT, Object, Filter<TARGET>>
+public class PagingFilterBuilder<PROJECTION, RESULT> extends OrderVisitorGenerified<PROJECTION, RESULT, Object, Filter<? super PROJECTION>>
 {
 	final RESULT instance;
 
@@ -34,7 +34,7 @@ public class PagingFilterBuilder<TARGET, RESULT> extends OrderVisitorGenerified<
 	}
 
 	@Override
-	public Filter<TARGET> visit(FieldOrder<TARGET, RESULT, Object> fieldOrder,
+	public Filter<? super PROJECTION> visit(FieldOrder<PROJECTION, RESULT, Object> fieldOrder,
 										 FieldPersistable<RESULT, Object> field)
 	{
 		final Operator op;
@@ -49,10 +49,10 @@ public class PagingFilterBuilder<TARGET, RESULT> extends OrderVisitorGenerified<
 			default:
 				throw new IllegalArgumentException();
 		}
-		return new FieldFilter<TARGET, RESULT, Object>(field, op, field.get(instance));
+		return new FieldFilter<PROJECTION, RESULT, Object>(field, op, field.get(instance));
 	}
 
-//	public <T, Z> Filter visit(FieldOrder<TARGET, Z, T> fieldOrder)
+//	public <T, Z> Filter visit(FieldOrder<PROJECTION, Z, T> fieldOrder)
 //	{
 //		FieldPersistable<RESULT, T> field = fieldOrder.getField();
 //
@@ -68,46 +68,46 @@ public class PagingFilterBuilder<TARGET, RESULT> extends OrderVisitorGenerified<
 //		   default:
 //				throw new IllegalArgumentException();
 //		}
-//		return new FieldFilter<TARGET, RESULT, T>(field, op, field.get(instance));
+//		return new FieldFilter<PROJECTION, RESULT, T>(field, op, field.get(instance));
 //	}
 
-	public Filter visit(RandomOrder orderFilter)
+	public Filter<? super PROJECTION> visit(RandomOrder<? super PROJECTION> orderFilter)
 	{
 		return null;
 	}
 
-	public Filter visit(OrderSet<TARGET> orderFilter)
+	public Filter<? super PROJECTION> visit(OrderSet<? super PROJECTION> orderFilter)
 	{
 		if(!orderFilter.isEmpty()){
-			Filter<TARGET> filterSet = new FilterSet<TARGET>();
+			Filter<? super PROJECTION> filterSet = new FilterSet<PROJECTION>();
 			for( int i = 0; i < orderFilter.getOrders().size() -1; i++)
 			{
-				final Filter<TARGET> finalFilterSet = filterSet;
-				filterSet = orderFilter.getOrders().get(i).accept(new OrderVisitorGenerified<TARGET, RESULT, Object, Filter<TARGET>>()
+				final Filter<? super PROJECTION> finalFilterSet = filterSet;
+				filterSet = orderFilter.getOrders().get(i).accept(new OrderVisitorGenerified<PROJECTION, RESULT, Object, Filter<? super PROJECTION>>()
 				{
-					public Filter<TARGET> visit(RandomOrder orderFilter)
+					public Filter<? super PROJECTION> visit(RandomOrder orderFilter)
 					{
 						// :-)
 						return null;
 					}
 
 					@Override
-					public Filter<TARGET> visit(FieldOrder<TARGET, RESULT, Object> fieldOrder,
+					public Filter<? super PROJECTION> visit(FieldOrder<PROJECTION, RESULT, Object> fieldOrder,
 														 FieldPersistable<RESULT, Object> field)
 					{
-						return new FilterSet<TARGET>(
+						return new FilterSet<PROJECTION>(
 								  finalFilterSet,
-								  new FieldFilter<TARGET, RESULT, Object>(fieldOrder.getField(), Operator.EQ, field.get(instance)));
+								  new FieldFilter<PROJECTION, RESULT, Object>(fieldOrder.getField(), Operator.EQ, field.get(instance)));
 					}
 
-					public Filter<TARGET> visit(OrderSet orderFilter)
+					public Filter<? super PROJECTION> visit(OrderSet orderFilter)
 					{
 						return this.visit(orderFilter);
 					}
 				});
 			}
 
-			return new FilterSet(filterSet, orderFilter.getOrders().get(orderFilter.getOrders().size()-1).accept(this));
+			return new FilterSet<PROJECTION>(filterSet, orderFilter.getOrders().get(orderFilter.getOrders().size()-1).accept(this));
 		}
 		else
 		{

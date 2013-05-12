@@ -1,64 +1,66 @@
-package turtle.player.persistance.framework.filter;
-
 /**
+ *
  * TURTLE PLAYER
- * <p/>
+ *
  * Licensed under MIT & GPL
- * <p/>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
  * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
  * OR OTHER DEALINGS IN THE SOFTWARE.
- * <p/>
+ *
  * More Information @ www.turtle-player.co.uk
  *
  * @author Simon Honegger (Hoene84)
  */
 
-public class NotFilter<PROJECTION> implements Filter<PROJECTION>
-{
-	private final Filter<? super PROJECTION> filter;
+package turtle.player.model;
 
-	public NotFilter(Filter<? super PROJECTION> filter)
+import turtle.player.util.Shorty;
+import turtle.player.util.TurtleUtil;
+
+public class GenreDigest implements Genre
+{
+	private final String id;
+	public static final GenreDigest NO_GENRE = new GenreDigest(null);
+
+	public GenreDigest(String id)
 	{
-		this.filter = filter;
+		this.id = Shorty.avoidNull(id);
 	}
 
-	public <R> R accept(FilterVisitor<? extends PROJECTION, R> visitor)
+	public String getGenreId()
+	{
+		return id;
+	}
+
+	public String getGenreName()
+	{
+		return TurtleUtil.translateGenreId(id);
+	}
+
+	public <R> R accept(InstanceVisitor<R> visitor)
 	{
 		return visitor.visit(this);
-	}
-
-	public Filter<? super PROJECTION> getFilter()
-	{
-		return filter;
-	}
-
-	@Override
-	public String toString()
-	{
-		return " NOT (" + filter.toString() + ") ";
 	}
 
 	@Override
 	public boolean equals(Object o)
 	{
 		if (this == o) return true;
-		if (!(o instanceof NotFilter)) return false;
+		if (o == null || getClass() != o.getClass()) return false;
 
-		NotFilter notFilter = (NotFilter) o;
+		GenreDigest genre = (GenreDigest) o;
 
-		if (filter != null ? !filter.equals(notFilter.filter) : notFilter.filter != null) return false;
+		return id.equals(genre.id);
 
-		return true;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return filter != null ? filter.hashCode() : 0;
+		return id.hashCode();
 	}
-
 }

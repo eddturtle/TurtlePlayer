@@ -63,11 +63,11 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 	private final TurtleDatabase database;
 	private final Player listActivity;
 	final DefaultAdapter<Instance> listAdapter;
-	final ArrayAdapter<Filter<Tables.Tracks>> filterListAdapter;
+	final ArrayAdapter<Filter<? super Tables.Tracks>> filterListAdapter;
 
 	ListView filterList = null;
 
-	private Set<Filter<Tables.Tracks>> filters = new HashSet<Filter<Tables.Tracks>>();
+	private Set<Filter<? super Tables.Tracks>> filters = new HashSet<Filter<? super Tables.Tracks>>();
 	private Filter<Tables.Dirs> dirFilter = null;
 	private Map<Mode, Filter<Track>> filtersAddWithMode = new HashMap<Mode, Filter<Track>>();
 
@@ -80,10 +80,10 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 		this.listActivity = listActivity;
 
 		filterList = (ListView) listActivity.findViewById (R.id.filterlist);
-		filterListAdapter = new FilterListAdapter(listActivity.getApplicationContext(), new ArrayList<Filter<Tables.Tracks>>(filters))
+		filterListAdapter = new FilterListAdapter(listActivity.getApplicationContext(), new ArrayList<Filter<? super Tables.Tracks>>(filters))
 		{
 			@Override
-			protected void removeFilter(final Filter<Tables.Tracks> filter)
+			protected void removeFilter(final Filter<? super Tables.Tracks> filter)
 			{
 				filters.remove(filter);
 				filterList.post(new Runnable()
@@ -97,7 +97,7 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 			}
 
 			@Override
-			protected void chooseFilter(Filter filter)
+			protected void chooseFilter(Filter<? super Tables.Tracks> filter)
 			{
 				filterChoosen(filter);
 			}
@@ -157,29 +157,29 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 				return track;
 			}
 
-			public Track visit(TrackDigest track)
+			public Track visit(SongDigest track)
 			{
-				Filter<Tables.Tracks> trackFilter = new FieldFilter<Tables.Tracks, Track, String>(Tables.TRACKS.TITLE, Operator.EQ, track.getName());
+				Filter<Tables.Tracks> trackFilter = new FieldFilter<Tables.Tracks, Track, String>(Tables.TRACKS.TITLE, Operator.EQ, track.getSongName());
 				return database.getTracks(new FilterSet<Tables.Tracks>(getFilter(), trackFilter)).iterator().next();
 			}
 
 			public Track visit(Album album)
 			{
-				Filter filter = new FieldFilter<Tables.Tracks, Track, String>(Tables.TRACKS.ALBUM, Operator.EQ, album.getId());
+				Filter filter = new FieldFilter<Tables.Tracks, Track, String>(Tables.TRACKS.ALBUM, Operator.EQ, album.getAlbumId());
 				change(Mode.Track, filter);
 				return null;
 			}
 
-			public Track visit(Genre genre)
+			public Track visit(GenreDigest genre)
 			{
-				Filter filter = new FieldFilter<Tables.Tracks, Track, String>(Tables.TRACKS.GENRE, Operator.EQ, genre.getId());
+				Filter filter = new FieldFilter<Tables.Tracks, Track, String>(Tables.TRACKS.GENRE, Operator.EQ, genre.getGenreId());
 				change(Mode.Artist, filter);
 				return null;
 			}
 
-			public Track visit(Artist artist)
+			public Track visit(ArtistDigest artist)
 			{
-				Filter filter = new FieldFilter<Tables.Tracks, Track, String>(Tables.TRACKS.ARTIST, Operator.EQ, artist.getId());
+				Filter filter = new FieldFilter<Tables.Tracks, Track, String>(Tables.TRACKS.ARTIST, Operator.EQ, artist.getArtistId());
 				change(Mode.Album, filter);
 				return null;
 			}
@@ -187,7 +187,7 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 			public Track visit(FSobject FSobject)
 			{
 				Filter<Tables.Tracks> filter = new FieldFilter<Tables.Tracks, Track, String>(Tables.TRACKS.PATH, Operator.LIKE, FSobject.getFullPath() + "%");
-				dirFilter = new FieldFilter<Tables.Dirs, FSobject, String>(Tables.DIRS.PATH, Operator.EQ, FSobject.getFullPath());
+				dirFilter = new FieldFilter<Tables.Dirs, Track, String>(Tables.DIRS.PATH, Operator.EQ, FSobject.getFullPath());
 				change(Mode.Dir, filter);
 				return null;
 			}
@@ -237,25 +237,25 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 				switch (currMode)
 				{
 					case Album:
-						List<Instance> albums = new ArrayList<Instance>(database.getAlbumList(getFilter()));
-						albums.remove(Album.NO_ALBUM);
-						albums.addAll(database.getTrackList(new FilterSet(getFilter(), new FieldFilter<Tables.Tracks, Track, String>(Tables.TRACKS.ALBUM, Operator.EQ, ""))));
+						List<Instance> albums = new ArrayList<Instance>(database.getAlbums(getFilter()));
+						albums.remove(AlbumDigest.NO_ALBUM);
+						albums.addAll(database.getTracks(new FilterSet<Tables.Tracks>(getFilter(), new FieldFilter<Tables.Tracks, Album, String>(Tables.TRACKS.ALBUM, Operator.EQ, ""))));
 						listAdapter.replace(albums);
 						break;
 					case Artist:
-						List<Instance> artists = new ArrayList<Instance>(database.getArtistList(getFilter()));
-						artists.remove(Artist.NO_ARTIST);
-						artists.addAll(database.getTrackList(new FilterSet(getFilter(), new FieldFilter<Tables.Tracks, Track, String>(Tables.TRACKS.ARTIST, Operator.EQ, ""))));
+						List<Instance> artists = new ArrayList<Instance>(database.getArtists(getFilter()));
+						artists.remove(ArtistDigest.NO_ARTIST);
+						artists.addAll(database.getTracks(new FilterSet<Tables.Tracks>(getFilter(), new FieldFilter<Tables.Tracks, Artist, String>(Tables.TRACKS.ARTIST, Operator.EQ, ""))));
 						listAdapter.replace(artists);
 						break;
 					case Genre:
-						List<Instance> genres = new ArrayList<Instance>(database.getGenreList(getFilter()));
-						genres.remove(Album.NO_ALBUM);
-						genres.addAll(database.getTrackList(new FilterSet(getFilter(), new FieldFilter<Tables.Tracks, Track, String>(Tables.TRACKS.GENRE, Operator.EQ, ""))));
+						List<Instance> genres = new ArrayList<Instance>(database.getGenres(getFilter()));
+						genres.remove(AlbumDigest.NO_ALBUM);
+						genres.addAll(database.getTracks(new FilterSet<Tables.Tracks>(getFilter(), new FieldFilter<Tables.Tracks, Genre, String>(Tables.TRACKS.GENRE, Operator.EQ, ""))));
 						listAdapter.replace(genres);
 						break;
 					case Track:
-						listAdapter.replace(database.getTrackList(getFilter()));
+						listAdapter.replace(database.getTracks(getFilter()));
 						break;
 					case Dir:
 						listAdapter.replace(database.getDirList(dirFilter));
@@ -283,11 +283,11 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 					switch (currMode)
 					{
 						case Album:
-							return track.GetAlbum() == Album.NO_ALBUM ? track : track.GetAlbum();
+							return track.GetAlbum() == AlbumDigest.NO_ALBUM ? track : track.GetAlbum();
 						case Artist:
-							return track.GetArtist() == Artist.NO_ARTIST ? track : track.GetArtist();
+							return track.GetArtist() == ArtistDigest.NO_ARTIST ? track : track.GetArtist();
 						case Genre:
-							return track.GetGenre() == Genre.NO_GENRE ? track : track.GetGenre();
+							return track.GetGenre() == GenreDigest.NO_GENRE ? track : track.GetGenre();
 						case Track:
 							return track;
 						case Dir:
@@ -299,7 +299,7 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 				return null;
 			}
 
-			public Instance visit(TrackDigest track)
+			public Instance visit(SongDigest track)
 			{
 				throw new RuntimeException("not supported yet");
 			}
@@ -309,12 +309,12 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 				throw new RuntimeException("not supported yet");
 			}
 
-			public Instance visit(Genre genre)
+			public Instance visit(GenreDigest genre)
 			{
 				throw new RuntimeException("not supported yet");
 			}
 
-			public Instance visit(Artist artist)
+			public Instance visit(ArtistDigest artist)
 			{
 				throw new RuntimeException("not supported yet");
 			}

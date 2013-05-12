@@ -2,7 +2,6 @@ package turtle.player.persistance.turtle.mapping;
 
 import android.content.ContentValues;
 import turtle.player.model.Track;
-import turtle.player.persistance.source.relational.FieldPersistable;
 import turtle.player.persistance.source.sql.QueryGeneratorTable;
 import turtle.player.persistance.turtle.db.structure.Tables;
 
@@ -30,17 +29,22 @@ public class TrackToDbMapper extends QueryGeneratorTable<Track>
 		super(Tables.TRACKS);
 	}
 
+	public Tables.Tracks get()
+	{
+		return null;  //To change body of implemented methods use File | Settings | File Templates.
+	}
+
 	public ContentValues create(Track track)
 	{
 		final ContentValues values = new ContentValues();
 
-		values.put(Tables.TRACKS.TITLE.getName(), track.GetTitle());
-		values.put(Tables.TRACKS.NUMBER.getName(), track.GetNumber());
-		values.put(Tables.TRACKS.ARTIST.getName(), track.GetArtist().getId());
-		values.put(Tables.TRACKS.ALBUM.getName(), track.GetAlbum().getId());
-		values.put(Tables.TRACKS.GENRE.getName(), track.GetGenre().getId());
-		values.put(Tables.TRACKS.PATH.getName(), track.getPath());
-		values.put(Tables.TRACKS.NAME.getName(), track.getPath());
+		values.put(Tables.Tracks.TITLE.getName(), track.getSongName());
+		values.put(Tables.Tracks.NUMBER.getName(), track.GetNumber());
+		values.put(Tables.Tracks.ARTIST.getName(), track.getArtistId());
+		values.put(Tables.Tracks.ALBUM.getName(), track.getAlbumId());
+		values.put(Tables.Tracks.GENRE.getName(), track.getGenreId());
+		values.put(Tables.FsObjects.PATH.getName(), track.getPath());
+		values.put(Tables.FsObjects.NAME.getName(), track.getPath());
 
 		return  values;
 	}

@@ -38,17 +38,17 @@ public class Select implements Sql
 		DISTINCT
 	}
 
-	public Select(View<?> view)
+	public Select(View view)
 	{
 		this.sql = "SELECT * FROM " + getTableList(view);
 	}
 
-	public Select(View<?> view, Field... fields)
+	public Select(View view, Field... fields)
 	{
 		this(view, SelectMethod.NORMAL, fields);
 	}
 
-	public Select(View<?> view, SelectMethod selectMethod, Field... fields)
+	public Select(View view, SelectMethod selectMethod, Field... fields)
 	{
 		this.sql = "SELECT " +
 				  getFieldsList(selectMethod, fields) +
@@ -70,9 +70,9 @@ public class Select implements Sql
 		}
 	}
 
-	private String getTableList(View<?> view)
+	private String getTableList(View view)
 	{
-		return new TablesPart(Arrays.asList(view.getTables())).toSql();
+		return new TablesPart(view.getTables()).toSql();
 	}
 
 	public String toSql()

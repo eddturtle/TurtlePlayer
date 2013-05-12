@@ -28,7 +28,7 @@ import java.util.List;
 public interface Database<Q, C, D>
 {
 	abstract <I> I read(Q query, DbReadOp<I, C> readOp);
-	abstract <I> void write(DbWriteOp<D, I> writer, I instance);
+	abstract <I> int write(DbWriteOp<D, I> writer, I instance);
 
 	interface DbReadOp<I, C>
 	{
@@ -37,6 +37,6 @@ public interface Database<Q, C, D>
 
 	interface DbWriteOp<D, I>
 	{
-		public void write(D target, I instance);
+		public int write(D target, I instance);
 	}
 }

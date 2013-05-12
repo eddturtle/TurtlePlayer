@@ -1,9 +1,10 @@
 package turtle.player.persistance.turtle.mapping;
 
 import android.database.Cursor;
-import turtle.player.model.Artist;
-import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.model.ArtistDigest;
+import turtle.player.persistance.framework.creator.ResultCreator;
 import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.db.structure.Views;
 
 /**
  * TURTLE PLAYER
@@ -22,11 +23,10 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class ArtistCreator implements Creator<Artist, Cursor>
+public class ArtistCreator implements ResultCreator<Views.Artists, ArtistDigest, Cursor>
 {
-
-    public Artist create(Cursor source)
+    public ArtistDigest create(Cursor source)
     {
-        return new Artist(source.getString(source.getColumnIndex(Tables.TRACKS.ARTIST.getName())));
+        return new ArtistDigest(source.getString(source.getColumnIndex(Tables.TRACKS.ARTIST.getName())));
     }
 }

@@ -21,8 +21,7 @@ import turtle.player.persistance.source.relational.Table;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class QueryGeneratorTable
-		  <I> implements Mapping<Table, ContentValues, I>
+public abstract class QueryGeneratorTable<I> implements Mapping<Table, ContentValues, I>
 {
 	final Table table;
 

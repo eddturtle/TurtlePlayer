@@ -1,7 +1,6 @@
 package turtle.player.persistance.framework.filter;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,21 +21,21 @@ import java.util.Set;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FilterSet<I> implements Filter<I>
+public class FilterSet<PROJECTION> implements Filter<PROJECTION>
 {
-	private final Set<Filter<I>> filters;
+	private final Set<Filter<? super PROJECTION>> filters;
 
-	public FilterSet(Filter<I>... filter)
+	public FilterSet(Filter<? super PROJECTION>... filter)
 	{
-		this.filters = new HashSet<Filter<I>>(Arrays.asList(filter));
+		this.filters = new HashSet<Filter<? super PROJECTION>>(Arrays.asList(filter));
 	}
 
-	public FilterSet(Set<Filter<I>> filters)
+	public FilterSet(Set<Filter<? super PROJECTION>> filters)
 	{
-		this.filters = new HashSet<Filter<I>>(filters);
+		this.filters = new HashSet<Filter<? super PROJECTION>>(filters);
 	}
 
-	public <R> R accept(FilterVisitor<I, R> visitor)
+	public <R> R accept(FilterVisitor<? extends PROJECTION, R> visitor)
 	{
 		return visitor.visit(this);
 	}
@@ -44,7 +43,7 @@ public class FilterSet<I> implements Filter<I>
 	/**
 	 * @return never null, Set can be empty
 	 */
-	public Set<Filter<I>> getFilters()
+	public Set<Filter<? super PROJECTION>> getFilters()
 	{
 		return filters;
 	}

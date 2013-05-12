@@ -23,9 +23,9 @@ import turtle.player.persistance.source.relational.Table;
 
 public class DeleteTableContentSqlLite implements OperationDelete<SQLiteDatabase, Table>
 {
-	public void delete(SQLiteDatabase db,
+	public int delete(SQLiteDatabase db,
 							 Table target)
 	{
-		db.delete(target.getName(), null, null);
+		return db.delete(target.getName(), null, null);
 	}
 }

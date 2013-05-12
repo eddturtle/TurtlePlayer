@@ -4,7 +4,6 @@ import android.database.Cursor;
 import turtle.player.persistance.framework.creator.CreatorForList;
 import turtle.player.persistance.framework.mapping.Mapping;
 import turtle.player.persistance.source.relational.Field;
-import turtle.player.persistance.source.relational.Table;
 import turtle.player.persistance.source.relational.View;
 import turtle.player.persistance.source.sql.query.Select;
 
@@ -27,14 +26,14 @@ import java.util.List;
  * @author Simon Honegger (Hoene84)
  */
 
-public class MappingDistinct<RESULT> implements Mapping<Select, List<RESULT>, Cursor>
+public class MappingDistinct<TARGET, PROJECTION extends View, RESULT> implements Mapping<Select, List<RESULT>, Cursor>
 {
-	private final View<RESULT> view;
+	private final PROJECTION view;
 	private final Field[] field;
-	private final CreatorForList<RESULT, Cursor, Cursor> creator;
+	private final CreatorForList<? super TARGET, RESULT, Cursor, Cursor> creator;
 
-	public MappingDistinct(View<RESULT> view,
-								  CreatorForList<RESULT, Cursor, Cursor> creator,
+	public MappingDistinct(PROJECTION view,
+								  CreatorForList<? super TARGET, RESULT, Cursor, Cursor> creator,
 								  Field... field)
 	{
 		this.view = view;

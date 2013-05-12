@@ -3,6 +3,7 @@ package turtle.player.persistance.source.sql.query;
 import turtle.player.persistance.source.relational.Table;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -23,9 +24,9 @@ import java.util.List;
 
 public class TablesPart implements SqlFragment
 {
-	private final List<? extends Table<?>> tables;
+	private final Set<? extends Table> tables;
 
-	public TablesPart(List<? extends Table<?>> tables)
+	public TablesPart(Set<? extends Table> tables)
 	{
 		this.tables = tables;
 	}
@@ -34,7 +35,7 @@ public class TablesPart implements SqlFragment
 	{
 		String[] tableNames = new String[tables.size()];
 		int i = 0;
-		for(Table<?> table : tables)
+		for(Table table : tables)
 		{
 			tableNames[i++] = table.getName();
 		}

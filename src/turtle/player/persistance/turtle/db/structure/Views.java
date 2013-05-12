@@ -1,10 +1,11 @@
 package turtle.player.persistance.turtle.db.structure;
 
 import turtle.player.model.*;
-import turtle.player.persistance.source.relational.FieldPersistable;
-import turtle.player.persistance.source.relational.Table;
-import turtle.player.persistance.source.relational.View;
+import turtle.player.persistance.source.relational.*;
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
+import turtle.player.util.Shorty;
+
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -28,73 +29,57 @@ public class Views
 	public final static Albums ALBUMS = new Albums();
 	public final static Artists ARTISTS = new Artists();
 	public final static Genres GENRES = new Genres();
-	public final static TrackDigests TRACK_DIGEST = new TrackDigests();
+	public final static Songs SONGS = new Songs();
 
-	public static final class Albums extends View<Album>
+	//Marker interface
+	public interface AlbumsReadable extends View{
+		public static final FieldPersistable<Album, String> NAME = new FieldPersistableAsString<Album>(Tables.Tracks.ALBUM);
+	}
+
+	//Marker interface
+	public interface GenresReadable extends View{
+		public static final FieldPersistable<Genre, String> NAME = new FieldPersistableAsString<Genre>(Tables.Tracks.GENRE);
+	}
+
+	//Marker interface
+	public interface ArtistsReadable extends View{
+		public static final FieldPersistable<Artist, String> NAME = new FieldPersistableAsString<Artist>(Tables.Tracks.ARTIST);
+	}
+
+	//Marker interface
+	public interface SongsReadable extends View{
+		public static final FieldPersistable<Song, String> NAME = new FieldPersistableAsString<Song>(Tables.Tracks.TITLE);
+	}
+
+	public static final class Albums implements AlbumsReadable
 	{
-		public final FieldPersistable<Album, String> NAME = new FieldPersistableAsString<Album>(Tables.TRACKS.ALBUM)
+		public Set<Tables.Tracks> getTables()
 		{
-			public String get(Album instance)
-			{
-				return instance.getId();
-			}
-		};
-
-		@Override
-		public Table<?>[] getTables()
-		{
-			return new Table<?>[]{Tables.TRACKS};
+			return Shorty.oneElementSet(Tables.TRACKS);
 		}
 	}
 
-	public static final class Artists extends View<Artist>
+	public static final class Artists implements ArtistsReadable
 	{
-		public final FieldPersistable<Artist, String> NAME = new FieldPersistableAsString<Artist>(Tables.TRACKS.ARTIST)
+		public Set<Tables.Tracks> getTables()
 		{
-			public String get(Artist instance)
-			{
-				return instance.getId();
-			}
-		};
-
-		@Override
-		public Table<?>[] getTables()
-		{
-			return new Table<?>[]{Tables.TRACKS};
+			return Shorty.oneElementSet(Tables.TRACKS);
 		}
 	}
 
-	public static final class Genres extends View<Genre>
+	public static final class Genres  implements GenresReadable
 	{
-		public final FieldPersistable<Genre, String> NAME = new FieldPersistableAsString<Genre>(Tables.TRACKS.GENRE)
+		public Set<Tables.Tracks> getTables()
 		{
-			public String get(Genre instance)
-			{
-				return instance.getId();
-			}
-		};
-
-		@Override
-		public Table<?>[] getTables()
-		{
-			return new Table<?>[]{Tables.TRACKS};
+			return Shorty.oneElementSet(Tables.TRACKS);
 		}
 	}
 
-	public static final class TrackDigests extends View<TrackDigest>
+	public static final class Songs  implements SongsReadable
 	{
-		public final FieldPersistable<TrackDigest, String> NAME = new FieldPersistableAsString<TrackDigest>(Tables.TRACKS.TITLE)
+		public Set<Tables.Tracks> getTables()
 		{
-			public String get(TrackDigest instance)
-			{
-				return instance.getName();
-			}
-		};
-
-		@Override
-		public Table<?>[] getTables()
-		{
-			return new Table<?>[]{Tables.TRACKS};
+			return Shorty.oneElementSet(Tables.TRACKS);
 		}
 	}
 

@@ -2,8 +2,12 @@ package turtle.player.persistance.turtle.mapping;
 
 import android.database.Cursor;
 import turtle.player.model.Album;
+import turtle.player.model.AlbumDigest;
+import turtle.player.model.FSobject;
 import turtle.player.persistance.framework.creator.Creator;
+import turtle.player.persistance.framework.creator.ResultCreator;
 import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.db.structure.Views;
 
 /**
  * TURTLE PLAYER
@@ -22,10 +26,10 @@ import turtle.player.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class AlbumCreator implements Creator<Album, Cursor>
+public class AlbumCreator implements ResultCreator<Views.ArtistsReadable, Album, Cursor>
 {
     public Album create(Cursor source)
     {
-        return new Album(source.getString(source.getColumnIndex(Tables.TRACKS.ALBUM.getName())));
+        return new AlbumDigest(source.getString(source.getColumnIndex(Views.ARTISTS.NAME.getName())));
     }
 }

@@ -1,5 +1,6 @@
 package turtle.player.persistance.source.relational.fieldtype;
 
+import turtle.player.persistance.framework.creator.Creator;
 import turtle.player.persistance.source.relational.FieldPersistable;
 
 /**
@@ -19,19 +20,22 @@ import turtle.player.persistance.source.relational.FieldPersistable;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class FieldPersistableAsInteger<I> extends FieldPersistable<I, Integer>
+public class FieldPersistableAsInteger<RESULT> extends FieldPersistable<RESULT, Integer>
 {
-	protected FieldPersistableAsInteger(String name)
+	public FieldPersistableAsInteger(String name,
+													Creator<Integer, RESULT> mapping)
 	{
-		super(name);
+		super(name, mapping);
 	}
 
-	protected FieldPersistableAsInteger(FieldPersistable<?, ?> fieldPersistable)
+	public FieldPersistableAsInteger(FieldPersistable<RESULT, Integer> fieldPersistable)
 	{
 		super(fieldPersistable);
 	}
 
-	public <R> R accept(FieldVisitor<R, I> visitor){
+	@Override
+	public <R> R accept(FieldVisitor<R, ? extends RESULT> visitor)
+	{
 		return visitor.visit(this);
 	}
 }
