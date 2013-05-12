@@ -30,6 +30,7 @@ import turtle.player.R;
 import turtle.player.model.*;
 import turtle.player.persistance.framework.filter.*;
 import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.db.structure.Views;
 import turtle.player.presentation.InstanceFormatter;
 
 import java.util.List;
@@ -64,22 +65,22 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter<? super Tabl
 			public <T, Z> Void visit(FieldFilter<? super Tables.Tracks, Z, T> fieldFilter)
 			{
 				final Instance instance;
-				if (Tables.TRACKS.ARTIST.equals(fieldFilter.getField()))
+				if (Views.ArtistsReadable.NAME.equals(fieldFilter.getField()))
 				{
 					instance = new SongDigest(fieldFilter.getValue().toString());
 					icon.setImageResource(R.drawable.artist24);
 				}
-				else if (Tables.TRACKS.ALBUM.equals(fieldFilter.getField()))
+				else if (Views.AlbumsReadable.NAME.equals(fieldFilter.getField()))
 				{
 					instance = new AlbumDigest(fieldFilter.getValue().toString());
 					icon.setImageResource(R.drawable.album24);
 				}
-				else if (Tables.TRACKS.GENRE.equals(fieldFilter.getField()))
+				else if (Views.GenresReadable.NAME.equals(fieldFilter.getField()))
 				{
 					instance = new GenreDigest(fieldFilter.getValue().toString());
 					icon.setImageResource(R.drawable.genre24);
 				}
-				else if (Tables.TRACKS.PATH.equals(fieldFilter.getField()))
+				else if (Tables.FsObjects.PATH.equals(fieldFilter.getField()))
 				{
 					instance = new FSobject(fieldFilter.getValue().toString());
 					icon.setImageResource(R.drawable.dir24);

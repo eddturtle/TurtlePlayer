@@ -22,5 +22,5 @@ import turtle.player.controller.Observer;
 
 public interface PreferencesObserver  extends Observer
 {
-	void changed(AbstractKey key);
+	void changed(AbstractKey<?, ?> key);
 }

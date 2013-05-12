@@ -28,8 +28,8 @@ public class DirCreator implements ResultCreator<Tables.Dirs, FSobject, Cursor>
 	public FSobject create(Cursor source)
 	{
 		return new FSobject(
-				  source.getString(source.getColumnIndex(Tables.DIRS.PATH.getName())),
-				  source.getString(source.getColumnIndex(Tables.DIRS.NAME.getName()))
+				  source.getString(source.getColumnIndex(Tables.Dirs.PATH.getName())),
+				  source.getString(source.getColumnIndex(Tables.Dirs.NAME.getName()))
 		);
 	}
 }

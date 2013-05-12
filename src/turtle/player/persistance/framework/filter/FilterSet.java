@@ -58,7 +58,7 @@ public class FilterSet<PROJECTION> implements Filter<PROJECTION>
 	public boolean equals(Object o)
 	{
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (!(o instanceof FilterSet)) return false;
 
 		FilterSet filterSet = (FilterSet) o;
 

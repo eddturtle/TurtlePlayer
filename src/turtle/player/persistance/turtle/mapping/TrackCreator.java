@@ -27,11 +27,11 @@ public class TrackCreator implements ResultCreator<Tables.Tracks, Track, Cursor>
 	public Track create(Cursor cursor)
 	{
 		return new Track(
-				  new SongDigest(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.TITLE.getName()))),
-				  new ArtistDigest(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ARTIST.getName()))),
-				  new AlbumDigest(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ALBUM.getName()))),
-				  new GenreDigest(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.GENRE.getName()))),
-				  cursor.getInt(cursor.getColumnIndex(Tables.TRACKS.NUMBER.getName())),
+				  new SongDigest(cursor.getString(cursor.getColumnIndex(Tables.Tracks.TITLE.getName()))),
+				  new ArtistDigest(cursor.getString(cursor.getColumnIndex(Tables.Tracks.ARTIST.getName()))),
+				  new AlbumDigest(cursor.getString(cursor.getColumnIndex(Tables.Tracks.ALBUM.getName()))),
+				  new GenreDigest(cursor.getString(cursor.getColumnIndex(Tables.Tracks.GENRE.getName()))),
+				  cursor.getInt(cursor.getColumnIndex(Tables.Tracks.NUMBER.getName())),
 				  cursor.getString(cursor.getColumnIndex(Tables.FsObjects.PATH.getName())),
 				  cursor.getString(cursor.getColumnIndex(Tables.FsObjects.NAME.getName()))
 		);

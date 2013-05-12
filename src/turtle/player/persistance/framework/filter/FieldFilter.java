@@ -67,13 +67,13 @@ public class FieldFilter<PROJECTION, RESULT, TYPE> implements Filter<PROJECTION>
 	public boolean equals(Object o)
 	{
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (!(o instanceof FieldFilter)) return false;
 
 		FieldFilter that = (FieldFilter) o;
 
 		if (!field.equals(that.field)) return false;
 		if (operator != that.operator) return false;
-		if (!value.equals(that.value)) return false;
+		if (value != null ? !value.equals(that.value) : that.value != null) return false;
 
 		return true;
 	}
@@ -83,7 +83,7 @@ public class FieldFilter<PROJECTION, RESULT, TYPE> implements Filter<PROJECTION>
 	{
 		int result = field.hashCode();
 		result = 31 * result + operator.hashCode();
-		result = 31 * result + value.hashCode();
+		result = 31 * result + (value != null ? value.hashCode() : 0);
 		return result;
 	}
 }

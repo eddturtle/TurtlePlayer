@@ -47,7 +47,7 @@ public class QuerySqlite<PROJECTION, TARGET, RESULT> extends Query<Select, Where
 		  this.mapping = mapping;
 	 }
 
-	 public QuerySqlite(Order order, Mapping<Select, RESULT, Cursor> mapping)
+	 public QuerySqlite(Order<? super PROJECTION> order, Mapping<Select, RESULT, Cursor> mapping)
 	 {
 		  super(order);
 		  this.mapping = mapping;

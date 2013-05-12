@@ -85,7 +85,7 @@ public class PagingFilterBuilder<PROJECTION, RESULT> extends OrderVisitorGenerif
 				final Filter<? super PROJECTION> finalFilterSet = filterSet;
 				filterSet = orderFilter.getOrders().get(i).accept(new OrderVisitorGenerified<PROJECTION, RESULT, Object, Filter<? super PROJECTION>>()
 				{
-					public Filter<? super PROJECTION> visit(RandomOrder orderFilter)
+					public Filter<? super PROJECTION> visit(RandomOrder<? super PROJECTION> orderFilter)
 					{
 						// :-)
 						return null;
@@ -100,7 +100,7 @@ public class PagingFilterBuilder<PROJECTION, RESULT> extends OrderVisitorGenerif
 								  new FieldFilter<PROJECTION, RESULT, Object>(fieldOrder.getField(), Operator.EQ, field.get(instance)));
 					}
 
-					public Filter<? super PROJECTION> visit(OrderSet orderFilter)
+					public Filter<? super PROJECTION> visit(OrderSet<? super PROJECTION> orderFilter)
 					{
 						return this.visit(orderFilter);
 					}

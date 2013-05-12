@@ -58,9 +58,9 @@ public class PlayOrderSorted implements PlayOrderStrategy
 		return get(currTrack, new DefaultOrder(SortOrder.DESC));
 	}
 
-	private Track get(Track ofTrack, OrderSet order)
+	private Track get(Track ofTrack, OrderSet<? super Tables.Tracks> order)
 	{
-		OrderSet currOrder = order;
+		OrderSet<? super Tables.Tracks> currOrder = order;
 		while(!currOrder.isEmpty())
 		{
 			Log.v(PlayOrderSorted.class.getName(),

@@ -246,7 +246,7 @@ public class Player extends ListActivity
 		fileChooser = new FileChooser(FileChooser.Mode.Genre, tp.db, this)
 		{
 			@Override
-			protected void filterChoosen(Filter filter)
+			protected void filterChoosen(Filter<? super Tables.Tracks> filter)
 			{
 				tp.playlist.clearFilters();
 				tp.playlist.addFilter(filter);
@@ -560,7 +560,7 @@ public class Player extends ListActivity
 				});
 			}
 
-			public void filterRemoved(Filter filter)
+			public void filterRemoved(Filter<? super Tables.Tracks> filter)
 			{
 				//do nothing
 			}
@@ -574,7 +574,7 @@ public class Player extends ListActivity
 
 		tp.playlist.preferences.addObserver(new PreferencesObserver()
 		{
-			public void changed(AbstractKey key)
+			public void changed(AbstractKey<?, ?> key)
 			{
 				if (key.equals(Keys.SHUFFLE))
 				{

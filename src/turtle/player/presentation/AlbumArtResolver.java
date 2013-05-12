@@ -89,7 +89,7 @@ public abstract class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 		{
 			AlbumArtLocation albumArtLocation = OperationExecutor.execute(
 					  db,
-					  new QuerySqlite<Tables.AlbumArtLocations, Tables.AlbumArtLocations, AlbumArtLocation>(new FieldFilter<Tables.AlbumArtLocations, AlbumArtLocation, String>(Tables.ALBUM_ART_LOCATIONS.PATH, Operator.EQ, track.getPath()),
+					  new QuerySqlite<Tables.AlbumArtLocations, Tables.AlbumArtLocations, AlbumArtLocation>(new FieldFilter<Tables.AlbumArtLocations, AlbumArtLocation, String>(Tables.AlbumArtLocations.PATH, Operator.EQ, track.getPath()),
 								 new First<AlbumArtLocation>(Tables.ALBUM_ART_LOCATIONS, new AlbumArtLocationCreator())));
 
 			if(albumArtLocation != null)

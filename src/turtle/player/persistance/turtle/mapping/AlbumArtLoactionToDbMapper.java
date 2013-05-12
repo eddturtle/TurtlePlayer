@@ -33,8 +33,8 @@ public class AlbumArtLoactionToDbMapper extends QueryGeneratorTable<AlbumArtLoca
 	{
 		final ContentValues values = new ContentValues();
 
-		values.put(Tables.ALBUM_ART_LOCATIONS.PATH.getName(), albumArtLocation.getPath());
-		values.put(Tables.ALBUM_ART_LOCATIONS.ALBUM_ART_PATH.getName(), albumArtLocation.getAlbumArtpath());
+		values.put(Tables.AlbumArtLocations.PATH.getName(), albumArtLocation.getPath());
+		values.put(Tables.AlbumArtLocations.ALBUM_ART_PATH.getName(), albumArtLocation.getAlbumArtpath());
 
 		return  values;
 	}

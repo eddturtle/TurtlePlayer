@@ -33,8 +33,8 @@ public class FsObjectToDbMapper extends QueryGeneratorTable<FSobject>
 	{
 		final ContentValues values = new ContentValues();
 
-		values.put(Tables.DIRS.NAME.getName(), fsObject.getName());
-		values.put(Tables.DIRS.PATH.getName(), fsObject.getPath());
+		values.put(Tables.Dirs.NAME.getName(), fsObject.getName());
+		values.put(Tables.Dirs.PATH.getName(), fsObject.getPath());
 
 		return  values;
 	}

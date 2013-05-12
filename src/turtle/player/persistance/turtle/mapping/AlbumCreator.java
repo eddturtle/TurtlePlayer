@@ -30,6 +30,6 @@ public class AlbumCreator implements ResultCreator<Views.ArtistsReadable, Album,
 {
     public Album create(Cursor source)
     {
-        return new AlbumDigest(source.getString(source.getColumnIndex(Views.ARTISTS.NAME.getName())));
+        return new AlbumDigest(source.getString(source.getColumnIndex(Views.AlbumsReadable.NAME.getName())));
     }
 }

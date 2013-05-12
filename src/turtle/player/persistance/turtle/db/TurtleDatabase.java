@@ -136,22 +136,22 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 
 	public List<? extends Artist> getArtists(Filter<? super Tables.Tracks> filter)
 	{
-		return getList(filter, new ArtistCreator(), Tables.TRACKS, Views.ARTISTS.NAME);
+		return getList(filter, new ArtistCreator(), Tables.TRACKS, Tables.Tracks.ARTIST);
 	}
 
 	public List<? extends Genre> getGenres(Filter<? super Tables.Tracks> filter)
 	{
-		return getList(filter, new GenreCreator(), Tables.TRACKS, Views.GENRES.NAME);
+		return getList(filter, new GenreCreator(), Tables.TRACKS, Tables.Tracks.GENRE);
 	}
 
 	public List<? extends Album> getAlbums(Filter<? super Tables.Tracks> filter)
 	{
-		return getList(filter, new AlbumCreator(), Tables.TRACKS, Views.ALBUMS.NAME);
+		return getList(filter, new AlbumCreator(), Tables.TRACKS, Tables.Tracks.ALBUM);
 	}
 
 	public List<? extends FSobject> getDirList(Filter<? super Tables.Dirs> filter)
 	{
-		return getList(filter, new DirCreator(), Tables.DIRS, Tables.DIRS.NAME);
+		return getList(filter, new DirCreator(), Tables.DIRS, Tables.Dirs.NAME);
 	}
 
 	private <RESULT, TARGET, PROJECTION extends View, Z> List<RESULT> getList(

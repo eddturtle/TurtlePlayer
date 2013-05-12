@@ -196,7 +196,7 @@ public class FsReader
 		AlbumArtLocation albumArtLocation = OperationExecutor.execute(
 				  db,
 				  new QuerySqlite<Tables.AlbumArtLocations, Tables.AlbumArtLocations, AlbumArtLocation>(
-							 new FieldFilter<Tables.AlbumArtLocations, AlbumArtLocation, String>(Tables.ALBUM_ART_LOCATIONS.PATH, Operator.EQ, mediaFileDir),
+							 new FieldFilter<Tables.AlbumArtLocations, AlbumArtLocation, String>(Tables.AlbumArtLocations.PATH, Operator.EQ, mediaFileDir),
 				  			 new First<AlbumArtLocation>(Tables.ALBUM_ART_LOCATIONS, new AlbumArtLocationCreator())
 				  )
 		);

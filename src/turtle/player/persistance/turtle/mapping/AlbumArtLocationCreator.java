@@ -27,8 +27,8 @@ public class AlbumArtLocationCreator implements Creator<AlbumArtLocation, Cursor
 	public AlbumArtLocation create(Cursor cursor)
 	{
 		return new AlbumArtLocation(
-				  cursor.getString(cursor.getColumnIndex(Tables.ALBUM_ART_LOCATIONS.PATH.getName())),
-				  cursor.getString(cursor.getColumnIndex(Tables.ALBUM_ART_LOCATIONS.ALBUM_ART_PATH.getName()))
+				  cursor.getString(cursor.getColumnIndex(Tables.AlbumArtLocations.PATH.getName())),
+				  cursor.getString(cursor.getColumnIndex(Tables.AlbumArtLocations.ALBUM_ART_PATH.getName()))
 		);
 	}
 }

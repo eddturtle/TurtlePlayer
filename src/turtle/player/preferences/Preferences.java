@@ -92,7 +92,7 @@ public class Preferences
 
 	final Map<String, PreferencesObserver> observers = new HashMap<String, PreferencesObserver>();
 
-	private void notify(AbstractKey key)
+	private <T> void notify(AbstractKey<T, ?> key)
 	{
 		for (PreferencesObserver observer : observers.values())
 		{
