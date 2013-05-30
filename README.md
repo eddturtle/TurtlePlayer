@@ -1,18 +1,29 @@
 #[Turtle Player](http://www.turtle-player.co.uk/ "Turtle Player")
-* * *
+![Turtle Player Logo][1]
+###Free, Fully Fledged & Open-Source.
+###The Music Player for Android.
 
-Turtle Player is a fully fledged, open-source, music player for Android. It's designed with the intention of being fun, unique and simple to use. Originally developed by [Edd Turtle](http://www.eddturtle.co.uk), it's now a community driven app. Turtle Player, like all Android apps, is programmed with Java and works with Android version 2.3 and upwards. 
-  
+Turtle Player is designed to be a fun and unique app for playing your music on the move, while in a advertisment-free app. Originally developed by Edd Turtle, it is now a community driven app with help from developers (namely Simon Honegger) on Github. Give it a go today!
+
+##How to Contribute
+
+1) First, pull the source code from this GitHub repository to your local machine:
+
+    git pull git@github.com:eddturtle/TurtlePlayer.git
+
+2) Also pull the submodule dependency for mp3agic.
+
+    git submodule update --init
+
+3) Copy the mp3agic 'com' package folder (inside mp4agic/src) into the Turtle Player src folder.
+
+4) Import the project in Eclipse (or your chosen Android IDE).
+
+5) Make super-awesome improvements...
+
+6) Create a Pull Request back to this repository.
+
 ###License
-The code is licenced under the [MIT](http://www.opensource.org/licenses/mit-license.php "MIT License") & [GPL](http://www.gnu.org/copyleft/gpl.html "General Public License").
+Source is licenced under the [MIT](http://www.opensource.org/licenses/mit-license.php "MIT License") & [GPL](http://www.gnu.org/copyleft/gpl.html "General Public License").
 
-###Features
-+	Track Selection
-+	View Album Art
-+	Shuffle & Repeat Track
-+	Progress Bar & Choice of Track Position
-+	SD Card Track Finder
-+	Music Folder Location Chooser
-+	MP3 Meta Data Reader
-
-#####Find Out More and Grab the APK at [www.turtle-player.co.uk](http://www.turtle-player.co.uk/ "www.turtle-player.co.uk")  
+  [1]: http://www.turtle-player.co.uk/img/small-logo.png
