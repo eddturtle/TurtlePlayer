@@ -20,7 +20,8 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:src="@drawable/separator"
-            android:scaleType="fitXY"/>
+            android:scaleType="fitXY"
+            android:contentDescription="Separator" />
     <ImageView
             android:id="@+id/logoButton"
             android:layout_width="wrap_content"

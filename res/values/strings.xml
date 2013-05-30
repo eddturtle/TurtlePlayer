@@ -6,6 +6,9 @@
     <string name="app_url">turtle-player.co.uk</string>
     <string name="app_desc">Find out more about this open-source app at: turtle-player.co.uk</string>
     
+    <string name="zero">0</string>
+    <string name="trackPostionSeparator"> / </string>
+    
     <!-- Header -->
     <string name="list">List</string>
     <string name="logo">Logo</string>
@@ -15,7 +18,6 @@
     <string name="check_button">Check for MP3s</string>
     <string name="album_art">Album Art</string>
 
-
     <string name="trackInitialValue">Track</string>
     <string name="rootSrcInitialValue">RootSrc</string>
     <string name="genreInitialValue">Genre</string>
@@ -24,9 +26,6 @@
     <string name="durationInitialValue">0.00</string>
     <string name="currPositionInitialValue">0.00</string>
     <string name="listLabelInitialValue">Empty</string>
-
-    <string name="trackPostionSeparator"> / </string>
-
     
     <!-- Now Playing Footer -->
     <string name="play">Play</string>
@@ -42,6 +41,7 @@
     <string name="library">Library</string>
     <string name="sync_library">Sync Library</string>
     <string name="edit_dir">Edit Dir</string>
+    <string name="default_path">Path/To/Replace</string>
 
     <string name="dirchooser_label">Dir Chooser</string>
     <string name="delete">Delete</string>
@@ -51,8 +51,8 @@
     <string name="pointer">Pointer</string>
 
     <!--Toast-->
-    <string name="added">added</string>
-    <string name="removed">removed</string>
+    <string name="added">Added</string>
+    <string name="removed">Removed</string>
     <string name="toastRescan">Database rescan started</string>
 
     <!-- Genres -->

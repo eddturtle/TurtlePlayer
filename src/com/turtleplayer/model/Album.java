@@ -18,7 +18,6 @@
 
 package com.turtleplayer.model;
 
-
 import java.util.HashSet;
 import java.util.Set;
 

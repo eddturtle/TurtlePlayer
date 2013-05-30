@@ -1,7 +1,6 @@
 package com.turtleplayer.persistance.turtle.mapping;
 
 import com.turtleplayer.model.AlbumArtLocation;
-import com.turtleplayer.model.Track;
 import com.turtleplayer.persistance.source.sql.QueryGeneratorTable;
 import com.turtleplayer.persistance.turtle.db.structure.Tables;
 

@@ -53,12 +53,13 @@ public class Playlist
 {
 
 	//Log Constants
-	private enum durations
+	/*
 	{
 		NEXT,
 		PREV,
 		PULL;
 	}
+	*/
 
 	// Not in ClassDiagram
 	public final Preferences preferences;
