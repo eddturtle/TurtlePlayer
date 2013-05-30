@@ -17,7 +17,7 @@
  */
 
 
-package turtle.player.persistance.turtle;
+package com.turtleplayer.persistance.turtle;
 
 import org.junit.Test;
 
