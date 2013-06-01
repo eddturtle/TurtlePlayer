@@ -84,8 +84,7 @@ public class Playlist
 	/**
 	 * @return true if the filter was activated
 	 */
-	public <O> boolean toggleFilter(FieldPersistable<? super Track, O> field, Track track){
-		Filter<Tables.Tracks> filter = new FieldFilter<Tables.Tracks, Track, O>(field, Operator.EQ, field.get(track));
+	public <O> boolean toggleFilter(Filter<? super Tables.Tracks> filter, Track track){
 		if(!filters.contains(filter))
 		{
 			addFilter(filter);

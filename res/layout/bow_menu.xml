@@ -3,25 +3,71 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+    <LinearLayout
+            android:id="@+id/linearLayoutDir"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical"
+            android:paddingTop="5dp"
+            android:visibility="gone" >
+
+
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:orientation="horizontal">
+
+            <ImageView
+                    android:scaleType="fitCenter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:src="@drawable/folder48" />
+            <TextView
+                    android:id="@+id/track_instant_filter_topline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="5dp"
+                    android:singleLine="true"
+                    android:ellipsize="start"
+                    android:text="@string/dirInitialValue"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    />
+        </LinearLayout>
+
+        <View
+                android:layout_width="fill_parent"
+                android:layout_height="2dip"
+                android:background="#5033ff33"
+                android:layout_marginTop="5dp"/>
+
+    </LinearLayout>
+
     <ImageView
             android:id="@+id/bowmenu_top"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
+            android:layout_below="@id/linearLayoutDir"
             android:src="@drawable/menubow_top_290"
-            android:contentDescription="@string/pointer"
-            android:visibility="invisible"
+            android:visibility="gone"
             />
 
     <ImageView
             android:id="@+id/bowmenu_top_icon"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:layout_below="@id/linearLayoutDir"
             android:layout_centerHorizontal="true"
             android:src="@drawable/genre24"
             android:layout_marginTop="42px"
-            android:contentDescription="@string/pointer"
-            android:visibility="invisible"
+            android:visibility="gone"
             />
 
     <TextView
@@ -31,6 +77,7 @@
             android:gravity="center"
             android:layout_alignLeft="@id/bowmenu_top"
             android:layout_alignRight="@id/bowmenu_top"
+            android:layout_below="@id/linearLayoutDir"
             android:text="@string/genreInitialValue"
             android:singleLine="true"
             android:paddingTop="5dp"
@@ -38,7 +85,7 @@
             android:paddingRight="25dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:ellipsize="start"
-            android:visibility="invisible"
+            android:visibility="gone"
             />
 
     <ImageView
@@ -47,8 +94,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:src="@drawable/menubow_left_290"
-            android:contentDescription="@string/pointer"
-            android:visibility="invisible"
+            android:visibility="gone"
             />
 
     <ImageView
@@ -59,8 +105,7 @@
             android:src="@drawable/album24"
             android:layout_marginLeft="32dp"
             android:layout_alignParentLeft="true"
-            android:contentDescription="@string/pointer"
-            android:visibility="invisible"
+            android:visibility="gone"
             />
 
     <!--  xmlns:android="http://schemas.android.com/apk/res/android" -->
@@ -85,7 +130,7 @@
             android:gravity="bottom"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:ellipsize="end"
-            android:visibility="invisible"
+            android:visibility="gone"
             />
 
     </RelativeLayout>
@@ -97,8 +142,7 @@
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:src="@drawable/menubow_right_290"
-            android:contentDescription="@string/pointer"
-            android:visibility="invisible"
+            android:visibility="gone"
             />
 
     <ImageView
@@ -109,8 +153,7 @@
             android:src="@drawable/artist24"
             android:layout_marginRight="32dp"
             android:layout_alignParentRight="true"
-            android:contentDescription="@string/pointer"
-            android:visibility="invisible"
+            android:visibility="gone"
             />
 
     <RelativeLayout android:layout_width="wrap_content"
@@ -132,39 +175,10 @@
             android:gravity="top"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:ellipsize="end"
-            android:visibility="invisible"
+            android:visibility="gone"
             />
 
     </RelativeLayout>
-
-    <!--<ImageView-->
-            <!--android:id="@+id/bowmenu_bottom"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_centerHorizontal="true"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:src="@drawable/menubow_bottom_290"-->
-            <!--android:contentDescription="@string/pointer"-->
-            <!--android:visibility="invisible"/>-->
-
-
-    <!--<TextView-->
-            <!--android:id="@+id/track_instant_filter_bottom"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:gravity="center"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:layout_alignLeft="@id/bowmenu_bottom"-->
-            <!--android:layout_alignRight="@id/bowmenu_bottom"-->
-            <!--android:text="@string/genreInitialValue"-->
-            <!--android:singleLine="true"-->
-            <!--android:paddingBottom="5dp"-->
-            <!--android:paddingLeft="25dp"-->
-            <!--android:paddingRight="25dp"-->
-            <!--android:textAppearance="?android:attr/textAppearanceMedium"-->
-            <!--android:ellipsize="end"-->
-            <!--android:visibility="invisible"-->
-            <!--/>-->
 
     <ImageView
             android:id="@+id/pointer"

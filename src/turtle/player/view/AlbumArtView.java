@@ -9,7 +9,9 @@ import turtle.player.TurtlePlayer;
 import turtle.player.controller.TouchHandler;
 import turtle.player.model.Track;
 import turtle.player.model.TrackBundle;
+import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.source.relational.FieldPersistable;
+import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.player.ObservableOutput;
 import turtle.player.player.Output;
 import turtle.player.player.OutputCommand;
@@ -136,9 +138,8 @@ public class AlbumArtView
 				});
 			}
 
-
 			@Override
-			protected void filterSelected(final FieldPersistable<? super Track, ?> field)
+			protected void filterSelected(final Filter<? super Tables.Tracks> filter)
 			{
 				tp.player.connectPlayer(new OutputCommand()
 				{
@@ -147,11 +148,7 @@ public class AlbumArtView
 						Track currTrack = output.getCurrTrack();
 						if(currTrack != null)
 						{
-							boolean added = tp.playlist.toggleFilter(field, currTrack);
-
-							String msg = field.getName();
-							msg += " " + (added ? activity.getString(R.string.added) : activity.getString(R.string.removed));
-							Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+							boolean added = tp.playlist.toggleFilter(filter, currTrack);
 						}
 					}
 				});
