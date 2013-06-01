@@ -761,7 +761,7 @@ public class Player extends ListActivity
 	private void resetLastTrack()
 	{
 		Set<Filter<? super Tables.Tracks>> filtersFromPref = tp.playlist.preferences.get(Keys.FILTERS);
-		for(Filter<? super Tables.Tracks> filter : filtersFromPref)
+		for(Filter<? super Tables.Tracks> filter : Shorty.avoidNull(filtersFromPref, new HashSet<Filter<? super Tables.Tracks>>()))
 		{
 			tp.playlist.addFilter(filter);
 		}

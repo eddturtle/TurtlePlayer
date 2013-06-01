@@ -18,6 +18,7 @@
 
 package turtle.player.util;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,9 +34,19 @@ public class Shorty
 		return integer == null || integer == 0;
 	}
 
+	public static <T extends Collection<?>>  boolean isVoid(T collection)
+	{
+		return collection == null || collection.size() == 0;
+	}
+
 	public static String avoidNull(String s)
 	{
 		return isVoid(s) ? "" : s;
+	}
+
+	public static <T extends Collection<?>> T avoidNull(T collection, T emptyCollections)
+	{
+		return isVoid(collection) ? emptyCollections : collection;
 	}
 
 	public static <E> Set<E> oneElementSet(E element)
