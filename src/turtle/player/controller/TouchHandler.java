@@ -75,7 +75,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 			}
 
 			@Override
-			public void adapt(Filter<? super Tables.Tracks> filter, final boolean activated, final Activity activity)
+			public void adapt(final Filter<? super Tables.Tracks> filter, final Track track, final boolean activated, final Activity activity)
 			{
 				filter.accept(new FilterVisitor<Tables.Tracks, Boolean>()
 				{
@@ -83,9 +83,13 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 					{
 						if(Tables.AlbumsReadable.ALBUM.equals(fieldFilter.getField()))
 						{
-							setActive(activated);
+							setSettedFilter(activated ? filter : null);
 							ImageView bow = (ImageView) activity.findViewById(R.id.bowmenu_left);
 							bow.setImageResource(activated ? R.drawable.menubow_left_290_active : R.drawable.menubow_left_290);
+							if(activated)
+							{
+								adapt(track, activity);
+							}
 							setVisible(activity, activated);
 							return true;
 						}
@@ -145,7 +149,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 			}
 
 			@Override
-			public void adapt(Filter<? super Tables.Tracks> filter, final boolean activated, final Activity activity)
+			public void adapt(final Filter<? super Tables.Tracks> filter, final Track track, final boolean activated, final Activity activity)
 			{
 				filter.accept(new FilterVisitor<Tables.Tracks, Boolean>()
 				{
@@ -153,9 +157,13 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 					{
 						if(Tables.ArtistsReadable.ARTIST.equals(fieldFilter.getField()))
 						{
-							setActive(activated);
+							setSettedFilter(activated ? filter : null);
 							ImageView bow = (ImageView) activity.findViewById(R.id.bowmenu_right);
 							bow.setImageResource(activated ? R.drawable.menubow_right_290_active : R.drawable.menubow_right_290);
+							if(activated)
+							{
+								adapt(track, activity);
+							}
 							setVisible(activity, activated);
 							return true;
 						}
@@ -213,7 +221,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 			}
 
 			@Override
-			public void adapt(Filter<? super Tables.Tracks> filter, final boolean activated, final Activity activity)
+			public void adapt(final Filter<? super Tables.Tracks> filter, final Track track, final boolean activated, final Activity activity)
 			{
 				filter.accept(new TurtleFilterVisitor<Tables.Tracks, Boolean>()
 				{
@@ -245,9 +253,14 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 
 					public Boolean visit(DirFilter dirFilter)
 					{
-						activity.findViewById(R.id.dir_filter_border).setBackgroundColor(activated ? Color.argb(177, 21,164,0) : Color.argb(177, 152,152,152));
+						activity.findViewById(R.id.dir_filter_border).setBackgroundColor(activated ? Color.argb(177, 21, 164, 0) : Color.argb(177, 152, 152, 152));
+						((TextView)activity.findViewById(R.id.track_instant_filter_topline)).setText(dirFilter.getValue().replaceAll("%", "*"));
+						setSettedFilter(activated ? filter : null);
+						if(!activated)
+						{
+							adapt(track, activity);
+						}
 						setVisible(activity, activated);
-						setActive(activated);
 						return true;
 					}
 				});
@@ -283,7 +296,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 			}
 
 			@Override
-			public void adapt(Filter<? super Tables.Tracks> filter, final boolean activated, final Activity activity)
+			public void adapt(final Filter<? super Tables.Tracks> filter, final Track track, final boolean activated, final Activity activity)
 			{
 				filter.accept(new FilterVisitor<Tables.Tracks, Boolean>()
 				{
@@ -291,9 +304,13 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 					{
 						if(Tables.GenresReadable.GENRE.equals(fieldFilter.getField()))
 						{
-							setActive(activated);
+							setSettedFilter(activated ? filter : null);
 							ImageView bow = (ImageView) activity.findViewById(R.id.bowmenu_top);
 							bow.setImageResource(activated ? R.drawable.menubow_top_290_active : R.drawable.menubow_top_290);
+							if(activated)
+							{
+								adapt(track, activity);
+							}
 							setVisible(activity, activated);
 							return true;
 						}
@@ -324,12 +341,21 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 			}
 		};
 
-
-		private boolean active = false;
+		private Filter<? super Tables.Tracks> settedFilter = null;
 
 		public boolean isActive()
 		{
-			return active;
+			return settedFilter != null;
+		}
+
+		public void setSettedFilter(Filter<? super Tables.Tracks> settedFilter)
+		{
+			this.settedFilter = settedFilter;
+		}
+
+		public Filter<? super Tables.Tracks> getSettedFilter()
+		{
+			return settedFilter;
 		}
 
 		public abstract void setVisible(Activity activity,
@@ -337,12 +363,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 		public abstract View getView(Activity activity);
 		public abstract void adapt(Track track, Activity activity);
 		public abstract Filter<? super Tables.Tracks> getFilter(Track track);
-		public abstract void adapt(Filter<? super Tables.Tracks> filter, boolean activated, Activity activity);
-
-		public void setActive(boolean active)
-		{
-			this.active = active;
-		}
+		public abstract void adapt(Filter<? super Tables.Tracks> filter, Track track, boolean activated, Activity activity);
 	}
 
 	//Filter
@@ -468,7 +489,14 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 					for(BowMenuEntry bowMenuEntry : BowMenuEntry.values()){
 						if(isPointInsideOf(bowMenuEntry.getView(activity), event.getRawX(), event.getRawY()) &&
 								  (bowMenuEntry.isActive() && scrollingViews[0].getScrollX() == 0 || Mode.MENU.equals(currMode))){
-							filterSelected(bowMenuEntry.getFilter(currTrack));
+							if(bowMenuEntry.isActive())
+							{
+								filterSelected(bowMenuEntry.getSettedFilter(), true);
+							}
+							else
+							{
+								filterSelected(bowMenuEntry.getFilter(currTrack), false);
+							}
 						}
 					}
 
@@ -545,7 +573,10 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 	public void trackChanged(Track track, int lengthInMillis)
 	{
 		for(BowMenuEntry bowMenuEntry : BowMenuEntry.values()){
-			bowMenuEntry.adapt(track, activity);
+			if(!bowMenuEntry.isActive())
+			{
+				bowMenuEntry.adapt(track, activity);
+			}
 		}
 		this.currTrack = track;
 	}
@@ -573,12 +604,12 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 	private void filterChanged(final Filter<? super Tables.Tracks> filter, final boolean activated){
 		for(final BowMenuEntry entry : BowMenuEntry.values())
 		{
-			entry.adapt(filter, activated, activity);
+			entry.adapt(filter, currTrack, activated, activity);
 		}
 	}
 
 
 	protected abstract void nextGestureRecognized();
 	protected abstract void previousGestureRecognized();
-	protected abstract void filterSelected(Filter<? super Tables.Tracks> filter);
+	protected abstract void filterSelected(Filter<? super Tables.Tracks> filter, boolean wasActive);
 }

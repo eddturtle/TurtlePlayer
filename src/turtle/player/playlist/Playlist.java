@@ -100,7 +100,7 @@ public class Playlist
 	/**
 	 * @return true if the filter was not already there
 	 */
-	public <O> boolean addFilter(Filter<? super Tables.Tracks> filter){
+	public boolean addFilter(Filter<? super Tables.Tracks> filter){
 		boolean modified = filters.add(filter);
 		if(modified)
 		{

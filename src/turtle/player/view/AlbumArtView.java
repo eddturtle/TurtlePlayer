@@ -139,17 +139,21 @@ public class AlbumArtView
 			}
 
 			@Override
-			protected void filterSelected(final Filter<? super Tables.Tracks> filter)
+			protected void filterSelected(final Filter<? super Tables.Tracks> filter,
+													final boolean wasActive)
 			{
 				tp.player.connectPlayer(new OutputCommand()
 				{
 					public void connected(Output output)
 					{
-						Track currTrack = output.getCurrTrack();
-						if(currTrack != null)
-						{
-							boolean added = tp.playlist.toggleFilter(filter, currTrack);
+						if(wasActive){
+							tp.playlist.removeFilter(filter);
 						}
+						else
+						{
+							tp.playlist.addFilter(filter);
+						}
+
 					}
 				});
 			}
