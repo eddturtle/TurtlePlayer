@@ -16,6 +16,7 @@ import turtle.player.persistance.source.relational.fieldtype.*;
 import turtle.player.persistance.turtle.db.structure.Tables;
 import turtle.player.player.ObservableOutput;
 import turtle.player.playlist.Playlist;
+import turtle.player.util.TurtleUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,15 +54,15 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 		//BOTTOM(R.id.bowmenu_bottom, R.drawable.menubow_bottom_290_active, R.drawable.menubow_bottom_290, R.id.track_instant_filter_bottom, Tables.TRACKS.GENRE),
 		TOP(R.id.bowmenu_top, R.drawable.menubow_top_290_active, R.drawable.menubow_top_290, R.id.bowmenu_top_icon, R.drawable.genre24, R.id.track_instant_filter_top, Tables.GenresReadable.GENRE);
 
-		final int layoutId;
-		final int layoutIdOnPic;
-		final int layoutIdOffPic;
-		final int layoutIconId;
-		final int layoutIconPic;
-		final int layoutIdText;
-		final FieldPersistable<? super Track, ?> field;
+		private final int layoutId;
+		private final int layoutIdOnPic;
+		private final int layoutIdOffPic;
+		private final int layoutIconId;
+		private final int layoutIconPic;
+		private final int layoutIdText;
+		private final FieldPersistable<? super Track, ?> field;
 
-		boolean active = false;
+		private boolean active = false;
 
 		private BowMenuEntry(int layoutId,
 									int layoutOnIdPic,
@@ -339,7 +340,14 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 	public void trackChanged(Track track, int lengthInMillis)
 	{
 		for(Map.Entry<BowMenuEntry, TextView> bowMenuEntry : bowMenuTextEntries.entrySet()){
-			bowMenuEntry.getValue().setText(bowMenuEntry.getKey().getField().accept(new ToStringFieldVisitor<Track>(track)));
+			if(Tables.GenresReadable.GENRE.equals(bowMenuEntry.getKey().getField()))
+			{
+				bowMenuEntry.getValue().setText(TurtleUtil.translateGenreId(bowMenuEntry.getKey().getField().accept(new ToStringFieldVisitor<Track>(track))));
+			}
+			else
+			{
+				bowMenuEntry.getValue().setText(bowMenuEntry.getKey().getField().accept(new ToStringFieldVisitor<Track>(track)));
+			}
 		}
 	}
 
