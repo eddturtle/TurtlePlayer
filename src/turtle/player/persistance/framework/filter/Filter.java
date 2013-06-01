@@ -21,5 +21,5 @@ import java.io.Serializable;
 
 public interface Filter<PROJECTION> extends Serializable
 {
-	<R> R accept(FilterVisitor<? extends PROJECTION, R> visitor);
+	public abstract <R> R accept(FilterVisitor<? extends PROJECTION, R> visitor);
 }

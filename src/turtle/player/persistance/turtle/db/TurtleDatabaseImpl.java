@@ -28,7 +28,7 @@ import java.util.Arrays;
 public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 {
 
-	public static final int DATABASE_VERSION = 10;
+	public static final int DATABASE_VERSION = 11;
 	public static final String DATABASE_NAME = "TurtlePlayer";
 
 	public TurtleDatabaseImpl(Context context)
@@ -45,8 +45,9 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 				  + Tables.ArtistsReadable.ARTIST.getName() + " TEXT COLLATE LOCALIZED, "
 				  + Tables.AlbumsReadable.ALBUM.getName() + " TEXT COLLATE LOCALIZED, "
 				  + Tables.GenresReadable.GENRE.getName() + " TEXT, "
-				  + Tables.FsObjects.PATH.getName() + " TEXT PRIMARY KEY, "
-				  + Tables.FsObjects.NAME.getName() + " TEXT);";
+				  + Tables.FsObjects.PATH.getName() + " TEXT, "
+				  + Tables.FsObjects.NAME.getName() + " TEXT, "
+				  + " PRIMARY KEY (" + Tables.Tracks.NAME.getName() + ", " + Tables.Tracks.PATH.getName() + ");";
 		db.execSQL(createTracksSql);
 
 		for(FieldPersistable<?,?> field : Arrays.asList(

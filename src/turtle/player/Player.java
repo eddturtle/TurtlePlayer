@@ -45,6 +45,7 @@ import turtle.player.persistance.framework.db.ObservableDatabase;
 import turtle.player.persistance.framework.filter.Filter;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.filter.DirFilter;
 import turtle.player.player.ObservableOutput;
 import turtle.player.player.Output;
 import turtle.player.player.OutputCommand;
@@ -243,7 +244,7 @@ public class Player extends ListActivity
 		tp = (TurtlePlayer) getApplication();
 		tp.db = new TurtleDatabase(tp.getApplicationContext());
 		tp.playlist = new Playlist(tp.getApplicationContext(), tp.db);
-		fileChooser = new FileChooser(FileChooser.Mode.Genre, tp.db, this)
+		fileChooser = new FileChooser(FileChooser.Mode.Genre, tp, this)
 		{
 			@Override
 			protected void filterChoosen(Filter<? super Tables.Tracks> filter)

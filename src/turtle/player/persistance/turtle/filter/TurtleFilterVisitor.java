@@ -1,4 +1,4 @@
-package turtle.player.persistance.framework.filter;
+package turtle.player.persistance.turtle.filter;
 
 /**
  * TURTLE PLAYER
@@ -17,14 +17,15 @@ package turtle.player.persistance.framework.filter;
  * @author Simon Honegger (Hoene84)
  */
 
+import turtle.player.persistance.framework.filter.FieldFilter;
+import turtle.player.persistance.framework.filter.FilterSet;
+import turtle.player.persistance.framework.filter.FilterVisitor;
+import turtle.player.persistance.framework.filter.NotFilter;
+
 /**
  * @param <R> What the Visitor Produces (can be {@link Void} if nothing gets produced)
  */
-public interface FilterVisitor<PROJECTION, R>
+public interface TurtleFilterVisitor<PROJECTION, R> extends FilterVisitor<PROJECTION, R>
 {
-	<T, Z> R visit(FieldFilter<? super PROJECTION, Z, T> fieldFilter);
-
-	R visit(FilterSet<? super PROJECTION> filterSet);
-
-	R visit(NotFilter<? super PROJECTION> notFilter);
+	R visit(DirFilter dirFilter);
 }

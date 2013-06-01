@@ -65,7 +65,7 @@ public class Preferences
 	public File getExitstingMediaPath()
 	{
 		File existingPath = getExistingParentFolderFile(get(Keys.MEDIA_DIR));
-		set(Keys.MEDIA_DIR, existingPath.getPath());
+		set(Keys.MEDIA_DIR, existingPath.getPath() + DirChooserConstants.PATH_SEPERATOR);
 		return existingPath;
 	}
 

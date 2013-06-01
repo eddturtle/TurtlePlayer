@@ -96,6 +96,7 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 	public void clear()
 	{
 		OperationExecutor.execute(this, new DeleteTableContentSqlLite(), Tables.TRACKS);
+		OperationExecutor.execute(this, new DeleteTableContentSqlLite(), Tables.DIRS);
 		notifyCleared();
 	}
 

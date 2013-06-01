@@ -30,6 +30,8 @@ import turtle.player.R;
 import turtle.player.model.*;
 import turtle.player.persistance.framework.filter.*;
 import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.filter.DirFilter;
+import turtle.player.persistance.turtle.filter.TurtleFilterVisitor;
 import turtle.player.presentation.InstanceFormatter;
 
 import java.util.List;
@@ -59,7 +61,7 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter<? super Tabl
 		final ImageView deleteIcon = (ImageView) rowView.findViewById(R.id.delete);
 		final LinearLayout chooseFilterArea = (LinearLayout) rowView.findViewById(R.id.chooseFilterArea);
 
-		currFilter.accept(new FilterVisitor<Tables.Tracks, Void>()
+		currFilter.accept(new TurtleFilterVisitor<Tables.Tracks, Void>()
 		{
 			public <T, Z> Void visit(FieldFilter<? super Tables.Tracks, Z, T> fieldFilter)
 			{
@@ -104,7 +106,22 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter<? super Tabl
 			{
 				notFilter.getFilter().accept(this);
 				textView.setText("! " + textView.getText());
-				return null;  //To change body of implemented methods use File | Settings | File Templates.
+				return null;
+			}
+
+			public Void visit(DirFilter dirFilter)
+			{
+				String withWildcard = dirFilter.getValue().replaceAll("%", "*");
+				int indexOfLastSlash = withWildcard.lastIndexOf('/');
+				String allAfterTrailingSlash = withWildcard.substring(indexOfLastSlash + 1);
+				if(allAfterTrailingSlash.equals("*") || allAfterTrailingSlash.isEmpty())
+				{
+					String allTillLastSlash = withWildcard.substring(0, indexOfLastSlash);
+					indexOfLastSlash = allTillLastSlash.lastIndexOf('/');
+					allAfterTrailingSlash = allTillLastSlash.substring(indexOfLastSlash + 1);
+				}
+				textView.setText(allAfterTrailingSlash);
+				return null;
 			}
 		});
 

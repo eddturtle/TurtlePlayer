@@ -24,11 +24,18 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import turtle.player.Player;
 import turtle.player.R;
+import turtle.player.TurtlePlayer;
 import turtle.player.common.MatchFilterVisitor;
 import turtle.player.model.*;
 import turtle.player.persistance.framework.filter.*;
 import turtle.player.persistance.turtle.db.TurtleDatabase;
 import turtle.player.persistance.turtle.db.structure.Tables;
+import turtle.player.persistance.turtle.filter.*;
+import turtle.player.playlist.Playlist;
+import turtle.player.preferences.AbstractKey;
+import turtle.player.preferences.Keys;
+import turtle.player.preferences.Preferences;
+import turtle.player.preferences.PreferencesObserver;
 import turtle.player.presentation.InstanceFormatter;
 import turtle.player.util.DefaultAdapter;
 
@@ -62,37 +69,74 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 	private Mode currMode;
 	private final TurtleDatabase database;
 	private final Player listActivity;
+	private final Preferences preferences;
 	final DefaultAdapter<Instance> listAdapter;
 	final ArrayAdapter<Filter<? super Tables.Tracks>> filterListAdapter;
 
 	ListView filterList = null;
 
 	private Set<Filter<? super Tables.Tracks>> filters = new HashSet<Filter<? super Tables.Tracks>>();
-	private Filter<Tables.Dirs> dirFilter = null;
+	private Set<Filter<? super Tables.Tracks>> permanentFilters = new HashSet<Filter<? super Tables.Tracks>>();
 	private Map<Mode, Filter<? super Tables.Tracks>> filtersAddWithMode = new HashMap<Mode, Filter<? super Tables.Tracks>>();
 
 	public FileChooser(Mode currMode,
-							 TurtleDatabase db,
+							 final TurtlePlayer tp,
 							 Player listActivity)
 	{
 		this.currMode = currMode;
-		this.database = db;
+		this.database = tp.db;
+		this.preferences = tp.playlist.preferences;
 		this.listActivity = listActivity;
 
+		tp.playlist.preferences.addObserver(new PreferencesObserver()
+		{
+			public void changed(AbstractKey<?, ?> key)
+			{
+				if (key.equals(Keys.MEDIA_DIR))
+				{
+					final String mediaDir = tp.playlist.preferences.get(Keys.MEDIA_DIR);
+					getFilter().accept(new TurtleFilterVisitor<Tables.Tracks, Void>()
+					{
+						public Void visit(DirFilter dirFilter)
+						{
+							if(!dirFilter.filtersInPath(mediaDir))
+							{
+								removeFilter(dirFilter);
+							}
+							return null;
+						}
+
+						public <T, Z> Void visit(FieldFilter<? super Tables.Tracks, Z, T> fieldFilter)
+						{
+							return null;
+						}
+
+						public Void visit(FilterSet<? super Tables.Tracks> filterSet)
+						{
+							return null;
+						}
+
+						public Void visit(NotFilter<? super Tables.Tracks> notFilter)
+						{
+							return null;
+						}
+					});
+				}
+			}
+
+			public String getId()
+			{
+				return "OutdatedFilterUpdater";
+			}
+		});
+
 		filterList = (ListView) listActivity.findViewById (R.id.filterlist);
-		filterListAdapter = new FilterListAdapter(listActivity.getApplicationContext(), new ArrayList<Filter<? super Tables.Tracks>>(filters))
+		filterListAdapter = new FilterListAdapter(listActivity.getApplicationContext(), new ArrayList<Filter<? super Tables.Tracks>>(getFilters()))
 		{
 			@Override
 			protected void removeFilter(final Filter<? super Tables.Tracks> filter)
 			{
-				filters.remove(filter);
-				filterList.post(new Runnable()
-				{
-					public void run()
-					{
-						filterListAdapter.remove(filter);
-					}
-				});
+				FileChooser.this.removeFilter(filter);
 				update();
 			}
 
@@ -114,7 +158,7 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 
 		listActivity.setListAdapter(listAdapter);
 
-		change(currMode, null);
+		change(currMode, null, false);
 
 		init();
 	}
@@ -131,8 +175,12 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 				{
 					filters.clear();
 					filterListAdapter.clear();
+					for(Filter<? super Tables.Tracks> permanentFilter : permanentFilters)
+					{
+						filterListAdapter.add(permanentFilter);
+					}
 					filtersAddWithMode.clear();
-					change(currMode, null);
+					change(currMode, null, false);
 				}
 			});
 		}
@@ -140,7 +188,47 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 
 	private Filter<Tables.Tracks> getFilter()
 	{
-		return new FilterSet<Tables.Tracks>(filters);
+		return new FilterSet<Tables.Tracks>(getFilters());
+	}
+
+	private Set<Filter<? super Tables.Tracks>> getFilters()
+	{
+		Set<Filter<? super Tables.Tracks>> allFilters = new HashSet<Filter<? super Tables.Tracks>>();
+		allFilters.addAll(filters);
+		allFilters.addAll(permanentFilters);
+		return allFilters;
+	}
+
+	private DirFilter getDirFilter()
+	{
+		DirFilter deepestDirFilter = new DirFilter( Operator.EQ, preferences.get(Keys.MEDIA_DIR));
+		for(Filter<? super Tables.Tracks> filter : getFilters())
+		{
+			final DirFilter finalDeepestDirFilter = deepestDirFilter;
+			deepestDirFilter = filter.accept(new TurtleFilterVisitor<Tables.Tracks, DirFilter>()
+			{
+				public DirFilter visit(DirFilter dirFilter)
+				{
+					return finalDeepestDirFilter.getValue().contains(dirFilter.getValueWithoutWildcards()) ? finalDeepestDirFilter : new DirFilter(Operator.EQ, dirFilter.getValueWithoutWildcards());
+				}
+
+				public DirFilter visit(NotFilter<? super Tables.Tracks> notFilter)
+				{
+					return finalDeepestDirFilter;
+				}
+
+				public <T, Z> DirFilter visit(FieldFilter<? super Tables.Tracks, Z, T> fieldFilter)
+				{
+					return finalDeepestDirFilter;
+				}
+
+				public DirFilter visit(FilterSet<? super Tables.Tracks> filterSet)
+				{
+					return finalDeepestDirFilter;
+				}
+			});
+		}
+		return deepestDirFilter;
 	}
 
 	/**
@@ -166,29 +254,28 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 			public Track visit(Album album)
 			{
 				Filter<Tables.AlbumsReadable> filter = new FieldFilter<Tables.AlbumsReadable, Track, String>(Tables.AlbumsReadable.ALBUM, Operator.EQ, album.getAlbumId());
-				change(Mode.Track, filter);
+				change(Mode.Track, filter, false);
 				return null;
 			}
 
 			public Track visit(GenreDigest genre)
 			{
 				Filter<Tables.GenresReadable> filter = new FieldFilter<Tables.GenresReadable, Track, String>(Tables.GenresReadable.GENRE, Operator.EQ, genre.getGenreId());
-				change(Mode.Artist, filter);
+				change(Mode.Artist, filter, false);
 				return null;
 			}
 
 			public Track visit(ArtistDigest artist)
 			{
 				Filter<Tables.ArtistsReadable> filter = new FieldFilter<Tables.ArtistsReadable, Track, String>(Tables.ArtistsReadable.ARTIST, Operator.EQ, artist.getArtistId());
-				change(Mode.Album, filter);
+				change(Mode.Album, filter, false);
 				return null;
 			}
 
 			public Track visit(FSobject FSobject)
 			{
-				Filter<Tables.FsObjects> filter = new FieldFilter<Tables.FsObjects, Track, String>(Tables.FsObjects.PATH, Operator.LIKE, FSobject.getFullPath() + "%");
-				dirFilter = new FieldFilter<Tables.Dirs, Track, String>(Tables.Dirs.PATH, Operator.EQ, FSobject.getFullPath());
-				change(Mode.Dir, filter);
+				Filter<Tables.FsObjects> filter = new DirFilter(Operator.LIKE, FSobject.getFullPath() + "/%");
+				change(Mode.Dir, filter, true);
 				return null;
 			}
 		});
@@ -198,19 +285,12 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 	 * @param toMode
 	 * @param filter - filter to add, can be null
 	 */
-	public void change(Mode toMode, final Filter<? super Tables.Tracks> filter)
+	public void change(Mode toMode, final Filter<? super Tables.Tracks> filter, boolean permanant)
 	{
 		if(filter != null)
 		{
 			filtersAddWithMode.put(currMode, filter);
-			filters.add(filter);
-			filterList.post(new Runnable()
-			{
-				public void run()
-				{
-					filterListAdapter.add(filter);
-				}
-			});
+			addFilter(filter, permanant);
 		}
 
 		currMode = toMode;
@@ -226,6 +306,31 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 			});
 		}
 		update();
+	}
+
+	public void removeFilter(final Filter<? super Tables.Tracks> filter)
+	{
+		filters.remove(filter);
+		permanentFilters.remove(filter);
+		filterList.post(new Runnable()
+		{
+			public void run()
+			{
+				filterListAdapter.remove(filter);
+			}
+		});
+	}
+
+	public void addFilter(final Filter<? super Tables.Tracks> filter, boolean permanant)
+	{
+		(permanant ? permanentFilters : filters).add(filter);
+		filterList.post(new Runnable()
+		{
+			public void run()
+			{
+				filterListAdapter.add(filter);
+			}
+		});
 	}
 
 	public void update()
@@ -258,7 +363,9 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 						listAdapter.replace(database.getTracks(getFilter()));
 						break;
 					case Dir:
-						listAdapter.replace(database.getDirList(dirFilter));
+						List<Instance> instances = new ArrayList<Instance>(database.getDirList(getDirFilter()));
+						instances.addAll(database.getTracks(getDirFilter()));
+						listAdapter.replace(instances);
 						break;
 					default:
 						throw new RuntimeException(currMode.name() + " not expexted here");
@@ -321,11 +428,7 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 
 			public Instance visit(FSobject dir)
 			{
-				if(dirFilter != null)
-				{
-					return dirFilter.accept(new MatchFilterVisitor<FSobject, Tables.Dirs>(dir)) && Mode.Dir.equals(currMode) ? dir : null;
-				}
-				return null;
+				return getDirFilter().accept(new MatchFilterVisitor<FSobject, Tables.Dirs>(dir)) && Mode.Dir.equals(currMode) ? dir : null;
 			}
 		});
 
@@ -364,15 +467,8 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 		}
 		else
 		{
-			filters.remove(filterAddedByBack);
-			filterList.post(new Runnable()
-			{
-				public void run()
-				{
-					filterListAdapter.remove(filterAddedByBack);
-				}
-			});
-			change(backMode, null);
+
+			change(backMode, null, false);
 			return false;
 		}
 	}

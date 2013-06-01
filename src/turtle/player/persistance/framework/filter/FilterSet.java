@@ -30,7 +30,7 @@ public class FilterSet<PROJECTION> implements Filter<PROJECTION>
 		this.filters = new HashSet<Filter<? super PROJECTION>>(Arrays.asList(filter));
 	}
 
-	public FilterSet(Set<Filter<? super PROJECTION>> filters)
+	public FilterSet(Set<? extends Filter<? super PROJECTION>> filters)
 	{
 		this.filters = new HashSet<Filter<? super PROJECTION>>(filters);
 	}
@@ -46,6 +46,11 @@ public class FilterSet<PROJECTION> implements Filter<PROJECTION>
 	public Set<Filter<? super PROJECTION>> getFilters()
 	{
 		return filters;
+	}
+
+	public boolean makesObsolete(Filter<?> filter)
+	{
+		return false;  //Not implemented yet
 	}
 
 	@Override

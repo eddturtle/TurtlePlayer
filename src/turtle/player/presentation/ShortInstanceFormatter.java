@@ -50,6 +50,6 @@ class ShortInstanceFormatter extends InstanceFormatter
 
 	public String visit(FSobject FSobject)
 	{
-		return TurtleUtil.getLastPartOfPath(FSobject.getPath());
+		return FSobject.getName();
 	}
 }

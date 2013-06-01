@@ -36,19 +36,25 @@ public class FSobject implements Instance
 
 	public FSobject(String path)
 	{
-		int index = path.lastIndexOf("/");
-		this.name = Shorty.avoidNull(path.substring(0, index));
-		this.path = Shorty.avoidNull(path.substring(index, path.length()));
+		int index = path.lastIndexOf("/")+1;
+		this.name = Shorty.avoidNull(path.substring(index, path.length()));
+		this.path = Shorty.avoidNull(path.substring(0, index));
 	}
 
+	/**
+	 * @return ex: dir or file
+	 */
 	public String getName()
 	{
 		return name;
 	}
 
+	/**
+	 * @return ex: /dir1/dir or /dir/file
+	 */
 	public String getFullPath()
 	{
-		return path;
+		return getPath() + getName();
 	}
 
 	public File getAsFile()
@@ -61,6 +67,9 @@ public class FSobject implements Instance
 		return new File(path);
 	}
 
+	/**
+	 * @return ex: /dir1/dir/
+	 */
 	public String getPath()
 	{
 		return path;

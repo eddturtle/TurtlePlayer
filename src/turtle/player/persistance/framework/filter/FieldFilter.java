@@ -25,9 +25,9 @@ import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
 
 public class FieldFilter<PROJECTION, RESULT, TYPE> implements Filter<PROJECTION>
 {
-	private final FieldPersistable<? super RESULT, TYPE> field;
-	private final Operator operator;
-	private final TYPE value;
+	protected final FieldPersistable<? super RESULT, TYPE> field;
+	protected final Operator operator;
+	protected final TYPE value;
 
 	public FieldFilter(FieldPersistable<? super RESULT, TYPE> field,
 							 Operator operator,
