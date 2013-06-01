@@ -245,6 +245,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 
 					public Boolean visit(DirFilter dirFilter)
 					{
+						activity.findViewById(R.id.dir_filter_border).setBackgroundColor(activated ? Color.argb(177, 21,164,0) : Color.argb(177, 152,152,152));
 						setVisible(activity, activated);
 						setActive(activated);
 						return true;

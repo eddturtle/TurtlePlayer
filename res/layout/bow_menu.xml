@@ -12,6 +12,7 @@
             android:layout_alignParentTop="true"
             android:orientation="vertical"
             android:paddingTop="5dp"
+            android:background="#7F000000"
             android:visibility="gone" >
 
 
@@ -37,14 +38,15 @@
                     android:singleLine="true"
                     android:ellipsize="start"
                     android:text="@string/dirInitialValue"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
                     />
         </LinearLayout>
 
         <View
+                android:id="@+id/dir_filter_border"
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:background="#5033ff33"
+                android:background="#B1A0A0A0"
                 android:layout_marginTop="5dp"/>
 
     </LinearLayout>
