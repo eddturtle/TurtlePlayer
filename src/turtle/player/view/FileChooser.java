@@ -77,12 +77,16 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 
 	private Set<Filter<? super Tables.Tracks>> filters = new HashSet<Filter<? super Tables.Tracks>>();
 	private Set<Filter<? super Tables.Tracks>> permanentFilters = new HashSet<Filter<? super Tables.Tracks>>();
-	private Map<Mode, Filter<? super Tables.Tracks>> filtersAddWithMode = new HashMap<Mode, Filter<? super Tables.Tracks>>();
+	private Map<Mode, List<Filter<? super Tables.Tracks>>> filtersAddWithMode = new HashMap<Mode, List<Filter<? super Tables.Tracks>>>();
 
 	public FileChooser(Mode currMode,
 							 final TurtlePlayer tp,
 							 Player listActivity)
 	{
+		for(Mode mode : Mode.values()){
+			filtersAddWithMode.put(mode, new ArrayList<Filter<? super Tables.Tracks>>());
+		}
+
 		this.currMode = currMode;
 		this.database = tp.db;
 		this.preferences = tp.playlist.preferences;
@@ -180,10 +184,17 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 					{
 						filterListAdapter.add(permanentFilter);
 					}
-					if(!permanentFilters.contains(filtersAddWithMode.get(currMode)))
+					List<Filter<? super Tables.Tracks>> filtersToRemove = new ArrayList<Filter<? super Tables.Tracks>>();
+					for(Filter<? super Tables.Tracks> filterAddedWithMode : filtersAddWithMode.get(currMode))
 					{
-						filtersAddWithMode.remove(currMode);
+						if(!permanentFilters.contains(filterAddedWithMode))
+						{
+							filtersToRemove.add(filterAddedWithMode);
+						}
 					}
+
+					filtersAddWithMode.get(currMode).removeAll(filtersToRemove);
+
 					change(currMode, null, false);
 				}
 			});
@@ -293,7 +304,7 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 	{
 		if(filter != null)
 		{
-			filtersAddWithMode.put(currMode, filter);
+			filtersAddWithMode.get(currMode).add(filter);
 			addFilter(filter, permanant);
 		}
 
@@ -458,13 +469,14 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 			default:
 				throw new RuntimeException(currMode.name() + " not expexted here");
 		}
-		final Filter<? super Tables.Tracks> filterAddedByBack = filtersAddWithMode.remove(backMode);
-		if(filterAddedByBack == null)
+		final List<Filter<? super Tables.Tracks>> filtersAddedByBack = filtersAddWithMode.get(backMode);
+		if(backMode == null || filtersAddedByBack.isEmpty())
 		{
 			return true;
 		}
 		else
 		{
+			final Filter<? super Tables.Tracks> filterAddedByBack = filtersAddedByBack.remove(filtersAddedByBack.size()-1);
 			filterList.post(new Runnable()
 			{
 				public void run()
