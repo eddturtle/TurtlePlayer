@@ -47,7 +47,7 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 				  + Tables.GenresReadable.GENRE.getName() + " TEXT, "
 				  + Tables.FsObjects.PATH.getName() + " TEXT, "
 				  + Tables.FsObjects.NAME.getName() + " TEXT, "
-				  + " PRIMARY KEY (" + Tables.Tracks.NAME.getName() + ", " + Tables.Tracks.PATH.getName() + ");";
+				  + " PRIMARY KEY (" + Tables.Tracks.NAME.getName() + ", " + Tables.Tracks.PATH.getName() + "));";
 		db.execSQL(createTracksSql);
 
 		for(FieldPersistable<?,?> field : Arrays.asList(
