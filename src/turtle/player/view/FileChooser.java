@@ -71,7 +71,7 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 	private final Player listActivity;
 	private final Preferences preferences;
 	final DefaultAdapter<Instance> listAdapter;
-	final ArrayAdapter<Filter<? super Tables.Tracks>> filterListAdapter;
+	final FilterListAdapter filterListAdapter;
 
 	ListView filterList = null;
 
@@ -102,6 +102,7 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 							if(!dirFilter.filtersInPath(mediaDir))
 							{
 								removeFilter(dirFilter);
+								update();
 							}
 							return null;
 						}
@@ -179,7 +180,10 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 					{
 						filterListAdapter.add(permanentFilter);
 					}
-					filtersAddWithMode.clear();
+					if(!permanentFilters.contains(filtersAddWithMode.get(currMode)))
+					{
+						filtersAddWithMode.remove(currMode);
+					}
 					change(currMode, null, false);
 				}
 			});
@@ -312,13 +316,7 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 	{
 		filters.remove(filter);
 		permanentFilters.remove(filter);
-		filterList.post(new Runnable()
-		{
-			public void run()
-			{
-				filterListAdapter.remove(filter);
-			}
-		});
+		filterListAdapter.remove(filter);
 	}
 
 	public void addFilter(final Filter<? super Tables.Tracks> filter, boolean permanant)
@@ -467,7 +465,13 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 		}
 		else
 		{
-
+			filterList.post(new Runnable()
+			{
+				public void run()
+				{
+					removeFilter(filterAddedByBack);
+				}
+			});
 			change(backMode, null, false);
 			return false;
 		}
