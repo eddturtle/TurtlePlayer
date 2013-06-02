@@ -7,6 +7,9 @@ import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsI
 import turtle.player.persistance.source.relational.fieldtype.FieldPersistableAsString;
 import turtle.player.persistance.source.relational.fieldtype.FieldVisitor;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * TURTLE PLAYER
  * <p/>
@@ -95,9 +98,11 @@ public class MatchFilterVisitor<RESULT, PROJECTION> extends FilterVisitorGenerif
 			case GE:
 				return fieldValue.compareTo(filterValue) >= 0;
 			case LIKE:
-				return fieldValue.contains(filterValue);
+				Pattern p1 = Pattern.compile(filterValue.replaceAll("%", "*"));
+				return p1.matcher(fieldValue).matches();
 			case NOT_LIKE:
-				return !fieldValue.contains(filterValue);
+				Pattern p2 = Pattern.compile(filterValue.replaceAll("%", "*"));
+				return !p2.matcher(fieldValue).matches();
 			case LT:
 				return fieldValue.compareTo(filterValue) < 0;
 		}
