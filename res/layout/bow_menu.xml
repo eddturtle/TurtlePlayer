@@ -28,7 +28,7 @@
                     android:layout_height="fill_parent"
                     android:paddingTop="2dp"
                     android:paddingBottom="2dp"
-                    android:src="@drawable/folder48" />
+                    android:src="@drawable/dir24" />
             <TextView
                     android:id="@+id/track_instant_filter_topline"
                     android:layout_width="wrap_content"

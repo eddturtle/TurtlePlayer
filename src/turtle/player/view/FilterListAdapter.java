@@ -81,11 +81,6 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter<? super Tabl
 					instance = new GenreDigest(fieldFilter.getValue().toString());
 					icon.setImageResource(R.drawable.genre24);
 				}
-				else if (Tables.FsObjects.PATH.equals(fieldFilter.getField()))
-				{
-					instance = new FSobject(fieldFilter.getValue().toString());
-					icon.setImageResource(R.drawable.dir24);
-				}
 				else
 				{
 					throw new RuntimeException("Unknown Filter: " + fieldFilter);
@@ -121,6 +116,7 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter<? super Tabl
 					allAfterTrailingSlash = allTillLastSlash.substring(indexOfLastSlash + 1);
 				}
 				textView.setText(allAfterTrailingSlash);
+				icon.setImageResource(R.drawable.dir24);
 				return null;
 			}
 		});
