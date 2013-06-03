@@ -1,8 +1,7 @@
 package com.turtleplayer.player;
 
-import com.turtleplayer.model.Track;
-
 import android.media.MediaPlayer;
+import com.turtleplayer.model.Track;
 
 /**
  * TURTLE PLAYER

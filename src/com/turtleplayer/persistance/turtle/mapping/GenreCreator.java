@@ -1,10 +1,9 @@
 package com.turtleplayer.persistance.turtle.mapping;
 
-import com.turtleplayer.model.Genre;
-import com.turtleplayer.persistance.framework.creator.Creator;
-import com.turtleplayer.persistance.turtle.db.structure.Tables;
-
 import android.database.Cursor;
+import com.turtleplayer.model.GenreDigest;
+import com.turtleplayer.persistance.framework.creator.ResultCreator;
+import com.turtleplayer.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -23,10 +22,10 @@ import android.database.Cursor;
  * @author Simon Honegger (Hoene84)
  */
 
-public class GenreCreator implements Creator<Genre, Cursor>
+public class GenreCreator implements ResultCreator<Tables.GenresReadable, GenreDigest, Cursor>
 {
-    public Genre create(Cursor source)
+    public GenreDigest create(Cursor source)
     {
-        return new Genre(source.getString(source.getColumnIndex(Tables.TRACKS.GENRE.getName())));
+        return new GenreDigest(source.getString(source.getColumnIndex(Tables.GenresReadable.GENRE.getName())));
     }
 }

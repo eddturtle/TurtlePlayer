@@ -1,14 +1,13 @@
 package com.turtleplayer.persistance.source.sql;
 
 import android.database.Cursor;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.turtleplayer.persistance.framework.creator.Creator;
 import com.turtleplayer.persistance.source.relational.Table;
 import com.turtleplayer.persistance.source.sql.query.Limit;
 import com.turtleplayer.persistance.source.sql.query.Select;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TURTLE PLAYER

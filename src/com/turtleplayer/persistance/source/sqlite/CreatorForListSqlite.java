@@ -1,9 +1,8 @@
 package com.turtleplayer.persistance.source.sqlite;
 
-import com.turtleplayer.persistance.framework.creator.Creator;
-import com.turtleplayer.persistance.framework.creator.CreatorForList;
-
 import android.database.Cursor;
+import com.turtleplayer.persistance.framework.creator.CreatorForList;
+import com.turtleplayer.persistance.framework.creator.ResultCreator;
 
 /**
  * TURTLE PLAYER
@@ -23,11 +22,11 @@ import android.database.Cursor;
  */
 
 /**
- * @param <I> resulting set contains instance I
+ * @param <RESULT> resulting set contains instance I
  */
-public class CreatorForListSqlite<I> extends CreatorForList<I, Cursor, Cursor>
+public class CreatorForListSqlite<TARGET, RESULT> extends CreatorForList<TARGET, RESULT, Cursor, Cursor>
 {
-    public CreatorForListSqlite(Creator<I, Cursor> creator)
+    public CreatorForListSqlite(ResultCreator<? super TARGET, RESULT, Cursor> creator)
     {
         super(creator);
     }

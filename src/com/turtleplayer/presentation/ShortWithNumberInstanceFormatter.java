@@ -26,7 +26,7 @@ class ShortWithNumberInstanceFormatter extends ShortInstanceFormatter
     @Override
     public String visit(Track track)
     {
-        String trackName = track.GetTitle();
+        String trackName = track.getSongName();
 
         int number = track.GetNumber();
 

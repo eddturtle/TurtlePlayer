@@ -1,24 +1,19 @@
 package com.turtleplayer.controller;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import com.turtleplayer.R;
 import com.turtleplayer.model.Track;
-import com.turtleplayer.persistance.framework.filter.FieldFilter;
-import com.turtleplayer.persistance.framework.filter.Filter;
-import com.turtleplayer.persistance.framework.filter.FilterSet;
-import com.turtleplayer.persistance.framework.filter.FilterVisitor;
-import com.turtleplayer.persistance.source.relational.FieldPersistable;
+import com.turtleplayer.persistance.framework.filter.*;
 import com.turtleplayer.persistance.turtle.db.structure.Tables;
+import com.turtleplayer.persistance.turtle.filter.DirFilter;
+import com.turtleplayer.persistance.turtle.filter.TurtleFilterVisitor;
 import com.turtleplayer.player.ObservableOutput;
 import com.turtleplayer.playlist.Playlist;
 
@@ -50,108 +45,360 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 
 	private enum BowMenuEntry
 	{
-		LEFT(R.id.bowmenu_left, R.drawable.menubow_left_290_active, R.drawable.menubow_left_290, R.id.bowmenu_left_icon, R.drawable.album24, R.id.track_instant_filter_left, Tables.TRACKS.ALBUM),
-		RIGHT(R.id.bowmenu_right, R.drawable.menubow_right_290_active, R.drawable.menubow_right_290, R.id.bowmenu_right_icon, R.drawable.artist24, R.id.track_instant_filter_right, Tables.TRACKS.ARTIST),
-		//BOTTOM(R.id.bowmenu_bottom, R.drawable.menubow_bottom_290_active, R.drawable.menubow_bottom_290, R.id.track_instant_filter_bottom, Tables.TRACKS.GENRE),
-		TOP(R.id.bowmenu_top, R.drawable.menubow_top_290_active, R.drawable.menubow_top_290, R.id.bowmenu_top_icon, R.drawable.genre24, R.id.track_instant_filter_top, Tables.TRACKS.GENRE);
+		LEFT(){
+			@Override
+			public void setVisible(Activity activity,
+										  boolean visible)
+			{
+				int visibility = visible ? View.VISIBLE : View.GONE;
+				activity.findViewById(R.id.track_instant_filter_left).setVisibility(visibility);
+				activity.findViewById(R.id.bowmenu_left_icon).setVisibility(visibility);
+				activity.findViewById(R.id.bowmenu_left).setVisibility(visibility);
+			}
 
-		final int layoutId;
-		final int layoutIdOnPic;
-		final int layoutIdOffPic;
-		final int layoutIconId;
-		final int layoutIconPic;
-		final int layoutIdText;
-		final FieldPersistable<Track, ?> field;
+			@Override
+			public View getView(Activity activity)
+			{
+				return activity.findViewById(R.id.bowmenu_left);
+			}
 
-		boolean active = false;
+			@Override
+			public void adapt(Track track, Activity activity)
+			{
+				((TextView)activity.findViewById(R.id.track_instant_filter_left)).setText(track.getAlbumName());
+			}
 
-		private BowMenuEntry(int layoutId,
-									int layoutOnIdPic,
-									int layoutOffIdPic,
-									int layoutIconId,
-									int layoutIconPic,
-									int layoutIdText,
-									FieldPersistable<Track, ?> field)
-		{
-			this.layoutId = layoutId;
-			this.layoutIdOnPic = layoutOnIdPic;
-			this.layoutIdOffPic = layoutOffIdPic;
-			this.layoutIconId = layoutIconId;
-			this.layoutIconPic = layoutIconPic;
-			this.layoutIdText = layoutIdText;
-			this.field = field;
-		}
+			@Override
+			public Filter<? super Tables.Tracks> getFilter(Track track)
+			{
+				return track == null ? null : new FieldFilter<Tables.Tracks, Track, String>(Tables.AlbumsReadable.ALBUM, Operator.EQ, Tables.AlbumsReadable.ALBUM.get(track));
+			}
 
-		public int getLayoutId()
-		{
-			return layoutId;
-		}
+			@Override
+			public void adapt(final Filter<? super Tables.Tracks> filter, final Track track, final boolean activated, final Activity activity)
+			{
+				filter.accept(new FilterVisitor<Tables.Tracks, Boolean>()
+				{
+					public <T, Z> Boolean visit(FieldFilter<? super Tables.Tracks, Z, T> fieldFilter)
+					{
+						if(Tables.AlbumsReadable.ALBUM.equals(fieldFilter.getField()))
+						{
+							setSettedFilter(activated ? filter : null);
+							ImageView bow = (ImageView) activity.findViewById(R.id.bowmenu_left);
+							bow.setImageResource(activated ? R.drawable.menubow_left_290_active : R.drawable.menubow_left_290);
+							if(activated)
+							{
+								adapt(track, activity);
+							}
+							setVisible(activity, activated);
+							return true;
+						}
+						return false;
+					}
 
-		public int getLayoutIconId()
-		{
-			return layoutIconId;
-		}
+					public Boolean visit(FilterSet<? super Tables.Tracks> filterSet)
+					{
+						boolean adapted = false;
+						for(Filter<? super Tables.Tracks> filter : filterSet.getFilters())
+						{
+							if(filter.accept(this)){
+								adapted = true;
+							}
+						}
+						return adapted;
+					}
 
-		public FieldPersistable<Track, ?> getField()
-		{
-			return field;
-		}
+					public Boolean visit(NotFilter<? super Tables.Tracks> notFilter)
+					{
+						if(notFilter.getFilter().accept(this)){
+							((TextView)activity.findViewById(R.id.track_instant_filter_left)).setTextColor(Color.RED);
+							return activated;
+						}
+						return false;
+					}
+				});
+			}
+		},
+		RIGHT{
+			@Override
+			public void setVisible(Activity activity,
+										  boolean visible)
+			{
+				int visibility = visible ? View.VISIBLE : View.GONE;
+				activity.findViewById(R.id.track_instant_filter_right).setVisibility(visibility);
+				activity.findViewById(R.id.bowmenu_right_icon).setVisibility(visibility);
+				activity.findViewById(R.id.bowmenu_right).setVisibility(visibility);
+			}
+
+			@Override
+			public View getView(Activity activity)
+			{
+				return activity.findViewById(R.id.bowmenu_right);
+			}
+
+			@Override
+			public void adapt(Track track, Activity activity)
+			{
+				((TextView)activity.findViewById(R.id.track_instant_filter_right)).setText(track.getArtistName());
+			}
+
+			@Override
+			public Filter<? super Tables.Tracks> getFilter(Track track)
+			{
+				return track == null ? null : new FieldFilter<Tables.Tracks, Track, String>(Tables.ArtistsReadable.ARTIST, Operator.EQ, Tables.ArtistsReadable.ARTIST.get(track));
+			}
+
+			@Override
+			public void adapt(final Filter<? super Tables.Tracks> filter, final Track track, final boolean activated, final Activity activity)
+			{
+				filter.accept(new FilterVisitor<Tables.Tracks, Boolean>()
+				{
+					public <T, Z> Boolean visit(FieldFilter<? super Tables.Tracks, Z, T> fieldFilter)
+					{
+						if(Tables.ArtistsReadable.ARTIST.equals(fieldFilter.getField()))
+						{
+							setSettedFilter(activated ? filter : null);
+							ImageView bow = (ImageView) activity.findViewById(R.id.bowmenu_right);
+							bow.setImageResource(activated ? R.drawable.menubow_right_290_active : R.drawable.menubow_right_290);
+							if(activated)
+							{
+								adapt(track, activity);
+							}
+							setVisible(activity, activated);
+							return true;
+						}
+						return false;
+					}
+
+					public Boolean visit(FilterSet<? super Tables.Tracks> filterSet)
+					{
+						boolean adapted = false;
+						for(Filter<? super Tables.Tracks> filter : filterSet.getFilters())
+						{
+							if(filter.accept(this)){
+								adapted = true;
+							}
+						}
+						return adapted;
+					}
+
+					public Boolean visit(NotFilter<? super Tables.Tracks> notFilter)
+					{
+						if(notFilter.getFilter().accept(this)){
+							((TextView)activity.findViewById(R.id.track_instant_filter_right)).setTextColor(Color.RED);
+							return activated;
+						}
+						return false;
+					}
+				});
+			}
+		},
+		TOPLINE{
+			@Override
+			public void setVisible(Activity activity,
+										  boolean visible)
+			{
+				int visibility = visible ? View.VISIBLE : View.GONE;
+				activity.findViewById(R.id.linearLayoutDir).setVisibility(visibility);
+			}
+
+			@Override
+			public View getView(Activity activity)
+			{
+				return activity.findViewById(R.id.linearLayoutDir);
+			}
+
+			@Override
+			public void adapt(Track track, Activity activity)
+			{
+				((TextView)activity.findViewById(R.id.track_instant_filter_topline)).setText(track.getPath());
+			}
+
+			@Override
+			public Filter<? super Tables.Tracks> getFilter(Track track)
+			{
+				return track == null ? null : new DirFilter(Operator.LIKE, Tables.FsObjects.PATH.get(track) + "%");
+			}
+
+			@Override
+			public void adapt(final Filter<? super Tables.Tracks> filter, final Track track, final boolean activated, final Activity activity)
+			{
+				filter.accept(new TurtleFilterVisitor<Tables.Tracks, Boolean>()
+				{
+					public <T, Z> Boolean visit(FieldFilter<? super Tables.Tracks, Z, T> fieldFilter)
+					{
+						return false;
+					}
+
+					public Boolean visit(FilterSet<? super Tables.Tracks> filterSet)
+					{
+						boolean adapted = false;
+						for(Filter<? super Tables.Tracks> filter : filterSet.getFilters())
+						{
+							if(filter.accept(this)){
+								adapted = true;
+							}
+						}
+						return adapted;
+					}
+
+					public Boolean visit(NotFilter<? super Tables.Tracks> notFilter)
+					{
+						if(notFilter.getFilter().accept(this)){
+							((TextView)activity.findViewById(R.id.track_instant_filter_topline)).setTextColor(Color.RED);
+							return activated;
+						}
+						return false;
+					}
+
+					public Boolean visit(DirFilter dirFilter)
+					{
+						activity.findViewById(R.id.dir_filter_border).setBackgroundColor(activated ? Color.argb(177, 21, 164, 0) : Color.argb(177, 152, 152, 152));
+						((TextView)activity.findViewById(R.id.track_instant_filter_topline)).setText(dirFilter.getValue().replaceAll("%", "*"));
+						setSettedFilter(activated ? filter : null);
+						if(!activated)
+						{
+							adapt(track, activity);
+						}
+						setVisible(activity, activated);
+						return true;
+					}
+				});
+			}
+		},
+		TOP{
+			@Override
+			public void setVisible(Activity activity,
+										  boolean visible)
+			{
+				int visibility = visible ? View.VISIBLE : View.GONE;
+				activity.findViewById(R.id.track_instant_filter_top).setVisibility(visibility);
+				activity.findViewById(R.id.bowmenu_top_icon).setVisibility(visibility);
+				activity.findViewById(R.id.bowmenu_top).setVisibility(visibility);
+			}
+
+			@Override
+			public View getView(Activity activity)
+			{
+				return activity.findViewById(R.id.bowmenu_top);
+			}
+
+			@Override
+			public void adapt(Track track, Activity activity)
+			{
+				((TextView)activity.findViewById(R.id.track_instant_filter_top)).setText(track.getGenreName());
+			}
+
+			@Override
+			public Filter<? super Tables.Tracks> getFilter(Track track)
+			{
+				return track == null ? null : new FieldFilter<Tables.Tracks, Track, String>(Tables.GenresReadable.GENRE, Operator.EQ, Tables.GenresReadable.GENRE.get(track));
+			}
+
+			@Override
+			public void adapt(final Filter<? super Tables.Tracks> filter, final Track track, final boolean activated, final Activity activity)
+			{
+				filter.accept(new FilterVisitor<Tables.Tracks, Boolean>()
+				{
+					public <T, Z> Boolean visit(FieldFilter<? super Tables.Tracks, Z, T> fieldFilter)
+					{
+						if(Tables.GenresReadable.GENRE.equals(fieldFilter.getField()))
+						{
+							setSettedFilter(activated ? filter : null);
+							ImageView bow = (ImageView) activity.findViewById(R.id.bowmenu_top);
+							bow.setImageResource(activated ? R.drawable.menubow_top_290_active : R.drawable.menubow_top_290);
+							if(activated)
+							{
+								adapt(track, activity);
+							}
+							setVisible(activity, activated);
+							return true;
+						}
+						return false;
+					}
+
+					public Boolean visit(FilterSet<? super Tables.Tracks> filterSet)
+					{
+						boolean adapted = false;
+						for(Filter<? super Tables.Tracks> filter : filterSet.getFilters())
+						{
+							if(filter.accept(this)){
+								adapted = true;
+							}
+						}
+						return adapted;
+					}
+
+					public Boolean visit(NotFilter<? super Tables.Tracks> notFilter)
+					{
+						if(notFilter.getFilter().accept(this)){
+							((TextView)activity.findViewById(R.id.track_instant_filter_top)).setTextColor(Color.RED);
+							return activated;
+						}
+						return false;
+					}
+				});
+			}
+		};
+
+		private Filter<? super Tables.Tracks> settedFilter = null;
 
 		public boolean isActive()
 		{
-			return active;
+			return settedFilter != null;
 		}
 
-		public int getLayoutPic()
+		public void setSettedFilter(Filter<? super Tables.Tracks> settedFilter)
 		{
-			return active ? layoutIdOnPic : layoutIdOffPic;
+			this.settedFilter = settedFilter;
 		}
 
-		public int getIconLayoutPic()
+		public Filter<? super Tables.Tracks> getSettedFilter()
 		{
-			return layoutIconPic;
+			return settedFilter;
 		}
 
-		public int getLayoutIdText()
-		{
-			return layoutIdText;
-		}
-
-		public void setActive(boolean active)
-		{
-			this.active = active;
-		}
+		public abstract void setVisible(Activity activity,
+												  boolean visible);
+		public abstract View getView(Activity activity);
+		public abstract void adapt(Track track, Activity activity);
+		public abstract Filter<? super Tables.Tracks> getFilter(Track track);
+		public abstract void adapt(Filter<? super Tables.Tracks> filter, Track track, boolean activated, Activity activity);
 	}
 
 	//Filter
-	private final Map<BowMenuEntry, ImageView> bowMenuEntries = new HashMap<BowMenuEntry, ImageView>();
-	private final Map<BowMenuEntry, ImageView> bowMenuIconEntries = new HashMap<BowMenuEntry, ImageView>();
-	private final Map<BowMenuEntry, TextView> bowMenuTextEntries = new HashMap<BowMenuEntry, TextView>();
 	private final ImageView pointer;
 
 	private final View[] scrollingViews;
 	private final Point[] initalScrollingOfScrollingViews;
+	private final Activity activity;
 
 	private final GestureDetector gestureDetector;
 
 	private final int[] pointerLocationOnScreen = new int[2];
 
 	private Mode currMode = Mode.TRACK;
+	private Track currTrack = null;
 
 
-	protected TouchHandler(Activity activity, View... scrollingViews)
+	protected TouchHandler(final Activity activity, View... scrollingViews)
 	{
+		this.activity = activity;
+		pointerShower = new Runnable()
+		{
+			public void run()
+			{
+				pointer.setVisibility(View.VISIBLE);
+
+				for(BowMenuEntry bowMenuEntry : BowMenuEntry.values()){
+					bowMenuEntry.setVisible(activity, true);
+				}
+
+				currMode = Mode.MENU;
+			}
+		};
+
 		pointer = (ImageView) activity.findViewById(R.id.pointer);
-
-		for(BowMenuEntry bowMenuEntry : BowMenuEntry.values()){
-			ImageView view = (ImageView) activity.findViewById(bowMenuEntry.getLayoutId());
-			ImageView iconView = (ImageView) activity.findViewById(bowMenuEntry.getLayoutIconId());
-			TextView viewText = (TextView) activity.findViewById(bowMenuEntry.getLayoutIdText());
-
-			bowMenuEntries.put(bowMenuEntry, view);
-			bowMenuIconEntries.put(bowMenuEntry, iconView);
-			bowMenuTextEntries.put(bowMenuEntry, viewText);
-		}
 
 		initalScrollingOfScrollingViews = new Point[scrollingViews.length];
 		this.scrollingViews = scrollingViews;
@@ -215,27 +462,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 	};
 
 
-	final Runnable pointerShower = new Runnable()
-	{
-		public void run()
-		{
-			pointer.setVisibility(View.VISIBLE);
-
-			for(View view : bowMenuEntries.values()){
-				view.setVisibility(View.VISIBLE);
-			}
-
-			for(View view : bowMenuIconEntries.values()){
-				view.setVisibility(View.VISIBLE);
-			}
-
-			for(View view : bowMenuTextEntries.values()){
-				view.setVisibility(View.VISIBLE);
-			}
-
-			currMode = Mode.MENU;
-		}
-	};
+	final Runnable pointerShower;
 
 	public boolean onTouch(View v,
 								  MotionEvent event)
@@ -260,9 +487,16 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 				if(!wasConsumed)
 				{
 					for(BowMenuEntry bowMenuEntry : BowMenuEntry.values()){
-						if(isPointInsideOf(bowMenuEntries.get(bowMenuEntry), event.getRawX(), event.getRawY()) &&
+						if(isPointInsideOf(bowMenuEntry.getView(activity), event.getRawX(), event.getRawY()) &&
 								  (bowMenuEntry.isActive() && scrollingViews[0].getScrollX() == 0 || Mode.MENU.equals(currMode))){
-							filterSelected(bowMenuEntry.getField());
+							if(bowMenuEntry.isActive())
+							{
+								filterSelected(bowMenuEntry.getSettedFilter(), true);
+							}
+							else
+							{
+								filterSelected(bowMenuEntry.getFilter(currTrack), false);
+							}
 						}
 					}
 
@@ -282,13 +516,11 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 
 				resetScrollingViews();
 				pointer.scrollTo(0,0);
-				pointer.setVisibility(View.INVISIBLE);
+				pointer.setVisibility(View.GONE);
 				for(BowMenuEntry bowMenuEntry : BowMenuEntry.values()){
 					if(!bowMenuEntry.isActive())
 					{
-						bowMenuEntries.get(bowMenuEntry).setVisibility(View.INVISIBLE);
-						bowMenuIconEntries.get(bowMenuEntry).setVisibility(View.INVISIBLE);
-						bowMenuTextEntries.get(bowMenuEntry).setVisibility(View.INVISIBLE);
+						bowMenuEntry.setVisible(activity, false);
 					}
 				}
 
@@ -340,9 +572,13 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 
 	public void trackChanged(Track track, int lengthInMillis)
 	{
-		for(Map.Entry<BowMenuEntry, TextView> bowMenuEntry : bowMenuTextEntries.entrySet()){
-			bowMenuEntry.getValue().setText(bowMenuEntry.getKey().getField().getAsDisplayableString(track));
+		for(BowMenuEntry bowMenuEntry : BowMenuEntry.values()){
+			if(!bowMenuEntry.isActive())
+			{
+				bowMenuEntry.adapt(track, activity);
+			}
 		}
+		this.currTrack = track;
 	}
 
 	public void started()
@@ -355,49 +591,25 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 		//do nothing
 	}
 
-	public void filterAdded(Filter filter)
+	public void filterAdded(Filter<? super Tables.Tracks> filter)
 	{
 		filterChanged(filter, true);
 	}
 
-	public void filterRemoved(Filter filter)
+	public void filterRemoved(Filter<? super Tables.Tracks> filter)
 	{
 		filterChanged(filter, false);
 	}
 
-	private void filterChanged(Filter filter, final boolean activated){
-		filter.accept(new FilterVisitor<Object, Void>()
+	private void filterChanged(final Filter<? super Tables.Tracks> filter, final boolean activated){
+		for(final BowMenuEntry entry : BowMenuEntry.values())
 		{
-			public <T> Void visit(FieldFilter<Object, T> fieldFilter)
-			{
-				for(BowMenuEntry entry : BowMenuEntry.values())
-				{
-					if(entry.getField().equals(fieldFilter.getField()))
-					{
-						entry.setActive(activated);
-						bowMenuEntries.get(entry).setImageResource(entry.getLayoutPic());
-						bowMenuIconEntries.get(entry).setImageResource(entry.getIconLayoutPic());
-						int visibility = activated ? View.VISIBLE : View.INVISIBLE;
-						bowMenuEntries.get(entry).setVisibility(visibility);
-						bowMenuIconEntries.get(entry).setVisibility(visibility);
-						bowMenuTextEntries.get(entry).setVisibility(visibility);
-					}
-				}
-				return null;
-			}
-
-			public Void visit(FilterSet filterSet)
-			{
-				for(Filter filter : filterSet.getFilters()){
-					filter.accept(this);
-				}
-				return null;
-			}
-		});
+			entry.adapt(filter, currTrack, activated, activity);
+		}
 	}
 
 
 	protected abstract void nextGestureRecognized();
 	protected abstract void previousGestureRecognized();
-	protected abstract void filterSelected(FieldPersistable<Track, ?> field);
+	protected abstract void filterSelected(Filter<? super Tables.Tracks> filter, boolean wasActive);
 }

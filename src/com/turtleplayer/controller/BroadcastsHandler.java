@@ -1,13 +1,12 @@
 package com.turtleplayer.controller;
 
-import com.turtleplayer.player.Output;
-import com.turtleplayer.player.OutputAccess;
-import com.turtleplayer.player.OutputCommand;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
+import com.turtleplayer.player.Output;
+import com.turtleplayer.player.OutputAccess;
+import com.turtleplayer.player.OutputCommand;
 
 /**
 * TURTLE PLAYER

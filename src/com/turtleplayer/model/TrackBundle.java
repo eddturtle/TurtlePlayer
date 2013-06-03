@@ -1,6 +1,5 @@
 package com.turtleplayer.model;
 
-
 /**
  * TURTLE PLAYER
  * <p/>

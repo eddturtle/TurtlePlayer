@@ -19,10 +19,12 @@ package com.turtleplayer.persistance.framework.filter;
 
 public enum Operator
 {
-    GT,
-    LT,
-    GE,
-    LE,
-    EQ,
-    LIKE
+	GT,
+	LT,
+	GE,
+	LE,
+	EQ,
+	NEQ,
+	LIKE,
+	NOT_LIKE
 }

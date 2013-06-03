@@ -3,11 +3,10 @@ package com.turtleplayer.persistance.turtle.db;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
-import java.util.Arrays;
-
 import com.turtleplayer.persistance.source.relational.FieldPersistable;
 import com.turtleplayer.persistance.turtle.db.structure.Tables;
+
+import java.util.Arrays;
 
 /**
  * TURTLE PLAYER
@@ -29,7 +28,7 @@ import com.turtleplayer.persistance.turtle.db.structure.Tables;
 public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 {
 
-	public static final int DATABASE_VERSION = 7;
+	public static final int DATABASE_VERSION = 11;
 	public static final String DATABASE_NAME = "TurtlePlayer";
 
 	public TurtleDatabaseImpl(Context context)
@@ -41,20 +40,21 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 	public void onCreate(SQLiteDatabase db)
 	{
 		String createTracksSql = "CREATE TABLE " + Tables.TRACKS.getName() + " ("
-				  + Tables.TRACKS.TITLE.getName() + " TEXT PRIMARY KEY, "
-				  + Tables.TRACKS.NUMBER.getName() + " INTEGER, "
-				  + Tables.TRACKS.ARTIST.getName() + " TEXT, "
-				  + Tables.TRACKS.ALBUM.getName() + " TEXT, "
-				  + Tables.TRACKS.GENRE.getName() + " TEXT, "
-				  + Tables.TRACKS.SRC.getName() + " TEXT, "
-				  + Tables.TRACKS.ROOTSRC.getName() + " TEXT);";
+				  + Tables.SongsReadable.TITLE.getName() + " TEXT COLLATE LOCALIZED, "
+				  + Tables.Tracks.NUMBER.getName() + " INTEGER, "
+				  + Tables.ArtistsReadable.ARTIST.getName() + " TEXT COLLATE LOCALIZED, "
+				  + Tables.AlbumsReadable.ALBUM.getName() + " TEXT COLLATE LOCALIZED, "
+				  + Tables.GenresReadable.GENRE.getName() + " TEXT, "
+				  + Tables.FsObjects.PATH.getName() + " TEXT, "
+				  + Tables.FsObjects.NAME.getName() + " TEXT, "
+				  + " PRIMARY KEY (" + Tables.Tracks.NAME.getName() + ", " + Tables.Tracks.PATH.getName() + "));";
 		db.execSQL(createTracksSql);
 
 		for(FieldPersistable<?,?> field : Arrays.asList(
-				  Tables.TRACKS.ARTIST,
-				  Tables.TRACKS.ALBUM,
-				  Tables.TRACKS.NUMBER,
-				  Tables.TRACKS.TITLE
+				  Tables.ArtistsReadable.ARTIST,
+				  Tables.AlbumsReadable.ALBUM,
+				  Tables.Tracks.NUMBER,
+				  Tables.SongsReadable.TITLE
 				  ))
 		{
 			String createTracksIndeces = "CREATE INDEX " + Tables.TRACKS.getName() + "_" + field.getName() + "_idx " +
@@ -63,16 +63,32 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 		}
 
 		String createAlbumArtSql = "CREATE TABLE " + Tables.ALBUM_ART_LOCATIONS.getName() + " ("
-				  + Tables.ALBUM_ART_LOCATIONS.PATH.getName() + " TEXT PRIMARY KEY, "
-				  + Tables.ALBUM_ART_LOCATIONS.ALBUM_ART_PATH.getName() + " TEXT);";
+				  + Tables.AlbumArtLocations.PATH.getName() + " TEXT PRIMARY KEY, "
+				  + Tables.AlbumArtLocations.ALBUM_ART_PATH.getName() + " TEXT);";
 		db.execSQL(createAlbumArtSql);
 
 		for(FieldPersistable<?,?> field : Arrays.asList(
-				  Tables.ALBUM_ART_LOCATIONS.PATH
+				  Tables.AlbumArtLocations.PATH
 		))
 		{
 			String createAlbumArtIndeces = "CREATE INDEX " + Tables.ALBUM_ART_LOCATIONS.getName() + "_" + field.getName() + "_idx " +
 					  " ON " + Tables.ALBUM_ART_LOCATIONS.getName() + "(" + field.getName() + ");";
+			db.execSQL(createAlbumArtIndeces);
+		}
+
+		String createDirsSql = "CREATE TABLE " + Tables.DIRS.getName() + " ("
+				  + Tables.Dirs.NAME.getName() + " TEXT COLLATE LOCALIZED, "
+				  + Tables.Dirs.PATH.getName() + " TEXT COLLATE LOCALIZED,"
+				  + " PRIMARY KEY (" + Tables.Dirs.NAME.getName() + ", " + Tables.Dirs.PATH.getName() + "));";
+		db.execSQL(createDirsSql);
+
+		for(FieldPersistable<?,?> field : Arrays.asList(
+				  Tables.Dirs.PATH,
+				  Tables.Dirs.NAME
+		))
+		{
+			String createAlbumArtIndeces = "CREATE INDEX " + Tables.DIRS.getName() + "_" + field.getName() + "_idx " +
+					  " ON " + Tables.DIRS.getName() + "(" + field.getName() + ");";
 			db.execSQL(createAlbumArtIndeces);
 		}
 	}
@@ -84,6 +100,8 @@ public abstract class TurtleDatabaseImpl extends SQLiteOpenHelper
 	{
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.TRACKS.getName());
 		db.execSQL("DROP TABLE IF EXISTS " + Tables.ALBUM_ART_LOCATIONS.getName());
+		db.execSQL("DROP TABLE IF EXISTS " + Tables.DIRS.getName());
+
 		onCreate(db);
 		dbResetted();
 	}

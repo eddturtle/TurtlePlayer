@@ -1,14 +1,13 @@
 package com.turtleplayer.persistance.source.sql;
 
 import android.database.Cursor;
-
-import java.util.List;
-
 import com.turtleplayer.persistance.framework.creator.CreatorForList;
 import com.turtleplayer.persistance.framework.mapping.Mapping;
 import com.turtleplayer.persistance.source.relational.Field;
-import com.turtleplayer.persistance.source.relational.Table;
+import com.turtleplayer.persistance.source.relational.View;
 import com.turtleplayer.persistance.source.sql.query.Select;
+
+import java.util.List;
 
 /**
  * TURTLE PLAYER
@@ -27,27 +26,27 @@ import com.turtleplayer.persistance.source.sql.query.Select;
  * @author Simon Honegger (Hoene84)
  */
 
-public class MappingDistinct<I> implements Mapping<Select, List<I>, Cursor>
+public class MappingDistinct<TARGET extends View, PROJECTION extends View, RESULT> implements Mapping<Select, List<RESULT>, Cursor>
 {
-	private final Table table;
-	private final Field field;
-	private final CreatorForList<I, Cursor, Cursor> creator;
+	private final PROJECTION view;
+	private final Field[] fields;
+	private final CreatorForList<? super TARGET, RESULT, Cursor, Cursor> creator;
 
-	public MappingDistinct(Table table,
-								  Field field,
-								  CreatorForList<I, Cursor, Cursor> creator)
+	public MappingDistinct(PROJECTION view,
+								  CreatorForList<? super TARGET, RESULT, Cursor, Cursor> creator,
+								  TARGET target)
 	{
-		this.table = table;
-		this.field = field;
+		this.view = view;
+		this.fields = target.getFields();
       this.creator = creator;
 	}
 
 	public Select get()
 	{
-		return new Select(table, Select.SelectMethod.DISTINCT, field);
+		return new Select(view, Select.SelectMethod.DISTINCT, fields);
 	}
 
-    public List<I> create(Cursor queryResult)
+    public List<RESULT> create(Cursor queryResult)
     {
         return creator.create(queryResult);
     }

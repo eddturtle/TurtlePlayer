@@ -1,11 +1,10 @@
 package com.turtleplayer.player;
 
-import com.turtleplayer.model.Track;
-import com.turtleplayer.preferences.Preferences;
-
 import android.content.*;
 import android.os.*;
 import android.util.Log;
+import com.turtleplayer.model.Track;
+import com.turtleplayer.preferences.Preferences;
 
 /**
  * TURTLE PLAYER

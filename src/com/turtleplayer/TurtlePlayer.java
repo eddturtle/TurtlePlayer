@@ -19,12 +19,11 @@
 // Package
 package com.turtleplayer;
 
+import android.app.Application;
 import com.turtleplayer.persistance.turtle.db.TurtleDatabase;
 import com.turtleplayer.player.ObservableOutput;
 import com.turtleplayer.player.PlayerServiceConnector;
 import com.turtleplayer.playlist.Playlist;
-
-import android.app.Application;
 
 public class TurtlePlayer extends Application
 {

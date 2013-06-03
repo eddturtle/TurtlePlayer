@@ -1,10 +1,10 @@
 package com.turtleplayer.persistance.turtle;
 
-
-import java.util.Collection;
-
 import com.turtleplayer.model.*;
 import com.turtleplayer.persistance.framework.filter.Filter;
+import com.turtleplayer.persistance.turtle.db.structure.Tables;
+
+import java.util.Collection;
 
 /**
  * TURTLE PLAYER
@@ -28,9 +28,13 @@ import com.turtleplayer.persistance.framework.filter.Filter;
  */
 public interface FileBase
 {
-	Collection<Track> getTracks(Filter filter);
+	Collection<? extends Track> getTracks(Filter<? super Tables.Tracks> filter);
 
-	Collection<Album> getAlbums(Filter filter);
+	Collection<? extends Album> getAlbums(Filter<? super Tables.Tracks> filter);
 
-	Collection<Artist> getArtist(Filter filter);
+	Collection<? extends Artist> getArtists(Filter<? super Tables.Tracks> filter);
+
+	Collection<? extends Genre> getGenres(Filter<? super Tables.Tracks> filter);
+
+	Collection<? extends Song> getSongs(Filter<? super Tables.Tracks> filter);
 }

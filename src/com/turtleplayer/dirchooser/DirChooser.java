@@ -23,11 +23,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
+import com.turtleplayer.R;
 
 import java.io.File;
 import java.util.Stack;
-
-import com.turtleplayer.R;
 
 /**
  * Activity with result to choose a folder.

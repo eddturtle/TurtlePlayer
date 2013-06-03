@@ -22,11 +22,13 @@ public interface InstanceVisitor<R>
 {
 	R visit(Track track);
 
-	R visit(TrackDigest track);
+	R visit(SongDigest track);
 
 	R visit(Album album);
 
-	R visit(Genre genre);
+	R visit(GenreDigest genre);
 
-	R visit(Artist artist);
+	R visit(ArtistDigest artist);
+
+	R visit(FSobject FSobject);
 }

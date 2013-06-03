@@ -1,11 +1,10 @@
 package com.turtleplayer.persistance.source.sqlite;
 
-import com.turtleplayer.persistance.framework.mapping.Mapping;
-import com.turtleplayer.persistance.framework.query.OperationInsert;
-import com.turtleplayer.persistance.source.relational.Table;
-
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import com.turtleplayer.persistance.framework.query.OperationInsert;
+import com.turtleplayer.persistance.framework.mapping.Mapping;
+import com.turtleplayer.persistance.source.relational.Table;
 
 /**
  * TURTLE PLAYER
@@ -33,8 +32,9 @@ public class InsertOperationSqlLite<I> implements OperationInsert<SQLiteDatabase
         this.mapping = mapping;
     }
 
-    public void insert(final SQLiteDatabase db, I instance)
+    public int insert(final SQLiteDatabase db, I instance)
 	{
-		db.insert(mapping.get().getName(), null, mapping.create(instance));
+		long newRowId = db.insert(mapping.get().getName(), null, mapping.create(instance));
+		return (newRowId < 0) ? 0 : 1;
 	}
 }

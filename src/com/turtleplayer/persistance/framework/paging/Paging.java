@@ -23,13 +23,13 @@ import com.turtleplayer.persistance.framework.sort.*;
 public abstract class Paging
 {
 
-	public static <I> Filter getFilter(Filter oldFilters,
-										I instance,
-										Order order)
+	public static <RESULT, PROJECTION> Filter<? super PROJECTION> getFilter(Filter<? super PROJECTION> oldFilters,
+										RESULT instance,
+										Order<? super PROJECTION> order)
 	{
 		if(instance != null)
 		{
-			return new FilterSet(order.accept(new PagingFilterBuilder<I>(instance)), oldFilters);
+			return new FilterSet<PROJECTION>(order.accept(new PagingFilterBuilder<PROJECTION, RESULT>(instance)), oldFilters);
 		}
 		else
 		{

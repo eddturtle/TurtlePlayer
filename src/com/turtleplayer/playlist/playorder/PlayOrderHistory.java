@@ -1,4 +1,3 @@
-package com.turtleplayer.playlist.playorder;
 ///*
 // *
 // * TURTLE PLAYER
@@ -17,20 +16,20 @@ package com.turtleplayer.playlist.playorder;
 // *
 // */
 //
-//package com.turtleplayer.playlist.playorder;
+//package turtle.player.playlist.playorder;
 //
 //import android.util.Log;
-//import com.turtleplayer.model.Track;
-//import com.turtleplayer.persistance.framework.executor.OperationExecutor;
-//import com.turtleplayer.persistance.framework.paging.Paging;
-//import com.turtleplayer.persistance.framework.sort.OrderSet;
-//import com.turtleplayer.persistance.framework.sort.SortOrder;
-//import com.turtleplayer.persistance.source.sql.First;
-//import com.turtleplayer.persistance.source.sqlite.QuerySqlite;
-//import com.turtleplayer.persistance.turtle.db.TurtleDatabase;
-//import com.turtleplayer.persistance.turtle.db.structure.Tables;
-//import com.turtleplayer.persistance.turtle.mapping.TrackCreator;
-//import com.turtleplayer.playlist.Playlist;
+//import turtle.player.model.Track;
+//import turtle.player.persistance.framework.executor.OperationExecutor;
+//import turtle.player.persistance.framework.paging.Paging;
+//import turtle.player.persistance.framework.sort.OrderSet;
+//import turtle.player.persistance.framework.sort.SortOrder;
+//import turtle.player.persistance.source.sql.First;
+//import turtle.player.persistance.source.sqlite.QuerySqlite;
+//import turtle.player.persistance.turtle.db.TurtleDatabase;
+//import turtle.player.persistance.turtle.db.structure.Tables;
+//import turtle.player.persistance.turtle.mapping.TrackCreator;
+//import turtle.player.playlist.Playlist;
 //
 //import java.util.ArrayList;
 //import java.util.List;

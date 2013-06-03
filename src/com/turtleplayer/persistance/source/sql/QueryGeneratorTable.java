@@ -1,9 +1,8 @@
 package com.turtleplayer.persistance.source.sql;
 
+import android.content.ContentValues;
 import com.turtleplayer.persistance.framework.mapping.Mapping;
 import com.turtleplayer.persistance.source.relational.Table;
-
-import android.content.ContentValues;
 
 /**
  * TURTLE PLAYER
@@ -22,8 +21,7 @@ import android.content.ContentValues;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class QueryGeneratorTable
-		  <I> implements Mapping<Table, ContentValues, I>
+public abstract class QueryGeneratorTable<I> implements Mapping<Table, ContentValues, I>
 {
 	final Table table;
 

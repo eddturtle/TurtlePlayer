@@ -1,9 +1,8 @@
 package com.turtleplayer.persistance.source.sqlite;
 
+import android.database.sqlite.SQLiteDatabase;
 import com.turtleplayer.persistance.framework.query.OperationDelete;
 import com.turtleplayer.persistance.source.relational.Table;
-
-import android.database.sqlite.SQLiteDatabase;
 
 /**
  * TURTLE PLAYER
@@ -24,9 +23,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class DeleteTableContentSqlLite implements OperationDelete<SQLiteDatabase, Table>
 {
-	public void delete(SQLiteDatabase db,
+	public int delete(SQLiteDatabase db,
 							 Table target)
 	{
-		db.delete(target.getName(), null, null);
+		return db.delete(target.getName(), null, null);
 	}
 }

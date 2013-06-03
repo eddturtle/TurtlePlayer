@@ -1,6 +1,8 @@
 package com.turtleplayer.persistance.source.relational;
 
-import java.io.Serializable;
+import com.turtleplayer.util.Shorty;
+
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -19,7 +21,7 @@ import java.io.Serializable;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class Table<I> implements Serializable
+public abstract class Table implements View
 {
 	final String name;
 
@@ -31,5 +33,10 @@ public abstract class Table<I> implements Serializable
 	public String getName()
 	{
 		return name;
+	}
+
+	public Set<Table> getTables()
+	{
+		return Shorty.oneElementSet(this);
 	}
 }

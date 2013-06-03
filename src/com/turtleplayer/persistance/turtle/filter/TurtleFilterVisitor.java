@@ -1,6 +1,4 @@
-package com.turtleplayer.persistance.framework.selector;
-
-import java.util.Map;
+package com.turtleplayer.persistance.turtle.filter;
 
 /**
  * TURTLE PLAYER
@@ -19,27 +17,12 @@ import java.util.Map;
  * @author Simon Honegger (Hoene84)
  */
 
-public class OrderSelector implements Selector
+import com.turtleplayer.persistance.framework.filter.FilterVisitor;
+
+/**
+ * @param <R> What the Visitor Produces (can be {@link Void} if nothing gets produced)
+ */
+public interface TurtleFilterVisitor<PROJECTION, R> extends FilterVisitor<PROJECTION, R>
 {
-	public enum Order
-	{
-		ASC,
-		DESC
-	}
-	private final Map<String, Order> orders;
-
-	public OrderSelector(Map<String, Order> orders)
-	{
-		this.orders = orders;
-	}
-
-	public Map<String, Order> getOrders()
-	{
-		return orders;
-	}
-
-	public Object accept(SelectorVisitor visitor)
-	{
-		return visitor.visit(this);
-	}
+	R visit(DirFilter dirFilter);
 }

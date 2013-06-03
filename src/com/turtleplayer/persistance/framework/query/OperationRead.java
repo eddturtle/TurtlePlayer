@@ -1,6 +1,5 @@
 package com.turtleplayer.persistance.framework.query;
 
-
 /**
  * TURTLE PLAYER
  * <p/>

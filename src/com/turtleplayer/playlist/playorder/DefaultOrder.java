@@ -23,14 +23,14 @@ import com.turtleplayer.persistance.turtle.db.structure.Tables;
  * @author Simon Honegger (Hoene84)
  */
 
-public class DefaultOrder extends OrderSet
+public class DefaultOrder extends OrderSet<Tables.Tracks>
 {
 	public DefaultOrder(SortOrder sortOrder)
 	{
-		super(new FieldOrder<Track, String>(Tables.TRACKS.ARTIST, sortOrder),
-				  new FieldOrder<Track, String>(Tables.TRACKS.ALBUM, sortOrder),
-				  new FieldOrder<Track, Integer>(Tables.TRACKS.NUMBER, sortOrder),
-				  new FieldOrder<Track, String>(Tables.TRACKS.TITLE, sortOrder)
+		super(new FieldOrder<Tables.Tracks, Track, String>(Tables.ArtistsReadable.ARTIST, sortOrder),
+				  new FieldOrder<Tables.Tracks, Track, String>(Tables.AlbumsReadable.ALBUM, sortOrder),
+				  new FieldOrder<Tables.Tracks, Track, Integer>(Tables.Tracks.NUMBER, sortOrder),
+				  new FieldOrder<Tables.Tracks, Track, String>(Tables.SongsReadable.TITLE, sortOrder)
 		);
 	}
 }

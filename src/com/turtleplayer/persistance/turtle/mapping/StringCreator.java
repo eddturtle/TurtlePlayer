@@ -1,8 +1,7 @@
 package com.turtleplayer.persistance.turtle.mapping;
 
-import com.turtleplayer.persistance.framework.creator.Creator;
-
 import android.database.Cursor;
+import com.turtleplayer.persistance.framework.creator.Creator;
 
 /**
  * TURTLE PLAYER

@@ -18,50 +18,9 @@
 
 package com.turtleplayer.model;
 
-
-import com.turtleplayer.util.Shorty;
-import com.turtleplayer.util.TurtleUtil;
-
-public class Genre implements Instance
+public interface Genre extends Instance
 {
-	private final String id;
-	public static final Genre NO_GENRE = new Genre(null);
+	public String getGenreId();
 
-	public Genre(String id)
-	{
-		this.id = Shorty.avoidNull(id);
-	}
-
-	public String getId()
-	{
-		return id;
-	}
-
-	public String getName()
-	{
-		return TurtleUtil.translateGenreId(id);
-	}
-
-	public <R> R accept(InstanceVisitor<R> visitor)
-	{
-		return visitor.visit(this);
-	}
-
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		Genre genre = (Genre) o;
-
-		return id.equals(genre.id);
-
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return id.hashCode();
-	}
+	public String getGenreName();
 }

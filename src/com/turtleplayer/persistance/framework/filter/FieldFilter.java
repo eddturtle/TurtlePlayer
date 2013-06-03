@@ -1,10 +1,6 @@
 package com.turtleplayer.persistance.framework.filter;
 
 import com.turtleplayer.persistance.source.relational.FieldPersistable;
-import com.turtleplayer.persistance.source.relational.fieldtype.FieldPersistableAsDouble;
-import com.turtleplayer.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
-import com.turtleplayer.persistance.source.relational.fieldtype.FieldPersistableAsString;
-import com.turtleplayer.persistance.source.relational.fieldtype.FieldVisitor;
 
 /**
  * TURTLE PLAYER
@@ -23,27 +19,27 @@ import com.turtleplayer.persistance.source.relational.fieldtype.FieldVisitor;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FieldFilter<I, T> implements Filter
+public class FieldFilter<PROJECTION, RESULT, TYPE> implements Filter<PROJECTION>
 {
-	private final FieldPersistable<I, T> field;
-	private final Operator operator;
-	private final T value;
+	protected final FieldPersistable<? super RESULT, TYPE> field;
+	protected final Operator operator;
+	protected final TYPE value;
 
-	public FieldFilter(FieldPersistable<I, T> field,
+	public FieldFilter(FieldPersistable<? super RESULT, TYPE> field,
 							 Operator operator,
-							 T value)
+							 TYPE value)
 	{
 		this.field = field;
 		this.operator = operator;
 		this.value = value;
 	}
 
-	public FieldPersistable<I, T> getField()
+	public FieldPersistable<? super RESULT, TYPE> getField()
 	{
 		return field;
 	}
 
-	public T getValue()
+	public TYPE getValue()
 	{
 		return value;
 	}
@@ -52,10 +48,9 @@ public class FieldFilter<I, T> implements Filter
 	{
 		return operator;
 	}
-
-	public <R, I> R accept(FilterVisitor<I, R> visitor)
+	public <R> R accept(FilterVisitor<? extends PROJECTION, R> visitor)
 	{
-		return visitor.visit((FieldFilter<I, T>)this);
+		return visitor.visit(this);
 	}
 
 	@Override
@@ -68,13 +63,13 @@ public class FieldFilter<I, T> implements Filter
 	public boolean equals(Object o)
 	{
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (!(o instanceof FieldFilter)) return false;
 
 		FieldFilter that = (FieldFilter) o;
 
 		if (!field.equals(that.field)) return false;
 		if (operator != that.operator) return false;
-		if (!value.equals(that.value)) return false;
+		if (value != null ? !value.equals(that.value) : that.value != null) return false;
 
 		return true;
 	}
@@ -84,29 +79,7 @@ public class FieldFilter<I, T> implements Filter
 	{
 		int result = field.hashCode();
 		result = 31 * result + operator.hashCode();
-		result = 31 * result + value.hashCode();
+		result = 31 * result + (value != null ? value.hashCode() : 0);
 		return result;
-	}
-
-	public abstract class FieldVisitorField<R> implements FieldVisitor<R, I>
-	{
-		public abstract R visit(FieldPersistableAsString<I> field, String filterValue);
-		public abstract R visit(FieldPersistableAsDouble<I> field, Double filterValue);
-		public abstract R visit(FieldPersistableAsInteger<I> field, Integer filterValue);
-
-		public R visit(FieldPersistableAsString<I> field)
-		{
-			return visit(field, (String)value);
-		}
-
-		public R visit(FieldPersistableAsDouble<I> field)
-		{
-			return visit(field, (Double)value);
-		}
-
-		public R visit(FieldPersistableAsInteger<I> field)
-		{
-			return visit(field, (Integer)value);
-		}
 	}
 }

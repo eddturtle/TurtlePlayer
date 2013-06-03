@@ -17,10 +17,10 @@ package com.turtleplayer.persistance.framework.sort;
  * @author Simon Honegger (Hoene84)
  */
 
-public class RandomOrder implements Order
+public class RandomOrder<PROJECTION> implements Order<PROJECTION>
 {
 
-	public <R, I> R accept(OrderVisitor<I, R> visitor)
+	public <R> R accept(OrderVisitor<? extends PROJECTION, R> visitor)
 	{
 		return visitor.visit(this);
 	}

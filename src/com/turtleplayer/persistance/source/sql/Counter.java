@@ -1,11 +1,10 @@
 package com.turtleplayer.persistance.source.sql;
 
+import android.database.Cursor;
 import com.turtleplayer.persistance.framework.mapping.Mapping;
 import com.turtleplayer.persistance.source.relational.Table;
 import com.turtleplayer.persistance.source.sql.query.Select;
 import com.turtleplayer.persistance.source.sql.query.Sql;
-
-import android.database.Cursor;
 
 /**
  * TURTLE PLAYER

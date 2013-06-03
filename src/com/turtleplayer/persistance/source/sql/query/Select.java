@@ -1,12 +1,11 @@
 package com.turtleplayer.persistance.source.sql.query;
 
+import com.turtleplayer.persistance.source.relational.Field;
+import com.turtleplayer.persistance.source.relational.View;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.turtleplayer.persistance.source.relational.Field;
-import com.turtleplayer.persistance.source.relational.Table;
 
 /**
  * TURTLE PLAYER
@@ -38,21 +37,21 @@ public class Select implements Sql
 		DISTINCT
 	}
 
-	public Select(Table table)
+	public Select(View view)
 	{
-		this.sql = "SELECT * FROM " + table.getName();
+		this.sql = "SELECT * FROM " + getTableList(view);
 	}
 
-	public Select(Table table, Field... fields)
+	public Select(View view, Field... fields)
 	{
-		this(table, SelectMethod.NORMAL, fields);
+		this(view, SelectMethod.NORMAL, fields);
 	}
 
-	public Select(Table table, SelectMethod selectMethod, Field... fields)
+	public Select(View view, SelectMethod selectMethod, Field... fields)
 	{
 		this.sql = "SELECT " +
 				  getFieldsList(selectMethod, fields) +
-				  " FROM " + table.getName();
+				  " FROM " + getTableList(view);
 	}
 
 	private String getFieldsList(SelectMethod selectMethod, Field... fields)
@@ -68,6 +67,11 @@ public class Select implements Sql
 			default:
 				throw new RuntimeException("Implement SelectMethod " + selectMethod.name());
 		}
+	}
+
+	private String getTableList(View view)
+	{
+		return new TablesPart(view.getTables()).toSql();
 	}
 
 	public String toSql()

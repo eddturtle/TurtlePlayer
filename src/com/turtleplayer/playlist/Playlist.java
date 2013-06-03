@@ -21,23 +21,16 @@ package com.turtleplayer.playlist;
 
 import android.content.Context;
 import android.util.Log;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.*;
-
 import com.turtleplayer.Stats;
 import com.turtleplayer.common.filefilter.FileFilters;
 import com.turtleplayer.controller.Observer;
-import com.turtleplayer.model.Track;
-import com.turtleplayer.model.TrackBundle;
+import com.turtleplayer.model.*;
 import com.turtleplayer.persistance.framework.executor.OperationExecutor;
 import com.turtleplayer.persistance.framework.filter.FieldFilter;
 import com.turtleplayer.persistance.framework.filter.Filter;
 import com.turtleplayer.persistance.framework.filter.FilterSet;
 import com.turtleplayer.persistance.framework.filter.Operator;
 import com.turtleplayer.persistance.framework.sort.RandomOrder;
-import com.turtleplayer.persistance.source.relational.FieldPersistable;
 import com.turtleplayer.persistance.source.sql.First;
 import com.turtleplayer.persistance.source.sqlite.QuerySqlite;
 import com.turtleplayer.persistance.turtle.FsReader;
@@ -49,6 +42,10 @@ import com.turtleplayer.preferences.Keys;
 import com.turtleplayer.preferences.Preferences;
 import com.turtleplayer.util.Shorty;
 
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.*;
+
 public class Playlist
 {
 
@@ -57,7 +54,7 @@ public class Playlist
 	{
 		NEXT,
 		PREV,
-		PULL;
+		PULL
 	}
 	*/
 
@@ -66,7 +63,7 @@ public class Playlist
 	public final Stats stats = new Stats();
 
 	private final TurtleDatabase db;
-	private final Set<Filter> filters = new HashSet<Filter>();
+	private final Set<Filter<? super Tables.Tracks>> filters = new HashSet<Filter<? super Tables.Tracks>>();
 
 	private final ExecutorService fsScannerExecutorService = Executors.newSingleThreadExecutor();
 	private Future<?> currentFuture = null;
@@ -79,26 +76,9 @@ public class Playlist
 	}
 
 	/**
-	 * @return true if the filter was activated
-	 */
-	public <O> boolean toggleFilter(FieldPersistable<Track, O> field, Track track){
-		Filter filter = new FieldFilter<Track, O>(field, Operator.EQ, field.get(track));
-		if(!filters.contains(filter))
-		{
-			addFilter(filter);
-			return true;
-		}
-		else
-		{
-			removeFilter(filter);
-			return false;
-		}
-	}
-
-	/**
 	 * @return true if the filter was not already there
 	 */
-	public <O> boolean addFilter(Filter filter){
+	public boolean addFilter(Filter<? super Tables.Tracks> filter){
 		boolean modified = filters.add(filter);
 		if(modified)
 		{
@@ -112,14 +92,14 @@ public class Playlist
 
 	public void clearFilters(){
 
-		final Set<Filter> filtersToDelete = new HashSet<Filter>(filters);
-		for(Filter filter : filtersToDelete)
+		final Set<Filter<? super Tables.Tracks>> filtersToDelete = new HashSet<Filter<? super Tables.Tracks>>(filters);
+		for(Filter<? super Tables.Tracks> filter : filtersToDelete)
 		{
 			removeFilter(filter);
 		}
 	}
 
-	public boolean removeFilter(Filter filter){
+	public boolean removeFilter(Filter<? super Tables.Tracks> filter){
 		boolean modified = filters.remove(filter);
 
 		if(modified)
@@ -132,12 +112,12 @@ public class Playlist
 		return modified;
 	}
 
-	public Filter getCompressedFilter()
+	public Filter<? super Tables.Tracks> getCompressedFilter()
 	{
-		return filters.isEmpty() ? new FilterSet() : new FilterSet(filters);
+		return filters.isEmpty() ? new FilterSet<Tables.Tracks>() : new FilterSet<Tables.Tracks>(filters);
 	}
 
-	public Set<Filter> getFilter()
+	public Set<Filter<? super Tables.Tracks>> getFilter()
 	{
 		return Collections.unmodifiableSet(filters);
 	}
@@ -156,10 +136,14 @@ public class Playlist
 
 	public Track getTrack(String src)
 	{
+		FSobject fsObject = new FSobject(src);
 		return OperationExecutor.execute(
 				  db,
-				  new QuerySqlite<Track>(
-							 new FilterSet(getCompressedFilter(), new FieldFilter<Track, String>(Tables.TRACKS.SRC, Operator.EQ, src)),
+				  new QuerySqlite<Tables.Tracks, Tables.Tracks, Track>(
+							 new FilterSet<Tables.Tracks>(
+										getCompressedFilter(),
+										new FieldFilter<Tables.Tracks, Track, String>(Tables.FsObjects.NAME, Operator.EQ, fsObject.getPath()),
+										new FieldFilter<Tables.Tracks, Track, String>(Tables.FsObjects.PATH, Operator.EQ, fsObject.getName())),
 							 new First<Track>(Tables.TRACKS, new TrackCreator())
 				  )
 		);
@@ -179,9 +163,9 @@ public class Playlist
 	public Track getRandom()
 	{
 		return OperationExecutor.execute(db,
-				  new QuerySqlite<Track>(
+				  new QuerySqlite<Tables.Tracks, Tables.Tracks, Track>(
 							 getCompressedFilter(),
-							 new RandomOrder(),
+							 new RandomOrder<Tables.Tracks>(),
 							 new First<Track>(Tables.TRACKS, new TrackCreator())));
 	}
 
@@ -348,14 +332,15 @@ public class Playlist
 
 	public void scanFiles(Collection<String> mediaFilePaths, TurtleDatabase db, int allreadyProcessed) throws InterruptedException
 	{
-		Map<String, String> dirAlbumArtMap = new HashMap<String, String>();
+		Set<String> encounteredRootSrcs = new HashSet<String>();
 		int countProcessed = allreadyProcessed;
 
 		for(String mediaFilePath : mediaFilePaths)
 		{
+			boolean trackAdded = false;
 			try
 			{
-				FsReader.scanFile(mediaFilePath, db, dirAlbumArtMap);
+				trackAdded = FsReader.scanFile(mediaFilePath, db, encounteredRootSrcs);
 			}
 			catch (IOException e)
 			{
@@ -365,20 +350,24 @@ public class Playlist
 			finally
 			{
 				countProcessed++;
+
+				if (Thread.currentThread().isInterrupted()) {
+					preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, mediaFilePath);
+					preferences.set(Keys.FS_SCAN_INTERRUPT_COUNT_PROCESSED, countProcessed);
+					preferences.set(Keys.FS_SCAN_INTERRUPT_COUNT_ALL, mediaFilePaths.size());
+					throw new InterruptedException();
+				}
+
+				Thread.sleep(10);
+			}
+
+			if(trackAdded)
+			{
 				for (PlaylistObserver observer : observers.values())
 				{
 					observer.trackAdded(mediaFilePath, countProcessed);
 				}
 			}
-
-			if (Thread.currentThread().isInterrupted()) {
-				preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, mediaFilePath);
-				preferences.set(Keys.FS_SCAN_INTERRUPT_COUNT_PROCESSED, countProcessed);
-				preferences.set(Keys.FS_SCAN_INTERRUPT_COUNT_ALL, mediaFilePaths.size());
-				throw new InterruptedException();
-			}
-
-			Thread.sleep(10);
 		}
 
 		preferences.set(Keys.FS_SCAN_INTERRUPT_PATH, null);
@@ -388,7 +377,7 @@ public class Playlist
 		}
 	}
 
-	public Collection<Track> getCurrTracks()
+	public Collection<? extends Track> getCurrTracks()
 	{
 		return db.getTracks(getCompressedFilter());
 	}
@@ -430,9 +419,9 @@ public class Playlist
 
 		void endUpdatePlaylist();
 
-		void filterAdded(Filter filter);
+		void filterAdded(Filter<? super Tables.Tracks> filter);
 
-		void filterRemoved(Filter filter);
+		void filterRemoved(Filter<? super Tables.Tracks> filter);
 
 	}
 
@@ -456,9 +445,9 @@ public class Playlist
 	}
 
 	public static abstract class PlaylistTrackChangeObserver implements PlaylistObserver{
-		public void filterAdded(Filter filter){/*doNothing*/}
+		public void filterAdded(Filter<? super Tables.Tracks> filter){/*doNothing*/}
 
-		public void filterRemoved(Filter filter){/*doNothing*/}
+		public void filterRemoved(Filter<? super Tables.Tracks> filter){/*doNothing*/}
 	}
 
 	public void addObserver(PlaylistObserver observer)

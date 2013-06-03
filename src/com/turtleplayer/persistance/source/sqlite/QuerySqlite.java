@@ -1,20 +1,16 @@
 package com.turtleplayer.persistance.source.sqlite;
 
-import com.turtleplayer.persistance.framework.filter.FieldFilter;
-import com.turtleplayer.persistance.framework.filter.Filter;
-import com.turtleplayer.persistance.framework.filter.FilterSet;
-import com.turtleplayer.persistance.framework.mapping.Mapping;
+import android.database.Cursor;
+import com.turtleplayer.persistance.framework.filter.*;
 import com.turtleplayer.persistance.framework.query.Query;
+import com.turtleplayer.persistance.framework.mapping.Mapping;
 import com.turtleplayer.persistance.framework.sort.FieldOrder;
 import com.turtleplayer.persistance.framework.sort.Order;
 import com.turtleplayer.persistance.framework.sort.OrderSet;
 import com.turtleplayer.persistance.framework.sort.RandomOrder;
-import com.turtleplayer.persistance.source.relational.fieldtype.FieldPersistableAsDouble;
-import com.turtleplayer.persistance.source.relational.fieldtype.FieldPersistableAsInteger;
-import com.turtleplayer.persistance.source.relational.fieldtype.FieldPersistableAsString;
+import com.turtleplayer.persistance.source.relational.FieldPersistable;
 import com.turtleplayer.persistance.source.sql.query.*;
-
-import android.database.Cursor;
+import com.turtleplayer.persistance.source.sql.query.Operator;
 
 /**
  * TURTLE PLAYER
@@ -33,28 +29,28 @@ import android.database.Cursor;
  * @author Simon Honegger (Hoene84)
  */
 
-public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, Cursor>
+public class QuerySqlite<PROJECTION, TARGET, RESULT> extends Query<Select, WhereClause, OrderClause, RESULT, Cursor, TARGET, PROJECTION>
 {
-	 private final Mapping<Select, I, Cursor> mapping;
+	 private final Mapping<Select, RESULT, Cursor> mapping;
 
-	 public QuerySqlite(Mapping<Select, I, Cursor> mapping)
+	 public QuerySqlite(Mapping<Select, RESULT, Cursor> mapping)
 	 {
 		  this.mapping = mapping;
 	 }
 
-	 public QuerySqlite(Filter filter, Mapping<Select, I, Cursor> mapping)
+	 public QuerySqlite(Filter<? super PROJECTION> filter, Mapping<Select, RESULT, Cursor> mapping)
 	 {
 		  super(filter);
 		  this.mapping = mapping;
 	 }
 
-	 public QuerySqlite(Order order, Mapping<Select, I, Cursor> mapping)
+	 public QuerySqlite(Order<? super PROJECTION> order, Mapping<Select, RESULT, Cursor> mapping)
 	 {
 		  super(order);
 		  this.mapping = mapping;
 	 }
 
-	 public QuerySqlite(Filter filter, Order order, Mapping<Select, I, Cursor> mapping)
+	 public QuerySqlite(Filter<? super PROJECTION> filter, Order<? super PROJECTION> order, Mapping<Select, RESULT, Cursor> mapping)
 	{
 		super(filter, order);
 
@@ -76,19 +72,20 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 		return sql;
 	}
 
-	public I map(final Cursor cursor)
+	public RESULT map(final Cursor cursor)
 	{
 		return mapping.create(cursor);
 	}
 
-	public <T> WhereClause visit(final FieldFilter<I, T> fieldFilter)
+	public <T, Z> WhereClause visit(FieldFilter<? super PROJECTION, Z, T> fieldFilter)
 	{
 		final Operator operator;
-		Object filterValue = fieldFilter.getValue();
-
 		switch (fieldFilter.getOperator()){
 			case EQ:
 				operator = Operator.EQ;
+				break;
+			case NEQ:
+				operator = Operator.NEQ;
 				break;
 			case GE:
 				operator = Operator.GE;
@@ -101,23 +98,9 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 				break;
 			case LIKE:
 				operator = Operator.LIKE;
-				filterValue = fieldFilter.getField().accept(fieldFilter.new FieldVisitorField<Object>()
-				{
-					public Object visit(FieldPersistableAsString<I> field, String filterValue)
-					{
-						return "%" + filterValue + "%";
-					}
-
-					public Object visit(FieldPersistableAsDouble<I> field, Double filterValue)
-					{
-						return "%" + String.valueOf(filterValue) + "%";
-					}
-
-					public Object visit(FieldPersistableAsInteger<I> field, Integer filterValue)
-					{
-						return "%" + String.valueOf(filterValue) + "%";
-					}
-				});
+				break;
+			case NOT_LIKE:
+				operator = Operator.NOT_LIKE;
 				break;
 			case LT:
 				operator = Operator.LT;
@@ -126,18 +109,18 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 				throw new IllegalArgumentException();
 		}
 
-		return new WhereClause(new WhereClauseField(fieldFilter.getField(), filterValue, operator));
+		return new WhereClause(new WhereClauseField(fieldFilter.getField(), fieldFilter.getValue(), operator));
 	}
 
-	public OrderClause visit(RandomOrder orderFilter)
+	public OrderClause visit(RandomOrder<? super PROJECTION> orderFilter)
 	{
 		return new OrderClauseRandom();
 	}
 
-	public WhereClause visit(FilterSet filterSet)
+	public WhereClause visit(FilterSet<? super PROJECTION> filterSet)
 	{
 		WhereClause whereClause = null;
-		for(Filter filter : filterSet.getFilters()){
+		for(Filter<? super PROJECTION> filter : filterSet.getFilters()){
 			if(whereClause == null)
 			{
 				whereClause = filter.accept(this);
@@ -151,15 +134,74 @@ public class QuerySqlite<I> extends Query<Select, WhereClause, OrderClause, I, C
 	}
 
 
-	 public OrderClause visit(FieldOrder fieldOrder)
+	public WhereClause visit(NotFilter<? super PROJECTION> notFilter)
+	{
+		Filter<? super PROJECTION> inversedFilter = notFilter.getFilter().accept(new FilterVisitorGenerified<PROJECTION, RESULT,Object,Filter<? super PROJECTION>>()
+		{
+
+			@Override
+			public Filter<? super PROJECTION> visit(FieldFilter<PROJECTION, RESULT, Object> fieldFilter,
+													  FieldPersistable<RESULT, Object> field)
+			{
+				final com.turtleplayer.persistance.framework.filter.Operator inversedOp;
+				switch (fieldFilter.getOperator())
+				{
+					case NEQ:
+						inversedOp = com.turtleplayer.persistance.framework.filter.Operator.EQ;
+						break;
+					case EQ:
+						inversedOp = com.turtleplayer.persistance.framework.filter.Operator.NEQ;
+						break;
+					case GE:
+						inversedOp = com.turtleplayer.persistance.framework.filter.Operator.LT;
+						break;
+					case GT:
+						inversedOp = com.turtleplayer.persistance.framework.filter.Operator.LE;
+						break;
+					case LE:
+						inversedOp = com.turtleplayer.persistance.framework.filter.Operator.GT;
+						break;
+					case LIKE:
+						inversedOp = com.turtleplayer.persistance.framework.filter.Operator.NOT_LIKE;
+						break;
+					case NOT_LIKE:
+						inversedOp = com.turtleplayer.persistance.framework.filter.Operator.LIKE;
+						break;
+					case LT:
+						inversedOp = com.turtleplayer.persistance.framework.filter.Operator.GE;
+						break;
+					default:
+						throw new RuntimeException("Not supported Operator");
+				}
+				return new FieldFilter<PROJECTION, RESULT, Object>(fieldFilter.getField(), inversedOp, fieldFilter.getValue());
+			}
+
+			public Filter<? super PROJECTION> visit(FilterSet<? super PROJECTION> filterSet)
+			{
+				for(Filter<? super PROJECTION> f : filterSet.getFilters())
+				{
+					f.accept(this);
+				}
+				return null;
+			}
+
+			public Filter<? super PROJECTION> visit(NotFilter<? super PROJECTION> notFilter)
+			{
+				return notFilter.getFilter();
+			}
+		});
+		return inversedFilter.accept(this);
+	}
+
+	public <T, Z> OrderClause visit(FieldOrder<? super PROJECTION, Z, T> fieldOrder)
 	 {
 		  return new OrderClauseFields(new OrderClausePartField(fieldOrder.getField(), fieldOrder.getOrder()));
 	 }
 
-	 public OrderClause visit(OrderSet clauseSet)
+	 public OrderClause visit(OrderSet<? super PROJECTION> clauseSet)
 	 {
 		  OrderClause orderClause = null;
-		  for(Order order : clauseSet.getOrders()){
+		  for(Order<? super PROJECTION> order : clauseSet.getOrders()){
 				if(orderClause == null)
 				{
 					orderClause = order.accept(this);

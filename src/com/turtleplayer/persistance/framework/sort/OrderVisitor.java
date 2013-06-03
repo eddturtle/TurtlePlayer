@@ -17,11 +17,11 @@ package com.turtleplayer.persistance.framework.sort;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface OrderVisitor<I, R>
+public interface OrderVisitor<PROJECTION, R>
 {
-   R visit(RandomOrder orderFilter);
+	<T, Z> R visit(FieldOrder<? super PROJECTION, Z, T> fieldOrder);
 
-	<T> R visit(FieldOrder<I, T> fieldOrder);
+	R visit(RandomOrder<? super PROJECTION> orderFilter);
 
-	R visit(OrderSet orderFilter);
+	R visit(OrderSet<? super PROJECTION> orderFilter);
 }

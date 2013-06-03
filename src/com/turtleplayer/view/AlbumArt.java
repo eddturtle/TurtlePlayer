@@ -1,12 +1,5 @@
 package com.turtleplayer.view;
 
-import com.turtleplayer.R;
-import com.turtleplayer.model.Track;
-import com.turtleplayer.persistance.turtle.db.TurtleDatabase;
-import com.turtleplayer.preferences.Preferences;
-import com.turtleplayer.presentation.AlbumArtResolver;
-import com.turtleplayer.presentation.InstanceFormatter;
-
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -14,6 +7,12 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.turtleplayer.R;
+import com.turtleplayer.model.Track;
+import com.turtleplayer.persistance.turtle.db.TurtleDatabase;
+import com.turtleplayer.preferences.Preferences;
+import com.turtleplayer.presentation.AlbumArtResolver;
+import com.turtleplayer.presentation.InstanceFormatter;
 
 /**
  * TURTLE PLAYER
@@ -126,7 +125,7 @@ public class AlbumArt
 					if(actualAsyncTask == this && bitmap != null)
 					{
 						albumArt.setImageBitmap(bitmap);
-						Log.v(Preferences.TAG, "albumart for " + track.GetSrc() + " resolved");
+						Log.v(Preferences.TAG, "albumart for " + track.getFullPath() + " resolved");
 					}
 				}
 			}.execute(track);

@@ -1,6 +1,5 @@
 package com.turtleplayer.persistance.source.sql.query;
 
-
 /**
  * TURTLE PLAYER
  * <p/>

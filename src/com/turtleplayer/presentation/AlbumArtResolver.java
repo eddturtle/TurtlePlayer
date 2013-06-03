@@ -66,7 +66,7 @@ public abstract class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 			}
 			catch (Exception e)
 			{
-				Log.e(Preferences.TAG, "Error reading albumArt for :" + params[0].GetSrc(), e);
+				Log.e(Preferences.TAG, "Error reading albumArt for :" + params[0].getFullPath(), e);
 			}
 		}
 		return null;
@@ -84,7 +84,7 @@ public abstract class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 		{
 			AlbumArtLocation albumArtLocation = OperationExecutor.execute(
 					  db,
-					  new QuerySqlite<AlbumArtLocation>(new FieldFilter<AlbumArtLocation, String>(Tables.ALBUM_ART_LOCATIONS.PATH, Operator.EQ, track.GetRootSrc()),
+					  new QuerySqlite<Tables.AlbumArtLocations, Tables.AlbumArtLocations, AlbumArtLocation>(new FieldFilter<Tables.AlbumArtLocations, AlbumArtLocation, String>(Tables.AlbumArtLocations.PATH, Operator.EQ, track.getPath()),
 								 new First<AlbumArtLocation>(Tables.ALBUM_ART_LOCATIONS, new AlbumArtLocationCreator())));
 
 			if(albumArtLocation != null)
@@ -101,7 +101,7 @@ public abstract class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 
 		public Bitmap lookup(Track track)
 		{
-			String albumArtPath = FsReader.getAlbumArt(track.GetRootSrc(), db);
+			String albumArtPath = FsReader.getAlbumArt(track.getPath(), db);
 			if(!Shorty.isVoid(albumArtPath))
 			{
 				return BitmapFactory.decodeFile(albumArtPath);
@@ -118,7 +118,7 @@ public abstract class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 			{
 				synchronized (Mp3File.class)
 				{
-					Mp3File mp3file = new Mp3File(track.GetSrc(), false);
+					Mp3File mp3file = new Mp3File(track.getFullPath(), false);
 					if(mp3file.hasId3v2Tag() && mp3file.getId3v2Tag().getAlbumImage() != null)
 					{
 						byte[] albumImage = mp3file.getId3v2Tag().getAlbumImage();
@@ -128,17 +128,17 @@ public abstract class AlbumArtResolver extends AsyncTask<Track, Void, Bitmap>
 			}
 			catch (IOException e)
 			{
-				Log.e(Preferences.TAG, "Error reading albumArt for :" + track.GetSrc(), e);
+				Log.e(Preferences.TAG, "Error reading albumArt for :" + track.getFullPath(), e);
 				return null;
 			}
 			catch (UnsupportedTagException e)
 			{
-				Log.e(Preferences.TAG, "Error reading albumArt for :" + track.GetSrc(), e);
+				Log.e(Preferences.TAG, "Error reading albumArt for :" + track.getFullPath(), e);
 				return null;
 			}
 			catch (InvalidDataException e)
 			{
-				Log.e(Preferences.TAG, "Error reading albumArt for :" + track.GetSrc(), e);
+				Log.e(Preferences.TAG, "Error reading albumArt for :" + track.getFullPath(), e);
 				return null;
 			}
 			return null;

@@ -26,7 +26,7 @@
                 android:label="@string/dirchooser_label"
                 android:theme="@android:style/Theme.NoTitleBar" >
             <intent-filter>
-                <action android:name="com.turtleplayer.DIR_CHOOSER" />
+                <action android:name="com.turtleplayer.player.DIR_CHOOSER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 		</activity>

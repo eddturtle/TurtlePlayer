@@ -1,9 +1,8 @@
 package com.turtleplayer.persistance.source.sqlite;
 
+import android.database.Cursor;
 import com.turtleplayer.persistance.source.relational.Table;
 import com.turtleplayer.persistance.source.sql.Counter;
-
-import android.database.Cursor;
 
 /**
  * TURTLE PLAYER

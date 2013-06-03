@@ -1,5 +1,6 @@
-package com.turtleplayer.persistance.framework.selector;
+package com.turtleplayer.persistance.framework.sort;
 
+import com.turtleplayer.persistance.source.relational.FieldPersistable;
 
 /**
  * TURTLE PLAYER
@@ -18,7 +19,13 @@ package com.turtleplayer.persistance.framework.selector;
  * @author Simon Honegger (Hoene84)
  */
 
-public interface SelectorVisitor<Q>
+public abstract class OrderVisitorGenerified<TARGET, RESULT, TYPE, R> implements OrderVisitor<TARGET, R>
 {
-	public Q visit(OrderSelector orderSelector);
+	public abstract R visit(FieldOrder<TARGET, RESULT, TYPE> fieldOrder,
+									FieldPersistable<RESULT, TYPE> field);
+
+	final public <T, Z> R visit(FieldOrder<? super TARGET, Z, T> fieldOrder)
+	{
+		return visit((FieldOrder<TARGET, RESULT, TYPE>)fieldOrder, (FieldPersistable<RESULT, TYPE>)fieldOrder.getField());
+	}
 }

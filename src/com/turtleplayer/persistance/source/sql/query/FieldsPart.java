@@ -1,9 +1,8 @@
 package com.turtleplayer.persistance.source.sql.query;
 
+import com.turtleplayer.persistance.source.relational.Field;
 
 import java.util.List;
-
-import com.turtleplayer.persistance.source.relational.Field;
 
 /**
  * TURTLE PLAYER

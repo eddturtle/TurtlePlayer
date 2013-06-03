@@ -28,13 +28,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.util.Collections;
-import java.util.List;
-
 import com.turtleplayer.R;
 import com.turtleplayer.model.*;
 import com.turtleplayer.presentation.InstanceFormatter;
+
+import java.util.Collections;
+import java.util.List;
 
 public class DefaultAdapter<T extends Instance> extends ArrayAdapter<T>
 {
@@ -142,7 +141,7 @@ public class DefaultAdapter<T extends Instance> extends ArrayAdapter<T>
 				return null;
 			}
 
-			public Object visit(TrackDigest track)
+			public Object visit(SongDigest track)
 			{
 				icon.setImageResource(R.drawable.track24);
 				return null;
@@ -154,15 +153,21 @@ public class DefaultAdapter<T extends Instance> extends ArrayAdapter<T>
 				return null;
 			}
 
-			public Object visit(Genre genre)
+			public Object visit(GenreDigest genre)
 			{
 				icon.setImageResource(R.drawable.genre24);
 				return null;
 			}
 
-			public Object visit(Artist artist)
+			public Object visit(ArtistDigest artist)
 			{
 				icon.setImageResource(R.drawable.artist24);
+				return null;
+			}
+
+			public Object visit(FSobject FSobject)
+			{
+				icon.setImageResource(R.drawable.dir24);
 				return null;
 			}
 		});

@@ -1,11 +1,10 @@
 package com.turtleplayer.controller;
 
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import com.turtleplayer.player.Output;
 import com.turtleplayer.player.OutputAccess;
 import com.turtleplayer.player.OutputCommand;
-
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 
 /**
  * TURTLE PLAYER

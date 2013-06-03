@@ -1,10 +1,10 @@
 package com.turtleplayer.persistance.framework.db;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.turtleplayer.controller.Observer;
 import com.turtleplayer.model.Instance;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * TURTLE PLAYER

@@ -1,13 +1,9 @@
 package com.turtleplayer.persistance.turtle.mapping;
 
-import com.turtleplayer.model.Album;
-import com.turtleplayer.model.Artist;
-import com.turtleplayer.model.Genre;
-import com.turtleplayer.model.Track;
-import com.turtleplayer.persistance.framework.creator.Creator;
-import com.turtleplayer.persistance.turtle.db.structure.Tables;
-
 import android.database.Cursor;
+import com.turtleplayer.model.*;
+import com.turtleplayer.persistance.framework.creator.ResultCreator;
+import com.turtleplayer.persistance.turtle.db.structure.Tables;
 
 /**
  * TURTLE PLAYER
@@ -26,18 +22,18 @@ import android.database.Cursor;
  * @author Simon Honegger (Hoene84)
  */
 
-public class TrackCreator implements Creator<Track, Cursor>
+public class TrackCreator implements ResultCreator<Tables.Tracks, Track, Cursor>
 {
 	public Track create(Cursor cursor)
 	{
 		return new Track(
-				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.TITLE.getName())),
-				  cursor.getInt(cursor.getColumnIndex(Tables.TRACKS.NUMBER.getName())),
-				  new Artist(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ARTIST.getName()))),
-				  new Album(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ALBUM.getName()))),
-				  new Genre(cursor.getString(cursor.getColumnIndex(Tables.TRACKS.GENRE.getName()))),
-				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.SRC.getName())),
-				  cursor.getString(cursor.getColumnIndex(Tables.TRACKS.ROOTSRC.getName()))
+				  new SongDigest(cursor.getString(cursor.getColumnIndex(Tables.SongsReadable.TITLE.getName()))),
+				  new ArtistDigest(cursor.getString(cursor.getColumnIndex(Tables.ArtistsReadable.ARTIST.getName()))),
+				  new AlbumDigest(cursor.getString(cursor.getColumnIndex(Tables.AlbumsReadable.ALBUM.getName()))),
+				  new GenreDigest(cursor.getString(cursor.getColumnIndex(Tables.GenresReadable.GENRE.getName()))),
+				  cursor.getInt(cursor.getColumnIndex(Tables.Tracks.NUMBER.getName())),
+				  cursor.getString(cursor.getColumnIndex(Tables.FsObjects.PATH.getName())),
+				  cursor.getString(cursor.getColumnIndex(Tables.FsObjects.NAME.getName()))
 		);
 	}
 }

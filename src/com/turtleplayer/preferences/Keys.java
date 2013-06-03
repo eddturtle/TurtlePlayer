@@ -19,11 +19,11 @@
 package com.turtleplayer.preferences;
 
 import android.os.Environment;
+import com.turtleplayer.persistance.framework.filter.Filter;
+import com.turtleplayer.persistance.turtle.db.structure.Tables;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import com.turtleplayer.persistance.framework.filter.Filter;
 
 public abstract class Keys
 {
@@ -39,5 +39,5 @@ public abstract class Keys
 	public final static Key<Integer> FS_SCAN_INTERRUPT_COUNT_ALL = new Key<Integer>("fsScanInterruptCountAll", 0);
 	public final static Key<Integer> FS_SCAN_INTERRUPT_COUNT_PROCESSED = new Key<Integer>("fsSancInterruptCountProcessed", 0);
 
-	public final static ObjectKey<Set<Filter>> FILTERS = new ObjectKey<Set<Filter>>("filters", new HashSet<Filter>());
+	public final static ObjectKey<Set<Filter<? super Tables.Tracks>>> FILTERS = new ObjectKey<Set<Filter<? super Tables.Tracks>>>("filters", new HashSet<Filter<? super Tables.Tracks>>());
 }

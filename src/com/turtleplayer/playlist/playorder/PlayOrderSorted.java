@@ -19,7 +19,6 @@
 package com.turtleplayer.playlist.playorder;
 
 import android.util.Log;
-
 import com.turtleplayer.model.Track;
 import com.turtleplayer.persistance.framework.executor.OperationExecutor;
 import com.turtleplayer.persistance.framework.paging.Paging;
@@ -55,9 +54,9 @@ public class PlayOrderSorted implements PlayOrderStrategy
 		return get(currTrack, new DefaultOrder(SortOrder.DESC));
 	}
 
-	private Track get(Track ofTrack, OrderSet order)
+	private Track get(Track ofTrack, OrderSet<? super Tables.Tracks> order)
 	{
-		OrderSet currOrder = order;
+		OrderSet<? super Tables.Tracks> currOrder = order;
 		while(!currOrder.isEmpty())
 		{
 			Log.v(PlayOrderSorted.class.getName(),
@@ -66,7 +65,7 @@ public class PlayOrderSorted implements PlayOrderStrategy
 					  "resulting in Paging Filters : " + Paging.getFilter(playlist.getCompressedFilter(), ofTrack, currOrder));
 			Track nextTrack = OperationExecutor.execute(
 				  db,
-				  new QuerySqlite<Track>(
+				  new QuerySqlite<Tables.Tracks, Tables.Tracks, Track>(
 							 Paging.getFilter(playlist.getCompressedFilter(), ofTrack, currOrder),
 							 order,
 							 new First<Track>(Tables.TRACKS, new TrackCreator())

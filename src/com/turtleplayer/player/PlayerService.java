@@ -7,16 +7,15 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.*;
 import android.util.Log;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.turtleplayer.Player;
 import com.turtleplayer.R;
 import com.turtleplayer.model.Track;
 import com.turtleplayer.preferences.Preferences;
 import com.turtleplayer.presentation.InstanceFormatter;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * TURTLE PLAYER
@@ -260,7 +259,7 @@ public class PlayerService extends Service implements Output
 			{
 				final MediaPlayer mediaPlayer = getMp();
 				mp.reset();
-				mediaPlayer.setDataSource(t.GetSrc());
+				mediaPlayer.setDataSource(t.getFullPath());
 
 				mediaPlayer.prepare();
 				initialized = true;

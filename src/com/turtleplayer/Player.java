@@ -35,10 +35,6 @@ import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-
-import java.util.HashSet;
-import java.util.Set;
-
 import com.turtleplayer.common.MatchFilterVisitor;
 import com.turtleplayer.controller.BroadcastsHandler;
 import com.turtleplayer.controller.PhoneStateHandler;
@@ -48,6 +44,7 @@ import com.turtleplayer.model.Track;
 import com.turtleplayer.persistance.framework.db.ObservableDatabase;
 import com.turtleplayer.persistance.framework.filter.Filter;
 import com.turtleplayer.persistance.turtle.db.TurtleDatabase;
+import com.turtleplayer.persistance.turtle.db.structure.Tables;
 import com.turtleplayer.player.ObservableOutput;
 import com.turtleplayer.player.Output;
 import com.turtleplayer.player.OutputCommand;
@@ -64,10 +61,13 @@ import com.turtleplayer.util.Shorty;
 import com.turtleplayer.view.AlbumArtView;
 import com.turtleplayer.view.FileChooser;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Player extends ListActivity
 {
 
-	public static final String DIR_CHOOSER_ACTION = "com.turtleplayer.DIR_CHOOSER";
+	public static final String DIR_CHOOSER_ACTION = "com.turtleplayer.player.DIR_CHOOSER";
 	public static final int DIR_CHOOSER_REQUEST = 0;
 
 	public enum Slides
@@ -243,10 +243,10 @@ public class Player extends ListActivity
 		tp = (TurtlePlayer) getApplication();
 		tp.db = new TurtleDatabase(tp.getApplicationContext());
 		tp.playlist = new Playlist(tp.getApplicationContext(), tp.db);
-		fileChooser = new FileChooser(FileChooser.Mode.Genre, tp.db, this)
+		fileChooser = new FileChooser(FileChooser.Mode.Genre, tp, this)
 		{
 			@Override
-			protected void filterChoosen(Filter filter)
+			protected void filterChoosen(Filter<? super Tables.Tracks> filter)
 			{
 				tp.playlist.clearFilters();
 				tp.playlist.addFilter(filter);
@@ -545,14 +545,14 @@ public class Player extends ListActivity
 
 		tp.playlist.addObserver(new Playlist.PlaylistFilterChangeObserver()
 		{
-			public void filterAdded(final Filter filter)
+			public void filterAdded(final Filter<? super Tables.Tracks> filter)
 			{
 				tp.player.connectPlayer(new OutputCommand()
 				{
 					public void connected(Output output)
 					{
 						Track currTrack = output.getCurrTrack();
-						if(currTrack == null || !filter.accept(new MatchFilterVisitor<Instance>(currTrack)))
+						if(currTrack == null || !filter.accept(new MatchFilterVisitor<Track, Tables.Tracks>(currTrack)))
 						{
 							output.change(tp.playlist.getNext(playOrderStrategy, null));
 						}
@@ -560,7 +560,7 @@ public class Player extends ListActivity
 				});
 			}
 
-			public void filterRemoved(Filter filter)
+			public void filterRemoved(Filter<? super Tables.Tracks> filter)
 			{
 				//do nothing
 			}
@@ -574,7 +574,7 @@ public class Player extends ListActivity
 
 		tp.playlist.preferences.addObserver(new PreferencesObserver()
 		{
-			public void changed(AbstractKey key)
+			public void changed(AbstractKey<?, ?> key)
 			{
 				if (key.equals(Keys.SHUFFLE))
 				{
@@ -605,7 +605,7 @@ public class Player extends ListActivity
 			{
 				progressBar.setMax(lengthInMillis);
 				duration.setText(ConvertToMinutes(lengthInMillis));
-				tp.playlist.preferences.set(Keys.LAST_TRACK_PLAYED, track.GetSrc());
+				tp.playlist.preferences.set(Keys.LAST_TRACK_PLAYED, track.getFullPath());
 			}
 
 			public void started()
@@ -759,8 +759,8 @@ public class Player extends ListActivity
 
 	private void resetLastTrack()
 	{
-		Set<Filter> filtersFromPref = tp.playlist.preferences.get(Keys.FILTERS);
-		for(Filter filter : filtersFromPref)
+		Set<Filter<? super Tables.Tracks>> filtersFromPref = tp.playlist.preferences.get(Keys.FILTERS);
+		for(Filter<? super Tables.Tracks> filter : Shorty.avoidNull(filtersFromPref, new HashSet<Filter<? super Tables.Tracks>>()))
 		{
 			tp.playlist.addFilter(filter);
 		}
@@ -832,7 +832,7 @@ public class Player extends ListActivity
 		final Track trackSelected = fileChooser.choose((Instance) l.getItemAtPosition(position));
 		if (trackSelected != null)
 		{
-			if(!tp.playlist.getCompressedFilter().accept(new MatchFilterVisitor<Instance>(trackSelected)))
+			if(!tp.playlist.getCompressedFilter().accept(new MatchFilterVisitor<Track, Tables.Tracks>(trackSelected)))
 			{
 				tp.playlist.clearFilters();
 			}

@@ -1,5 +1,6 @@
 package com.turtleplayer.persistance.source.relational;
 
+import com.turtleplayer.persistance.framework.creator.Creator;
 import com.turtleplayer.persistance.source.relational.fieldtype.FieldVisitor;
 
 /**
@@ -19,19 +20,26 @@ import com.turtleplayer.persistance.source.relational.fieldtype.FieldVisitor;
  * @author Simon Honegger (Hoene84)
  */
 
-public abstract class FieldPersistable<I, O> extends Field
+public abstract class FieldPersistable<RESULT, TYPE> extends Field
 {
-	public FieldPersistable(String name)
+	private final Creator<TYPE, RESULT> mapping;
+
+	protected FieldPersistable(String name,
+										Creator<TYPE, RESULT> mapping)
 	{
 		super(name);
+		this.mapping = mapping;
 	}
 
-	public abstract O get(I instance);
-
-	public String getAsDisplayableString(I instance){
-		return get(instance).toString();
+	public FieldPersistable(FieldPersistable<RESULT, TYPE> fieldPersistable)
+	{
+		this(fieldPersistable.getName(), fieldPersistable.mapping);
 	}
 
-	public abstract <R> R accept(FieldVisitor<R, I> visitor);
+	public TYPE get(RESULT type)
+	{
+		return mapping.create(type);
+	}
 
+	public abstract <R> R accept(FieldVisitor<R, ? extends RESULT> visitor);
 }

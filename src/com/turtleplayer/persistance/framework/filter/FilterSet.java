@@ -21,21 +21,21 @@ import java.util.Set;
  * @author Simon Honegger (Hoene84)
  */
 
-public class FilterSet implements Filter
+public class FilterSet<PROJECTION> implements Filter<PROJECTION>
 {
-	private final Set<Filter> filters;
+	private final Set<Filter<? super PROJECTION>> filters;
 
-	public FilterSet(Filter... filter)
+	public FilterSet(Filter<? super PROJECTION>... filter)
 	{
-		this.filters = new HashSet<Filter>(Arrays.asList(filter));
+		this.filters = new HashSet<Filter<? super PROJECTION>>(Arrays.asList(filter));
 	}
 
-	public FilterSet(Set<Filter> filters)
+	public FilterSet(Set<? extends Filter<? super PROJECTION>> filters)
 	{
-		this.filters = new HashSet<Filter>(filters);
+		this.filters = new HashSet<Filter<? super PROJECTION>>(filters);
 	}
 
-	public <R, I> R accept(FilterVisitor<I, R> visitor)
+	public <R> R accept(FilterVisitor<? extends PROJECTION, R> visitor)
 	{
 		return visitor.visit(this);
 	}
@@ -43,9 +43,14 @@ public class FilterSet implements Filter
 	/**
 	 * @return never null, Set can be empty
 	 */
-	public Set<Filter> getFilters()
+	public Set<Filter<? super PROJECTION>> getFilters()
 	{
 		return filters;
+	}
+
+	public boolean makesObsolete(Filter<?> filter)
+	{
+		return false;  //Not implemented yet
 	}
 
 	@Override
@@ -58,7 +63,7 @@ public class FilterSet implements Filter
 	public boolean equals(Object o)
 	{
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (!(o instanceof FilterSet)) return false;
 
 		FilterSet filterSet = (FilterSet) o;
 

@@ -20,64 +20,56 @@ package com.turtleplayer.presentation;
 
 import com.turtleplayer.model.*;
 import com.turtleplayer.util.Shorty;
+import com.turtleplayer.util.TurtleUtil;
 
 class OverAllFormatter extends InstanceFormatter
 {
-    private final static String DELIMITER = " - ";
 
-    public String visit(Track track)
-    {
-        String artist = track.GetArtist().getName();
-        int number = track.GetNumber();
-        String title = track.GetTitle();
-
-        if(!Shorty.isVoid(artist) && !Shorty.isVoid(title))
-        {
-            StringBuilder label = new StringBuilder();
-            if(number > 0){
-                label.append(number).append(DELIMITER);
-            }
-            label.append(artist).append(DELIMITER);
-            label.append(title);
-            return label.toString();
-        }
-        else
-        {
-            String filename = track.GetRootSrc();
-
-            // "/path/path/file/"
-
-            if(filename.lastIndexOf('/') == filename.length()-1)
-            {
-                filename = filename.substring(0, filename.length()-1);
-            }
-
-            // "/path/path/file"
-
-            return filename.substring(filename.lastIndexOf('/'));
-
-            // "file"
-        }
-
-    }
-
-	public String visit(TrackDigest track)
+	public String visit(Track track)
 	{
-		return track.getName();
+		String artist = track.GetArtist().getArtistName();
+		int number = track.GetNumber();
+		String title = track.getSongName();
+
+		if(!Shorty.isVoid(artist) && !Shorty.isVoid(title))
+		{
+			StringBuilder label = new StringBuilder();
+			if(number > 0){
+				label.append(number).append(DELIMITER);
+			}
+			label.append(artist).append(DELIMITER);
+			label.append(title);
+			return label.toString();
+		}
+		else
+		{
+			return TurtleUtil.getLastPartOfPath(track.getAlbumName());
+		}
+
+	}
+
+	public String visit(SongDigest track)
+	{
+		return track.getSongName();
 	}
 
 	public String visit(Album album)
-    {
-        return album.getName();
-    }
-
-	public String visit(Genre genre)
 	{
-		return genre.getName();
+		return album.getAlbumName();
 	}
 
-	public String visit(Artist artist)
-    {
-        return artist.getName();
-    }
+	public String visit(GenreDigest genre)
+	{
+		return genre.getGenreName();
+	}
+
+	public String visit(ArtistDigest artist)
+	{
+		return artist.getArtistName();
+	}
+
+	public String visit(FSobject FSobject)
+	{
+		return FSobject.getPath();
+	}
 }

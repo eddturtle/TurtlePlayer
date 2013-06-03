@@ -20,22 +20,22 @@ import java.util.*;
  */
 
 /**
- * @param <I> Instance type
+ * @param <RESULT> Instance type
  * @param <S> Source type of row
  * @param <M> Source type of table
  */
-public abstract class CreatorForList<I, S, M> implements Creator<List<I>, M>
+public abstract class CreatorForList<TARGET, RESULT, S, M> implements ResultCreator<TARGET, List<RESULT>, M>
 {
-    private final Creator<I, S> creator;
+    private final Creator<? extends RESULT, S> creator;
 
-    protected CreatorForList(Creator<I, S> creator)
+    protected CreatorForList(Creator<? extends RESULT, S> creator)
     {
         this.creator = creator;
     }
 
-    public List<I> create(M queryResult)
+    public List<RESULT> create(M queryResult)
     {
-        List<I> result = new ArrayList<I>();
+        List<RESULT> result = new ArrayList<RESULT>();
 
         while(hasNext(queryResult))
         {

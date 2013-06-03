@@ -1,10 +1,9 @@
 package com.turtleplayer.player;
 
-
-import java.util.HashMap;
-
 import com.turtleplayer.controller.Observer;
 import com.turtleplayer.model.Track;
+
+import java.util.HashMap;
 
 /**
  * TURTLE PLAYER

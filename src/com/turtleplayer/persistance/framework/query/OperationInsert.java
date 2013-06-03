@@ -1,6 +1,5 @@
 package com.turtleplayer.persistance.framework.query;
 
-
 /**
  * TURTLE PLAYER
  * <p/>
@@ -20,10 +19,9 @@ package com.turtleplayer.persistance.framework.query;
 
 /**
  * @param <D> write target eg SQLiteDb
- * @param <S> Object type that knows how to do the operation
  * @param <I> Object Type of the write information
  */
 public interface OperationInsert<D, I>
 {
-	void insert(D db, I instance);
+	int insert(D db, I instance);
 }

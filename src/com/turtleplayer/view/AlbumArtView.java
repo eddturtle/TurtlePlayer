@@ -1,20 +1,19 @@
 package com.turtleplayer.view;
 
+import android.app.Activity;
+import android.os.AsyncTask;
+import android.view.View;
 import com.turtleplayer.R;
 import com.turtleplayer.TurtlePlayer;
 import com.turtleplayer.controller.TouchHandler;
 import com.turtleplayer.model.Track;
 import com.turtleplayer.model.TrackBundle;
-import com.turtleplayer.persistance.source.relational.FieldPersistable;
+import com.turtleplayer.persistance.framework.filter.Filter;
+import com.turtleplayer.persistance.turtle.db.structure.Tables;
 import com.turtleplayer.player.ObservableOutput;
 import com.turtleplayer.player.Output;
 import com.turtleplayer.player.OutputCommand;
 import com.turtleplayer.playlist.playorder.PlayOrderStrategy;
-
-import android.app.Activity;
-import android.os.AsyncTask;
-import android.view.View;
-import android.widget.Toast;
 
 /**
  * TURTLE PLAYER
@@ -137,23 +136,22 @@ public class AlbumArtView
 				});
 			}
 
-
 			@Override
-			protected void filterSelected(final FieldPersistable<Track, ?> field)
+			protected void filterSelected(final Filter<? super Tables.Tracks> filter,
+													final boolean wasActive)
 			{
 				tp.player.connectPlayer(new OutputCommand()
 				{
 					public void connected(Output output)
 					{
-						Track currTrack = output.getCurrTrack();
-						if(currTrack != null)
-						{
-							boolean added = tp.playlist.toggleFilter(field, currTrack);
-
-							String msg = field.getName();
-							msg += " " + (added ? activity.getString(R.string.added) : activity.getString(R.string.removed));
-							Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+						if(wasActive){
+							tp.playlist.removeFilter(filter);
 						}
+						else
+						{
+							tp.playlist.addFilter(filter);
+						}
+
 					}
 				});
 			}

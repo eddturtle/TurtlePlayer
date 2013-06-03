@@ -21,13 +21,12 @@ package com.turtleplayer.preferences;
 
 
 import android.content.Context;
+import com.turtleplayer.controller.Observer;
+import com.turtleplayer.dirchooser.DirChooserConstants;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.turtleplayer.controller.Observer;
-import com.turtleplayer.dirchooser.DirChooserConstants;
 
 public class Preferences
 {
@@ -64,7 +63,7 @@ public class Preferences
 	public File getExitstingMediaPath()
 	{
 		File existingPath = getExistingParentFolderFile(get(Keys.MEDIA_DIR));
-		set(Keys.MEDIA_DIR, existingPath.getPath());
+		set(Keys.MEDIA_DIR, existingPath.getPath() + DirChooserConstants.PATH_SEPERATOR);
 		return existingPath;
 	}
 
@@ -91,7 +90,7 @@ public class Preferences
 
 	final Map<String, PreferencesObserver> observers = new HashMap<String, PreferencesObserver>();
 
-	private void notify(AbstractKey key)
+	private <T> void notify(AbstractKey<T, ?> key)
 	{
 		for (PreferencesObserver observer : observers.values())
 		{

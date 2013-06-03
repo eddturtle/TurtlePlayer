@@ -42,4 +42,20 @@ public class TurtleUtil
 			return id.trim();
 		}
 	}
+
+	public static String getLastPartOfPath(String path)
+	{
+		// "/path/path/file/"
+
+		if(path.lastIndexOf('/') == path.length()-1)
+		{
+			path = path.substring(0, path.length()-1);
+		}
+
+		// "/path/path/file"
+
+		return path.substring(path.lastIndexOf('/')+1);
+
+		// "file"
+	}
 }

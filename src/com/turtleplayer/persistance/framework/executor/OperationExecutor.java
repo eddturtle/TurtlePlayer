@@ -2,8 +2,8 @@ package com.turtleplayer.persistance.framework.executor;
 
 import com.turtleplayer.persistance.framework.db.Database;
 import com.turtleplayer.persistance.framework.query.OperationDelete;
-import com.turtleplayer.persistance.framework.query.OperationInsert;
 import com.turtleplayer.persistance.framework.query.OperationRead;
+import com.turtleplayer.persistance.framework.query.OperationInsert;
 
 /**
  * TURTLE PLAYER
@@ -33,13 +33,13 @@ public abstract class OperationExecutor
 		});
 	}
 
-	public static <I, C, D, Q> void execute(Database<?, ?, D> db, final OperationInsert<D, I> operation, final I instance){
-		db.write(new Database.DbWriteOp<D, I>()
+	public static <I, C, D, Q> int execute(Database<?, ?, D> db, final OperationInsert<D, I> operation, final I instance){
+		return db.write(new Database.DbWriteOp<D, I>()
 		{
-			public void write(D target,
+			public int write(D target,
 									I instance)
 			{
-				operation.insert(target, instance);
+				return operation.insert(target, instance);
 			}
 		}, instance);
 	}
@@ -47,10 +47,10 @@ public abstract class OperationExecutor
 	public static <D, T> void execute(Database<?, ?, D> db, final OperationDelete<D, T> operation, T target){
 		db.write(new Database.DbWriteOp<D, T>()
 		{
-			public void write(D target,
+			public int write(D target,
 									T instance)
 			{
-				operation.delete(target, instance);
+				return operation.delete(target, instance);
 			}
 		}, target);
 	}
