@@ -10,7 +10,8 @@ Turtle Player is designed to be a fun and unique app for playing your music on t
 
 1) First, pull the source code from this git repository to your local machine:
 
-    git pull git@github.com:eddturtle/TurtlePlayer.git
+    git clone git@github.com:eddturtle/TurtlePlayer.git
+    cd TurtlePlayer
 
 2) Initialise the submodule dependency for mp3agic.
 
