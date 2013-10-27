@@ -71,19 +71,19 @@ public class DefaultAdapter<T extends Instance> extends ArrayAdapter<T>
 			{
 				public void run()
 				{
-					if(allowsDuplicates || !objects.contains(object)){
-						objects.add(object);
-						if(!instanceAddedhandler.hasMessages(0)){
-							instanceAddedhandler.postDelayed(new Runnable()
-							{
-								public void run()
-								{
-									Collections.sort(objects, new FormattedInstanceComparator(formatter));
-									notifyDataSetChanged();
-								}
-							}, 2000);
+				if(!instanceAddedhandler.hasMessages(0)){
+					instanceAddedhandler.postDelayed(new Runnable()
+					{
+						public void run()
+						{
+							if(allowsDuplicates || !objects.contains(object)){
+								objects.add(object);
+								Collections.sort(objects, new FormattedInstanceComparator(formatter));
+								notifyDataSetChanged();
+							}
 						}
-					}
+					}, 2000);
+				}
 				}
 			});
 		}

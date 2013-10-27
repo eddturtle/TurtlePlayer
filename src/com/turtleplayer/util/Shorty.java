@@ -18,9 +18,7 @@
 
 package com.turtleplayer.util;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Shorty
 {
@@ -57,28 +55,19 @@ public class Shorty
 	}
 
 	@SuppressWarnings({"unchecked"})
-	public static <T> T[] concat(T[]... arrays)
+	public static <T> List<T> concat(List<T>... lists)
 	{
-		int resultLength = 0;
-		for(T[] array : arrays)
+		List<T> result = new ArrayList<T>();
+		for(List<T> list : lists)
 		{
-			resultLength += array.length;
-		}
-
-		T[] result = (T[]) new Object[resultLength];
-
-		int pos = 0;
-		for(T[] array : arrays)
-		{
-			System.arraycopy(array, 0, result, pos, array.length);
-			pos += array.length;
+			result.addAll(list);
 		}
 
 		return result;
 	}
 
-	public static <T> T[] concatWith(T[] arrays, T... elements)
+	public static <T> List<T> concatWith(List<T> arrays, T... elements)
 	{
-		return concat(arrays, elements);
+		return concat(arrays, Arrays.asList(elements));
 	}
 }

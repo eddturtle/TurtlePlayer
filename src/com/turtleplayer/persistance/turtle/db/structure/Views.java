@@ -3,6 +3,8 @@ package com.turtleplayer.persistance.turtle.db.structure;
 import com.turtleplayer.persistance.source.relational.Field;
 import com.turtleplayer.util.Shorty;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -36,9 +38,9 @@ public class Views
 			return Shorty.oneElementSet(Tables.TRACKS);
 		}
 
-		public Field[] getFields()
+		public List<Field> getFields()
 		{
-			return new Field[]{ALBUM};
+			return Arrays.asList(new Field[]{ALBUM});
 		}
 	}
 
@@ -49,9 +51,9 @@ public class Views
 			return Shorty.oneElementSet(Tables.TRACKS);
 		}
 
-		public Field[] getFields()
+		public List<Field> getFields()
 		{
-			return new Field[]{ARTIST};
+			return Arrays.asList(new Field[]{ARTIST});
 		}
 	}
 
@@ -62,9 +64,9 @@ public class Views
 			return Shorty.oneElementSet(Tables.TRACKS);
 		}
 
-		public Field[] getFields()
+		public List<Field> getFields()
 		{
-			return new Field[]{GENRE};
+			return Arrays.asList(new Field[]{GENRE});
 		}
 	}
 
@@ -75,9 +77,9 @@ public class Views
 			return Shorty.oneElementSet(Tables.TRACKS);
 		}
 
-		public Field[] getFields()
+		public List<Field> getFields()
 		{
-			return new Field[]{TITLE};
+			return Arrays.asList(new Field[]{TITLE});
 		}
 	}
 

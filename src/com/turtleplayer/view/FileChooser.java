@@ -405,7 +405,7 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 						case Track:
 							return track;
 						case Dir:
-							return track;
+							return getDirFilter().accept(new MatchFilterVisitor<Track, Tables.Tracks>(track)) ? track : null;
 						default:
 							throw new RuntimeException(currMode.name() + " not expexted here");
 					}

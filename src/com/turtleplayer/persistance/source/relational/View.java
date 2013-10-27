@@ -1,6 +1,7 @@
 package com.turtleplayer.persistance.source.relational;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,5 +25,5 @@ public interface View extends Serializable
 {
 	public Set<? extends Table> getTables();
 
-	public Field[] getFields();
+	public List<Field> getFields();
 }

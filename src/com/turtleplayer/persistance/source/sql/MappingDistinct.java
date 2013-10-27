@@ -7,6 +7,7 @@ import com.turtleplayer.persistance.source.relational.Field;
 import com.turtleplayer.persistance.source.relational.View;
 import com.turtleplayer.persistance.source.sql.query.Select;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -29,7 +30,7 @@ import java.util.List;
 public class MappingDistinct<TARGET extends View, PROJECTION extends View, RESULT> implements Mapping<Select, List<RESULT>, Cursor>
 {
 	private final PROJECTION view;
-	private final Field[] fields;
+	private final List<Field> fields;
 	private final CreatorForList<? super TARGET, RESULT, Cursor, Cursor> creator;
 
 	public MappingDistinct(PROJECTION view,
@@ -43,7 +44,7 @@ public class MappingDistinct<TARGET extends View, PROJECTION extends View, RESUL
 
 	public Select get()
 	{
-		return new Select(view, Select.SelectMethod.DISTINCT, fields);
+		return new Select(view, Select.SelectMethod.DISTINCT, fields.toArray(new Field[fields.size()]));
 	}
 
     public List<RESULT> create(Cursor queryResult)

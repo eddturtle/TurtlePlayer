@@ -10,6 +10,9 @@ import com.turtleplayer.persistance.source.relational.fieldtype.FieldPersistable
 import com.turtleplayer.persistance.source.relational.fieldtype.FieldPersistableAsString;
 import com.turtleplayer.util.Shorty;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * TURTLE PLAYER
  * <p/>
@@ -97,9 +100,9 @@ public class Tables
 			}
 		});
 
-		public Field[] getFields()
+		public List<Field> getFields()
 		{
-			return new Field[]{NAME, PATH};
+			return Arrays.asList(new Field[]{NAME, PATH});
 		}
 	}
 
@@ -123,7 +126,7 @@ public class Tables
 		}
 
 		@Override
-		public Field[] getFields()
+		public List<Field> getFields()
 		{
 			return Shorty.concatWith(super.getFields(), NUMBER, ALBUM, ARTIST, GENRE, TITLE);
 		}
@@ -150,9 +153,9 @@ public class Tables
 			super("AlbumArt");
 		}
 
-		public Field[] getFields()
+		public List<Field> getFields()
 		{
-			return new Field[]{PATH, ALBUM_ART_PATH};
+			return Arrays.asList(new Field[]{PATH, ALBUM_ART_PATH});
 		}
 	}
 
