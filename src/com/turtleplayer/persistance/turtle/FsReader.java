@@ -120,9 +120,12 @@ public class FsReader
 
 		if(added)
 		{
-			if(encounteredRootSrcs.add(rootSrc))
+			for(String parantPath = rootSrc; parantPath.lastIndexOf("/") >= 0; parantPath = parantPath.substring(0, parantPath.lastIndexOf("/")))
 			{
-				db.push(new FSobject(rootSrc));
+				if(encounteredRootSrcs.add(parantPath))
+				{
+					db.push(new FSobject(parantPath));
+				}
 			}
 		}
 
