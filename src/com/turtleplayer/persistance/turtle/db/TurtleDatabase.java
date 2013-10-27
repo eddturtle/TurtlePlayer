@@ -118,16 +118,7 @@ public class TurtleDatabase extends ObservableDatabase<Select, Cursor, SQLiteDat
 
 	public List<? extends Track> getTracks(Filter<? super Tables.Tracks> filter)
 	{
-		return OperationExecutor.execute(
-				  this,
-				  new QuerySqlite<Tables.Tracks, Tables.Tracks, List<Track>>(
-							 filter,
-							 new MappingTable<Tables.Tracks, Track>(
-										Tables.TRACKS,
-										new CreatorForListSqlite<Tables.Tracks, Track>(new TrackCreator())
-							 )
-				  )
-		);
+		return getList(filter, new TrackCreator(), Tables.TRACKS, Tables.TRACKS ,Tables.Tracks.TITLE);
 	}
 
 	public List<? extends Song> getSongs(Filter<? super Tables.Tracks> filter)
