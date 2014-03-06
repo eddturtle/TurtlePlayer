@@ -83,7 +83,7 @@ public class DirChooser extends Activity
 											long id)
 			{
 				File selectedFile = (File) parent.getItemAtPosition(position);
-				if (selectedFile.isDirectory() && selectedFile.canRead())
+				if (selectedFile.isDirectory())
 				{
 					if(initialDir != null &&
 							  selectedFile.getAbsolutePath().contains(initialDir.getAbsolutePath()) &&
