@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.turtleplayer"
+    package="com.turtleplayerv2"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            	android:name=".dirchooser.DirChooser"
+            	android:name="com.turtleplayer.dirchooser.DirChooser"
                 android:label="@string/dirchooser_label"
                 android:theme="@android:style/Theme.NoTitleBar" >
             <intent-filter>
@@ -31,7 +31,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 		</activity>
-   		<service android:name=".player.PlayerService" />
+   		<service android:name="com.turtleplayer.player.PlayerService" />
     </application>
 
 </manifest>

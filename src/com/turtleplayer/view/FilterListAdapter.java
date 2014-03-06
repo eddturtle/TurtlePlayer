@@ -26,7 +26,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.turtleplayer.R;
 import com.turtleplayer.model.*;
 import com.turtleplayer.persistance.framework.filter.*;
 import com.turtleplayer.persistance.turtle.db.structure.Tables;
@@ -42,7 +41,7 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter<? super Tabl
 	public FilterListAdapter(Context context,
 									 List<Filter<? super Tables.Tracks>> objects)
 	{
-		super(context, R.layout.filter_list_entry, objects);
+		super(context, com.turtleplayerv2.R.layout.filter_list_entry, objects);
 	}
 
 	@Override
@@ -52,14 +51,14 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter<? super Tabl
 	{
 
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View rowView = inflater.inflate(R.layout.filter_list_entry, parent, false);
+		View rowView = inflater.inflate(com.turtleplayerv2.R.layout.filter_list_entry, parent, false);
 
 		final Filter<? super Tables.Tracks> currFilter = getItem(position);
 
-		final TextView textView = (TextView) rowView.findViewById(R.id.label);
-		final ImageView icon = (ImageView) rowView.findViewById(R.id.icon);
-		final ImageView deleteIcon = (ImageView) rowView.findViewById(R.id.delete);
-		final LinearLayout chooseFilterArea = (LinearLayout) rowView.findViewById(R.id.chooseFilterArea);
+		final TextView textView = (TextView) rowView.findViewById(com.turtleplayerv2.R.id.label);
+		final ImageView icon = (ImageView) rowView.findViewById(com.turtleplayerv2.R.id.icon);
+		final ImageView deleteIcon = (ImageView) rowView.findViewById(com.turtleplayerv2.R.id.delete);
+		final LinearLayout chooseFilterArea = (LinearLayout) rowView.findViewById(com.turtleplayerv2.R.id.chooseFilterArea);
 
 		currFilter.accept(new TurtleFilterVisitor<Tables.Tracks, Void>()
 		{
@@ -69,17 +68,17 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter<? super Tabl
 				if (Tables.ArtistsReadable.ARTIST.equals(fieldFilter.getField()))
 				{
 					instance = new SongDigest(fieldFilter.getValue().toString());
-					icon.setImageResource(R.drawable.artist24);
+					icon.setImageResource(com.turtleplayerv2.R.drawable.artist24);
 				}
 				else if (Tables.AlbumsReadable.ALBUM.equals(fieldFilter.getField()))
 				{
 					instance = new AlbumDigest(fieldFilter.getValue().toString());
-					icon.setImageResource(R.drawable.album24);
+					icon.setImageResource(com.turtleplayerv2.R.drawable.album24);
 				}
 				else if (Tables.GenresReadable.GENRE.equals(fieldFilter.getField()))
 				{
 					instance = new GenreDigest(fieldFilter.getValue().toString());
-					icon.setImageResource(R.drawable.genre24);
+					icon.setImageResource(com.turtleplayerv2.R.drawable.genre24);
 				}
 				else
 				{
@@ -116,7 +115,7 @@ public abstract class FilterListAdapter extends ArrayAdapter<Filter<? super Tabl
 					allAfterTrailingSlash = allTillLastSlash.substring(indexOfLastSlash + 1);
 				}
 				textView.setText(allAfterTrailingSlash);
-				icon.setImageResource(R.drawable.dir24);
+				icon.setImageResource(com.turtleplayerv2.R.drawable.dir24);
 				return null;
 			}
 		});

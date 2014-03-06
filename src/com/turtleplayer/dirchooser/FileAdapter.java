@@ -25,7 +25,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.turtleplayer.R;
 
 import java.io.File;
 
@@ -38,7 +37,7 @@ public class FileAdapter extends ArrayAdapter<File>
 	public FileAdapter(Context context,
 							 File[] files)
 	{
-		super(context, R.layout.file_list_entry, files);
+		super(context, com.turtleplayerv2.R.layout.file_list_entry, files);
 		sort(fileSorter);
 	}
 
@@ -49,17 +48,17 @@ public class FileAdapter extends ArrayAdapter<File>
 	{
 
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View rowView = inflater.inflate(R.layout.file_list_entry, parent, false);
+		View rowView = inflater.inflate(com.turtleplayerv2.R.layout.file_list_entry, parent, false);
 
 		File currFile = getItem(position);
 
-		TextView textView = (TextView) rowView.findViewById(R.id.label);
+		TextView textView = (TextView) rowView.findViewById(com.turtleplayerv2.R.id.label);
 		textView.setText(currFile.getName());
 
-		ImageView icon = (ImageView) rowView.findViewById(R.id.icon);
+		ImageView icon = (ImageView) rowView.findViewById(com.turtleplayerv2.R.id.icon);
 		if (currFile.isDirectory())
 		{
-			icon.setImageResource(R.drawable.folder48);
+			icon.setImageResource(com.turtleplayerv2.R.drawable.folder48);
 		} else
 		{
 			icon.setImageResource(android.R.color.transparent);

@@ -3,7 +3,6 @@ package com.turtleplayer.view;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.view.View;
-import com.turtleplayer.R;
 import com.turtleplayer.TurtlePlayer;
 import com.turtleplayer.controller.TouchHandler;
 import com.turtleplayer.model.Track;
@@ -48,7 +47,7 @@ public class AlbumArtView
 							  final TurtlePlayer tp,
 							  final PlayOrderStrategy playOrderStrategy)
 	{
-		albumArtViewGroup = activity.findViewById(R.id.relativeLayout_albumArt);
+		albumArtViewGroup = activity.findViewById(com.turtleplayerv2.R.id.relativeLayout_albumArt);
 
 		albumArt = new AlbumArt(albumArtViewGroup, AlbumArt.Type.CENTER, tp.db);
 		albumArtLeft = new AlbumArt(albumArtViewGroup, AlbumArt.Type.LEFT, tp.db);

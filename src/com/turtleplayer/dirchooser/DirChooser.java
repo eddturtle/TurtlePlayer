@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
-import com.turtleplayer.R;
 
 import java.io.File;
 import java.util.Stack;
@@ -53,17 +52,17 @@ public class DirChooser extends Activity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.dir_chooser);
+		setContentView(com.turtleplayerv2.R.layout.dir_chooser);
 
 		init();
 	}
 
 	private void init()
 	{
-		dirList = (ListView) findViewById(R.id.dirList);
-		currDirLabel = (TextView) findViewById(R.id.currDirLabel);
-		upButton = (ImageView) findViewById(R.id.up);
-		chooseDir = (ImageView) findViewById(R.id.choose_dir);
+		dirList = (ListView) findViewById(com.turtleplayerv2.R.id.dirList);
+		currDirLabel = (TextView) findViewById(com.turtleplayerv2.R.id.currDirLabel);
+		upButton = (ImageView) findViewById(com.turtleplayerv2.R.id.up);
+		chooseDir = (ImageView) findViewById(com.turtleplayerv2.R.id.choose_dir);
 
 		final String initialDirPath = getIntent().getExtras().getString(
 				  DirChooserConstants.ACTIVITY_PARAM_KEY_DIR_CHOOSER_INITIAL_DIR);

@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.turtleplayer.R;
+import com.turtleplayerv2.R;
 import com.turtleplayer.model.Track;
 import com.turtleplayer.persistance.turtle.db.TurtleDatabase;
 import com.turtleplayer.preferences.Preferences;
@@ -35,9 +35,9 @@ public class AlbumArt
 {
 	public enum Type
 	{
-		RIGHT(-1, R.id.albumArtRight), // FIXME: should be 1, if your know why its inverted, change it
-		LEFT(1, R.id.albumArtLeft), // FIXME: should be -1, your know why its inverted, change it
-		CENTER(0, R.id.albumArt);
+		RIGHT(-1, com.turtleplayerv2.R.id.albumArtRight), // FIXME: should be 1, if your know why its inverted, change it
+		LEFT(1, com.turtleplayerv2.R.id.albumArtLeft), // FIXME: should be -1, your know why its inverted, change it
+		CENTER(0, com.turtleplayerv2.R.id.albumArt);
 
 		private final double horizontalShift;
 		private final int rId;
@@ -80,10 +80,10 @@ public class AlbumArt
 		albumArtView = albumArtViewGroup.findViewById(type.getRId());
 		this.type = type;
 
-		albumArt = (ImageView) albumArtView.findViewById(R.id.picture);
-		title = (TextView) albumArtView.findViewById(R.id.trackTitle);
-		artist = (TextView) albumArtView.findViewById(R.id.trackArtist);
-		album = (TextView) albumArtView.findViewById(R.id.trackAlbum);
+		albumArt = (ImageView) albumArtView.findViewById(com.turtleplayerv2.R.id.picture);
+		title = (TextView) albumArtView.findViewById(com.turtleplayerv2.R.id.trackTitle);
+		artist = (TextView) albumArtView.findViewById(com.turtleplayerv2.R.id.trackArtist);
+		album = (TextView) albumArtView.findViewById(com.turtleplayerv2.R.id.trackAlbum);
 
 		albumArtView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener()
 		{
@@ -149,7 +149,7 @@ public class AlbumArt
 			artist.setText("");
 			album.setText("");
 		}
-		albumArt.setImageDrawable(albumArtView.getResources().getDrawable(R.drawable.blank_album_art));
+		albumArt.setImageDrawable(albumArtView.getResources().getDrawable(com.turtleplayerv2.R.drawable.blank_album_art));
 		albumArtView.invalidate();
 	}
 

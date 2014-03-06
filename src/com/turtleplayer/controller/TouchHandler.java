@@ -8,7 +8,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.turtleplayer.R;
 import com.turtleplayer.model.Track;
 import com.turtleplayer.persistance.framework.filter.*;
 import com.turtleplayer.persistance.turtle.db.structure.Tables;
@@ -51,21 +50,21 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 										  boolean visible)
 			{
 				int visibility = visible ? View.VISIBLE : View.GONE;
-				activity.findViewById(R.id.track_instant_filter_left).setVisibility(visibility);
-				activity.findViewById(R.id.bowmenu_left_icon).setVisibility(visibility);
-				activity.findViewById(R.id.bowmenu_left).setVisibility(visibility);
+				activity.findViewById(com.turtleplayerv2.R.id.track_instant_filter_left).setVisibility(visibility);
+				activity.findViewById(com.turtleplayerv2.R.id.bowmenu_left_icon).setVisibility(visibility);
+				activity.findViewById(com.turtleplayerv2.R.id.bowmenu_left).setVisibility(visibility);
 			}
 
 			@Override
 			public View getView(Activity activity)
 			{
-				return activity.findViewById(R.id.bowmenu_left);
+				return activity.findViewById(com.turtleplayerv2.R.id.bowmenu_left);
 			}
 
 			@Override
 			public void adapt(Track track, Activity activity)
 			{
-				((TextView)activity.findViewById(R.id.track_instant_filter_left)).setText(track.getAlbumName());
+				((TextView)activity.findViewById(com.turtleplayerv2.R.id.track_instant_filter_left)).setText(track.getAlbumName());
 			}
 
 			@Override
@@ -84,8 +83,8 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 						if(Tables.AlbumsReadable.ALBUM.equals(fieldFilter.getField()))
 						{
 							setSettedFilter(activated ? filter : null);
-							ImageView bow = (ImageView) activity.findViewById(R.id.bowmenu_left);
-							bow.setImageResource(activated ? R.drawable.menubow_left_290_active : R.drawable.menubow_left_290);
+							ImageView bow = (ImageView) activity.findViewById(com.turtleplayerv2.R.id.bowmenu_left);
+							bow.setImageResource(activated ? com.turtleplayerv2.R.drawable.menubow_left_290_active : com.turtleplayerv2.R.drawable.menubow_left_290);
 							if(activated)
 							{
 								adapt(track, activity);
@@ -111,7 +110,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 					public Boolean visit(NotFilter<? super Tables.Tracks> notFilter)
 					{
 						if(notFilter.getFilter().accept(this)){
-							((TextView)activity.findViewById(R.id.track_instant_filter_left)).setTextColor(Color.RED);
+							((TextView)activity.findViewById(com.turtleplayerv2.R.id.track_instant_filter_left)).setTextColor(Color.RED);
 							return activated;
 						}
 						return false;
@@ -125,21 +124,21 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 										  boolean visible)
 			{
 				int visibility = visible ? View.VISIBLE : View.GONE;
-				activity.findViewById(R.id.track_instant_filter_right).setVisibility(visibility);
-				activity.findViewById(R.id.bowmenu_right_icon).setVisibility(visibility);
-				activity.findViewById(R.id.bowmenu_right).setVisibility(visibility);
+				activity.findViewById(com.turtleplayerv2.R.id.track_instant_filter_right).setVisibility(visibility);
+				activity.findViewById(com.turtleplayerv2.R.id.bowmenu_right_icon).setVisibility(visibility);
+				activity.findViewById(com.turtleplayerv2.R.id.bowmenu_right).setVisibility(visibility);
 			}
 
 			@Override
 			public View getView(Activity activity)
 			{
-				return activity.findViewById(R.id.bowmenu_right);
+				return activity.findViewById(com.turtleplayerv2.R.id.bowmenu_right);
 			}
 
 			@Override
 			public void adapt(Track track, Activity activity)
 			{
-				((TextView)activity.findViewById(R.id.track_instant_filter_right)).setText(track.getArtistName());
+				((TextView)activity.findViewById(com.turtleplayerv2.R.id.track_instant_filter_right)).setText(track.getArtistName());
 			}
 
 			@Override
@@ -158,8 +157,8 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 						if(Tables.ArtistsReadable.ARTIST.equals(fieldFilter.getField()))
 						{
 							setSettedFilter(activated ? filter : null);
-							ImageView bow = (ImageView) activity.findViewById(R.id.bowmenu_right);
-							bow.setImageResource(activated ? R.drawable.menubow_right_290_active : R.drawable.menubow_right_290);
+							ImageView bow = (ImageView) activity.findViewById(com.turtleplayerv2.R.id.bowmenu_right);
+							bow.setImageResource(activated ? com.turtleplayerv2.R.drawable.menubow_right_290_active : com.turtleplayerv2.R.drawable.menubow_right_290);
 							if(activated)
 							{
 								adapt(track, activity);
@@ -185,7 +184,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 					public Boolean visit(NotFilter<? super Tables.Tracks> notFilter)
 					{
 						if(notFilter.getFilter().accept(this)){
-							((TextView)activity.findViewById(R.id.track_instant_filter_right)).setTextColor(Color.RED);
+							((TextView)activity.findViewById(com.turtleplayerv2.R.id.track_instant_filter_right)).setTextColor(Color.RED);
 							return activated;
 						}
 						return false;
@@ -199,19 +198,19 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 										  boolean visible)
 			{
 				int visibility = visible ? View.VISIBLE : View.GONE;
-				activity.findViewById(R.id.linearLayoutDir).setVisibility(visibility);
+				activity.findViewById(com.turtleplayerv2.R.id.linearLayoutDir).setVisibility(visibility);
 			}
 
 			@Override
 			public View getView(Activity activity)
 			{
-				return activity.findViewById(R.id.linearLayoutDir);
+				return activity.findViewById(com.turtleplayerv2.R.id.linearLayoutDir);
 			}
 
 			@Override
 			public void adapt(Track track, Activity activity)
 			{
-				((TextView)activity.findViewById(R.id.track_instant_filter_topline)).setText(track.getPath());
+				((TextView)activity.findViewById(com.turtleplayerv2.R.id.track_instant_filter_topline)).setText(track.getPath());
 			}
 
 			@Override
@@ -245,7 +244,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 					public Boolean visit(NotFilter<? super Tables.Tracks> notFilter)
 					{
 						if(notFilter.getFilter().accept(this)){
-							((TextView)activity.findViewById(R.id.track_instant_filter_topline)).setTextColor(Color.RED);
+							((TextView)activity.findViewById(com.turtleplayerv2.R.id.track_instant_filter_topline)).setTextColor(Color.RED);
 							return activated;
 						}
 						return false;
@@ -253,8 +252,8 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 
 					public Boolean visit(DirFilter dirFilter)
 					{
-						activity.findViewById(R.id.dir_filter_border).setBackgroundColor(activated ? Color.argb(177, 21, 164, 0) : Color.argb(177, 152, 152, 152));
-						((TextView)activity.findViewById(R.id.track_instant_filter_topline)).setText(dirFilter.getValue().replaceAll("%", "*"));
+						activity.findViewById(com.turtleplayerv2.R.id.dir_filter_border).setBackgroundColor(activated ? Color.argb(177, 21, 164, 0) : Color.argb(177, 152, 152, 152));
+						((TextView)activity.findViewById(com.turtleplayerv2.R.id.track_instant_filter_topline)).setText(dirFilter.getValue().replaceAll("%", "*"));
 						setSettedFilter(activated ? filter : null);
 						if(!activated)
 						{
@@ -272,21 +271,21 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 										  boolean visible)
 			{
 				int visibility = visible ? View.VISIBLE : View.GONE;
-				activity.findViewById(R.id.track_instant_filter_top).setVisibility(visibility);
-				activity.findViewById(R.id.bowmenu_top_icon).setVisibility(visibility);
-				activity.findViewById(R.id.bowmenu_top).setVisibility(visibility);
+				activity.findViewById(com.turtleplayerv2.R.id.track_instant_filter_top).setVisibility(visibility);
+				activity.findViewById(com.turtleplayerv2.R.id.bowmenu_top_icon).setVisibility(visibility);
+				activity.findViewById(com.turtleplayerv2.R.id.bowmenu_top).setVisibility(visibility);
 			}
 
 			@Override
 			public View getView(Activity activity)
 			{
-				return activity.findViewById(R.id.bowmenu_top);
+				return activity.findViewById(com.turtleplayerv2.R.id.bowmenu_top);
 			}
 
 			@Override
 			public void adapt(Track track, Activity activity)
 			{
-				((TextView)activity.findViewById(R.id.track_instant_filter_top)).setText(track.getGenreName());
+				((TextView)activity.findViewById(com.turtleplayerv2.R.id.track_instant_filter_top)).setText(track.getGenreName());
 			}
 
 			@Override
@@ -305,8 +304,8 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 						if(Tables.GenresReadable.GENRE.equals(fieldFilter.getField()))
 						{
 							setSettedFilter(activated ? filter : null);
-							ImageView bow = (ImageView) activity.findViewById(R.id.bowmenu_top);
-							bow.setImageResource(activated ? R.drawable.menubow_top_290_active : R.drawable.menubow_top_290);
+							ImageView bow = (ImageView) activity.findViewById(com.turtleplayerv2.R.id.bowmenu_top);
+							bow.setImageResource(activated ? com.turtleplayerv2.R.drawable.menubow_top_290_active : com.turtleplayerv2.R.drawable.menubow_top_290);
 							if(activated)
 							{
 								adapt(track, activity);
@@ -332,7 +331,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 					public Boolean visit(NotFilter<? super Tables.Tracks> notFilter)
 					{
 						if(notFilter.getFilter().accept(this)){
-							((TextView)activity.findViewById(R.id.track_instant_filter_top)).setTextColor(Color.RED);
+							((TextView)activity.findViewById(com.turtleplayerv2.R.id.track_instant_filter_top)).setTextColor(Color.RED);
 							return activated;
 						}
 						return false;
@@ -398,7 +397,7 @@ public abstract class TouchHandler extends Playlist.PlaylistFilterChangeObserver
 			}
 		};
 
-		pointer = (ImageView) activity.findViewById(R.id.pointer);
+		pointer = (ImageView) activity.findViewById(com.turtleplayerv2.R.id.pointer);
 
 		initalScrollingOfScrollingViews = new Point[scrollingViews.length];
 		this.scrollingViews = scrollingViews;

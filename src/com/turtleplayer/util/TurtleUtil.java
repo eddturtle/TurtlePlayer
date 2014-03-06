@@ -1,6 +1,5 @@
 package com.turtleplayer.util;
 
-import com.turtleplayer.R;
 import com.turtleplayer.TurtlePlayer;
 
 /**
@@ -27,7 +26,7 @@ public class TurtleUtil
 	public static String translateGenreId(String id){
 
 		if(Shorty.isVoid(id.trim())){
-			return TurtlePlayer.getStaticInstance().getString(R.string.tag_genre_unknown);
+			return TurtlePlayer.getStaticInstance().getString(com.turtleplayerv2.R.string.tag_genre_unknown);
 		}
 
 		try
@@ -35,7 +34,7 @@ public class TurtleUtil
 			return AndroidUtils.getResourceString(
 					  TurtlePlayer.getStaticInstance(),
 					  RES_GENRE_PREFIX + Integer.parseInt(id),
-					  R.string.tag_genre_unknown);
+					  com.turtleplayerv2.R.string.tag_genre_unknown);
 		}
 		catch (NumberFormatException nfe)
 		{

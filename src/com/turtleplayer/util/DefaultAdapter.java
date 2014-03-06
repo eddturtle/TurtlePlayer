@@ -28,7 +28,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.turtleplayer.R;
 import com.turtleplayer.model.*;
 import com.turtleplayer.presentation.InstanceFormatter;
 
@@ -57,7 +56,7 @@ public class DefaultAdapter<T extends Instance> extends ArrayAdapter<T>
 			  boolean allowsDuplicates,
 			  InstanceFormatter formatter)
 	{
-		super(context, R.layout.file_list_entry, objects);
+		super(context, com.turtleplayerv2.R.layout.file_list_entry, objects);
 		this.activity = startingActivity;
 		this.objects = objects;
 		this.allowsDuplicates = allowsDuplicates;
@@ -124,50 +123,50 @@ public class DefaultAdapter<T extends Instance> extends ArrayAdapter<T>
 	{
 
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View rowView = inflater.inflate(R.layout.file_list_entry, parent, false);
+		View rowView = inflater.inflate(com.turtleplayerv2.R.layout.file_list_entry, parent, false);
 
 		T currObject = getItem(position);
 
-		TextView textView = (TextView) rowView.findViewById(R.id.label);
+		TextView textView = (TextView) rowView.findViewById(com.turtleplayerv2.R.id.label);
 		textView.setText(currObject.accept(formatter));
 
-		final ImageView icon = (ImageView) rowView.findViewById(R.id.icon);
+		final ImageView icon = (ImageView) rowView.findViewById(com.turtleplayerv2.R.id.icon);
 
 		currObject.accept(new InstanceVisitor<Object>()
 		{
 			public Object visit(Track track)
 			{
-				icon.setImageResource(R.drawable.track24);
+				icon.setImageResource(com.turtleplayerv2.R.drawable.track24);
 				return null;
 			}
 
 			public Object visit(SongDigest track)
 			{
-				icon.setImageResource(R.drawable.track24);
+				icon.setImageResource(com.turtleplayerv2.R.drawable.track24);
 				return null;
 			}
 
 			public Object visit(Album album)
 			{
-				icon.setImageResource(R.drawable.album24);
+				icon.setImageResource(com.turtleplayerv2.R.drawable.album24);
 				return null;
 			}
 
 			public Object visit(GenreDigest genre)
 			{
-				icon.setImageResource(R.drawable.genre24);
+				icon.setImageResource(com.turtleplayerv2.R.drawable.genre24);
 				return null;
 			}
 
 			public Object visit(ArtistDigest artist)
 			{
-				icon.setImageResource(R.drawable.artist24);
+				icon.setImageResource(com.turtleplayerv2.R.drawable.artist24);
 				return null;
 			}
 
 			public Object visit(FSobject FSobject)
 			{
-				icon.setImageResource(R.drawable.dir24);
+				icon.setImageResource(com.turtleplayerv2.R.drawable.dir24);
 				return null;
 			}
 		});

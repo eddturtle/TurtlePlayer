@@ -8,7 +8,6 @@ import android.media.MediaPlayer;
 import android.os.*;
 import android.util.Log;
 import com.turtleplayer.Player;
-import com.turtleplayer.R;
 import com.turtleplayer.model.Track;
 import com.turtleplayer.preferences.Preferences;
 import com.turtleplayer.presentation.InstanceFormatter;
@@ -298,7 +297,7 @@ public class PlayerService extends Service implements Output
 
 	private Notification getNotification()
 	{
-		Notification note = new Notification(R.drawable.play96, getText(R.string.app_name), System.currentTimeMillis());
+		Notification note = new Notification(com.turtleplayerv2.R.drawable.play96, getText(com.turtleplayerv2.R.string.app_name), System.currentTimeMillis());
 		Intent i=new Intent(this, Player.class);
 
 		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|
@@ -306,7 +305,7 @@ public class PlayerService extends Service implements Output
 
 		PendingIntent pi=PendingIntent.getActivity(this, 0,i, 0);
 
-		note.setLatestEventInfo(this, getText(R.string.app_name),
+		note.setLatestEventInfo(this, getText(com.turtleplayerv2.R.string.app_name),
 				  getCurrTrack() == null ? "" : getCurrTrack().accept(InstanceFormatter.LIST),
 				  pi);
 		note.flags|=Notification.FLAG_NO_CLEAR;

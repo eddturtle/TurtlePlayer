@@ -139,7 +139,7 @@ public class Player extends ListActivity
 
 		Log.i(Preferences.TAG, "Player.onCreate() called");
 
-		setContentView(R.layout.main);
+		setContentView(com.turtleplayerv2.R.layout.main);
 
 		SetupApplication();
 
@@ -190,28 +190,28 @@ public class Player extends ListActivity
 
 	private void lookupViewElements(){
 
-		progressBar = (SeekBar) findViewById(R.id.progressBar);
+		progressBar = (SeekBar) findViewById(com.turtleplayerv2.R.id.progressBar);
 
-		list = (ImageView) findViewById(R.id.listButton);
-		logo = (ImageView) findViewById(R.id.logoButton);
-		settings = (ImageView) findViewById(R.id.settingsButton);
+		list = (ImageView) findViewById(com.turtleplayerv2.R.id.listButton);
+		logo = (ImageView) findViewById(com.turtleplayerv2.R.id.logoButton);
+		settings = (ImageView) findViewById(com.turtleplayerv2.R.id.settingsButton);
 
-		backButton = (ImageView) findViewById(R.id.backButton);
-		playButton = (ImageView) findViewById(R.id.playButton);
-		nextButton = (ImageView) findViewById(R.id.nextButton);
+		backButton = (ImageView) findViewById(com.turtleplayerv2.R.id.backButton);
+		playButton = (ImageView) findViewById(com.turtleplayerv2.R.id.playButton);
+		nextButton = (ImageView) findViewById(com.turtleplayerv2.R.id.nextButton);
 
-		shuffleButton = (ImageView) findViewById(R.id.shuffleButton);
-		shuffleCheckBox = (CheckBox) findViewById(R.id.shuffleCheckBox);
+		shuffleButton = (ImageView) findViewById(com.turtleplayerv2.R.id.shuffleButton);
+		shuffleCheckBox = (CheckBox) findViewById(com.turtleplayerv2.R.id.shuffleCheckBox);
 
-		rescan = (ImageView) findViewById(R.id.rescan);
-		mediaDir = (TextView) findViewById(R.id.mediaDir);
-		rescanProgressBar = (ProgressBar) findViewById(R.id.rescanProgressBar);
-		rescanProgressBarState = (LinearLayout) findViewById(R.id.rescanState);
-		rescanProgressBarIndicatorAll = (TextView) findViewById(R.id.rescanProgressBarIndicatorAll);
-		rescanProgressBarIndicatorState = (TextView) findViewById(R.id.rescanProgressBarIndicatorState);
-		rescanProgressBarIndicatorTrack = (TextView) findViewById(R.id.rescanProgressBarIndicatorTrack);
-		rescanTogglePause = (ImageView) findViewById(R.id.togglePause);
-		chooseMediaDir = (ImageView) findViewById(R.id.chooseMediaDir);
+		rescan = (ImageView) findViewById(com.turtleplayerv2.R.id.rescan);
+		mediaDir = (TextView) findViewById(com.turtleplayerv2.R.id.mediaDir);
+		rescanProgressBar = (ProgressBar) findViewById(com.turtleplayerv2.R.id.rescanProgressBar);
+		rescanProgressBarState = (LinearLayout) findViewById(com.turtleplayerv2.R.id.rescanState);
+		rescanProgressBarIndicatorAll = (TextView) findViewById(com.turtleplayerv2.R.id.rescanProgressBarIndicatorAll);
+		rescanProgressBarIndicatorState = (TextView) findViewById(com.turtleplayerv2.R.id.rescanProgressBarIndicatorState);
+		rescanProgressBarIndicatorTrack = (TextView) findViewById(com.turtleplayerv2.R.id.rescanProgressBarIndicatorTrack);
+		rescanTogglePause = (ImageView) findViewById(com.turtleplayerv2.R.id.togglePause);
+		chooseMediaDir = (ImageView) findViewById(com.turtleplayerv2.R.id.chooseMediaDir);
 	}
 
 	@Override
@@ -268,8 +268,8 @@ public class Player extends ListActivity
 	{
 		shuffleButton.setImageDrawable(
 				  tp.playlist.preferences.get(Keys.SHUFFLE) ?
-							 getResources().getDrawable(R.drawable.dice48_active) :
-							 getResources().getDrawable(R.drawable.dice48)
+							 getResources().getDrawable(com.turtleplayerv2.R.drawable.dice48_active) :
+							 getResources().getDrawable(com.turtleplayerv2.R.drawable.dice48)
 		);
 
 		shuffleCheckBox.setChecked(tp.playlist.preferences.get(Keys.SHUFFLE));
@@ -422,7 +422,7 @@ public class Player extends ListActivity
 					public void run()
 					{
 						rescanProgressBar.setIndeterminate(true);
-						rescan.setImageDrawable(getResources().getDrawable(R.drawable.fs_scan_stop48));
+						rescan.setImageDrawable(getResources().getDrawable(com.turtleplayerv2.R.drawable.fs_scan_stop48));
 						rescanProgressBar.setVisibility(View.VISIBLE);
 					}
 				});
@@ -439,7 +439,7 @@ public class Player extends ListActivity
 						rescanProgressBar.setMax(toProcess);
 						rescanProgressBar.setProgress(0);
 
-						rescanTogglePause.setImageDrawable(getResources().getDrawable(R.drawable.fs_scan_pause48));
+						rescanTogglePause.setImageDrawable(getResources().getDrawable(com.turtleplayerv2.R.drawable.fs_scan_pause48));
 						rescanProgressBarIndicatorState.setText("");
 						rescanProgressBarIndicatorAll.setText(String.valueOf(rescanProgressBar.getMax()));
 						rescanProgressBarIndicatorTrack.setText("");
@@ -455,7 +455,7 @@ public class Player extends ListActivity
 					public void run()
 					{
 						rescanProgressBar.setIndeterminate(true);
-						rescanTogglePause.setImageDrawable(getResources().getDrawable(R.drawable.fs_scan_pause48));
+						rescanTogglePause.setImageDrawable(getResources().getDrawable(com.turtleplayerv2.R.drawable.fs_scan_pause48));
 						rescanProgressBarState.setVisibility(View.VISIBLE);
 					}
 				});
@@ -473,7 +473,7 @@ public class Player extends ListActivity
 						rescanProgressBar.setProgress(alreadyProcessed);
 						rescanProgressBarState.setVisibility(View.VISIBLE);
 						rescanProgressBarIndicatorAll.setText(String.valueOf(rescanProgressBar.getMax()));
-						rescanTogglePause.setImageDrawable(getResources().getDrawable(R.drawable.fs_scan_pause48));
+						rescanTogglePause.setImageDrawable(getResources().getDrawable(com.turtleplayerv2.R.drawable.fs_scan_pause48));
 					}
 				});
 			}
@@ -500,7 +500,7 @@ public class Player extends ListActivity
 				{
 					public void run()
 					{
-						rescanTogglePause.setImageDrawable(getResources().getDrawable(R.drawable.fs_scan_unpause48));
+						rescanTogglePause.setImageDrawable(getResources().getDrawable(com.turtleplayerv2.R.drawable.fs_scan_unpause48));
 					}
 				});
 			}
@@ -514,7 +514,7 @@ public class Player extends ListActivity
 					{
 						rescanProgressBar.setVisibility(View.GONE);
 						rescanProgressBarState.setVisibility(View.GONE);
-						rescan.setImageDrawable(getResources().getDrawable(R.drawable.fs_scan_start48));
+						rescan.setImageDrawable(getResources().getDrawable(com.turtleplayerv2.R.drawable.fs_scan_start48));
 					}
 				});
 			}
@@ -586,7 +586,7 @@ public class Player extends ListActivity
 						public void run()
 						{
 							shuffleButton.setImageDrawable(getResources().getDrawable(
-									  shuffle ? R.drawable.dice48_active : R.drawable.dice48));
+									  shuffle ? com.turtleplayerv2.R.drawable.dice48_active : com.turtleplayerv2.R.drawable.dice48));
 							shuffleCheckBox.setChecked(shuffle);
 						}
 					});
@@ -610,12 +610,12 @@ public class Player extends ListActivity
 
 			public void started()
 			{
-				playButton.setImageDrawable(getResources().getDrawable(R.drawable.pause96));
+				playButton.setImageDrawable(getResources().getDrawable(com.turtleplayerv2.R.drawable.pause96));
 			}
 
 			public void stopped()
 			{
-				playButton.setImageDrawable(getResources().getDrawable(R.drawable.play96));
+				playButton.setImageDrawable(getResources().getDrawable(com.turtleplayerv2.R.drawable.play96));
 			}
 
 			public String getId()
@@ -691,7 +691,7 @@ public class Player extends ListActivity
 
 			public void cleared()
 			{
-				Toast.makeText(getApplicationContext(), getString(R.string.toastRescan), Toast.LENGTH_LONG).show();
+				Toast.makeText(getApplicationContext(), getString(com.turtleplayerv2.R.string.toastRescan), Toast.LENGTH_LONG).show();
 				tp.playlist.startFsScan();
 			}
 
@@ -709,20 +709,20 @@ public class Player extends ListActivity
 
 	private void SetupSlides()
 	{
-		nowPlayingSlide = (RelativeLayout) findViewById(R.id.now_playing_slide);
-		playlistSlide = (RelativeLayout) findViewById(R.id.playlist_slide);
-		settingsSlide = (RelativeLayout) findViewById(R.id.settings_slide);
+		nowPlayingSlide = (RelativeLayout) findViewById(com.turtleplayerv2.R.id.now_playing_slide);
+		playlistSlide = (RelativeLayout) findViewById(com.turtleplayerv2.R.id.playlist_slide);
+		settingsSlide = (RelativeLayout) findViewById(com.turtleplayerv2.R.id.settings_slide);
 
 		SwitchToNowPlayingSlide();
 	}
 
 	private void SwitchToNowPlayingSlide()
 	{
-		duration = (TextView) findViewById(R.id.trackDuration);
-		currTrackPosition = (TextView) findViewById(R.id.trackCurrPostion);
+		duration = (TextView) findViewById(com.turtleplayerv2.R.id.trackDuration);
+		currTrackPosition = (TextView) findViewById(com.turtleplayerv2.R.id.trackCurrPostion);
 
 		ResetHeaderButtons();
-		logo.setImageDrawable(getResources().getDrawable(R.drawable.logo128_active));
+		logo.setImageDrawable(getResources().getDrawable(com.turtleplayerv2.R.drawable.logo128_active));
 		currSlide = Slides.NOW_PLAYING;
 
 		nowPlayingSlide.setVisibility(LinearLayout.VISIBLE);
@@ -734,7 +734,7 @@ public class Player extends ListActivity
 	{
 		ResetHeaderButtons();
 
-		list.setImageDrawable(getResources().getDrawable(R.drawable.list64_active));
+		list.setImageDrawable(getResources().getDrawable(com.turtleplayerv2.R.drawable.list64_active));
 		currSlide = Slides.PLAYLIST;
 
 		fileChooser.update();
@@ -748,7 +748,7 @@ public class Player extends ListActivity
 	{
 		ResetHeaderButtons();
 
-		settings.setImageDrawable(getResources().getDrawable(R.drawable.settings48_active));
+		settings.setImageDrawable(getResources().getDrawable(com.turtleplayerv2.R.drawable.settings48_active));
 		currSlide = Slides.SETTINGS;
 
 		nowPlayingSlide.setVisibility(LinearLayout.INVISIBLE);
@@ -853,9 +853,9 @@ public class Player extends ListActivity
 
 	private void ResetHeaderButtons()
 	{
-		list.setImageDrawable(getResources().getDrawable(R.drawable.list64));
-		logo.setImageDrawable(getResources().getDrawable(R.drawable.logo128));
-		settings.setImageDrawable(getResources().getDrawable(R.drawable.settings48));
+		list.setImageDrawable(getResources().getDrawable(com.turtleplayerv2.R.drawable.list64));
+		logo.setImageDrawable(getResources().getDrawable(com.turtleplayerv2.R.drawable.logo128));
+		settings.setImageDrawable(getResources().getDrawable(com.turtleplayerv2.R.drawable.settings48));
 	}
 
 

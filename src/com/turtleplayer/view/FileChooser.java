@@ -22,7 +22,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
 import com.turtleplayer.Player;
-import com.turtleplayer.R;
 import com.turtleplayer.TurtlePlayer;
 import com.turtleplayer.common.MatchFilterVisitor;
 import com.turtleplayer.model.*;
@@ -44,11 +43,11 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 
 	public enum Mode
 	{
-		Album(R.id.albumButton, R.drawable.album48, R.drawable.album48_active),
-		Artist(R.id.artistButton, R.drawable.artist48, R.drawable.artist48_active),
-		Track(R.id.trackButton, R.drawable.track48, R.drawable.track48_active),
-		Genre(R.id.genreButton, R.drawable.genre48, R.drawable.genre48_active),
-		Dir(R.id.dirButton, R.drawable.dir48, R.drawable.dir48_active);
+		Album(com.turtleplayerv2.R.id.albumButton, com.turtleplayerv2.R.drawable.album48, com.turtleplayerv2.R.drawable.album48_active),
+		Artist(com.turtleplayerv2.R.id.artistButton, com.turtleplayerv2.R.drawable.artist48, com.turtleplayerv2.R.drawable.artist48_active),
+		Track(com.turtleplayerv2.R.id.trackButton, com.turtleplayerv2.R.drawable.track48, com.turtleplayerv2.R.drawable.track48_active),
+		Genre(com.turtleplayerv2.R.id.genreButton, com.turtleplayerv2.R.drawable.genre48, com.turtleplayerv2.R.drawable.genre48_active),
+		Dir(com.turtleplayerv2.R.id.dirButton, com.turtleplayerv2.R.drawable.dir48, com.turtleplayerv2.R.drawable.dir48_active);
 
 		private Mode(int buttonId,
 			  int drawable,
@@ -133,7 +132,7 @@ public abstract class FileChooser implements TurtleDatabase.DbObserver
 			}
 		});
 
-		filterList = (ListView) listActivity.findViewById (R.id.filterlist);
+		filterList = (ListView) listActivity.findViewById (com.turtleplayerv2.R.id.filterlist);
 		filterListAdapter = new FilterListAdapter(listActivity.getApplicationContext(), new ArrayList<Filter<? super Tables.Tracks>>(getFilters()))
 		{
 			@Override
