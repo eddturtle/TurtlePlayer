@@ -17,7 +17,7 @@ Turtle Player is designed to be a fun and unique app for playing your music on t
 
     git submodule update --init
 
-3) Copy the mp3agic source folder (inside mp3agic/src/main/java/com/mpatric) into the Turtle Player src folder.
+3) Copy the mp3agic source folder (inside mp3agic/src/main/java/com/mpatric) into the Turtle Player src/com folder.
 
 4) Import the project in Eclipse (or your chosen Android IDE).
 
