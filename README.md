@@ -6,6 +6,8 @@
 
 Turtle Player is designed to be a fun and unique app for playing your music on the move, while in a advertisment-free app. Originally developed by Edd Turtle, it is now a community driven app with help from developers (namely Simon Honegger) on Github. Give it a go today!
 
+#####*Warning! Due to other commitments I haven't had the time to maintain and keep this project up-to-date. It should work fine on modern android phones, but the visuals and code are bit old - that's all.*
+
 ##How to Contribute
 
 1) First, pull the source code from this git repository to your local machine:
